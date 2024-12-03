@@ -77,15 +77,10 @@
                   "additionalItems": false,
                   "items": {
                     "oneOf": [
+                      { "$ref": "definitions.json#/interoperability/sensor/data" },
                       {
-                        "title": "Unavailable",
-                        "description": "Sensor data not available at the node",
-                        "type": "null"
-                      },
-                      { "$ref": "#/$localDefinitions/sensor" },
-                      {
-                        "title": "Extended format",
-                        "description": "Sensor data with node determination",
+                        "title": "Extended sensor data",
+                        "description": "Sensor data with node determination.",
                         "type": "object",
                         "required": [
                           "nAdr",
@@ -110,16 +105,18 @@
                             ]
                           },
                           "metadata": {
+                            "title": "string",
                             "$ref": "definitions.json#/frc/metadata"
                           },
                           "sensor": {
                             "oneOf": [
-                              { "type": "null" },
-                              { "$ref": "#/$localDefinitions/sensor" }
+                              { "$ref": "definitions.json#/interoperability/sensor/data" },
+                              { "type": "null" }
                             ]
                           }
                         }
-                      }
+                      },
+                      { "type": "null" }
                     ]
                   }
                 },
@@ -150,43 +147,6 @@
         },
         "timeout": {
           "$ref": "definitions.json#/dpa/timeout"
-        }
-      }
-    }
-  },
-  "$localDefinitions": {
-    "sensor": {
-      "title": "Sensor",
-      "description": "Contains data from one sensor",
-      "type": "object",
-      "required": [
-        "id",
-        "type",
-        "name",
-        "shortName",
-        "unit"
-      ],
-      "properties": {
-        "id": {
-          "$ref": "definitions.json#/interoperability/sensor/id"
-        },
-        "type": {
-          "$ref": "definitions.json#/interoperability/sensor/type"
-        },
-        "name": {
-          "$ref": "definitions.json#/interoperability/sensor/name"
-        },
-        "shortName": {
-          "$ref": "definitions.json#/interoperability/sensor/shortName"
-        },
-        "value": {
-          "$ref": "definitions.json#/interoperability/sensor/value"
-        },
-        "unit": {
-          "$ref": "definitions.json#/interoperability/sensor/unit"
-        },
-        "breakdown": {
-          "$ref": "definitions.json#/interoperability/sensor/genericReadout"
         }
       }
     }

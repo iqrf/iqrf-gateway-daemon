@@ -72,9 +72,10 @@
               "properties": {
                 "sensors": {
                   "title": "Sensors",
-                  "description": "Array of sensor objects.",
+                  "description": "List of sensors.",
                   "type": "array",
                   "items": {
+                    "title": "Sensor",
                     "type": "object",
                     "required": [
                       "id",
