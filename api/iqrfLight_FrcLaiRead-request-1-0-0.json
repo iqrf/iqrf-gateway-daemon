@@ -47,9 +47,7 @@
               "title": "Request parameters",
               "description": "Specific request parameters.",
               "type": "object",
-              "required": [
-                "selectedNodes"
-              ],
+              "required": [],
               "additionalProperties": false,
               "properties": {
                 "selectedNodes": {
