@@ -79,13 +79,12 @@
                   "description": "Array of objects for every LDI (DALI) answer. Object array index represent the node address (or index in case selectedNodes parameter was used).",
                   "items": {
                     "oneOf": [
-                      { "type": "null" },
                       {
-                        "$ref": "#/$localDefinitions/answer"
+                        "$ref": "definitions.json#/interoperability/light/ldiAnswer"
                       },
                       {
                         "type": "object",
-                        "title": "Extended format",
+                        "title": "Extended LDI answer",
                         "required": [
                           "nAdr",
                           "answer"
@@ -100,10 +99,10 @@
                           },
                           "mid": {
                             "oneOf": [
-                              { "type": "null" },
                               {
                                 "$ref": "definitions.json#/transceiver/id"
-                              }
+                              },
+                              { "type": "null" }
                             ]
                           },
                           "metaData": {
@@ -111,14 +110,13 @@
                           },
                           "answer": {
                             "oneOf": [
-                              { "type": "null" },
-                              {
-                                "$ref": "#/$localDefinitions/answer"
-                              }
+                              { "$ref": "definitions.json#/interoperability/light/ldiAnswer" },
+                              { "type": "null" }
                             ]
                           }
                         }
-                      }
+                      },
+                      { "type": "null" }
                     ]
                   }
                 },
@@ -146,25 +144,6 @@
         },
         "timeout": {
           "$ref": "definitions.json#/dpa/timeout"
-        }
-      }
-    }
-  },
-  "$localDefinitions": {
-    "answer": {
-      "type": "object",
-      "title": "Regular format of LDI answer",
-      "required": [
-        "status",
-        "value"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "status": {
-          "$ref": "definitions.json#/interoperability/light/status"
-        },
-        "value": {
-          "$ref": "definitions.json#/interoperability/light/value"
         }
       }
     }
