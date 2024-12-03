@@ -76,8 +76,10 @@
                   "type": "array",
                   "items": {
                     "oneOf": [
-                      { "type": "null" },
-                      { "type": "number" },
+                      {
+                        "description": "LAI voltage level.",
+                        "type": "number"
+                      },
                       {
                         "title": "Extended format",
                         "type": "object",
@@ -95,24 +97,25 @@
                           },
                           "mid": {
                             "oneOf": [
-                              { "type": "null" },
-                              {
-                                "$ref": "definitions.json#/transceiver/id"
-                              }
+                              { "$ref": "definitions.json#/transceiver/id" },
+                              { "type": "null" }
                             ]
                           },
                           "metaData": {
                             "$ref": "definitions.json#/frc/metadata"
                           },
                           "voltage": {
-                            "title": "Voltage",
                             "oneOf": [
-                              { "type": "null" },
-                              { "type": "number" }
+                              {
+                                "description": "LAI voltage level.",
+                                "type": "number"
+                              },
+                              { "type": "null" }
                             ]
                           }
                         }
-                      }
+                      },
+                      { "type": "null" }
                     ]
                   }
                 },
