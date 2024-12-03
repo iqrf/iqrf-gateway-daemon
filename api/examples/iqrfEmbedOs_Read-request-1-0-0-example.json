@@ -1,7 +1,7 @@
 {
   "mType": "iqrfEmbedOs_Read",
   "data": {
-    "msgId": "testEmbedOs",
+    "msgId": "35cdc49d-0338-4581-ad4b-64d6030860c0",
     "req": {
       "nAdr": 0
     },

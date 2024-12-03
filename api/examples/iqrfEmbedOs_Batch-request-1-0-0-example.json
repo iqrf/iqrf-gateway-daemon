@@ -1,18 +1,47 @@
-{
-  "mType": "iqrfEmbedOs_Batch",
-  "data": {
-    "msgId": "testEmbedOs",
-    "req": {
-      "nAdr": 0,
-      "param": {
-        "requests": [
-          {
-            "pNum": 6,
-            "pCmd": 1
-          }
-        ]
-      }
-    },
-    "returnVerbose": true
+[
+  {
+    "mType": "iqrfEmbedOs_Batch",
+    "data": {
+      "msgId": "85210ff5-a1c3-4fbf-8f14-dc79486afa3e",
+      "req": {
+        "nAdr": 0,
+        "param": {
+          "requests": [
+            {
+              "pNum": 6,
+              "pCmd": 3
+            }
+          ]
+        }
+      },
+      "returnVerbose": true
+    }
+  },
+  {
+    "mType": "iqrfEmbedOs_Batch",
+    "data": {
+      "msgId": "0b2c74c5-f10c-405a-a95f-7affe7eb022b",
+      "req": {
+        "nAdr": 2,
+        "param": {
+          "requests": [
+            {
+              "pNum": 6,
+              "pCmd": 1
+            },
+            {
+              "pNum": 9,
+              "pCmd": 1,
+              "rData": "FF.C8.00"
+            },
+            {
+              "pNum": 6,
+              "pCmd": 0
+            }
+          ]
+        }
+      },
+      "returnVerbose": true
+    }
   }
-}
+]
