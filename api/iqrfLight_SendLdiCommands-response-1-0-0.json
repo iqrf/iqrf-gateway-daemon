@@ -74,7 +74,7 @@
                   "type": "array",
                   "description": "Array of answers for every issued LDI (DALI) command.",
                   "items": {
-                    "title": "Answer to a LDI command.",
+                    "title": "LDI command answer",
                     "type": "object",
                     "required": [
                       "status",

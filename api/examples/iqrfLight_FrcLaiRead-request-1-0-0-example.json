@@ -2,16 +2,6 @@
   {
     "mType": "iqrfLight_FrcLaiRead",
     "data": {
-      "msgId": "c8eab27f-dd58-4d63-8242-33466f364983",
-      "req": {
-        "nAdr": 0
-      },
-      "returnVerbose": true
-    }
-  },
-  {
-    "mType": "iqrfLight_FrcLaiRead",
-    "data": {
       "msgId": "d90612ea-0e66-48c7-b598-69543feb9114",
       "req": {
         "nAdr": 0,

@@ -48,6 +48,7 @@
               "description": "Specific request parameters.",
               "type": "object",
               "required": [
+                "selectedNodes"
               ],
               "additionalProperties": false,
               "properties": {
