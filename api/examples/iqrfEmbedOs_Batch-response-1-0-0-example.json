@@ -1,27 +1,56 @@
-{
-  "mType": "iqrfEmbedOs_Batch",
-  "data": {
-    "msgId": "testEmbedOs",
-    "rsp": {
-      "nAdr": 0,
-      "pNum": 2,
-      "pCmd": 133,
-      "hwpId": 0,
-      "rCode": 0,
-      "dpaVal": 58
-    },
-    "raw": [
-      {
-        "request": "00.00.02.05.ff.ff.05.06.01.00.00.00",
-        "requestTs": "2018-07-16T14:12:18.395665",
-        "confirmation": "",
-        "confirmationTs": "",
-        "response": "00.00.02.85.00.00.00.3a",
-        "responseTs": "2018-07-16T14:12:18.427067"
-      }
-    ],
-    "insId": "iqrfgd2-1",
-    "statusStr": "ok",
-    "status": 0
+[
+  {
+    "mType": "iqrfEmbedOs_Batch",
+    "data": {
+      "msgId": "85210ff5-a1c3-4fbf-8f14-dc79486afa3e",
+      "rsp": {
+        "nAdr": 0,
+        "pNum": 2,
+        "pCmd": 133,
+        "hwpId": 0,
+        "rCode": 0,
+        "dpaVal": 92
+      },
+      "raw": [
+        {
+          "request": "00.00.02.05.ff.ff.05.06.03.ff.ff.00",
+          "requestTs": "2024-12-02T18:22:10.129+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.02.85.00.00.00.5c",
+          "responseTs": "2024-12-02T18:22:10.169+01:00"
+        }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
+    }
+  },
+  {
+    "mType": "iqrfEmbedOs_Batch",
+    "data": {
+      "msgId": "0b2c74c5-f10c-405a-a95f-7affe7eb022b",
+      "rsp": {
+        "nAdr": 2,
+        "pNum": 2,
+        "pCmd": 133,
+        "hwpId": 3074,
+        "rCode": 0,
+        "dpaVal": 94
+      },
+      "raw": [
+        {
+          "request": "02.00.02.05.ff.ff.05.06.01.ff.ff.08.09.01.ff.ff.ff.c8.00.05.06.00.ff.ff.00",
+          "requestTs": "2024-12-03T11:13:58.333+01:00",
+          "confirmation": "02.00.02.05.ff.ff.ff.5c.02.09.02",
+          "confirmationTs": "2024-12-03T11:13:58.384+01:00",
+          "response": "02.00.02.85.02.0c.00.5e",
+          "responseTs": "2024-12-03T11:13:58.749+01:00"
+        }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
+    }
   }
-}
+]
