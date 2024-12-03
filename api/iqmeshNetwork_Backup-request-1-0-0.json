@@ -50,7 +50,7 @@
             },
             {
               "title": "Backup the network",
-              "description": "Scpecific parameters for backing up the whole network.",
+              "description": "Specific parameters for backing up the whole network.",
               "type": "object",
               "required": [
                 "wholeNetwork"
