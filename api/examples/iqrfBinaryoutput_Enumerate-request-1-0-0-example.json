@@ -1,7 +1,7 @@
 {
   "mType": "iqrfBinaryoutput_Enumerate",
   "data": {
-    "msgId": "testEmbedBout",
+    "msgId": "d032ed41-9ca7-48b3-95cd-51c28fca4dcf",
     "req": {
       "nAdr": 2
     },
