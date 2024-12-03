@@ -1,7 +1,7 @@
 {
   "mType": "iqrfSensor_ReadSensorsWithTypes",
   "data": {
-    "msgId": "testEmbedSensor",
+    "msgId": "9c027341-8673-438e-b37f-9c617976d5b8",
     "req": {
       "nAdr": 1,
       "param": {

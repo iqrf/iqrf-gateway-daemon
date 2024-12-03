@@ -68,6 +68,7 @@
                   "$ref": "definitions.json#/interoperability/sensor/index"
                 },
                 "sleepAfterFrc": {
+                  "title": "Sleep settings",
                   "description": "Optional 'sleep after FRC' parameters to put the nodes into sleep mode after the FRC is finished.",
                   "type": "object",
                   "required": [

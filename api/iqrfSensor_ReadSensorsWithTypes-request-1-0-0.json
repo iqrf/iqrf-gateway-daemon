@@ -56,7 +56,7 @@
                   "$ref": "definitions.json#/interoperability/sensor/indexes"
                 },
                 "writtenData": {
-                  "description": "Optional data to write to the sensors.",
+                  "description": "Optional data to write to the sensors. Every sensor data consists of an array of 5 bytes - 1 sensor index and 4 actual data.",
                   "type": "array",
                   "items": {
                     "description": "Data for one sensor, consisting of 1 byte sensor index and 4 bytes actual data.",
