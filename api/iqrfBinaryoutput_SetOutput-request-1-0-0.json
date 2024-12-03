@@ -53,9 +53,10 @@
               "additionalProperties": false,
               "properties": {
                 "outputs": {
+                  "description": "List of new settings for Binary Outputs.",
                   "type": "array",
-                  "description": "Array of Binary Output settings.",
                   "items": {
+                    "title": "Binary output settings",
                     "type": "object",
                     "required": [
                       "index",
