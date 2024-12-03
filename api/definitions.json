@@ -196,6 +196,41 @@
   },
   "interoperability": {
     "sensor": {
+      "data": {
+        "title": "Sensor data",
+        "description": "Contains data from one sensor.",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "name",
+          "shortName",
+          "unit"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "definitions.json#/interoperability/sensor/id"
+          },
+          "type": {
+            "$ref": "definitions.json#/interoperability/sensor/type"
+          },
+          "name": {
+            "$ref": "definitions.json#/interoperability/sensor/name"
+          },
+          "shortName": {
+            "$ref": "definitions.json#/interoperability/sensor/shortName"
+          },
+          "value": {
+            "$ref": "definitions.json#/interoperability/sensor/value"
+          },
+          "unit": {
+            "$ref": "definitions.json#/interoperability/sensor/unit"
+          },
+          "breakdown": {
+            "$ref": "definitions.json#/interoperability/sensor/genericReadout"
+          }
+        }
+      },
       "decimalPlaces": {
         "description": "Number of valid decimal places.",
         "type": "integer",
@@ -241,9 +276,11 @@
       "indexes": {
         "oneOf": [
           {
+            "title": "integer",
             "$ref": "#/interoperability/sensor/index"
           },
           {
+            "description": "List of sensor indexes.",
             "type": "array",
             "items": {
               "$ref": "#/interoperability/sensor/index"
