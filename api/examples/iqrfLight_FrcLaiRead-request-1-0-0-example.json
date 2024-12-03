@@ -4,6 +4,16 @@
     "data": {
       "msgId": "d90612ea-0e66-48c7-b598-69543feb9114",
       "req": {
+        "nAdr": 0
+      },
+      "returnVerbose": true
+    }
+  },
+  {
+    "mType": "iqrfLight_FrcLaiRead",
+    "data": {
+      "msgId": "d90612ea-0e66-48c7-b598-69543feb9114",
+      "req": {
         "nAdr": 0,
         "param": {
           "selectedNodes": [4]

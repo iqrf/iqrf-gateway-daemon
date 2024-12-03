@@ -6,6 +6,77 @@
       "rsp": {
         "nAdr": 0,
         "pNum": 13,
+        "pCmd": 128,
+        "hwpId": 0,
+        "rCode": 0,
+        "dpaVal": 92,
+        "result": {
+          "voltages": [
+            null,
+            -32.767,
+            -32.767,
+            -32.767,
+            3.5,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "raw": [
+        {
+          "request": "00.00.0d.00.ff.ff.e1.4a.00",
+          "requestTs": "2024-12-03T14:54:54.116+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.80.00.00.00.5c.04.00.00.01.00.01.00.01.00.ac.8d.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-12-03T14:54:55.283+01:00"
+        },
+        {
+          "request": "00.00.0d.01.ff.ff",
+          "requestTs": "2024-12-03T14:54:55.283+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.81.00.00.00.5c.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-12-03T14:54:55.328+01:00"
+        }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
+    }
+  },
+  {
+    "mType": "iqrfLight_FrcLaiRead",
+    "data": {
+      "msgId": "d90612ea-0e66-48c7-b598-69543feb9114",
+      "rsp": {
+        "nAdr": 0,
+        "pNum": 13,
         "pCmd": 130,
         "hwpId": 0,
         "rCode": 0,
