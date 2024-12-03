@@ -1,13 +1,13 @@
 {
   "mType": "iqrfBinaryoutput_SetOutput",
   "data": {
-    "msgId": "testEmbedBout",
+    "msgId": "80bb036c-5c22-48c9-9e40-12411e2856a7",
     "req": {
       "nAdr": 2,
       "param": {
         "outputs": [
           {
-            "index": 0,
+            "index": 5,
             "state": true
           }
         ]
