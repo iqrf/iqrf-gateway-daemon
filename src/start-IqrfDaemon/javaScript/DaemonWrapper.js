@@ -923,7 +923,7 @@ if (iqrf.light !== undefined) {
   };
 
   iqrf.light.FrcLaiRead_Request_req = function (params) {
-    var selectedNodes = {};
+    var selectedNodes = [];
     if (params && params.selectedNodes) {
         selectedNodes = params.selectedNodes;
     }
