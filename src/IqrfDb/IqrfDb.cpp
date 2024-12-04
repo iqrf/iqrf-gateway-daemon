@@ -688,41 +688,23 @@ namespace iqrf {
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::Start));
 					checkNetwork(m_params.reenumerate);
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::NetworkDone));
-					resetExclusiveAccess();
 
-					if (!m_enumThreadRun) {
-						break;
-					}
-
-					waitForExclusiveAccess();
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::Devices));
 					enumerateDevices();
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::DevicesDone));
-					resetExclusiveAccess();
 
-					if (!m_enumThreadRun) {
-						break;
-					}
-
-					waitForExclusiveAccess();
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::Products));
 					productPackageEnumeration();
 					updateDatabaseProducts();
 					loadProductDrivers();
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::ProductsDone));
-					resetExclusiveAccess();
-
-					if (!m_enumThreadRun) {
-						break;
-					}
 
 					if (m_params.standards || m_params.reenumerate) {
-						waitForExclusiveAccess();
 						sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::Standards));
 						standardEnumeration();
 						sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::StandardsDone));
-						resetExclusiveAccess();
 					}
+					resetExclusiveAccess();
 					m_enumRepeat = false;
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::Finish));
 				} else {
