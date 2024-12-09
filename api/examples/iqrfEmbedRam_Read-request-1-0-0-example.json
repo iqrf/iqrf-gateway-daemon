@@ -1,7 +1,7 @@
 {
   "mType": "iqrfEmbedRam_Read",
   "data": {
-    "msgId": "testEmbedRam",
+    "msgId": "b8958164-ceb6-4808-a487-34e550427515",
     "req": {
       "nAdr": 1,
       "param": {
