@@ -1,26 +1,26 @@
 {
   "mType": "iqrfEmbedOs_Sleep",
   "data": {
-    "msgId": "testEmbedOs",
+    "msgId": "da000276-9f4e-4e90-bc68-319665ff8cf3",
     "rsp": {
       "nAdr": 2,
       "pNum": 2,
       "pCmd": 132,
       "hwpId": 3074,
       "rCode": 0,
-      "dpaVal": 68
+      "dpaVal": 94
     },
     "raw": [
       {
         "request": "02.00.02.04.ff.ff.01.00.00",
-        "requestTs": "2018-07-16T19:54:28.652859",
-        "confirmation": "02.00.02.04.ff.ff.ff.37.02.04.02",
-        "confirmationTs": "2018-07-16T19:54:28.678066",
-        "response": "02.00.02.84.02.0c.00.44",
-        "responseTs": "2018-07-16T19:54:28.973724"
+        "requestTs": "2024-12-06T09:33:04.789+01:00",
+        "confirmation": "02.00.02.04.ff.ff.ff.5c.02.08.02",
+        "confirmationTs": "2024-12-06T09:33:04.829+01:00",
+        "response": "02.00.02.84.02.0c.00.5e",
+        "responseTs": "2024-12-06T09:33:05.153+01:00"
       }
     ],
-    "insId": "iqrfgd2-1",
+    "insId": "iqrfgd2-default",
     "statusStr": "ok",
     "status": 0
   }
