@@ -1,17 +1,16 @@
 {
   "mType": "iqrfEmbedEeprom_Write",
   "data": {
-    "msgId": "testEmbedEeprom",
+    "msgId": "99487a0c-9db7-4b55-96e3-586e61525975",
     "req": {
       "nAdr": 1,
       "param": {
         "address": 0,
         "pData": [
-          0,
-          1,
           2,
-          3,
-          4
+          6,
+          0,
+          0
         ]
       }
     },
