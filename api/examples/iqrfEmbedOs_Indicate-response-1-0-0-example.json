@@ -1,26 +1,26 @@
 {
   "mType": "iqrfEmbedOs_Indicate",
   "data": {
-    "msgId": "testEmbedOs",
+    "msgId": "50748a02-f21f-4301-959d-2f75e08dc91a",
     "rsp": {
       "nAdr": 1,
       "pNum": 2,
       "pCmd": 135,
-      "hwpId": 1026,
+      "hwpId": 5122,
       "rCode": 0,
-      "dpaVal": 91
+      "dpaVal": 94
     },
     "raw": [
       {
         "request": "01.00.02.07.ff.ff.03",
-        "requestTs": "2021-04-21T15:05:43.305+02:00",
-        "confirmation": "01.00.02.07.ff.ff.ff.00.01.08.01",
-        "confirmationTs": "2021-04-21T15:05:43.332+02:00",
-        "response": "01.00.02.87.02.04.00.5b",
-        "responseTs": "2021-04-21T15:05:43.579+02:00"
+        "requestTs": "2024-12-09T10:38:43.296+01:00",
+        "confirmation": "01.00.02.07.ff.ff.ff.5c.01.08.01",
+        "confirmationTs": "2024-12-09T10:38:43.337+01:00",
+        "response": "01.00.02.87.02.14.00.5e",
+        "responseTs": "2024-12-09T10:38:43.590+01:00"
       }
     ],
-    "insId": "iqrfgd2-1",
+    "insId": "iqrfgd2-default",
     "statusStr": "ok",
     "status": 0
   }

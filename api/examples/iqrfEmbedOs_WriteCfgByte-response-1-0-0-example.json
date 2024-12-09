@@ -1,26 +1,26 @@
 {
   "mType": "iqrfEmbedOs_WriteCfgByte",
   "data": {
-    "msgId": "testEmbedOs",
+    "msgId": "1b3458fe-762e-4e8e-b8e1-2a90d1422a31",
     "rsp": {
-      "nAdr": 0,
+      "nAdr": 3,
       "pNum": 2,
       "pCmd": 137,
-      "hwpId": 0,
+      "hwpId": 22530,
       "rCode": 0,
-      "dpaVal": 61
+      "dpaVal": 96
     },
     "raw": [
       {
-        "request": "00.00.02.09.ff.ff.08.03.07",
-        "requestTs": "2018-07-17T14:16:21.400868",
-        "confirmation": "",
-        "confirmationTs": "",
-        "response": "00.00.02.89.00.00.00.3d",
-        "responseTs": "2018-07-17T14:16:21.444578"
+        "request": "03.00.02.09.ff.ff.05.81.89",
+        "requestTs": "2024-12-09T10:30:48.259+01:00",
+        "confirmation": "03.00.02.09.ff.ff.ff.5c.03.08.03",
+        "confirmationTs": "2024-12-09T10:30:48.299+01:00",
+        "response": "03.00.02.89.02.58.00.60",
+        "responseTs": "2024-12-09T10:30:48.705+01:00"
       }
     ],
-    "insId": "iqrfgd2-1",
+    "insId": "iqrfgd2-default",
     "statusStr": "ok",
     "status": 0
   }

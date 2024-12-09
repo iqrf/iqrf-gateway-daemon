@@ -1,7 +1,7 @@
 {
   "mType": "iqrfEmbedOs_Sleep",
   "data": {
-    "msgId": "testEmbedOs",
+    "msgId": "da000276-9f4e-4e90-bc68-319665ff8cf3",
     "req": {
       "nAdr": 2,
       "param": {
