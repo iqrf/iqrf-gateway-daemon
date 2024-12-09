@@ -1,8 +1,8 @@
 {
   "mType": "iqrfEmbedOs_TestRfSignal",
   "data": {
-    "msgId": "testEmbedOs",
-    "timeout": 1000,
+    "msgId": "46c0e40d-7ccf-426c-ac4b-c5db06faf278",
+    "timeout": 500,
     "req": {
       "nAdr": 0,
       "param": {

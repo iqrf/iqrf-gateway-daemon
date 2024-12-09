@@ -1,27 +1,27 @@
 {
   "mType": "iqrfEmbedOs_TestRfSignal",
   "data": {
-    "msgId": "testEmbedOs",
-    "timeout": 1000,
+    "msgId": "46c0e40d-7ccf-426c-ac4b-c5db06faf278",
+    "timeout": 500,
     "rsp": {
       "nAdr": 0,
       "pNum": 2,
       "pCmd": 140,
       "hwpId": 0,
       "rCode": 0,
-      "dpaVal": 0,
+      "dpaVal": 92,
       "result": {
         "counter": 1
       }
     },
     "raw": [
       {
-        "request": "00.00.02.0c.ff.ff.19.07.14.00",
-        "requestTs": "2019-09-12T10:51:48.934+02:00",
+        "request": "00.00.02.0c.ff.ff.19.07.0a.00",
+        "requestTs": "2024-12-09T10:36:56.788+01:00",
         "confirmation": "",
         "confirmationTs": "",
-        "response": "00.00.02.8c.00.00.00.00.01",
-        "responseTs": "2019-09-12T10:51:49.168+02:00"
+        "response": "00.00.02.8c.00.00.00.5c.01",
+        "responseTs": "2024-12-09T10:36:56.930+01:00"
       }
     ],
     "insId": "iqrfgd2-default",
