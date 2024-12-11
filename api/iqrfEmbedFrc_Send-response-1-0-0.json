@@ -89,11 +89,7 @@
               }
             },
             "metaData": {
-              "oneOf": [
-                { "type": "object" },
-                { "type": "null" }
-              ],
-              "description": "Device metedata"
+              "$ref": "definitions.json#/device/metadata"
             },
             "errorStr": {
               "$ref": "definitions.json#/response/errorStr"

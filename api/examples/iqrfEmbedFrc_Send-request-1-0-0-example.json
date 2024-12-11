@@ -1,7 +1,7 @@
 {
   "mType": "iqrfEmbedFrc_Send",
   "data": {
-    "msgId": "testEmbedFrc",
+    "msgId": "75a213e6-4229-4a11-b0a5-bf07f43dfdf4",
     "req": {
       "nAdr": 0,
       "param": {
