@@ -1,29 +1,29 @@
 {
   "mType": "iqrfEmbedUart_ClearWriteRead",
   "data": {
-    "msgId": "testEmbedUart",
+    "msgId": "88e43cd0-b02f-43cb-9cd8-d9af0527b33d",
     "rsp": {
-      "nAdr": 3,
+      "nAdr": 1,
       "pNum": 12,
       "pCmd": 131,
-      "hwpId": 0,
+      "hwpId": 5122,
       "rCode": 0,
-      "dpaVal": 74,
+      "dpaVal": 95,
       "result": {
         "readData": []
       }
     },
     "raw": [
       {
-        "request": "03.00.0c.03.ff.ff.01.00.01.02.03.04",
-        "requestTs": "2018-07-17T18:06:24.575053",
-        "confirmation": "03.00.0c.03.ff.ff.ff.3b.01.04.01",
-        "confirmationTs": "2018-07-17T18:06:24.605355",
-        "response": "03.00.0c.83.00.00.00.4a",
-        "responseTs": "2018-07-17T18:06:24.737258"
+        "request": "01.00.0c.03.ff.ff.01.fc.29.da.0f.a3",
+        "requestTs": "2024-12-11T12:23:55.911+01:00",
+        "confirmation": "01.00.0c.03.ff.ff.ff.5d.01.08.01",
+        "confirmationTs": "2024-12-11T12:23:55.953+01:00",
+        "response": "01.00.0c.83.02.14.00.5f",
+        "responseTs": "2024-12-11T12:23:56.196+01:00"
       }
     ],
-    "insId": "iqrfgd2-1",
+    "insId": "iqrfgd2-default",
     "statusStr": "ok",
     "status": 0
   }

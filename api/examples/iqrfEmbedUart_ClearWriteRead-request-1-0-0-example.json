@@ -1,17 +1,17 @@
 {
   "mType": "iqrfEmbedUart_ClearWriteRead",
   "data": {
-    "msgId": "testEmbedUart",
+    "msgId": "88e43cd0-b02f-43cb-9cd8-d9af0527b33d",
     "req": {
-      "nAdr": 3,
+      "nAdr": 1,
       "param": {
         "readTimeout": 1,
         "writtenData": [
-          0,
-          1,
-          2,
-          3,
-          4
+          252,
+          41,
+          218,
+          15,
+          163
         ]
       }
     },
