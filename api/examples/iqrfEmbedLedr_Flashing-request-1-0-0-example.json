@@ -1,7 +1,7 @@
 {
   "mType": "iqrfEmbedLedr_Flashing",
   "data": {
-    "msgId": "testEmbedLedr",
+    "msgId": "a89f031d-7d04-4f0c-864d-0886833ff07a",
     "req": {
       "nAdr": 1
     },

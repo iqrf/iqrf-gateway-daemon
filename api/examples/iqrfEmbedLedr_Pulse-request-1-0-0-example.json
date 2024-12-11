@@ -1,7 +1,7 @@
 {
   "mType": "iqrfEmbedLedr_Pulse",
   "data": {
-    "msgId": "testEmbedLedr",
+    "msgId": "35247bdc-1595-4a39-a9a4-7fc00ec9ff32",
     "req": {
       "nAdr": 1
     },
