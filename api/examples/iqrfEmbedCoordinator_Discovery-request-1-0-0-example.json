@@ -1,7 +1,7 @@
 {
   "mType": "iqrfEmbedCoordinator_Discovery",
   "data": {
-    "msgId": "testEmbedCoordinator",
+    "msgId": "510d1d69-2f2f-4dc5-83d8-b78aaf78c620",
     "req": {
       "nAdr": 0,
       "param": {
