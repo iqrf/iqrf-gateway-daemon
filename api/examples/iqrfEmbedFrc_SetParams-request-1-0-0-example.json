@@ -1,11 +1,11 @@
 {
   "mType": "iqrfEmbedFrc_SetParams",
   "data": {
-    "msgId": "testEmbedFrc",
+    "msgId": "fa853ca5-65f7-49c8-b73e-39d5d152da19",
     "req": {
       "nAdr": 0,
       "param": {
-        "frcResponseTime": 0
+        "frcResponseTime": 32
       }
     },
     "returnVerbose": true
