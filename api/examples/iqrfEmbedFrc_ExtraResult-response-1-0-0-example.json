@@ -1,14 +1,14 @@
 {
   "mType": "iqrfEmbedFrc_ExtraResult",
   "data": {
-    "msgId": "testEmbedFrc",
+    "msgId": "6d65488b-72ee-4b8e-a8b3-454c4488652b",
     "rsp": {
       "nAdr": 0,
       "pNum": 13,
       "pCmd": 129,
       "hwpId": 0,
       "rCode": 0,
-      "dpaVal": 0,
+      "dpaVal": 93,
       "result": {
         "frcData": [
           0,
@@ -26,14 +26,14 @@
     "raw": [
       {
         "request": "00.00.0d.01.ff.ff",
-        "requestTs": "2018-07-23T22:24:28.76794",
+        "requestTs": "2024-12-11T12:34:23.047+01:00",
         "confirmation": "",
         "confirmationTs": "",
-        "response": "00.00.0d.81.00.00.00.00.00.00.00.00.00.00.00.00.00",
-        "responseTs": "2018-07-23T22:24:28.107120"
+        "response": "00.00.0d.81.00.00.00.5d.00.00.00.00.00.00.00.00.00",
+        "responseTs": "2024-12-11T12:34:23.090+01:00"
       }
     ],
-    "insId": "iqrfgd2-1",
+    "insId": "iqrfgd2-default",
     "statusStr": "ok",
     "status": 0
   }
