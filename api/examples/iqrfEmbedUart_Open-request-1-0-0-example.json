@@ -1,9 +1,9 @@
 {
   "mType": "iqrfEmbedUart_Open",
   "data": {
-    "msgId": "testEmbedUart",
+    "msgId": "4e6e67b0-12db-4ecf-8eff-b209fab54b8f",
     "req": {
-      "nAdr": 3,
+      "nAdr": 1,
       "param": {
         "baudRate": 4
       }
