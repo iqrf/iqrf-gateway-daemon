@@ -1,9 +1,9 @@
 {
   "mType": "iqrfEmbedUart_Close",
   "data": {
-    "msgId": "testEmbedUart",
+    "msgId": "6da55d76-da2a-4f47-b6d8-cdbb0ee1d281",
     "req": {
-      "nAdr": 3
+      "nAdr": 1
     },
     "returnVerbose": true
   }
