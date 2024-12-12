@@ -43,6 +43,7 @@
               "description": "Restore statuses of affected devices.",
               "type": "array",
               "items": {
+                "title": "Device restore status",
                 "type": "object",
                 "required": [
                   "deviceAddr",
