@@ -69,10 +69,10 @@
                   },
                   "mid": {
                     "oneOf": [
-                      { "type": "null" },
                       {
                         "$ref": "definitions.json#/transceiver/id"
-                      }
+                      },
+                      { "type": "null" }
                     ]
                   },
                   "rssi": {
