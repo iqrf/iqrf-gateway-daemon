@@ -40,11 +40,8 @@
               "additionalProperties": false,
               "properties": {
                 "deviceAddr": {
-                  "description": "Address of device to backup (0 - [C] device, 1..239 - [N] device)",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 239,
-                  "default": 0
+                  "description": "Address of device to backup. [0: coordinator, 1-239: node]",
+                  "$ref": "definitions.json#/node/address"
                 }
               }
             },
