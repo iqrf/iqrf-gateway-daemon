@@ -66,8 +66,7 @@
                     "$ref": "definitions.json#/node/address"
                   },
                   "result": {
-                    "title": "Restart result",
-                    "description": "Node device result result.",
+                    "description": "Node device restart result.",
                     "type": "boolean"
                   }
                 }
