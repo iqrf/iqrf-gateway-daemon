@@ -70,11 +70,11 @@
     },
     "voltage": {
       "oneOf": [
-        { "type": "null" },
         {
           "description": "Voltage of a network device.",
           "type": "number"
-        }
+        },
+        { "type": "null" }
       ]
     }
   },
