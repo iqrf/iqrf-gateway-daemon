@@ -21,7 +21,6 @@
       "type": "object",
       "required": [
         "msgId",
-        "rsp",
         "status"
       ],
       "additionalProperties": false,
