@@ -43,10 +43,10 @@
               "$ref": "definitions.json#/iqmesh/progress"
             },
             "devices": {
-              "title": "Device backup",
               "description": "Device(s) backup data.",
               "type": "array",
               "items": {
+                "title": "Device backup",
                 "type": "object",
                 "required": [
                   "deviceAddr",
