@@ -37,5 +37,26 @@
       "statusStr": "Transaction error: ERROR_TIMEOUT",
       "insId": "iqdgw01-0242951d1f773a56"
     }
+  },
+  {
+    "mType": "iqmeshNetwork_Backup",
+    "data": {
+      "msgId": "33eb2c00-a324-401b-be20-0bcda3b31b31",
+      "rsp": {
+        "progress": 80,
+        "devices": [
+          {
+            "deviceAddr": 3,
+            "online": true,
+            "mid": 2165390033,
+            "dpaVer": 1047,
+            "data": "0700c480c33a4f3e09de3cc95d83e0ebfad9e04b92e54e14296483d605212e21fe428b76c1018b69840f6afe6f772b13e2416006f43c5941554c0f2926089f5310001996425a85da4bb279f296902632aac7e501f0534d14d59905231812524b0f749c17053ac1910939bcb8d498979ce8d61ea4d9a01d2dc2ab7fc7392d2ee2ac93f2698d76f1558108470838306f9f77034489d5049180d2b9766005da032eafdc215c212a902c062cb0d856497261938274f76579166544c5843e08d872424351dd332f230301e51e704843ff82f2c3b7a5ae54d17764d6141de4699090936ce5b86e3a18645ef31ac250984c1bb688b0b7cd50f2fb02cc58aea6a8de551c2025f2d9cbda8a027a2916efb96f65efd3fa24f6d7fbded40c75ceca62840a229bc767b0c30eea990171bb4b97c60f354382d6fd2e854e26efab48a0a6b66f360b3ebeeceadc483aac0c75ceca62840a229bc767b0c30eea9900"
+          }
+        ]
+      },
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
   }
 ]
