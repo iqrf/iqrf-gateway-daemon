@@ -1,14 +1,31 @@
-{
-  "mType": "iqmeshNetwork_WriteTrConf",
-  "data": {
-    "msgId": "testIqmeshWrite",
-    "repeat": 1,
-    "req": {
-      "deviceAddr": 1,
-      "txPower": 7,
-      "rxFilter": 5,
-      "dpaPeerToPeer": true
-    },
-    "returnVerbose": true
+[
+  {
+    "mType": "iqmeshNetwork_WriteTrConf",
+    "data": {
+      "msgId": "d4d7a2b1-fc14-4485-952b-0ff541402029",
+      "repeat": 1,
+      "req": {
+        "deviceAddr": 1,
+        "txPower": 7,
+        "rxFilter": 5,
+        "dpaPeerToPeer": true
+      },
+      "returnVerbose": true
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_WriteTrConf",
+    "data": {
+      "msgId": "30e31fbf-8d6a-4c54-955c-2c713fbfa775",
+      "req": {
+        "deviceAddr": 255,
+        "hwpId": 22530,
+        "dpaPeerToPeer": true,
+        "embPers": {
+          "ledr": false,
+          "ledg": false
+        }
+      }
+    }
   }
-}
+]
