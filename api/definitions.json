@@ -434,7 +434,7 @@
         "$ref": "#/iqmesh/action"
       },
       "type": {
-        "description": "DPA value type. [0 - RSSI, 1 - Supply Voltage, 2 - System, 3 - User].",
+        "description": "DPA value type. [0: RSSI, 1: Supply Voltage, 2: System, 3: User]",
         "type": "integer",
         "minimum": 0,
         "maximum": 3,
@@ -447,7 +447,7 @@
         "$ref": "#/iqmesh/action"
       },
       "responseTime": {
-        "description": "FRC response time in milliseconds. [0 - 40ms, 16 - 360ms, 32 - 680ms, 48 - 1320ms, 64 - 2600ms, 80 - 5160ms, 96 - 10280ms, 112 - 20620ms].",
+        "description": "FRC response time in milliseconds. [0: 40ms, 16: 360ms, 32: 680ms, 48: 1320ms, 64: 2600ms, 80: 5160ms, 96: 10280ms, 112: 20620ms]",
         "type": "integer",
         "enum": [
           0,
