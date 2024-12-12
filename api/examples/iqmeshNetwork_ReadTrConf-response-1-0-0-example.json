@@ -1,13 +1,13 @@
 {
   "mType": "iqmeshNetwork_ReadTrConf",
   "data": {
-    "msgId": "testIqmeshRead",
+    "msgId": "31b9d587-c7f6-4e6d-b4e2-b805cfbb0fca",
     "rsp": {
       "deviceAddr": 1,
       "embPers": {
         "values": [
           254,
-          6,
+          22,
           0,
           0
         ],
@@ -19,52 +19,53 @@
         "ram": true,
         "ledr": true,
         "ledg": true,
-        "spi": false,
         "io": true,
         "thermometer": true,
-        "pwm": false,
-        "uart": false,
-        "frc": false
+        "uart": true
       },
       "customDpaHandler": true,
-      "dpaPeerToPeer": true,
+      "dpaPeerToPeer": false,
       "dpaAutoexec": false,
       "routingOff": false,
       "ioSetup": false,
       "peerToPeer": false,
-      "neverSleep": false,
+      "neverSleep": true,
       "stdAndLpNetwork": true,
-      "rfChannelA": 25,
+      "rfChannelA": 30,
       "rfChannelB": 2,
       "txPower": 7,
       "rxFilter": 5,
       "lpRxTimeout": 6,
       "rfAltDsmChannel": 0,
       "uartBaudrate": 115200,
+      "localFrcReception": false,
       "rfPgmDualChannel": true,
       "rfPgmLpMode": false,
       "rfPgmIncorrectUpload": false,
       "rfPgmEnableAfterReset": false,
       "rfPgmTerminateAfter1Min": true,
       "rfPgmTerminateMcuPin": true,
-      "rfBand": "868"
+      "rfBand": "868",
+      "thermometerSensorPresent": true,
+      "serialEepromPresent": true,
+      "transceiverIlType": false
     },
     "raw": [
       {
-        "request": "00.00.00.02.ff.ff",
-        "requestTs": "2019-09-12T11:52:08.614+02:00",
-        "confirmation": "",
-        "confirmationTs": "",
-        "response": "00.00.00.82.00.00.00.00.06.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
-        "responseTs": "2019-09-12T11:52:08.648+02:00"
+        "request": "01.00.ff.3f.ff.ff",
+        "requestTs": "2024-12-12T18:32:47.483+01:00",
+        "confirmation": "01.00.ff.3f.ff.ff.ff.00.01.08.01",
+        "confirmationTs": "2024-12-12T18:32:47.523+01:00",
+        "response": "01.00.ff.bf.02.14.00.5f.17.04.01.fe.16.00.00.02.14.02.00.06.00.00.00.00.00.00.00.40",
+        "responseTs": "2024-12-12T18:32:47.789+01:00"
       },
       {
         "request": "01.00.02.02.ff.ff",
-        "requestTs": "2019-09-12T11:52:08.650+02:00",
-        "confirmation": "01.00.02.02.ff.ff.ff.00.01.08.01",
-        "confirmationTs": "2019-09-12T11:52:08.780+02:00",
-        "response": "01.00.02.82.02.44.00.56.38.fe.06.00.00.83.00.00.07.05.06.07.00.00.00.00.00.19.02.00.00.00.00.00.00.00.00.00.00.00.04.00.c3.30",
-        "responseTs": "2019-09-12T11:52:09.048+02:00"
+        "requestTs": "2024-12-12T18:32:48.170+01:00",
+        "confirmation": "01.00.02.02.ff.ff.ff.5e.01.08.01",
+        "confirmationTs": "2024-12-12T18:32:48.207+01:00",
+        "response": "01.00.02.82.02.14.00.5f.6d.fe.16.00.00.c1.00.00.07.05.06.07.00.00.00.00.00.1e.02.00.00.00.00.00.00.00.00.00.00.00.04.00.c3.30",
+        "responseTs": "2024-12-12T18:32:48.494+01:00"
       }
     ],
     "status": 0,
