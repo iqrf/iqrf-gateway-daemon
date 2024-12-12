@@ -43,6 +43,7 @@
               "$ref": "definitions.json#/iqmesh/progress"
             },
             "devices": {
+              "title": "Device backup",
               "description": "Device(s) backup data.",
               "type": "array",
               "items": {
@@ -67,8 +68,11 @@
                     "$ref": "definitions.json#/dpa/version"
                   },
                   "data": {
-                    "description": "Device Backup Data (hex-string format).",
-                    "type": "string"
+                    "description": "Raw device backup data encoded as hexadecimal string.",
+                    "type": "string",
+                    "examples": [
+                      "a900504aa1f5920c355a36a5ce0147c7d2688b44b17bf0151ea26e1b4eae"
+                    ]
                   }
                 }
               }

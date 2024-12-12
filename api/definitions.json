@@ -1170,13 +1170,13 @@
     },
     "id": {
       "title": "integer",
-      "description": "Transceiver module ID",
+      "description": "Transceiver module ID.",
       "type": "integer",
       "minimum": 0,
       "maximum": 4294967295
     },
     "idStr": {
-      "description": "Transceiver module ID",
+      "description": "Transceiver module ID.",
       "type": "string",
       "maxLength": 8,
       "minLength": 8,
