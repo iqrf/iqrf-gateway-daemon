@@ -61,6 +61,7 @@
       ]
     },
     "product": {
+      "title": "string",
       "description": "Product name.",
       "type": "string"
     },
