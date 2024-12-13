@@ -124,15 +124,7 @@
                           "$ref": "definitions.json#/interoperability/sensor/shortName"
                         },
                         "unit": {
-                          "oneOf": [
-                            {
-                              "$ref": "definitions.json#/interoperability/sensor/unit"
-                            },
-                            {
-                              "title": "TODO: Unavailable or dimensionless?",
-                              "type": "null"
-                            }
-                          ]
+                          "$ref": "definitions.json#/interoperability/sensor/unit"
                         },
                         "decimalPlaces": {
                           "$ref": "definitions.json#/interoperability/sensor/decimalPlaces"
@@ -165,16 +157,7 @@
                     }
                   },
                   "metadata": {
-                    "oneOf": [
-                      {
-                        "title": "User metadata",
-                        "type": "object"
-                      },
-                      {
-                        "title": "No user metadata",
-                        "type": "null"
-                      }
-                    ]
+                    "$ref": "definitions.json#/device/metadata"
                   }
                 }
               }

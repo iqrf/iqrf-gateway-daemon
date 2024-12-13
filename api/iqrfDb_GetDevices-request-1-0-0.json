@@ -20,8 +20,7 @@
       "description": "Contains the message payload.",
       "type": "object",
       "required": [
-        "msgId",
-        "req"
+        "msgId"
       ],
       "additionalProperties": false,
       "properties": {
