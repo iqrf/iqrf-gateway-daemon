@@ -42,7 +42,7 @@
           "properties": {
             "deviceAddr": {
               "title": "Device address",
-              "description": "Address of device (0 - [C] device, 255 - all [N] devices)",
+              "description": "Address of the device. [0: coordinator, 255: all nodes]",
               "type": "integer",
               "enum": [
                 0,
