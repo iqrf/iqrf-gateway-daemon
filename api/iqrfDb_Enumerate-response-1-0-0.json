@@ -37,12 +37,12 @@
           "additionalProperties": false,
           "properties": {
             "step": {
-              "title": "Enumeration step code",
+              "description": "Sequence number of the enumeration step.",
               "type": "integer",
               "minimum": 0
             },
             "stepStr": {
-              "title": "Enumeration step message",
+              "description": "Description of the enumeration step.",
               "type": "string"
             }
           }
