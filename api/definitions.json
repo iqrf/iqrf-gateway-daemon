@@ -315,7 +315,7 @@
         "maximum": 255
       },
       "unit": {
-        "title": "Quantity unit",
+        "title": "string",
         "description": "Unit in which the quantity is measured. Dimensionless quantities has \"\".",
         "type": "string",
         "examples": [
