@@ -3,7 +3,6 @@
         "mType": "iqrfDb_GetDevices",
         "data": {
             "msgId": "dfa72579-59fe-417d-a8e6-19f4fb5780e4",
-            "req": {},
             "returnVerbose": true
         }
     },
