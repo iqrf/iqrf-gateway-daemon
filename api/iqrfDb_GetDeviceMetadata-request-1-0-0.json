@@ -46,7 +46,8 @@
                 "description": "Address of device in network.",
                 "$ref": "definitions.json#/node/address"
               },
-              "maxItems": 240
+              "maxItems": 240,
+              "uniqueItems": true
             }
           }
         },

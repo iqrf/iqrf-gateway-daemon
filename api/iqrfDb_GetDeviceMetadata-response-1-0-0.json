@@ -66,17 +66,7 @@
                     "type": "boolean"
                   },
                   "metadata": {
-                    "oneOf": [
-                      {
-                        "title": "Device metadata",
-                        "description": "Device metadata object",
-                        "type": "object"
-                      },
-                      {
-                        "title": "No device metadata",
-                        "type": "null"
-                      }
-                    ]
+                    "$ref": "definitions.json#/device/metadata"
                   },
                   "errorStr": {
                     "$id": "#/properties/data/properties/rsp/properties/devices/items/properties/errorStr",
