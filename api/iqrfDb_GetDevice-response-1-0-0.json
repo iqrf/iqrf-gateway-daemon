@@ -140,7 +140,7 @@
                     },
                     "binouts": {
                       "title": "Implemented binouts",
-                      "description": "Information about implemented binary outputs",
+                      "description": "Information about implemented binary outputs.",
                       "type": "object",
                       "required": [
                         "count"
@@ -149,23 +149,14 @@
                       "properties": {
                         "count": {
                           "title": "Binout count",
-                          "description": "Number of implemented binary outputs",
+                          "description": "Number of implemented binary outputs.",
                           "type": "integer",
                           "minimum": 0
                         }
                       }
                     },
                     "metadata": {
-                      "oneOf": [
-                        {
-                          "title": "User metadata",
-                          "type": "object"
-                        },
-                        {
-                          "title": "No user metadata",
-                          "type": "null"
-                        }
-                      ]
+                      "$ref": "definitions.json#/device/metadata"
                     }
                   }
                 },
