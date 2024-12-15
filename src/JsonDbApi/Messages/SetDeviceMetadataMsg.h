@@ -58,7 +58,7 @@ namespace iqrf {
 		void createResponsePayload(Document &doc) override;
 	private:
 		/// Map of device addresses and metadata
-		std::map<uint8_t, std::string> metadataRequest;
+		std::map<uint8_t, std::shared_ptr<std::string>> metadataRequest;
 		/// Map of device addresses and operation status
 		std::map<uint8_t, SetMetadataResponse> metadataResponse;
 	};
