@@ -45,16 +45,18 @@ namespace iqrf {
 			for (auto item : deviceMetadata) {
 				Value deviceObject;
 				bool status = std::get<0>(item.second);
-				
+
 				Pointer("/address").Set(deviceObject, item.first, allocator);
 				Pointer("/success").Set(deviceObject, status, allocator);
 				if (status) {
-					Document metadataDoc;
+					Document metadataDoc(kObjectType);
 					auto str = std::get<1>(item.second);
 					if (str) {
 						metadataDoc.Parse(str.get()->c_str());
+						deviceObject.AddMember("metadata", rapidjson::Value(metadataDoc, allocator).Move(), allocator);
+					} else {
+						deviceObject.AddMember("metadata", rapidjson::Value(kNullType), allocator);
 					}
-					Pointer("/metadata").Set(deviceObject, metadataDoc, allocator);
 				} else {
 					auto str = std::get<1>(item.second)->c_str();
 					Pointer("/errorStr").Set(deviceObject, str, allocator);

@@ -26,22 +26,22 @@ namespace iqrf {
 		const Value &requestArray = doc["data"]["req"]["devices"];
 		for (SizeType i = 0; i < requestArray.Size(); ++i) {
 			uint8_t address = requestArray[i]["address"].GetInt();
-			requestArray[i]["metadata"].Accept(writer);
-			std::string metadata = buffer.GetString();
-			metadataRequest.insert(std::make_pair(address, metadata));
-			buffer.Clear();
-			writer.Reset(buffer);
+			if (requestArray[i]["metadata"].IsNull()) {
+				metadataRequest.insert(std::make_pair(address, nullptr));
+			} else {
+				requestArray[i]["metadata"].Accept(writer);
+				std::string metadata = buffer.GetString();
+				metadataRequest.insert(std::make_pair(address, std::make_shared<std::string>(metadata)));
+				buffer.Clear();
+				writer.Reset(buffer);
+			}
 		}
 	}
 
 	void SetDeviceMetadataMsg::handleMsg(IIqrfDb *dbService) {
 		for (auto &item : metadataRequest) {
 			try {
-				if (item.second == "{}") {
-					metadataResponse.insert(std::make_pair(item.first, std::make_tuple(false, "Empty object not stored.")));
-					continue;
-				}
-				dbService->setDeviceMetadata(item.first, std::make_shared<std::string>(item.second));
+				dbService->setDeviceMetadata(item.first, item.second);
 				metadataResponse.insert(std::make_pair(item.first, std::make_tuple(true, std::string())));
 			} catch (const std::logic_error &e) {
 				metadataResponse.insert(std::make_pair(item.first, std::make_tuple(false, e.what())));
