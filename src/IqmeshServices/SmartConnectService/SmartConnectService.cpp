@@ -287,7 +287,7 @@ namespace iqrf {
           result.getOsRead()->getHwpid()
         );
         result.setSmartConnectCode(
-          iqrf::code::IqrfCode::encode(values)
+          iqrf::code::encode(values)
         );
       } catch (const std::exception& e) {
         CATCH_EXC_TRC_WAR(std::exception, e, e.what());
@@ -694,7 +694,7 @@ namespace iqrf {
       try
       {
         m_smartConnectParams = comSmartConnect.getSmartConnectInputParams();
-        auto iqrfValues = iqrf::code::IqrfCode::decode(m_smartConnectParams.smartConnectCode);
+        auto iqrfValues = iqrf::code::decode(m_smartConnectParams.smartConnectCode);
         m_smartConnectParams.MID = iqrfValues.getMidBytes();
         m_smartConnectParams.IBK = iqrfValues.getIbk();
         m_smartConnectParams.hwpId = iqrfValues.getHwpid();
