@@ -88,9 +88,9 @@ namespace iqrf {
 					if (metadata) {
 						Document metadataDoc;
 						metadataDoc.Parse(metadata.get()->c_str());
-						Pointer("/metadata").Set(object, metadataDoc, allocator);
+						object.AddMember("metadata", rapidjson::Value(metadataDoc, allocator).Move(), allocator);
 					} else {
-						Pointer("/metadata").Set(object, Value(kNullType), allocator);
+						object.AddMember("metadata", rapidjson::Value(kNullType), allocator);
 					}
 				}
 
