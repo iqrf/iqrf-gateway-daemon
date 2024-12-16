@@ -78,11 +78,11 @@ namespace iqrf {
 				/// metadata
 				std::shared_ptr<std::string> metadata = device.getMetadata();
 				if (metadata) {
-					Document metadataDoc;
+					Document metadataDoc(kObjectType);
 					metadataDoc.Parse(metadata.get()->c_str());
-					Pointer("/metadata").Set(object, metadataDoc, allocator);
+					object.AddMember("metadata", rapidjson::Value(metadataDoc, allocator).Move(), allocator);
 				} else {
-					Pointer("/metadata").Set(object, Value(kNullType), allocator);
+					object.AddMember("metadata", rapidjson::Value(kNullType), allocator);
 				}
 			}
 
