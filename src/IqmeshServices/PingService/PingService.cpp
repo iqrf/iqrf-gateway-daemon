@@ -261,7 +261,7 @@ namespace iqrf {
         checkNewNodesPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
         checkNewNodesPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
         checkNewNodesPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND;
-        checkNewNodesPacket.DpaRequestPacket_t.HWPID = m_pingParams.hwpId;
+        checkNewNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         // FRC command - Ping
         checkNewNodesPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.FrcCommand = FRC_Ping;
         // User data
@@ -297,6 +297,72 @@ namespace iqrf {
         }
       }
       catch (const std::exception& e)
+      {
+        pingResult.setStatus(transResult->getErrorCode(), e.what());
+        pingResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
+      }
+    }
+
+    //----------------------------------------------------------
+    // Ping nodes by acknowledging Node Read with specific HWPID
+    //----------------------------------------------------------
+    TPerFrcSend_Response FrcAcknowledgeNodeRead(PingResult& pingResult)
+    {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        // Prepare DPA request
+        DpaMessage frcAckBroadcastRequest;
+        DpaMessage::DpaPacket_t frcAckBroadcastPacket;
+        frcAckBroadcastPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        frcAckBroadcastPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+        frcAckBroadcastPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND;
+        frcAckBroadcastPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        // FRC - Acknowledge Broadcast - Bits
+        frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.FrcCommand = FRC_AcknowledgedBroadcastBits;
+        // Clear UserData
+        memset((void*)frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData, 0, sizeof(frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData));
+        // DPA request
+        frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x00] = (uint8_t)(5 * sizeof(uint8_t));
+        frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x01] = PNUM_NODE;
+        frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x02] = CMD_NODE_READ;
+        frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x03] = m_pingParams.hwpId & 0xff;
+        frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x04] = m_pingParams.hwpId >> 0x08;
+        // Data to buffer
+        uint8_t requestLength = sizeof(TDpaIFaceHeader);
+        requestLength += sizeof(frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.FrcCommand);
+        requestLength += frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x00];
+        frcAckBroadcastRequest.DataToBuffer(frcAckBroadcastPacket.Buffer, requestLength);
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat(frcAckBroadcastRequest, transResult, m_pingParams.repeat);
+        TRC_DEBUG("Result from FrcAcknowledgeLedFlash transaction as string:" << PAR(transResult->getErrorString()));
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION("FrcAcknowledgeLedFlash OK.");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(Peripheral type, frcAckBroadcastRequest.PeripheralType())
+          << NAME_PAR(Node address, frcAckBroadcastRequest.NodeAddress())
+          << NAME_PAR(Command, (int)frcAckBroadcastRequest.PeripheralCommand())
+        );
+        // Check FRC status
+        uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+        if (status <= MAX_ADDRESS)
+        {
+          // Add FRC result
+          pingResult.addTransactionResult(transResult);
+          TRC_INFORMATION("FrcAcknowledgeLedFlash OK." << NAME_PAR_HEX("Status", (int)status));
+          TRC_FUNCTION_LEAVE("");
+          return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
+        }
+        else
+        {
+          TRC_WARNING("FrcAcknowledgeLedFlash NOK." << NAME_PAR_HEX("Status", (int)status));
+          THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)status));
+        }
+      }
+      catch (std::exception& e)
       {
         pingResult.setStatus(transResult->getErrorCode(), e.what());
         pingResult.addTransactionResult(transResult);
@@ -435,7 +501,9 @@ namespace iqrf {
         IDpaTransaction2::FrcResponseTime FRCresponseTime = setFrcReponseTime(pingResult, IDpaTransaction2::FrcResponseTime::k40Ms);
 
         // Ping nodes
-        TPerFrcSend_Response response = FrcPingNodes(pingResult);
+        TPerFrcSend_Response response = (m_pingParams.hwpId == HWPID_DoNotCheck) ?
+          FrcPingNodes(pingResult) :
+          FrcAcknowledgeNodeRead(pingResult);
 
         // Finally set FRC param back to initial value
         m_iIqrfDpaService->setFrcResponseTime(FRCresponseTime);
