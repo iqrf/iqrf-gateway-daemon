@@ -46,7 +46,7 @@
               "anyOf": [
                 {
                   "title": "Scheduler tasks",
-                  "description": "List of scheduler task IDs",
+                  "description": "List of scheduler task IDs.",
                   "type": "array",
                   "items": {
                     "$ref": "definitions.json#/scheduler/taskId"
@@ -54,9 +54,10 @@
                 },
                 {
                   "title": "Scheduler tasks",
-                  "description": "List of scheduler tasks",
+                  "description": "List of scheduler tasks.",
                   "type": "array",
                   "items": {
+                    "title": "Task details",
                     "type": "object",
                     "required": [
                       "clientId",

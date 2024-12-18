@@ -2,6 +2,7 @@
   {
     "mType": "mngScheduler_AddTask",
     "data": {
+      "msgId": "f800d934-8774-435d-a772-5beb98198192",
       "req": {
         "clientId": "SchedulerMessaging",
         "taskId": "617c6004-3e00-4f45-be7f-4ddade78c2e5",
@@ -36,13 +37,13 @@
         "persist": true,
         "enabled": true
       },
-      "returnVerbose": true,
-      "msgId": "f800d934-8774-435d-a772-5beb98198192"
+      "returnVerbose": true
     }
   },
   {
     "mType": "mngScheduler_AddTask",
     "data": {
+      "msgId": "176a5525-5878-463b-aa54-7863ff3ff05a",
       "req": {
         "clientId": "SchedulerMessaging",
         "taskId": "89e8a261-a062-414c-86d8-3979a5052876",
@@ -77,13 +78,13 @@
         "persist": true,
         "enabled": true
       },
-      "returnVerbose": true,
-      "msgId": "176a5525-5878-463b-aa54-7863ff3ff05a"
+      "returnVerbose": true
     }
   },
   {
     "mType": "mngScheduler_AddTask",
     "data": {
+      "msgId": "dcfb608f-63af-4be4-b97b-a9e5c42bd6a9",
       "req": {
         "clientId": "SchedulerMessaging",
         "taskId": "7152e0c3-9281-4068-b240-8294e461d256",
@@ -118,8 +119,7 @@
         "persist": true,
         "enabled": true
       },
-      "returnVerbose": true,
-      "msgId": "dcfb608f-63af-4be4-b97b-a9e5c42bd6a9"
+      "returnVerbose": true
     }
   }
 ]

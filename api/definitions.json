@@ -1058,7 +1058,8 @@
     "taskId": {
       "description": "Unique scheduler task ID.",
       "type": "string",
-      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "example": "e7f5d969-93d3-4e42-97d9-9b49eba8ef18"
     },
     "timeSpec": {
       "description": "Time-based task execution conditions.",
