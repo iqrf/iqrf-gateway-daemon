@@ -61,6 +61,22 @@
             "dpaVal": {
               "$ref": "definitions.json#/response/dpaVal"
             },
+            "result": {
+              "title": "Result",
+              "type": "object",
+              "required": [
+                "response",
+                "selectedNodes"
+              ],
+              "properties": {
+                "response": {
+                  "type": "string"
+                },
+                "selectedNodes": {
+                  "$ref": "definitions.json#/frc/selectedNodes"
+                }
+              }
+            },
             "errorStr": {
               "$ref": "definitions.json#/response/errorStr"
             }
