@@ -1,6 +1,7 @@
 {
   "mType": "mngScheduler_EditTask",
   "data": {
+    "msgId": "69d1f245-06c1-4e1a-a7cf-ab64963cacba",
     "req": {
       "clientId": "SchedulerMessaging",
       "taskId": "7152e0c3-9281-4068-b240-8294e461d256",
@@ -54,7 +55,6 @@
       "persist": true,
       "enabled": true
     },
-    "returnVerbose": true,
-    "msgId": "69d1f245-06c1-4e1a-a7cf-ab64963cacba"
+    "returnVerbose": true
   }
 }

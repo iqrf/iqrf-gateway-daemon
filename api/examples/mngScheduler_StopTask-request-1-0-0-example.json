@@ -1,11 +1,11 @@
 {
   "mType": "mngScheduler_StopTask",
   "data": {
+    "msgId": "1415862d-ac9d-489c-baea-de752dc04cfe",
     "req": {
       "clientId": "SchedulerMessaging",
       "taskId": "89e8a261-a062-414c-86d8-3979a5052876"
     },
-    "returnVerbose": true,
-    "msgId": "1415862d-ac9d-489c-baea-de752dc04cfe"
+    "returnVerbose": true
   }
 }
