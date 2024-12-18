@@ -106,7 +106,8 @@
                         "type": "boolean"
                       }
                     }
-                  }
+                  },
+                  "minItems": 1
                 }
               ]
             }
