@@ -43,7 +43,7 @@
               "$ref": "definitions.json#/scheduler/clientId"
             },
             "tasks": {
-              "oneOf": [
+              "anyOf": [
                 {
                   "title": "Scheduler tasks",
                   "description": "List of scheduler task IDs",
@@ -106,8 +106,7 @@
                         "type": "boolean"
                       }
                     }
-                  },
-                  "minItems": 1
+                  }
                 }
               ]
             }
