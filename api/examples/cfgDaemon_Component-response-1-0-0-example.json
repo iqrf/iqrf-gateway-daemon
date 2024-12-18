@@ -1,13 +1,13 @@
 {
   "mType": "cfgDaemon_Component",
   "data": {
-    "msgId": "testMetaDataCfg",
-    "rsp": {
-      "componentName": "iqrf::JsonMngMetaDataApi",
-      "componentInstance": "JsonMngMetaDataApi"
-    },
-    "insId": "iqrfgd2-default",
-    "statusStr": "ok",
-    "status": 0
+      "msgId": "492bc026-09bd-473d-8e24-1bca19fd4523",
+      "rsp": {
+          "componentName": "iqrf::MonitorService",
+          "componentInstance": "iqrf::MonitorService"
+      },
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
   }
 }
