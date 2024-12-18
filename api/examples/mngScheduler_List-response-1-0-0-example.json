@@ -168,5 +168,15 @@
       "statusStr": "ok",
       "status": 0
     }
+  },
+  {
+    "mType": "mngScheduler_List",
+    "data": {
+      "msgId": "1676a15b-49dc-48a0-b26b-5861c981bcc5",
+      "rsp": {
+        "clientId": "SchedulerMessaging",
+        "tasks": []
+      }
+    }
   }
 ]
