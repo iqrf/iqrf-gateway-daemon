@@ -23,6 +23,7 @@
         "num",
         "timestamp",
         "dpaQueueLen",
+        "iqrfChannelState",
         "dpaChannelState",
         "msgQueueLen",
         "operMode"
@@ -44,6 +45,11 @@
           "description": "Length of pending DPA transaction queue (16 is maximum).",
           "type": "integer"
         },
+        "iqrfChannelState": {
+          "title": "IQRF channel state",
+          "description": "State (Ready/NotReady/ExclusiveAccess) of IQRF channel.",
+          "type": "string"
+        },
         "dpaChannelState": {
           "title": "DPA channel state",
           "description": "State (Ready/NotReady/ExclusiveAccess) of DPA channel - one of USB CDC, SPI or UART interface.",
@@ -58,6 +64,14 @@
           "title": "Operational mode",
           "description": "Daemon mode (operational/service/forwarding).",
           "type": "string"
+        },
+        "enumInProgress": {
+          "description": "Enumeration is currently running.",
+          "type": "boolean"
+        },
+        "dataReadingInProgress": {
+          "description": "Data read is currently running.",
+          "type": "boolean"
         }
       }
     }
