@@ -1,11 +1,14 @@
 {
   "mType": "ntfDaemon_Monitor",
   "data": {
-    "num": 24,
-    "timestamp": 1562256558,
+    "num": 128,
+    "timestamp": 1734518998,
     "dpaQueueLen": 0,
+    "iqrfChannelState": "Ready",
     "dpaChannelState": "Ready",
     "msgQueueLen": 0,
-    "operMode": "operational"
+    "operMode": "operational",
+    "enumInProgress": false,
+    "dataReadingInProgress": false
   }
 }
