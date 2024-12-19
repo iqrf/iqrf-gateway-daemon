@@ -101,7 +101,7 @@
                   "$ref": "definitions.json#/node/ibk"
                 },
                 "dpaVer": {
-                  "$ref": "definitions.json#/dpa/version"
+                  "$ref": "definitions.json#/dpa/versionStr"
                 },
                 "embPers": {
                   "$ref": "definitions.json#/peripheral/embedded"
