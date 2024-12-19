@@ -81,7 +81,10 @@
                       },
                       "rData": {
                         "type": "string",
-                        "description": "Request Data encoded in the format \"0a.1b.2c\""
+                        "description": "Request data encoded as comma separated hex bytes.",
+                        "examples": [
+                          "94.c0.53.2a"
+                        ]
                       }
                     }
                   }
