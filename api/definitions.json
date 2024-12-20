@@ -4,7 +4,7 @@
       "description": "A requested address for the bonded node. The address must not be used (bonded) yet. If this parameter equals to 0, then the 1st free address is assigned to the node.",
       "type": "integer",
       "minimum": 0,
-      "maximum": 239,
+      "maximum": 254,
       "default": 0
     },
     "bondingTestRetries": {
