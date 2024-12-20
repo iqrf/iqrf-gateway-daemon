@@ -47,7 +47,7 @@
             "param": {
               "oneOf": [
                 {
-                  "$ref": "#/$localDefinitions/node"
+                  "$ref": "definitions.json#/bonding/node"
                 },
                 {
                   "title": "Request parameters",
@@ -65,7 +65,7 @@
                       "additionalItems": false,
                       "minItems": 1,
                       "items": {
-                        "$ref": "#/$localDefinitions/node"
+                        "$ref": "definitions.json#/bonding/node"
                       }
                     }
                   }
@@ -79,26 +79,6 @@
         },
         "returnVerbose": {
           "$ref": "definitions.json#/request/returnVerbose"
-        }
-      }
-    }
-  },
-  "$localDefinitions": {
-    "node": {
-      "title": "Node",
-      "description": "Information about a prebonded node which shall be authorized",
-      "type": "object",
-      "required": [
-        "reqAddr",
-        "mid"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "reqAddr": {
-          "$ref": "definitions.json#/node/address"
-        },
-        "mid": {
-          "$ref": "definitions.json#/transceiver/id"
         }
       }
     }
