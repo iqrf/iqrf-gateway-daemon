@@ -30,6 +30,24 @@
       "type": "integer",
       "minimum": 1,
       "maximum": 255
+    },
+    "node": {
+      "title": "Node bonding information",
+      "description": "Module ID and node address pair.",
+      "type": "object",
+      "required": [
+        "reqAddr",
+        "mid"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "reqAddr": {
+          "$ref": "#/node/address"
+        },
+        "mid": {
+          "$ref": "#/transceiver/id"
+        }
+      }
     }
   },
   "device": {
