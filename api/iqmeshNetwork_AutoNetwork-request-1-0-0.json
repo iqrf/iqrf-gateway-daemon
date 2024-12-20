@@ -46,7 +46,7 @@
             },
             "addressSpace": {
               "title": "Address space",
-              "description": "TODO: List of addresses which can be assigned during Autonetwork",
+              "description": "List of addresses which can be assigned during Autonetwork.",
               "type": "array",
               "items": {
                 "$ref": "definitions.json#/node/address"
@@ -73,7 +73,7 @@
               }
             },
             "midFiltering": {
-              "description": "Bond only Nodes with MIDs listed in midList array).",
+              "description": "Bond only Nodes with MIDs listed in the midList array.",
               "type": "boolean",
               "default": false
             },
@@ -81,6 +81,7 @@
               "description": "Select this option to control MIDs of the Nodes and/or their addresses.",
               "type": "array",
               "items": {
+                "title": "Device bonding information",
                 "type": "object",
                 "required": [
                   "deviceMID"
@@ -98,6 +99,7 @@
               "maxItems": 239
             },
             "overlappingNetworks": {
+              "title": "Overlap settings",
               "description": "Settings for building multiple overlapping networks.",
               "type": "object",
               "required": [
@@ -107,11 +109,11 @@
               "additionalProperties": false,
               "properties": {
                 "network": {
-                  "description": "Network number that will be build.",
+                  "description": "The network number of the current network.",
                   "type": "integer"
                 },
                 "networks": {
-                  "description": "Number of the networks to be built.",
+                  "description": "How many networks shall be built.",
                   "type": "integer"
                 }
               }
