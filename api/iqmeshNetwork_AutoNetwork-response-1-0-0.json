@@ -51,6 +51,7 @@
               "description": "Returns nodes newly added into the network in this wave.",
               "type": "array",
               "items": {
+                "title": "Node bonding information",
                 "type": "object",
                 "required": [
                   "address",

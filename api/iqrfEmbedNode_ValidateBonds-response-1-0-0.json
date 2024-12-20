@@ -61,6 +61,21 @@
             "dpaVal": {
               "$ref": "definitions.json#/response/dpaVal"
             },
+            "result": {
+              "title": "Result",
+              "type": "object",
+              "required": [
+                "response"
+              ],
+              "properties": {
+                "response": {
+                  "type": "string",
+                  "examples": [
+                    "unrequired"
+                  ]
+                }
+              }
+            },
             "errorStr": {
               "$ref": "definitions.json#/response/errorStr"
             }
