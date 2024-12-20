@@ -2,12 +2,12 @@
   {
     "mType": "iqrfEmbedCoordinator_AuthorizeBond",
     "data": {
-      "msgId": "paramsObject",
+      "msgId": "483b89a0-3a23-4ec4-a71c-31e7b470c452",
       "req": {
         "nAdr": 0,
         "param": {
-          "reqAddr": 10,
-          "mid": 0
+          "reqAddr": 4,
+          "mid": 2165390030
         }
       },
       "returnVerbose": true
@@ -16,18 +16,18 @@
   {
     "mType": "iqrfEmbedCoordinator_AuthorizeBond",
     "data": {
-      "msgId": "paramsArray",
+      "msgId": "def9f9a5-aa03-4382-93cf-7c24fbd34a0a",
       "req": {
         "nAdr": 0,
         "param": {
           "nodes": [
             {
-              "reqAddr": 11,
-              "mid": 1
+              "reqAddr": 1,
+              "mid": 2165390031
             },
             {
-              "reqAddr": 12,
-              "mid": 2
+              "reqAddr": 2,
+              "mid": 2165406742
             }
           ]
         }
