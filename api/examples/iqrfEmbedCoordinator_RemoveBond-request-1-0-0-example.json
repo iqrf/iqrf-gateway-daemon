@@ -1,11 +1,11 @@
 {
   "mType": "iqrfEmbedCoordinator_RemoveBond",
   "data": {
-    "msgId": "testEmbedCoordinator",
+    "msgId": "be403d1d-ae18-4d18-bd36-40c2415c5831",
     "req": {
       "nAdr": 0,
       "param": {
-        "bondAddr": 1
+        "bondAddr": 2
       }
     },
     "returnVerbose": true

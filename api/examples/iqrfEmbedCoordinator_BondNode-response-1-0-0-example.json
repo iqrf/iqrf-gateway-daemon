@@ -1,7 +1,7 @@
 {
   "mType": "iqrfEmbedCoordinator_BondNode",
   "data": {
-    "msgId": "testEmbedCoordinator",
+    "msgId": "502053cc-2375-4de1-8bea-15ce321a43dd",
     "timeout": 11000,
     "rsp": {
       "nAdr": 0,
@@ -9,23 +9,23 @@
       "pCmd": 132,
       "hwpId": 0,
       "rCode": 0,
-      "dpaVal": 53,
+      "dpaVal": 0,
       "result": {
-        "bondAddr": 1,
-        "devNr": 2
+        "bondAddr": 2,
+        "devNr": 3
       }
     },
     "raw": [
       {
-        "request": "00.00.00.04.ff.ff.01.00",
-        "requestTs": "2018-07-14T22:20:46.394429",
+        "request": "00.00.00.04.ff.ff.02.01",
+        "requestTs": "2024-12-19T15:56:13.439+01:00",
         "confirmation": "",
         "confirmationTs": "",
-        "response": "00.00.00.84.00.00.00.35.01.02",
-        "responseTs": "2018-07-14T22:20:49.28458"
+        "response": "00.00.00.84.00.00.00.00.02.03",
+        "responseTs": "2024-12-19T15:56:18.631+01:00"
       }
     ],
-    "insId": "iqrfgd2-1",
+    "insId": "iqrfgd2-default",
     "statusStr": "ok",
     "status": 0
   }
