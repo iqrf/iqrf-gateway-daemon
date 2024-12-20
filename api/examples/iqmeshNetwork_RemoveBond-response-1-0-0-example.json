@@ -55,6 +55,80 @@
   {
     "mType": "iqmeshNetwork_RemoveBond",
     "data": {
+      "msgId": "7f5b396c-ae07-4ec7-8984-7ac1f65b0303",
+      "rsp": {
+        "nodesNr": 2,
+        "result": [
+          {
+            "address": 1,
+            "bonded": true,
+            "removed": true
+          },
+          {
+            "address": 2,
+            "bonded": true,
+            "removed": true
+          }
+        ]
+      },
+      "raw": [
+        {
+          "request": "00.00.00.02.ff.ff",
+          "requestTs": "2024-12-20T14:58:52.485+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.82.00.00.00.5d.1e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-12-20T14:58:52.536+01:00"
+        },
+        {
+          "request": "00.00.0d.03.ff.ff.00",
+          "requestTs": "2024-12-20T14:58:52.537+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.83.00.00.00.5d.00",
+          "responseTs": "2024-12-20T14:58:52.575+01:00"
+        },
+        {
+          "request": "00.00.0d.02.ff.ff.02.06.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.05.01.01.ff.ff",
+          "requestTs": "2024-12-20T14:58:52.575+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.82.00.00.00.5d.02.06.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-12-20T14:58:53.489+01:00"
+        },
+        {
+          "request": "00.00.0d.03.ff.ff.00",
+          "requestTs": "2024-12-20T14:58:53.489+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.83.00.00.00.5d.00",
+          "responseTs": "2024-12-20T14:58:53.528+01:00"
+        },
+        {
+          "request": "00.00.02.05.ff.ff.06.00.05.ff.ff.01.06.00.05.ff.ff.02.00",
+          "requestTs": "2024-12-20T14:58:53.528+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.02.85.00.00.00.5d",
+          "responseTs": "2024-12-20T14:58:53.674+01:00"
+        },
+        {
+          "request": "00.00.00.00.ff.ff",
+          "requestTs": "2024-12-20T14:58:53.704+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.80.00.00.00.5d.02.10",
+          "responseTs": "2024-12-20T14:58:53.742+01:00"
+        }
+      ],
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_RemoveBond",
+    "data": {
       "msgId": "49430fd9-a93b-413f-a0bb-7f3239453a2d",
       "rsp": {
         "nodesNr": 0,

@@ -74,16 +74,12 @@
                 "bondAddr": {
                   "title": "Bonded address",
                   "description": "Address of the node newly bonded to the network.",
-                  "type": "integer",
-                  "minimum": 1,
-                  "maximum": 239
+                  "$ref": "definitions.json#/node/address"
                 },
                 "devNr": {
                   "title": "Device number",
                   "description": "Number of bonded network nodes.",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 239
+                  "$ref": "definitions.json#/node/count"
                 }
               }
             },

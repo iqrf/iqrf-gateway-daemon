@@ -14,6 +14,18 @@
   {
     "mType": "iqmeshNetwork_RemoveBond",
     "data": {
+      "msgId": "7f5b396c-ae07-4ec7-8984-7ac1f65b0303",
+      "repeat": 2,
+      "req": {
+        "deviceAddr": [1, 2],
+        "hwpId": 65535
+      },
+      "returnVerbose": true
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_RemoveBond",
+    "data": {
       "msgId": "49430fd9-a93b-413f-a0bb-7f3239453a2d",
       "repeat": 2,
       "req": {
