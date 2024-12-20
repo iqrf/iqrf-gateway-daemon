@@ -1,9 +1,9 @@
 {
   "mType": "iqrfEmbedNode_RemoveBond",
   "data": {
-    "msgId": "testEmbedNode",
+    "msgId": "17334d18-ca95-450c-b3cc-aad91f54a859",
     "req": {
-      "nAdr": 1
+      "nAdr": 3
     },
     "returnVerbose": true
   }
