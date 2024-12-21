@@ -66,7 +66,7 @@ namespace iqrf {
 		 * @return Code record length
 		 */
 		uint16_t getLength() const {
-			return m_endAddr - m_startAddr;
+			return m_code.size();
 		}
 	private:
 		/// Code record
