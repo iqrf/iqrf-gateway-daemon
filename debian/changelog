@@ -1,10 +1,12 @@
-iqrf-gateway-daemon (2.6.1~alpha~1.gbpc5fe08) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.6.1) stable; urgency=medium
 
-  ** SNAPSHOT build @c5fe08531b51932131b9332011a6ed717f37d379 **
+  [ Karel Hanák ]
+  * Prepare for version 2.6.1-alpha
+  * PingService: fixed implementation for HWPID filtering
+  * OtaUpload: fixed incorrect code block length
+  * updated license headers
 
-  * UNRELEASED
-
- -- Karel Hanák <karel.hanak@iqrf.org>  Tue, 05 Nov 2024 06:18:26 -0500
+ -- Karel Hanák <karel.hanak@iqrf.org>  Sun, 05 Jan 2025 11:51:30 +0100
 
 iqrf-gateway-daemon (2.6.0) stable; urgency=medium
 
