@@ -5,8 +5,8 @@ Source: https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon.git
 
 Files: *
 Copyright:
- 2015-2024 IQRF Tech s.r.o.
- 2019-2024 MICRORISC s.r.o.
+ 2015-2025 IQRF Tech s.r.o.
+ 2019-2025 MICRORISC s.r.o.
 License: Apache-2.0
 
 License: Apache-2.0
