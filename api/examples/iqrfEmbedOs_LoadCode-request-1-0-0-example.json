@@ -1,16 +1,17 @@
 {
   "mType": "iqrfEmbedOs_LoadCode",
   "data": {
-    "msgId": "testEmbedOs",
+    "msgId": "650d6ad4-d096-4469-ac24-648214d93cf9",
     "req": {
-      "nAdr": 1,
+      "nAdr": 2,
       "param": {
-        "flags": 0,
-        "address": 0,
-        "length": 64,
-        "checkSum": 59962
+        "flags": 3,
+        "address": 768,
+        "length": 10100,
+        "checkSum": 16353
       }
     },
-    "returnVerbose": true
+    "returnVerbose": true,
+    "timeout": 20000
   }
 }
