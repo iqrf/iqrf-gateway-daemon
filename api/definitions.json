@@ -490,8 +490,9 @@
         "description": "Loading action.",
         "type": "string",
         "enum": [
-          "WithoutCodeLoading",
-          "WithCodeLoading"
+          "Upload",
+          "Verify",
+          "Load"
         ]
       }
     },
