@@ -19,39 +19,74 @@
         "devices": [
           {
             "address": 1,
-            "hwpid": 10244,
-            "mid": 2165474388,
-            "rssi": -63,
-            "sensors": []
-          },
-          {
-            "address": 2,
-            "hwpid": 33796,
-            "mid": 2165517735,
-            "rssi": -67,
+            "hwpid": 5122,
+            "mid": 2165390031,
+            "rssi": -38,
             "sensors": [
               {
                 "index": 0,
                 "type": 1,
                 "name": "Temperature",
                 "unit": "°C",
-                "value": 23.25
+                "value": null
               },
               {
                 "index": 1,
-                "type": 128,
-                "name": "Relative humidity",
-                "unit": "%",
-                "value": 51.0
+                "type": 2,
+                "name": "Carbon dioxide",
+                "unit": "ppm",
+                "value": null
               },
               {
                 "index": 2,
-                "type": 4,
-                "name": "Extra-low voltage",
-                "unit": "V",
-                "value": 3.184
+                "type": 3,
+                "name": "Volatile organic compound",
+                "unit": "ppm",
+                "value": null
+              },
+              {
+                "index": 3,
+                "type": 128,
+                "name": "Relative humidity",
+                "unit": "%",
+                "value": null
+              },
+              {
+                "index": 4,
+                "type": 129,
+                "name": "Binary data7",
+                "unit": "?",
+                "value": null
+              },
+              {
+                "index": 6,
+                "type": 160,
+                "name": "Binary data30",
+                "unit": "?",
+                "value": null
               }
             ]
+          },
+          {
+            "address": 2,
+            "hwpid": 22530,
+            "mid": 2165406742,
+            "rssi": -45,
+            "sensors": []
+          },
+          {
+            "address": 3,
+            "hwpid": 22530,
+            "mid": 2165390033,
+            "rssi": -39,
+            "sensors": []
+          },
+          {
+            "address": 4,
+            "hwpid": 3074,
+            "mid": 2165390030,
+            "rssi": -36,
+            "sensors": []
           }
         ],
         "reading": false
