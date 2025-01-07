@@ -16,15 +16,14 @@
  */
 #pragma once
 
-#include "MngBaseMsg.h"
-#include "ISchedulerService.h"
+#include "ApiMsg.h"
 
 namespace iqrf {
 
 	/**
 	 * Exit request message
 	 */
-	class MngExitMsg : public MngBaseMsg {
+	class MngExitMsg : public ApiMsg {
 	public:
 		/// Delete base constructor
 		MngExitMsg() = delete;
@@ -34,7 +33,7 @@ namespace iqrf {
 		 * @param doc Request document
 		 * @param schedulerRervice Scheduler service interface
 		 */
-		MngExitMsg(const Document &doc, ISchedulerService *schedulerRervice);
+		MngExitMsg(const rapidjson::Document &doc);
 
 		/**
 		 * Destructor
@@ -42,19 +41,17 @@ namespace iqrf {
 		virtual ~MngExitMsg() {};
 
 		/**
-		 * Handles exit request
+		 * Get specified exit time
 		 */
-		void handleMsg() override;
+		uint32_t getExitTime() const;
 
 		/**
 		 * Populates response document
 		 * @param doc Response document
 		 */
-		void createResponsePayload(Document &doc) override;
+		void createResponsePayload(rapidjson::Document &doc) override;
 	private:
-		/// Scheduler service interface
-		ISchedulerService *m_schedulerService = nullptr;
 		/// Time to scheduled exit
-		uint32_t m_timeToExit;
+		uint32_t m_timeToExit = 0;
 	};
 }

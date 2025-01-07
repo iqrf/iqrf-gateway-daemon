@@ -1312,5 +1312,13 @@
         }
       }
     }
+  },
+  "management": {
+    "timeToExit": {
+      "title": "Time to exit",
+      "description": "Time to exit in milliseconds.",
+      "type": "integer",
+      "minimum": 1000
+    }
   }
 }
