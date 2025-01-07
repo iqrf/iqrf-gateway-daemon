@@ -21,7 +21,6 @@
       "type": "object",
       "required": [
         "msgId",
-        "rsp",
         "status"
       ],
       "additionalProperties": false,
@@ -33,16 +32,10 @@
           "title": "Response",
           "description": "Holds response data",
           "type": "object",
-          "required": [
-            "timeToExit"
-          ],
           "additionalProperties": false,
           "properties": {
             "timeToExit": {
-              "title": "Time to exit",
-              "description": "Restart timeout in milliseconds.",
-              "type": "integer",
-              "minimum": 0
+              "$ref": "definitions.json#/management/timeToExit"
             }
           }
         },

@@ -19,42 +19,20 @@
 
 namespace iqrf {
 
-	MngExitMsg::MngExitMsg(const Document &doc, ISchedulerService *schedulerService) : MngBaseMsg(doc) {
-		m_schedulerService = schedulerService;
-		m_timeToExit = Pointer("/data/req/timeToExit").Get(doc)->GetUint();
+	MngExitMsg::MngExitMsg(const rapidjson::Document &doc) : ApiMsg(doc) {
+		const auto *val = rapidjson::Pointer("/data/req/timeToExit").Get(doc);
+		if (val && val->IsUint()) {
+			m_timeToExit = val->GetUint();
+		}
 	}
 
-	void MngExitMsg::handleMsg() {
-		Document doc;
-		Pointer("/task/restart").Set(doc, true);
-
-		std::stringstream ss;
-		ss << "Exit scheduled in: " << m_timeToExit << " ms." << std::endl;
-
-		shape::Tracer::get().writeMsg(
-			(int)shape::TraceLevel::Information,
-			0,
-			TRC_MNAME,
-			__FILE__,
-			__LINE__,
-			__FUNCTION__,
-			ss.str()
-		);
-
-		std::cout << ss.str();
-
-		m_schedulerService->scheduleInternalTask(
-			"JsonMngApi",
-			"00000000-0000-0000-0000-000000000000",
-			doc,
-			std::chrono::system_clock::now() + std::chrono::milliseconds((unsigned)m_timeToExit),
-			false,
-			true
-		);
+	uint32_t MngExitMsg::getExitTime() const {
+		return m_timeToExit;
 	}
 
-	void MngExitMsg::createResponsePayload(Document &doc) {
-		Pointer("/data/rsp/timeToExit").Set(doc, m_timeToExit);
-		MngBaseMsg::createResponsePayload(doc);
+	void MngExitMsg::createResponsePayload(rapidjson::Document &doc) {
+		if (m_timeToExit > 0) {
+			rapidjson::Pointer("/data/rsp/timeToExit").Set(doc, m_timeToExit);
+		}
 	}
 }
