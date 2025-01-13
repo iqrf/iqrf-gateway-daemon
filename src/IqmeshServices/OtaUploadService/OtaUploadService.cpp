@@ -37,6 +37,7 @@
 #include <fstream>
 
 #define MCU_TYPE_BITS 0x07
+#define EEEPROM_PAGE_WRITE_TIME 5 // 5 ms per page
 
 TRC_INIT_MODULE(iqrf::OtaUploadService);
 
@@ -792,6 +793,8 @@ namespace iqrf
               uploadResult.addTransactionResult(transResult);
               actualAddress += (uint8_t)(data[index + 1].size());
               index += 2;
+              // Wait for 2 write transactions to finish
+              std::this_thread::sleep_for(std::chrono::milliseconds((2 * EEEPROM_PAGE_WRITE_TIME) * 2));
             }
             else
             {
@@ -1810,15 +1813,13 @@ namespace iqrf
     {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl
-                      << "**************************************" << std::endl
-                      << "OtaUploadService instance deactivate" << std::endl
-                      << "**************************************");
+        << "**************************************" << std::endl
+        << "OtaUploadService instance deactivate" << std::endl
+        << "**************************************"
+      );
 
       // for the sake of unregister function parameters
-      std::vector<std::string> supportedMsgTypes =
-          {
-              m_mTypeName_iqmeshNetworkOtaUpload};
-
+      std::vector<std::string> supportedMsgTypes = {m_mTypeName_iqmeshNetworkOtaUpload};
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(supportedMsgTypes);
 
       TRC_FUNCTION_LEAVE("");
