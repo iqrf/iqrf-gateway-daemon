@@ -24,6 +24,7 @@
 #include "IMessagingSplitterService.h"
 #include "ITraceService.h"
 #include <string>
+#include <thread>
 
 
 namespace iqrf {
