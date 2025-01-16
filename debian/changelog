@@ -1,10 +1,9 @@
-iqrf-gateway-daemon (2.6.2~alpha~1.gbpbf472d) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.6.2) stable; urgency=medium
 
-  ** SNAPSHOT build @bf472d4b7bbe7e1a15065fd8f531316768c35f54 **
+  * Prepare for version 2.6.2-alpha
+  * OtaUpload: wait for OS batch writes to finish
 
-  * UNRELEASED
-
- -- Karel Hanák <karel.hanak@iqrf.org>  Sun, 05 Jan 2025 11:55:12 +0100
+ -- Karel Hanák <karel.hanak@iqrf.org>  Thu, 16 Jan 2025 15:21:18 +0100
 
 iqrf-gateway-daemon (2.6.1) stable; urgency=medium
 
