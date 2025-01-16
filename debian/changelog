@@ -1,9 +1,113 @@
-iqrf-gateway-daemon (3.0.0~alpha~1.gbpbf96c7) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (3.0.0~alpha~1.gbpa2cdbc) UNRELEASED; urgency=medium
 
+  ** SNAPSHOT build @a2cdbcab3c6d20e3ba6b297ce412870456ea8597 **
+
+  [ Karel Hanák ]
   * updated license headers
   * added IqrfDb and JsonDbApi components, added sqlite_orm and nlohmann_json libraries
+  * updated deployment configuration
+  * IQMESH service SensorData
+  * HexaStringConversion: use class with public static methods
+  * SensorData service: update database values
+  * SensorDataService: sensor data collected by frc; IqrfDb: added sensor map query
+  * SensorDataService: collect data by frc, update indexes; IqrfDb: global index query
+  * IqrfDb: added global and type index to DeviceSensor entity
+  * SensorDataService: simplified jsonschema, removed unicast requests, send extraresult if needed
+  * IqrfDb: added missing comments, refactor; set standard to C++17
+  * SensorDataService: worker thread and api
+  * SensorDataService: default configuration, fixed worker thread, docstrings
+  * SensorDataService: added hwpid and rssi
+  * SensorDataService: added rssi to response jsonschema, convert value to dBm
+  * IqrfDb: frc fixes
+  * IqrfDb: notify of async enumeration start
+  * IqrfDb: fixed enumeration using FRC
+  * disable SensorDataService worker by default; IqrfDb exclusive access logging
+  * updated default sensordataservice config, added service to deployment config
+  * IqrfDb: update DeviceSensor entity based on sensorId instead of type
+  * SensorDataService: fixed setConfig command, revert configuration if saving fails
+  * SensorDataService: sort sensors by index in async response
+  * api-testing: disable iqrfinfo api component
+  * SensorDataService: unregister handler on deactivate
+  * IqrfDb: added more queries; JsonDbApi: added GetDevice request
+  * JsonDbApi: unregister callback from IqrfDb on deactivate
+  * GetSensorsMsg: include MID
+  * JsonDbApi: GetDevices message device filtering
+  * JsonDbApi: GetDevices added sensors and binout options
+  * GetDevicesMsg: added all sensor properties
+  * SensorDataService: rework device metadata storing, added rssi beaming frc, separated storing logic from data fetching
+  * SensorDataService: do not set rssi 0
+  * IqrfDb: include additional newline characters when populating driver contexts
+  * SensorDataService: get rssi from beaming and other devices
+  * SensorDataService: added voltage regular frc fetch
+  * SensorDataService: do not include voltage in reports
+  * JsonDbApi: populate responses depending on status
+  * JsonDbApi: added missing status check before populating response
+  * use unsigned integer for driver IDs, always load coordinator product drivers
+  * IqrfDb: fixed a bug causing unexpected behaviour when enumerating by polling
+  * RemoveBondService: updated implementation to allow unicast, multicast and broadcast removal of nodes, unified api
+  * SensorDataService: send message asynchronously when reading worker is invoked
+  * WIP: SensorData rework
+  * IqrfDb: fixed cache package fetching
+  * SensorData: removed from iqmesh services, added reading retry period, reworked API into separate messages
+  * set cache dir perms
+  * MonitorService: include db enumeration and sensor data reading status
 
- -- Karel Hanák <karel.hanak@iqrf.org>  Sun, 19 Feb 2023 18:28:07 +0100
+  [ Roman Ondráček ]
+  * GitLab CI: deploy v3.x versions to dl.iqrf.org
+  * Configuration: update JSON indentation to 4 spaces
+
+  [ Karel Hanák ]
+  * JsonDpaApiIqrfStdExt: fixed metadata doc param; fixed formatting
+  * RemoveBondService: error handling for offline, unbonded devices and partial success
+  * RemoveBondService: report node status if removing only a single node
+
+  [ Roman Ondráček ]
+  * API testing: fix typo in docker-compose configuration file
+
+  [ Karel Hanák ]
+  * RemoveBondService: fixed frc acknowledge broadcast bits memset size
+  * IqrfDb: update product drivers when a different version of driver is used
+  * issue#245: rework splitter to use messaging instance objects instead of instance names to prevent collisions
+  * IqrfSensorData: updated RSSI, HWPID and MID fetching
+  * added messaging lists migration script
+  * removed aux print from messaging list migrating script
+  * IqrfDb: added support for new light standard
+
+  [ Roman Ondráček ]
+  * IqrfSensor: add missing cstdint include
+
+  [ Karel Hanák ]
+  * IqrfDb: migrations
+  * IqrfDb: added support for non-certified products, use driver hashes, update and reload drivers when changes are detected
+  * IqrfDb: fixed a bug where sensor enumeration would update incorrect device sensors
+  * AutonetworkService: updated wave state messages
+  * IqrfDb: fixed product driver reloading
+  * added product name to database, updated sqlite dependencies
+  * iqrfDb_GetDevice: fixed response api schema and response object when db record does not exist
+  * IqrfSensorData: fixed segfault caused by unintentionally moving contents of unique pointer twice
+
+  [ Roman Ondráček ]
+  * IqrfInfo: remove API schemas and examples of deleted IqrfInfo component
+
+  [ Karel Hanák ]
+  * IqrfSensorData: updated schema indentation, added missing statusStr to responses
+  * API: added iqrfDb_Reset examples
+  * IqrfDb: updated device metadata, updated api schemas, added examples, enumeration error response
+  * updated iqmeshNetwork_RemoveBond examples
+  * IqrfSensorData: updated scheduling of next worker read
+  * IqrfDb: fixed sensor enumeration
+  * IqrfSensorData: resolve missing data from sensors into breakdowns with null measurement value
+  * IqrfDb: fixed device sensor index-sensorId map, sort devices and sensors by address/index
+  * IqrfDb: rework internal binout API
+  * IqrfDb: rework internal light API
+  * iqrfDb: added sensor value type to GetSensors response schema
+  * IqrfSensorData: resolve missing data into breakdown using database records and cache quantity records
+  * IqrfDb: complete the entire enumeration cycle within a single exclusive access ownership
+  * JsonDbApi: updated get and set device metadata messages
+  * JsonDbApi: fixed metadata doc nesting into response document
+  * updated license headers
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Thu, 16 Jan 2025 15:18:13 +0100
 
 iqrf-gateway-daemon (2.7.0~alpha~1.gbpc5fe08) UNRELEASED; urgency=medium
 
