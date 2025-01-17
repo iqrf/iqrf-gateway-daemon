@@ -15,8 +15,8 @@ Package: iqrf-gateway-daemon
 Architecture: any
 Multi-Arch: foreign
 Depends: ${misc:Depends}, ${shlibs:Depends}, jq
-Replaces: iqrf-daemon (<< 2.0.0)
-Breaks: iqrf-daemon (<< 2.0.0)
+Replaces: iqrf-daemon (<< 2.0.0), iqrf-gateway-daemon (<< 2.99.0)
+Breaks: iqrf-daemon (<< 2.0.0), iqrf-gateway-daemon (<< 2.99.0)
 Description: IQRF Gateway Daemon
  IQRF Gateway Daemon is a powerful open source software allowing to easily
  create an IQRF gateway with Internet connectivity from a Linux machine.
