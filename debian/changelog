@@ -1,6 +1,4 @@
-iqrf-gateway-daemon (2.99.0~alpha~1.gbp3837f5) UNRELEASED; urgency=medium
-
-  ** SNAPSHOT build @3837f581d101f96ea41d9bb04be55175ca88c484 **
+iqrf-gateway-daemon (2.99.0~rc1) testing; urgency=medium
 
   [ Karel Hanák ]
   * updated license headers
@@ -107,8 +105,9 @@ iqrf-gateway-daemon (2.99.0~alpha~1.gbp3837f5) UNRELEASED; urgency=medium
   * JsonDbApi: fixed metadata doc nesting into response document
   * updated license headers
   * updated changelog
+  * version 2.99.0
 
- -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 17 Jan 2025 09:37:56 +0100
+ -- Karel Hanák <karel.hanak@iqrf.org>  Mon, 20 Jan 2025 16:23:06 +0100
 
 iqrf-gateway-daemon (2.7.0~alpha~1.gbpc5fe08) UNRELEASED; urgency=medium
 
