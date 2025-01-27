@@ -589,6 +589,9 @@ namespace iqrf {
 				continue;
 			}
 			auto cacheProduct = m_cacheService->getProduct(dbProduct.getHwpid());
+			if (!cacheProduct) {
+				continue;
+			}
 			dbProduct.setName(std::make_shared<std::string>(cacheProduct->m_name));
 			m_db->update(dbProduct);
 		}
