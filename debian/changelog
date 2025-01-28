@@ -1,10 +1,10 @@
-iqrf-gateway-daemon (2.99.0~rc2~1.gbp88fca8) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.99.0~rc2) testing; urgency=medium
 
-  ** SNAPSHOT build @88fca829a8a9631cfbb1f5a85ebea379cebd67d1 **
+  [ Karel Hanák ]
+  * Prepare for version rc2
+  * IqrfDb: check for existence of product when updating product name
 
-  * UNRELEASED
-
- -- Karel Hanák <karel.hanak@iqrf.org>  Mon, 20 Jan 2025 16:26:00 +0100
+ -- Karel Hanák <karel.hanak@iqrf.org>  Tue, 28 Jan 2025 09:48:16 +0100
 
 iqrf-gateway-daemon (2.99.0~rc1) testing; urgency=medium
 
