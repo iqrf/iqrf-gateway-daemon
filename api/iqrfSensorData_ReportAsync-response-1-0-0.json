@@ -77,9 +77,6 @@
                   },
                   "rssi": {
                   },
-                  "voltage": {
-                    "$ref": "definitions.json#/device/voltage"
-                  },
                   "sensors": {
                     "title": "Sensors",
                     "description": "Sensor information and values.",
