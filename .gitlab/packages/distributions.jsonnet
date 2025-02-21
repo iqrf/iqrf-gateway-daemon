@@ -1,4 +1,7 @@
 [
+	{ name: 'debian', version: 'trixie', arch: 'amd64' },
+	{ name: 'debian', version: 'trixie', arch: 'arm64' },
+	{ name: 'debian', version: 'trixie', arch: 'armhf' },
 	{ name: 'debian', version: 'bookworm', arch: 'amd64' },
 	{ name: 'debian', version: 'bookworm', arch: 'arm64' },
 	{ name: 'debian', version: 'bookworm', arch: 'armhf' },
