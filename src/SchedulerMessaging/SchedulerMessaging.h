@@ -16,13 +16,19 @@
  */
 #pragma once
 
-#include "IMessagingService.h"
-#include "IMessagingSplitterService.h"
-#include "ISchedulerService.h"
-#include "TaskQueue.h"
-#include "ShapeProperties.h"
-#include "ITraceService.h"
+#include <list>
 #include <string>
+#include <vector>
+
+#include "IMessagingService.h"
+#include "ISchedulerService.h"
+#include "ITraceService.h"
+#include "ShapeProperties.h"
+#include "Trace.h"
+
+#include "rapidjson/pointer.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 
 namespace iqrf {
   class SchedulerMessaging : public IMessagingService
@@ -40,9 +46,6 @@ namespace iqrf {
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);
-
-    //void attachInterface(IMessagingSplitterService* iface);
-    //void detachInterface(IMessagingSplitterService* iface);
 
     void attachInterface(ISchedulerService* iface);
     void detachInterface(ISchedulerService* iface);
