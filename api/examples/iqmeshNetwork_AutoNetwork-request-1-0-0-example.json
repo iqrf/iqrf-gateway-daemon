@@ -5,12 +5,12 @@
     "req": {
       "discoveryTxPower": 1,
       "discoveryBeforeStart": false,
-      "actionRetries": 1,
       "stopConditions": {
         "waves": 2,
         "emptyWaves": 1
       }
     },
+    "repeat": 1,
     "returnVerbose": true
   }
 }

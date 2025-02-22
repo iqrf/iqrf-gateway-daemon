@@ -275,7 +275,7 @@ namespace iqrf {
         perEnumPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         perEnumRequest.DataToBuffer(perEnumPacket.Buffer, sizeof(TDpaIFaceHeader));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(perEnumRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(perEnumRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from Device Exploration transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("Device exploration successful!");
@@ -318,7 +318,7 @@ namespace iqrf {
         setFrcParamPacket.DpaRequestPacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FrcParams = FRCresponseTime;
         setFrcParamRequest.DataToBuffer(setFrcParamPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerFrcSetParams_RequestResponse));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(setFrcParamRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(setFrcParamRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from Set Hops transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("Set Hops successful!");
@@ -357,7 +357,7 @@ namespace iqrf {
         setDpaParamsPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSetDpaParams_Request_Response.DpaParam = DpaParam;
         setDpaParamsRequest.DataToBuffer(setDpaParamsPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerCoordinatorSetDpaParams_Request_Response));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(setDpaParamsRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(setDpaParamsRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from Set DPA params transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("Set DPA params successful!");
@@ -397,7 +397,7 @@ namespace iqrf {
         setHopsPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSetHops_Request_Response.ResponseHops = ResponseHops;
         setHopsRequest.DataToBuffer(setHopsPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerCoordinatorSetHops_Request_Response));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(setHopsRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(setHopsRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from Set Hops transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("Set Hops successful!");
@@ -439,7 +439,7 @@ namespace iqrf {
         // Data to buffer
         XMemoryReadRequest.DataToBuffer(XMemoryReadPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(uint16_t) + sizeof(uint8_t));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(XMemoryReadRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(XMemoryReadRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from XMemoryRequest transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("Read XMemoryRequest successful!");
@@ -480,7 +480,7 @@ namespace iqrf {
         addrInfoPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         addrInfoRequest.DataToBuffer(addrInfoPacket.Buffer, sizeof(TDpaIFaceHeader));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(addrInfoRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(addrInfoRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from Get addressing information transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("Get addressing information successful!");
@@ -518,7 +518,7 @@ namespace iqrf {
         getBondedNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         getBondedNodesRequest.DataToBuffer(getBondedNodesPacket.Buffer, sizeof(TDpaIFaceHeader));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(getBondedNodesRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(getBondedNodesRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from get bonded nodes transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("Get bonded nodes successful!");
@@ -557,7 +557,7 @@ namespace iqrf {
         getDiscoveredNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         getDiscoveredNodesRequest.DataToBuffer(getDiscoveredNodesPacket.Buffer, sizeof(TDpaIFaceHeader));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(getDiscoveredNodesRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(getDiscoveredNodesRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from Get discovered nodes transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("Get discovered nodes successful!");
@@ -703,7 +703,7 @@ namespace iqrf {
         // Data to buffer
         smartConnectRequest.DataToBuffer(smartConnectPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerCoordinatorSmartConnect_Request));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(smartConnectRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(smartConnectRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from Smart Connect transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("Smart Connect successful!");
@@ -747,7 +747,7 @@ namespace iqrf {
         prebondedAlivePacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x01] = 0;
         prebondedAliveRequest.DataToBuffer(prebondedAlivePacket.Buffer, sizeof(TDpaIFaceHeader) + 3);
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(prebondedAliveRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(prebondedAliveRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from FRC Prebonded Alive transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("FRC Prebonded Alive successful!");
@@ -826,7 +826,7 @@ namespace iqrf {
         prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x06] = 0x00;
         prebondedMemoryRequest.DataToBuffer(prebondedMemoryPacket.Buffer, sizeof(TDpaIFaceHeader) + 38);
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(prebondedMemoryRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(prebondedMemoryRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from FRC Prebonded Memory Read transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("FRC FRC Prebonded Memory Read successful!");
@@ -866,7 +866,7 @@ namespace iqrf {
           extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
           extraResultRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
           // Execute the DPA request
-          m_exclusiveAccess->executeDpaTransactionRepeat(extraResultRequest, transResult, antwInputParams.actionRetries);
+          m_exclusiveAccess->executeDpaTransactionRepeat(extraResultRequest, transResult, antwInputParams.repeat);
           TRC_DEBUG("Result from FRC CMD_FRC_EXTRARESULT transaction as string:" << PAR(transResult->getErrorString()));
           dpaResponse = transResult->getResponse();
           TRC_INFORMATION("FRC CMD_FRC_EXTRARESULT successful!");
@@ -925,7 +925,7 @@ namespace iqrf {
         prebondedMemoryCompare2BPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x09] = 0x00;
         prebondedMemoryCompare2BRequest.DataToBuffer(prebondedMemoryCompare2BPacket.Buffer, sizeof(TDpaIFaceHeader) + 11);
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(prebondedMemoryCompare2BRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(prebondedMemoryCompare2BRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from FRC Prebonded Memory Read transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("FRC FRC Prebonded Memory Read successful!");
@@ -962,7 +962,7 @@ namespace iqrf {
         extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         extraResultRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(extraResultRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(extraResultRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from FRC CMD_FRC_EXTRARESULT transaction as string:" << PAR(transResult->getErrorString()));
         dpaResponse = transResult->getResponse();
         TRC_INFORMATION("FRC CMD_FRC_EXTRARESULT successful!");
@@ -1016,7 +1016,7 @@ namespace iqrf {
         // Data to buffer
         authorizeBondRequest.DataToBuffer(authorizeBondPacket.Buffer, sizeof(TDpaIFaceHeader) + index);
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(authorizeBondRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(authorizeBondRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from Authorize Bond transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("Authorize Bond ok!");
@@ -1061,7 +1061,7 @@ namespace iqrf {
         // Data to buffer
         checkNewNodesRequest.DataToBuffer(checkNewNodesPacket.Buffer, sizeof(TDpaIFaceHeader) + 3);
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(checkNewNodesRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(checkNewNodesRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from Check new nodes transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("Check new nodes ok!");
@@ -1157,7 +1157,7 @@ namespace iqrf {
         // Data to buffer
         frcAckBroadcastRequest.DataToBuffer(frcAckBroadcastPacket.Buffer, requestLength);
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(frcAckBroadcastRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(frcAckBroadcastRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from Remove bond and restart (SELECTIVE BROADCAST BATCH) transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("Selective BATCH Remove bond and restart ok!");
@@ -1210,7 +1210,7 @@ namespace iqrf {
         // Data to buffer
         removeBondAtCoordinatorRequest.DataToBuffer(removeBondAtCoordinatorPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerCoordinatorRemoveBond_Request));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(removeBondAtCoordinatorRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(removeBondAtCoordinatorRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from Remove bond at Coordinator transaction as string:" << PAR(transResult->getErrorString()));
         TRC_INFORMATION("Remove bond and restart ok!");
         TRC_DEBUG(
@@ -1250,7 +1250,7 @@ namespace iqrf {
         // Data to buffer
         runDiscoveryRequest.DataToBuffer(runDiscoveryPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerCoordinatorDiscovery_Request));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(runDiscoveryRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(runDiscoveryRequest, transResult, antwInputParams.repeat);
         TRC_INFORMATION("Run discovery ok!");
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_DEBUG(
@@ -1328,7 +1328,7 @@ namespace iqrf {
               // Data to buffer
               validateBondRequest.DataToBuffer(validateBondPacket.Buffer, sizeof(TDpaIFaceHeader) + index * sizeof(TPerNodeValidateBondsItem));
               // Execute the DPA request
-              m_exclusiveAccess->executeDpaTransactionRepeat(validateBondRequest, transResult, antwInputParams.actionRetries);
+              m_exclusiveAccess->executeDpaTransactionRepeat(validateBondRequest, transResult, antwInputParams.repeat);
               TRC_INFORMATION("CMD_NODE_VALIDATE_BONDS ok!");
               DpaMessage dpaResponse = transResult->getResponse();
               TRC_DEBUG(
@@ -1372,7 +1372,7 @@ namespace iqrf {
         // Data to buffer
         validateBondRequest.DataToBuffer(validateBondPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerNodeValidateBondsItem));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(validateBondRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(validateBondRequest, transResult, antwInputParams.repeat);
         TRC_INFORMATION("CMD_NODE_VALIDATE_BONDS ok!");
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_DEBUG(
@@ -1416,7 +1416,7 @@ namespace iqrf {
         // Data to buffer
         frcRestartNodesRequest.DataToBuffer(frcRestartNodesPacket.Buffer, sizeof(TDpaIFaceHeader) + 6);
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(frcRestartNodesRequest, transResult, antwInputParams.actionRetries);
+        m_exclusiveAccess->executeDpaTransactionRepeat(frcRestartNodesRequest, transResult, antwInputParams.repeat);
         TRC_DEBUG("Result from FRC_AcknowledgedBroadcastBits Restart transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("FRC_AcknowledgedBroadcastBits Restart nodes ok!");
@@ -2622,7 +2622,7 @@ namespace iqrf {
                 // Any nodes in the list ?
                 if (authrozireNodes.size() != 0)
                 {
-                  retryAction = antwInputParams.actionRetries + 1;
+                  retryAction = antwInputParams.repeat + 1;
                   do
                   {
                     try
@@ -2664,7 +2664,7 @@ namespace iqrf {
               if ((node.second.authorize == true) && (node.second.supportMultipleAuth == false))
               {
                 // Yes, authorize the node
-                retryAction = antwInputParams.actionRetries + 1;
+                retryAction = antwInputParams.repeat + 1;
                 do
                 {
                   try
@@ -2731,13 +2731,13 @@ namespace iqrf {
             antwProcessParams.waveStateCode = TWaveStateCode::ping;
             sendWaveState();
             FrcOnlineNodes.clear();
-            retryAction = antwInputParams.actionRetries + 1;
+            retryAction = antwInputParams.repeat + 1;
             while ((FrcSelect.size() != 0) && (retryAction-- != 0))
             {
               try
               {
                 // Add delay at next retries
-                if (retryAction != antwInputParams.actionRetries)
+                if (retryAction != antwInputParams.repeat)
                 {
                   // ToDo
                   std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_REPEAT));
@@ -2798,11 +2798,11 @@ namespace iqrf {
             std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_STEP));
 
             // Remove not responded nodes
-            retryAction = antwInputParams.actionRetries + 1;
+            retryAction = antwInputParams.repeat + 1;
             while ((FrcSelect.size() != 0) && (retryAction-- != 0))
             {
               // Add dealy at next retries
-              if (retryAction != antwInputParams.actionRetries)
+              if (retryAction != antwInputParams.repeat)
               {
                 // ToDo
                 std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_REPEAT));
@@ -2908,7 +2908,7 @@ namespace iqrf {
           {
             if ((antwProcessParams.countWaveNewNodes != 0) || ((antwInputParams.unbondUnrespondingNodes == false) && (errorNodeBonded == true)))
             {
-              retryAction = antwInputParams.actionRetries + 1;
+              retryAction = antwInputParams.repeat + 1;
               do
               {
                 TRC_INFORMATION("Running discovery.");
@@ -2968,13 +2968,13 @@ namespace iqrf {
         {
           TRC_INFORMATION("Restarting nodes.");
           std::basic_string<uint8_t> FrcOfflineNodes;
-          uint8_t retryAction = antwInputParams.actionRetries + 1;
+          uint8_t retryAction = antwInputParams.repeat + 1;
           do
           {
             try
             {
               // Add delay at next retries
-              if (--retryAction != antwInputParams.actionRetries)
+              if (--retryAction != antwInputParams.repeat)
               {
                 // ToDo
                 std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_REPEAT));

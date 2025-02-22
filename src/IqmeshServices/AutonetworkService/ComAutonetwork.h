@@ -31,7 +31,6 @@ namespace iqrf {
     bool unbondUnrespondingNodes;
     bool abortOnTooManyNodesFound;
     bool skipPrebonding;
-    uint8_t actionRetries;
     struct {
       std::basic_string<uint8_t> addressSpace;
       std::bitset<MAX_ADDRESS + 1> addressSpaceBitmap;
@@ -53,6 +52,7 @@ namespace iqrf {
       uint8_t numberOfTotalNodes;
       uint8_t numberOfNewNodes;
     } stopConditions;
+    int repeat;
   } TAutonetworkInputParams;
 
   /// Autonetwork parameters class
@@ -100,6 +100,13 @@ namespace iqrf {
     void parseRequest(rapidjson::Document &doc) {
       rapidjson::Value *jsonValue;
 
+      // repeat
+      if ((jsonValue = rapidjson::Pointer("/data/repeat").Get(doc))) {
+        m_autonetworkParams.repeat = jsonValue->GetInt();
+      } else {
+        m_autonetworkParams.repeat = 1;
+      }
+
       // discoveryTxPower
       if ((jsonValue = rapidjson::Pointer("/data/req/discoveryTxPower").Get(doc))) {
         m_autonetworkParams.discoveryTxPower = (uint8_t)jsonValue->GetUint();
@@ -138,14 +145,6 @@ namespace iqrf {
       }
       else {
         m_autonetworkParams.skipPrebonding = false;
-      }
-
-      // actionRetries
-      if ((jsonValue = rapidjson::Pointer("/data/req/actionRetries").Get(doc))) {
-        m_autonetworkParams.actionRetries = (uint8_t)jsonValue->GetUint();
-      }
-      else {
-        m_autonetworkParams.actionRetries = 1;
       }
 
       // addressSpace

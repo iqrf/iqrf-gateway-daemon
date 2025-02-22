@@ -37,13 +37,6 @@
           ],
           "additionalProperties": false,
           "properties": {
-            "actionRetries": {
-              "description": "Number of retries DPA transactions.",
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 10,
-              "default": 1
-            },
             "addressSpace": {
               "title": "Address space",
               "description": "List of addresses which can be assigned during Autonetwork.",
