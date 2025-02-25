@@ -21,7 +21,8 @@
       "type": "object",
       "required": [
         "msgId",
-        "status"
+        "status",
+        "statusStr"
       ],
       "additionalProperties": false,
       "properties": {
@@ -33,7 +34,11 @@
           "description": "Holds response data",
           "type": "object",
           "required": [
-            "deviceAddr"
+            "deviceAddr",
+            "manufacturer",
+            "osRead",
+            "product",
+            "standards"
           ],
           "additionalProperties": false,
           "properties": {
@@ -80,9 +85,14 @@
               "description": "Embedded peripheral OS - Read response.",
               "type": "object",
               "required": [
+                "flags",
                 "mid",
                 "osVersion",
-                "osBuild"
+                "osBuild",
+                "trMcuType",
+                "rssi",
+                "slotLimits",
+                "supplyVoltage"
               ],
               "additionalProperties": false,
               "properties": {
@@ -118,8 +128,12 @@
               "type": "object",
               "required": [
                 "dpaVer",
+                "embPers",
+                "flags",
                 "hwpId",
-                "hwpIdVer"
+                "hwpIdVer",
+                "perNr",
+                "userPers"
               ],
               "additionalProperties": false,
               "properties": {
