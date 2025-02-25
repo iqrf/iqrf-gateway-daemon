@@ -59,6 +59,7 @@
                 "zone",
                 "parent"
               ],
+              "additionalProperties": false,
               "properties": {
                 "discovered": {
                   "$ref": "definitions.json#/node/discovered"
@@ -83,6 +84,7 @@
                 "osVersion",
                 "osBuild"
               ],
+              "additionalProperties": false,
               "properties": {
                 "mid": {
                   "$ref": "definitions.json#/transceiver/idStr"
@@ -119,6 +121,7 @@
                 "hwpId",
                 "hwpIdVer"
               ],
+              "additionalProperties": false,
               "properties": {
                 "dpaVer": {
                   "$ref": "definitions.json#/dpa/versionStr"
@@ -146,79 +149,180 @@
             "trConfiguration": {
               "title": "TR Configuration",
               "description": "Embedded peripheral OS - Read TR Configuration response.",
+              "type": "object",
+              "required": [
+                "embPers",
+                "customDpaHandler",
+                "dpaAutoexec",
+                "routingOff",
+                "ioSetup",
+                "peerToPeer",
+                "rfBand",
+                "rfChannelA",
+                "rfChannelB",
+                "txPower",
+                "rxFilter",
+                "lpRxTimeout",
+                "rfAltDsmChannel",
+                "uartBaudrate",
+                "rfPgmEnableAfterReset",
+                "rfPgmTerminateAfter1Min",
+                "rfPgmTerminateMcuPin",
+                "rfPgmDualChannel",
+                "rfPgmLpMode",
+                "rfPgmIncorrectUpload"
+              ],
+              "additionalProperties": false,
               "properties": {
-                "embPeripherals": {
-                  "description": "Array of supported peripherals (their ordinal numbers) on the node, which are enabled in the TR configuration.",
-                  "$ref": "definitions.json#/peripheral/embedded"
+                "embPers": {
+                  "title": "Embedded peripherals",
+                  "description": "Information about the embedded peripheral configuration of the TR module.",
+                  "type": "object",
+                  "required": [
+                    "values",
+                    "coordinator",
+                    "node",
+                    "os",
+                    "eeprom",
+                    "eeeprom",
+                    "ram",
+                    "ledr",
+                    "ledg",
+                    "io",
+                    "thermometer",
+                    "uart"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "values": {
+                      "title": "Supported embedded peripherals",
+                      "description": "Bits array (stored in 4 bytes) specifying which of 32 embedded peripherals are enabled in the TR Configuration.",
+                      "type": "array",
+                      "items": {
+                        "description": "One byte of EmbeddedPers.",
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 255
+                      },
+                      "minItems": 4,
+                      "maxItems": 4
+                    },
+                    "coordinator": {
+                      "title": "Coordinator",
+                      "description": "If coordinator is enabled.",
+                      "type": "boolean"
+                    },
+                    "node": {
+                      "title": "Node",
+                      "description": "If node is enabled.",
+                      "type": "boolean"
+                    },
+                    "os": {
+                      "title": "OS",
+                      "description": "If OS is enabled.",
+                      "type": "boolean"
+                    },
+                    "eeprom": {
+                      "title": "EEPROM",
+                      "description": "If EEPROM is enabled.",
+                      "type": "boolean"
+                    },
+                    "eeeprom": {
+                      "title": "EEEPROM",
+                      "description": "If EEEPROM is enabled.",
+                      "type": "boolean"
+                    },
+                    "ram": {
+                      "title": "RAM",
+                      "description": "If RAM is enabled.",
+                      "type": "boolean"
+                    },
+                    "ledr": {
+                      "title": "Red LED",
+                      "description": "If LEDR is enabled.",
+                      "type": "boolean"
+                    },
+                    "ledg": {
+                      "title": "Green LED",
+                      "description": "If LEDG is enabled.",
+                      "type": "boolean"
+                    },
+                    "spi": {
+                      "title": "SPI",
+                      "description": "If SPI is enabled.",
+                      "type": "boolean"
+                    },
+                    "io": {
+                      "title": "IO",
+                      "description": "If IO is enabled.",
+                      "type": "boolean"
+                    },
+                    "thermometer": {
+                      "title": "Thermometer",
+                      "description": "If thermometer is enabled.",
+                      "type": "boolean"
+                    },
+                    "pwm": {
+                      "title": "PWM",
+                      "description": "If PWM is enabled.",
+                      "type": "boolean"
+                    },
+                    "uart": {
+                      "title": "UART",
+                      "description": "If UART is enabled.",
+                      "type": "boolean"
+                    },
+                    "frc": {
+                      "title": "FRC",
+                      "description": "If FRC is enabled.",
+                      "type": "boolean"
+                    }
+                  }
                 },
-                "coordinator": {
-                  "title": "Coordinator",
-                  "description": "If coordinator is enabled.",
+
+                "customDpaHandler": {
+                  "title": "Custom DPA handler",
+                  "description": "If set, then a Custom DPA handler is called in case of an event.",
                   "type": "boolean"
                 },
-                "node": {
-                  "title": "Node",
-                  "description": "If node is enabled.",
+                "dpaPeerToPeer": {
+                  "title": "DPA P2P",
+                  "description": "If set, then DP2P is enabled at [N].",
                   "type": "boolean"
                 },
-                "os": {
-                  "title": "OS",
-                  "description": "If OS is enabled.",
+                "nodeDpaInterface": {
+                  "title": "Node DPA interface",
+                  "description": "If set, then Node device can be controlled by a SPI or UART interface. Valid only in DPA version < 4.00",
                   "type": "boolean"
                 },
-                "eeprom": {
-                  "title": "EEPROM",
-                  "description": "If EEPROM is enabled.",
+                "dpaAutoexec": {
+                  "title": "DPA Autoexec",
+                  "description": "If set, then DPA Autoexec is run at a later stage of the module boot time.",
                   "type": "boolean"
                 },
-                "eeeprom": {
-                  "title": "EEEPROM",
-                  "description": "If EEEPROM is enabled.",
+                "routingOff": {
+                  "title": "Routing Off",
+                  "description": "If set, then the Node device does not route packets on the background.",
                   "type": "boolean"
                 },
-                "ram": {
-                  "title": "RAM",
-                  "description": "If RAM is enabled.",
+                "ioSetup": {
+                  "title": "IO Setup",
+                  "description": "If set, then DPA IO Setup is run at an early stage of the module boot time.",
                   "type": "boolean"
                 },
-                "ledr": {
-                  "title": "Red LED",
-                  "description": "If LEDR is enabled.",
+                "peerToPeer": {
+                  "title": "P2P",
+                  "description": "If set, then device receives also peer-to-peer (non-networking) packets and raises PeerToPeer event.",
                   "type": "boolean"
                 },
-                "ledg": {
-                  "title": "Green LED",
-                  "description": "If LEDG is enabled.",
+                "neverSleep": {
+                  "title": "Do not sleep",
+                  "description": "If set, then unbonded Node using default IQRF buttons never sleeps during the button bonding. From DPA v3.03",
                   "type": "boolean"
                 },
-                "spi": {
-                  "title": "SPI",
-                  "description": "If SPI is enabled.",
-                  "type": "boolean"
-                },
-                "io": {
-                  "title": "IO",
-                  "description": "If IO is enabled.",
-                  "type": "boolean"
-                },
-                "thermometer": {
-                  "title": "Thermometer",
-                  "description": "If thermometer is enabled.",
-                  "type": "boolean"
-                },
-                "pwm": {
-                  "title": "PWM",
-                  "description": "If PWM is enabled.",
-                  "type": "boolean"
-                },
-                "uart": {
-                  "title": "UART",
-                  "description": "If UART is enabled.",
-                  "type": "boolean"
-                },
-                "frc": {
-                  "title": "FRC",
-                  "description": "If FRC is enabled.",
+                "stdAndLpNetwork": {
+                  "title": "STD+LP Network",
+                  "description": "If the bit is set, then the [C] controls the STD+LP network; otherwise, it controls the STD network. The bit can only be changed if the network is empty (no [Ns] are bonded) otherwise the network will stop working. From DPA v4.00",
                   "type": "boolean"
                 },
 
@@ -276,11 +380,17 @@
                   "description": "A nonzero value specifies an alternative DPA service mode channel.",
                   "type": "integer"
                 },
+                "uartBaudrate": {
+                  "title": "UART Baudrate",
+                  "description": "Baud rate of the UART interface if one is used.",
+                  "type": "integer"
+                },
                 "localFrcReception": {
                   "title": "Local FRC reception",
                   "description": "If set, then Local FRC reception is enabled at [N].",
                   "type": "boolean"
                 },
+
                 "rfPgmEnableAfterReset": {
                   "title": "RFPGM after reset",
                   "description": "If sets, then activates RFPGM invoking by TR module reset.",
@@ -312,56 +422,6 @@
                   "type": "boolean"
                 },
 
-                "customDpaHandler": {
-                  "title": "Custom DPA handler",
-                  "description": "If set, then a Custom DPA handler is called in case of an event.",
-                  "type": "boolean"
-                },
-                "dpaPeerToPeer": {
-                  "title": "DPA P2P",
-                  "description": "If set, then DP2P is enabled at [N].",
-                  "type": "boolean"
-                },
-                "nodeDpaInterface": {
-                  "title": "Node DPA interface",
-                  "description": "If set, then Node device can be controlled by a SPI or UART interface. Valid only in DPA version < 4.00",
-                  "type": "boolean"
-                },
-                "uartBaudrate": {
-                  "title": "UART Baudrate",
-                  "description": "Baud rate of the UART interface if one is used.",
-                  "type": "integer"
-                },
-                "dpaAutoexec": {
-                  "title": "DPA Autoexec",
-                  "description": "If set, then DPA Autoexec is run at a later stage of the module boot time.",
-                  "type": "boolean"
-                },
-                "routingOff": {
-                  "title": "Routing Off",
-                  "description": "If set, then the Node device does not route packets on the background.",
-                  "type": "boolean"
-                },
-                "ioSetup": {
-                  "title": "IO Setup",
-                  "description": "If set, then DPA IO Setup is run at an early stage of the module boot time.",
-                  "type": "boolean"
-                },
-                "peerToPeer": {
-                  "title": "P2P",
-                  "description": "If set, then device receives also peer-to-peer (non-networking) packets and raises PeerToPeer event.",
-                  "type": "boolean"
-                },
-                "neverSleep": {
-                  "title": "Do not sleep",
-                  "description": "If set, then unbonded Node using default IQRF buttons never sleeps during the button bonding. From DPA v3.03",
-                  "type": "boolean"
-                },
-                "stdAndLpNetwork": {
-                  "title": "STD+LP Network",
-                  "description": "If the bit is set, then the [C] controls the STD+LP network; otherwise, it controls the STD network. The bit can only be changed if the network is empty (no [Ns] are bonded) otherwise the network will stop working. From DPA v4.00",
-                  "type": "boolean"
-                },
                 "thermometerSensorPresent": {
                   "title": "Thermometer sensor",
                   "description": "If set, on-board thermometer sensor chip is present.",
