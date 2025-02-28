@@ -1,160 +1,117 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_OtaUpload-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "IQMESH Network - OTA Upload response",
+  "description": "(c) IQRF Tech",
   "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
   "properties": {
     "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - Upload hex or iqrf file response.",
-      "enum": [
-        "iqmeshNetwork_OtaUpload"
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "iqmeshNetwork_OtaUpload" }
       ]
     },
     "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
       "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
       "properties": {
         "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
+          "$ref": "definitions.json#/message/id"
         },
         "rsp": {
+          "title": "Response",
+          "description": "Holds response data",
           "type": "object",
-          "description": "Returns following values, see its description.",
-          "properties": {
-            "deviceAddr": {
-              "type": "integer",
-              "description": "Device address to load the code to. Broadcast address is also allowed."
-            },
-            "hwpId": {
-              "type": "integer",
-              "description": "Hardware profile ID of the devices to write the hex or iqrf file."
-            },
-            "loadingAction": {
-              "type": "string",
-              "description": "Loading action - WithoutCodeLoading, WithCodeLoading."
-            },
-            "uploadResult": {
-              "type": "boolean",
-              "description": "If sets, then selected file has been successfully loaded."
-            },
-            "verifyResult": {
-              "type": "array",
-              "description": "Returns result of verify action.",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "address": {
-                    "type": "integer",
-                    "description": "Device address."
-                  },
-                  "result": {
-                    "type": "boolean",
-                    "description": "Result."
-                  }
-                },
-                "required": [
-                  "address",
-                  "result"
-                ],
-                "maxItems": 239
-              }
-            },
-            "loadResult": {
-              "type": "array",
-              "description": "Returns result of verify action.",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "address": {
-                    "type": "integer",
-                    "description": "Device address."
-                  },
-                  "result": {
-                    "type": "boolean",
-                    "description": "Result."
-                  }
-                },
-                "required": [
-                  "address",
-                  "result"
-                ],
-                "maxItems": 239
-              }
-            }
-          },
           "required": [
             "deviceAddr",
             "hwpId",
             "loadingAction"
-          ]
-        },
-        "raw": {
-          "type": "array",
-          "description": "Returns array of objects req-cnf-rsp, see its description.",
-          "items": {
-            "type": "object",
-            "properties": {
-              "request": {
-                "type": "string",
-                "description": "Binary buffer with DPA request."
-              },
-              "requestTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "confirmation": {
-                "type": "string",
-                "description": "Binary buffer with DPA confirmation."
-              },
-              "confirmationTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "response": {
-                "type": "string",
-                "description": "Binary buffer with DPA response."
-              },
-              "responseTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "deviceAddr": {
+              "$ref": "definitions.json#/node/address"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/request/hwpId"
+            },
+            "loadingAction": {
+              "$ref": "definitions.json#/iqmesh/ota/loadingAction"
+            },
+            "uploadResult": {
+              "type": "boolean",
+              "description": "Whether the selected file has been successfully loaded."
+            },
+            "verifyResult": {
+              "description": "Returns result of the verification.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "address",
+                  "result"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "address": {
+                    "$ref": "definitions.json#/node/address"
+                  },
+                  "result": {
+                    "description": "Verification result.",
+                    "type": "boolean"
+                  }
+                },
+                "maxItems": 239
               }
             },
-            "required": [
-              "request",
-              "requestTs",
-              "confirmation",
-              "confirmationTs",
-              "response",
-              "responseTs"
-            ]
+            "loadResult": {
+              "description": "Returns result of the code loading.",
+              "type": "array",
+              "required": [
+                "address",
+                "result"
+              ],
+              "additionalProperties": false,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "$ref": "definitions.json#/node/address"
+                  },
+                  "result": {
+                    "description": "Loading result.",
+                    "type": "boolean"
+                  }
+                },
+                "maxItems": 239
+              }
+            }
           }
         },
+        "raw": {
+          "$ref": "definitions.json#/response/raw"
+        },
         "insId": {
-          "type": "string",
-          "description": "IQRF GW daemon instance identification."
+          "$ref": "definitions.json#/response/insId"
         },
         "status": {
-          "type": "integer",
-          "description": "IQRF GW daemon API (general or mType) status."
+          "$ref": "definitions.json#/response/status"
         },
         "statusStr": {
-          "type": "string",
-          "description": "IQRF GW daemon API (general or mType) status in string form."
+          "$ref": "definitions.json#/response/statusStr"
         }
-      },
-      "required": [
-        "msgId",
-        "status"
-      ]
+      }
     }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+  }
 }

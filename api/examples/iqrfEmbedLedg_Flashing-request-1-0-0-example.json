@@ -1,10 +1,9 @@
 {
   "mType": "iqrfEmbedLedg_Flashing",
   "data": {
-    "msgId": "testEmbedLedg",
+    "msgId": "1e42b93a-cf46-4ab2-ac6d-dd59c672aadb",
     "req": {
-      "nAdr": 15,
-      "param": {}
+      "nAdr": 1
     },
     "returnVerbose": true
   }

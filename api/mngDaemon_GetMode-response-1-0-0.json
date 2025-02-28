@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Daemon Management - Get mode response",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "mngDaemon_GetMode" }
+      ]
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/message/id"
+        },
+        "rsp": {
+          "title": "Response",
+          "description": "Holds response data",
+          "type": "object",
+          "required": [
+            "operMode"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "operMode": {
+              "description": "Daemon operating mode.",
+              "type": "string",
+              "enum": [
+                "forwarding",
+                "operational",
+                "service",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "insId": {
+          "$ref": "definitions.json#/response/insId"
+        },
+        "status": {
+          "$ref": "definitions.json#/response/status"
+        },
+        "statusStr": {
+          "$ref": "definitions.json#/response/statusStr"
+        },
+        "errorStr": {
+          "$ref": "definitions.json#/response/errorStr"
+        }
+      }
+    }
+  }
+}

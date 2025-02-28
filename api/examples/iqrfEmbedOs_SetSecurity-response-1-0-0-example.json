@@ -1,24 +1,27 @@
 {
-    "mType": "iqrfEmbedOs_SetSecurity",
-    "data": {
-        "msgId": "testEmbedOs",
-        "rsp": {
-            "nAdr": 1,
-            "hwpId": 2,
-            "rCode": 0,
-            "dpaVal": 61,
-            "result": {}
-        },
-        "raw": {
-            "request": "01.00.02.06.ff.ff.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
-            "requestTs": "2018-07-16T19:46:32.880016",
-            "confirmation": "01.00.02.06.ff.ff.ff.3c.01.05.01",
-            "confirmationTs": "2018-07-16T19:46:32.914615",
-            "response": "01.00.02.86.02.00.00.3d",
-            "responseTs": "2018-07-16T19:46:33.57159"
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "iqrfEmbedOs_SetSecurity",
+  "data": {
+    "msgId": "73c34f62-67dd-4168-bbe7-a9d3327bffe9",
+    "rsp": {
+      "nAdr": 1,
+      "pNum": 2,
+      "pCmd": 134,
+      "hwpId": 5122,
+      "rCode": 0,
+      "dpaVal": 94
+    },
+    "raw": [
+      {
+        "request": "01.00.02.06.ff.ff.01.b5.10.02.48.e4.bd.68.fa.6d.89.12.e2.d5.f6.60.ea",
+        "requestTs": "2024-12-06T09:27:45.400+01:00",
+        "confirmation": "01.00.02.06.ff.ff.ff.5c.01.09.01",
+        "confirmationTs": "2024-12-06T09:27:45.450+01:00",
+        "response": "01.00.02.86.02.14.00.5e",
+        "responseTs": "2024-12-06T09:27:45.733+01:00"
+      }
+    ],
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

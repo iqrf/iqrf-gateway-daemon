@@ -1,10 +1,9 @@
 {
   "mType": "iqrfEmbedNode_Read",
   "data": {
-    "msgId": "testEmbedNode",
+    "msgId": "5820890d-ae03-4e5f-9431-6aead88dbdb4",
     "req": {
-      "nAdr": 1,
-      "param": {}
+      "nAdr": 1
     },
     "returnVerbose": true
   }

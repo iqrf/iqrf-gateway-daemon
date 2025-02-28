@@ -1,14 +1,14 @@
 {
-    "mType": "cfgDaemon_Component",
-    "data": {
-        "msgId": "testMetaDataCfg",
-        "req": {
-            "componentName": "iqrf::JsonMngMetaDataApi",
-            "componentInstance": "JsonMngMetaDataApi",
-            "configuration": {
-                "metaDataToMessages": true
-            }
-        },
-        "returnVerbose": true
-    }
+  "mType": "cfgDaemon_Component",
+  "data": {
+      "msgId": "492bc026-09bd-473d-8e24-1bca19fd4523",
+      "req": {
+          "componentName": "iqrf::MonitorService",
+          "componentInstance": "iqrf::MonitorService",
+          "configuration": {
+              "reportPeriod": 60
+          }
+      },
+      "returnVerbose": true
+  }
 }

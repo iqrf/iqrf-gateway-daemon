@@ -168,7 +168,7 @@ namespace iqrf {
       {
         const Value *val = Pointer("/pnum").Get(rawHdpRequestVal);
         if (!(val && val->IsString())) {
-          THROW_EXC_TRC_WAR(std::logic_error, "Expected: string /pnum");
+          THROW_EXC_TRC_WAR(std::logic_error, "Expected: string /pNum");
         }
         HexStringConversion::parseHexaNum(pnum, val->GetString());
       }

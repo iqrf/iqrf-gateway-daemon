@@ -1,85 +1,101 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "iqrfEmbedFrc_SendSelective-request",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"type": "string",
-			"description": "Embedded peripheral FRC - Send Selective request.",
-			"enum": ["iqrfEmbedFrc_SendSelective"]
-		},
-		"data": {
-			"type": "object",
-			"required": [
-				"msgId",
-				"req"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"type": "string",
-					"description": "Message identification for binding request with response."
-				},
-				"req": {
-					"type": "object",
-					"required": [
-						"nAdr",
-						"param"
-					],
-					"additionalProperties": false,
-					"properties": {
-						"nAdr": {
-							"type": "integer",
-							"description": "Network device address."
-						},
-						"hwpId": {
-							"type": "integer",
-							"description": "Hardware profile identification."
-						},
-						"param": {
-							"type": "object",
-							"properties": {
-								"frcCommand": {
-									"type": "integer",
-									"description": "Specifies data to be collected."
-								},
-								"selectedNodes": {
-									"type": "array",
-									"description": "Selected nodes 1 ... 30.",
-									"items": {
-										"type": "integer"
-									}
-								},
-								"userData": {
-									"type": "array",
-									"description": "User data.",
-									"items": {
-										"type": "integer"
-									}
-								}
-							}
-						}
-					}
-				},
-				"timeout": {
-					"type": "integer",
-					"description": "Timeout to wait for IQRF DPA response."
-				},
-				"returnVerbose": {
-					"type": "boolean",
-					"description": "Flag that includes additional parameters in the response."
-				}
-			}
-		}
-	}
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Peripheral FRC - Send Selective request",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "iqrfEmbedFrc_SendSelective" }
+      ]
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/message/id"
+        },
+        "req": {
+          "title": "Request",
+          "description": "Contains request specific parameters.",
+          "type": "object",
+          "required": [
+            "nAdr",
+            "param"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/node/address"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/request/hwpId"
+            },
+            "param": {
+              "title": "Request parameters",
+              "description": "Specific request parameters.",
+              "type": "object",
+              "required": [
+                "frcCommand",
+                "selectedNodes",
+                "userData"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "frcCommand": {
+                  "type": "integer",
+                  "description": "Specifies data to be collected.",
+                  "minimum": 0,
+                  "maximum": 255
+                },
+                "selectedNodes": {
+                  "type": "array",
+                  "description": "Indexes of the selected nodes.",
+                  "minItems": 1,
+                  "maxItems": 255,
+                  "uniqueItems": true,
+                  "additionalItems": false,
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                  }
+                },
+                "userData": {
+                  "type": "array",
+                  "description": "User data.",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                  },
+                  "minItems": 2,
+                  "maxItems": 25
+                }
+              }
+            }
+          }
+        },
+        "timeout": {
+          "$ref": "definitions.json#/dpa/timeout"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/request/returnVerbose"
+        }
+      }
+    }
+  }
 }

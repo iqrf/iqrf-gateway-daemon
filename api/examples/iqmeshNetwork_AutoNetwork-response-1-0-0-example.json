@@ -1,598 +1,598 @@
 [
-	{
-		"mType": "iqmeshNetwork_AutoNetwork",
-		"data": {
-			"msgId": "e794e526-cfbf-4876-bf89-784e72058754",
-			"rsp": {
-				"wave": 1,
-				"waveStateCode": 1,
-				"waveState": "SmartConnect."
-			},
-			"status": 0,
-			"statusStr": "ok",
-			"insId": "iqrfgd2-default"
-		}
-	},
-	{
-		"mType": "iqmeshNetwork_AutoNetwork",
-		"data": {
-			"msgId": "e794e526-cfbf-4876-bf89-784e72058754",
-			"rsp": {
-				"wave": 1,
-				"waveStateCode": 2,
-				"waveState": "Reading prebonded alive nodes."
-			},
-			"status": 0,
-			"statusStr": "ok",
-			"insId": "iqrfgd2-default"
-		}
-	},
-	{
-		"mType": "iqmeshNetwork_AutoNetwork",
-		"data": {
-			"msgId": "e794e526-cfbf-4876-bf89-784e72058754",
-			"rsp": {
-				"wave": 1,
-				"waveStateCode": 3,
-				"waveState": "Reading MIDs of prebonded alive nodes."
-			},
-			"status": 0,
-			"statusStr": "ok",
-			"insId": "iqrfgd2-default"
-		}
-	},
-	{
-		"mType": "iqmeshNetwork_AutoNetwork",
-		"data": {
-			"msgId": "e794e526-cfbf-4876-bf89-784e72058754",
-			"rsp": {
-				"wave": 1,
-				"waveStateCode": 6,
-				"waveState": "Authorizing nodes."
-			},
-			"status": 0,
-			"statusStr": "ok",
-			"insId": "iqrfgd2-default"
-		}
-	},
-	{
-		"mType": "iqmeshNetwork_AutoNetwork",
-		"data": {
-			"msgId": "e794e526-cfbf-4876-bf89-784e72058754",
-			"rsp": {
-				"wave": 1,
-				"waveStateCode": 7,
-				"waveState": "Pinging nodes."
-			},
-			"status": 0,
-			"statusStr": "ok",
-			"insId": "iqrfgd2-default"
-		}
-	},
-	{
-		"mType": "iqmeshNetwork_AutoNetwork",
-		"data": {
-			"msgId": "e794e526-cfbf-4876-bf89-784e72058754",
-			"rsp": {
-				"wave": 1,
-				"waveStateCode": 9,
-				"waveState": "Running discovery."
-			},
-			"status": 0,
-			"statusStr": "ok",
-			"insId": "iqrfgd2-default"
-		}
-	},
-	{
-		"mType": "iqmeshNetwork_AutoNetwork",
-		"data": {
-			"msgId": "e794e526-cfbf-4876-bf89-784e72058754",
-			"rsp": {
-				"wave": 1,
-				"nodesNr": 40,
-				"newNodesNr": 10,
-				"newNodes": [
-					{
-						"mid": "81117c20",
-						"address": 31
-					},
-					{
-						"mid": "81117c25",
-						"address": 32
-					},
-					{
-						"mid": "81117c38",
-						"address": 33
-					},
-					{
-						"mid": "81117c3e",
-						"address": 34
-					},
-					{
-						"mid": "81117c47",
-						"address": 35
-					},
-					{
-						"mid": "81117c48",
-						"address": 36
-					},
-					{
-						"mid": "81117c4f",
-						"address": 37
-					},
-					{
-						"mid": "81115c42",
-						"address": 38
-					},
-					{
-						"mid": "81115c43",
-						"address": 39
-					},
-					{
-						"mid": "81117c10",
-						"address": 40
-					}
-				]
-			},
-			"raw": [
-				{
-					"request": "00.00.ff.3f.ff.ff",
-					"requestTs": "2020-01-09T15:25:52.574+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.ff.bf.00.00.00.a7.11.04.00.fd.26.00.00.00.00.00.00.05",
-					"responseTs": "2020-01-09T15:25:52.603+01:00"
-				},
-				{
-					"request": "00.00.00.00.ff.ff",
-					"requestTs": "2020-01-09T15:25:52.604+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.80.00.00.00.a7.1e.08",
-					"responseTs": "2020-01-09T15:25:52.650+01:00"
-				},
-				{
-					"request": "00.00.00.02.ff.ff",
-					"requestTs": "2020-01-09T15:25:52.651+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.82.00.00.00.a7.fe.ff.ff.7f.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.04.00",
-					"responseTs": "2020-01-09T15:25:52.705+01:00"
-				},
-				{
-					"request": "00.00.00.01.ff.ff",
-					"requestTs": "2020-01-09T15:25:52.705+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.81.00.00.00.a7.fe.ff.ff.7f.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.04.00",
-					"responseTs": "2020-01-09T15:25:52.748+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.08.40.04",
-					"requestTs": "2020-01-09T15:25:52.749+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.40.5c.11.81",
-					"responseTs": "2020-01-09T15:25:52.806+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.10.40.04",
-					"requestTs": "2020-01-09T15:25:52.807+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.58.7c.11.81",
-					"responseTs": "2020-01-09T15:25:52.863+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.18.40.04",
-					"requestTs": "2020-01-09T15:25:52.865+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.57.7c.11.81",
-					"responseTs": "2020-01-09T15:25:52.922+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.20.40.04",
-					"requestTs": "2020-01-09T15:25:52.923+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.51.7c.11.81",
-					"responseTs": "2020-01-09T15:25:52.979+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.28.40.04",
-					"requestTs": "2020-01-09T15:25:52.981+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.4c.7c.11.81",
-					"responseTs": "2020-01-09T15:25:53.037+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.30.40.04",
-					"requestTs": "2020-01-09T15:25:53.038+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.4b.7c.11.81",
-					"responseTs": "2020-01-09T15:25:53.095+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.38.40.04",
-					"requestTs": "2020-01-09T15:25:53.096+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.4a.7c.11.81",
-					"responseTs": "2020-01-09T15:25:53.153+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.40.40.04",
-					"requestTs": "2020-01-09T15:25:53.154+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.2e.7c.11.81",
-					"responseTs": "2020-01-09T15:25:53.211+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.48.40.04",
-					"requestTs": "2020-01-09T15:25:53.212+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.2b.7c.11.81",
-					"responseTs": "2020-01-09T15:25:53.268+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.50.40.04",
-					"requestTs": "2020-01-09T15:25:53.270+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.28.7c.11.81",
-					"responseTs": "2020-01-09T15:25:53.326+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.58.40.04",
-					"requestTs": "2020-01-09T15:25:53.328+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.26.7c.11.81",
-					"responseTs": "2020-01-09T15:25:53.384+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.60.40.04",
-					"requestTs": "2020-01-09T15:25:53.385+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.24.7c.11.81",
-					"responseTs": "2020-01-09T15:25:53.442+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.68.40.04",
-					"requestTs": "2020-01-09T15:25:53.443+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.23.7c.11.81",
-					"responseTs": "2020-01-09T15:25:53.500+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.70.40.04",
-					"requestTs": "2020-01-09T15:25:53.501+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.1f.7c.11.81",
-					"responseTs": "2020-01-09T15:25:53.558+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.78.40.04",
-					"requestTs": "2020-01-09T15:25:53.559+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.1c.7c.11.81",
-					"responseTs": "2020-01-09T15:25:53.616+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.80.40.04",
-					"requestTs": "2020-01-09T15:25:53.618+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.19.7c.11.81",
-					"responseTs": "2020-01-09T15:25:53.674+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.88.40.04",
-					"requestTs": "2020-01-09T15:25:53.675+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.17.7c.11.81",
-					"responseTs": "2020-01-09T15:25:53.732+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.90.40.04",
-					"requestTs": "2020-01-09T15:25:53.733+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.16.7c.11.81",
-					"responseTs": "2020-01-09T15:25:53.795+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.98.40.04",
-					"requestTs": "2020-01-09T15:25:53.795+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.14.7c.11.81",
-					"responseTs": "2020-01-09T15:25:53.855+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.a0.40.04",
-					"requestTs": "2020-01-09T15:25:53.856+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.54.69.11.81",
-					"responseTs": "2020-01-09T15:25:53.917+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.a8.40.04",
-					"requestTs": "2020-01-09T15:25:53.918+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.43.7c.11.81",
-					"responseTs": "2020-01-09T15:25:53.979+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.b0.40.04",
-					"requestTs": "2020-01-09T15:25:53.980+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.40.7c.11.81",
-					"responseTs": "2020-01-09T15:25:54.042+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.b8.40.04",
-					"requestTs": "2020-01-09T15:25:54.043+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.3f.7c.11.81",
-					"responseTs": "2020-01-09T15:25:54.104+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.c0.40.04",
-					"requestTs": "2020-01-09T15:25:54.105+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.3d.7c.11.81",
-					"responseTs": "2020-01-09T15:25:54.164+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.c8.40.04",
-					"requestTs": "2020-01-09T15:25:54.165+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.3b.7c.11.81",
-					"responseTs": "2020-01-09T15:25:54.224+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.d0.40.04",
-					"requestTs": "2020-01-09T15:25:54.224+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.37.7c.11.81",
-					"responseTs": "2020-01-09T15:25:54.283+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.d8.40.04",
-					"requestTs": "2020-01-09T15:25:54.284+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.3c.7c.11.81",
-					"responseTs": "2020-01-09T15:25:54.343+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.e0.40.04",
-					"requestTs": "2020-01-09T15:25:54.343+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.41.7c.11.81",
-					"responseTs": "2020-01-09T15:25:54.402+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.e8.40.04",
-					"requestTs": "2020-01-09T15:25:54.403+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.54.7c.11.81",
-					"responseTs": "2020-01-09T15:25:54.461+01:00"
-				},
-				{
-					"request": "00.00.04.02.ff.ff.f0.40.04",
-					"requestTs": "2020-01-09T15:25:54.462+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.04.82.00.00.00.a7.34.7c.11.81",
-					"responseTs": "2020-01-09T15:25:54.520+01:00"
-				},
-				{
-					"request": "00.00.0d.03.ff.ff.00",
-					"requestTs": "2020-01-09T15:25:54.522+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.0d.83.00.00.00.a7.00",
-					"responseTs": "2020-01-09T15:25:54.568+01:00"
-				},
-				{
-					"request": "00.00.00.08.ff.ff.00",
-					"requestTs": "2020-01-09T15:25:54.569+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.88.00.00.00.a7.00",
-					"responseTs": "2020-01-09T15:25:54.614+01:00"
-				},
-				{
-					"request": "00.00.00.09.ff.ff.ff.ff",
-					"requestTs": "2020-01-09T15:25:54.615+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.89.00.00.00.a7.ff.ff",
-					"responseTs": "2020-01-09T15:25:54.661+01:00"
-				},
-				{
-					"request": "00.00.00.12.ff.ff.fe.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
-					"requestTs": "2020-01-09T15:25:54.664+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.92.00.00.00.a7.fe.1e",
-					"responseTs": "2020-01-09T15:26:04.700+01:00"
-				},
-				{
-					"request": "00.00.0d.00.ff.ff.03.ad.00",
-					"requestTs": "2020-01-09T15:26:05.703+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.0d.80.00.00.00.a7.0a.00.08.10.00.08.20.0c.04.00.02.40.00.00.00.00.08.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.08.10.00.08.20.0c.04.00.02.40.00.00.00.00.08.00.00.00.00.00.00.00",
-					"responseTs": "2020-01-09T15:26:18.399+01:00"
-				},
-				{
-					"request": "00.00.0d.02.ff.ff.f8.00.08.10.00.08.20.0c.04.00.02.40.00.00.00.00.08.00.00.00.00.00.00.00.00.00.00.00.00.00.00.ad.00.a0.04.02.00.00",
-					"requestTs": "2020-01-09T15:26:19.402+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.0d.82.00.00.00.a7.60.00.00.00.00.21.7c.11.81.26.7c.11.81.39.7c.11.81.3f.7c.11.81.48.7c.11.81.49.7c.11.81.50.7c.11.81.43.5c.11.81.44.5c.11.81.11.7c.11.81.00.00.00.00.00.00.00.00.00.00.00",
-					"responseTs": "2020-01-09T15:26:25.183+01:00"
-				},
-				{
-					"request": "00.00.00.0d.ff.ff.00.20.7c.11.81",
-					"requestTs": "2020-01-09T15:26:27.186+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.8d.00.00.00.a7.1f.1f",
-					"responseTs": "2020-01-09T15:26:30.427+01:00"
-				},
-				{
-					"request": "00.00.00.0d.ff.ff.00.25.7c.11.81",
-					"requestTs": "2020-01-09T15:26:30.428+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.8d.00.00.00.a7.20.20",
-					"responseTs": "2020-01-09T15:26:33.674+01:00"
-				},
-				{
-					"request": "00.00.00.0d.ff.ff.00.38.7c.11.81",
-					"requestTs": "2020-01-09T15:26:33.674+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.8d.00.00.00.a7.21.21",
-					"responseTs": "2020-01-09T15:26:36.922+01:00"
-				},
-				{
-					"request": "00.00.00.0d.ff.ff.00.3e.7c.11.81",
-					"requestTs": "2020-01-09T15:26:36.922+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.8d.00.00.00.a7.22.22",
-					"responseTs": "2020-01-09T15:26:40.178+01:00"
-				},
-				{
-					"request": "00.00.00.0d.ff.ff.00.47.7c.11.81",
-					"requestTs": "2020-01-09T15:26:40.179+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.8d.00.00.00.a7.23.23",
-					"responseTs": "2020-01-09T15:26:43.424+01:00"
-				},
-				{
-					"request": "00.00.00.0d.ff.ff.00.48.7c.11.81",
-					"requestTs": "2020-01-09T15:26:43.424+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.8d.00.00.00.a7.24.24",
-					"responseTs": "2020-01-09T15:26:46.670+01:00"
-				},
-				{
-					"request": "00.00.00.0d.ff.ff.00.4f.7c.11.81",
-					"requestTs": "2020-01-09T15:26:46.671+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.8d.00.00.00.a7.25.25",
-					"responseTs": "2020-01-09T15:26:49.917+01:00"
-				},
-				{
-					"request": "00.00.00.0d.ff.ff.00.42.5c.11.81",
-					"requestTs": "2020-01-09T15:26:49.918+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.8d.00.00.00.a7.26.26",
-					"responseTs": "2020-01-09T15:26:53.162+01:00"
-				},
-				{
-					"request": "00.00.00.0d.ff.ff.00.43.5c.11.81",
-					"requestTs": "2020-01-09T15:26:53.163+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.8d.00.00.00.a7.27.27",
-					"responseTs": "2020-01-09T15:26:56.410+01:00"
-				},
-				{
-					"request": "00.00.00.0d.ff.ff.00.10.7c.11.81",
-					"requestTs": "2020-01-09T15:26:56.411+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.8d.00.00.00.a7.28.28",
-					"responseTs": "2020-01-09T15:26:59.659+01:00"
-				},
-				{
-					"request": "00.00.0d.00.ff.ff.00.00.00",
-					"requestTs": "2020-01-09T15:27:00.662+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.0d.80.00.00.00.a7.28.fe.ff.ff.ff.ff.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
-					"responseTs": "2020-01-09T15:27:07.332+01:00"
-				},
-				{
-					"request": "00.00.00.07.ff.ff.01.00",
-					"requestTs": "2020-01-09T15:27:10.335+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.87.00.00.00.a7.28",
-					"responseTs": "2020-01-09T15:27:19.389+01:00"
-				},
-				{
-					"request": "00.00.00.00.ff.ff",
-					"requestTs": "2020-01-09T15:27:19.390+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.80.00.00.00.a7.28.09",
-					"responseTs": "2020-01-09T15:27:19.436+01:00"
-				},
-				{
-					"request": "00.00.00.02.ff.ff",
-					"requestTs": "2020-01-09T15:27:19.437+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.82.00.00.00.a7.fe.ff.ff.ff.ff.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
-					"responseTs": "2020-01-09T15:27:19.481+01:00"
-				},
-				{
-					"request": "00.00.00.01.ff.ff",
-					"requestTs": "2020-01-09T15:27:19.481+01:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.81.00.00.00.a7.fe.ff.ff.ff.ff.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
-					"responseTs": "2020-01-09T15:27:19.536+01:00"
-				}
-			],
-			"status": 0,
-			"statusStr": "ok",
-			"insId": "iqrfgd2-default"
-		}
-	},
-	{
-		"mType": "iqmeshNetwork_AutoNetwork",
-		"data": {
-			"msgId": "e794e526-cfbf-4876-bf89-784e72058754",
-			"rsp": {
-				"wave": 1,
-				"waveStateCode": 10,
-				"waveState": "Maximum number of waves reached."
-			},
-			"status": 0,
-			"statusStr": "ok",
-			"insId": "iqrfgd2-default"
-		}
-	}
+  {
+    "mType": "iqmeshNetwork_AutoNetwork",
+    "data": {
+      "msgId": "e794e526-cfbf-4876-bf89-784e72058754",
+      "rsp": {
+        "wave": 1,
+        "waveStateCode": 1,
+        "waveState": "SmartConnect."
+      },
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_AutoNetwork",
+    "data": {
+      "msgId": "e794e526-cfbf-4876-bf89-784e72058754",
+      "rsp": {
+        "wave": 1,
+        "waveStateCode": 2,
+        "waveState": "Reading prebonded alive nodes."
+      },
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_AutoNetwork",
+    "data": {
+      "msgId": "e794e526-cfbf-4876-bf89-784e72058754",
+      "rsp": {
+        "wave": 1,
+        "waveStateCode": 3,
+        "waveState": "Reading MIDs of prebonded alive nodes."
+      },
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_AutoNetwork",
+    "data": {
+      "msgId": "e794e526-cfbf-4876-bf89-784e72058754",
+      "rsp": {
+        "wave": 1,
+        "waveStateCode": 6,
+        "waveState": "Authorizing nodes."
+      },
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_AutoNetwork",
+    "data": {
+      "msgId": "e794e526-cfbf-4876-bf89-784e72058754",
+      "rsp": {
+        "wave": 1,
+        "waveStateCode": 7,
+        "waveState": "Pinging nodes."
+      },
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_AutoNetwork",
+    "data": {
+      "msgId": "e794e526-cfbf-4876-bf89-784e72058754",
+      "rsp": {
+        "wave": 1,
+        "waveStateCode": 9,
+        "waveState": "Running discovery."
+      },
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_AutoNetwork",
+    "data": {
+      "msgId": "e794e526-cfbf-4876-bf89-784e72058754",
+      "rsp": {
+        "wave": 1,
+        "nodesNr": 40,
+        "newNodesNr": 10,
+        "newNodes": [
+          {
+            "mid": "81117c20",
+            "address": 31
+          },
+          {
+            "mid": "81117c25",
+            "address": 32
+          },
+          {
+            "mid": "81117c38",
+            "address": 33
+          },
+          {
+            "mid": "81117c3e",
+            "address": 34
+          },
+          {
+            "mid": "81117c47",
+            "address": 35
+          },
+          {
+            "mid": "81117c48",
+            "address": 36
+          },
+          {
+            "mid": "81117c4f",
+            "address": 37
+          },
+          {
+            "mid": "81115c42",
+            "address": 38
+          },
+          {
+            "mid": "81115c43",
+            "address": 39
+          },
+          {
+            "mid": "81117c10",
+            "address": 40
+          }
+        ]
+      },
+      "raw": [
+        {
+          "request": "00.00.ff.3f.ff.ff",
+          "requestTs": "2020-01-09T15:25:52.574+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.ff.bf.00.00.00.a7.11.04.00.fd.26.00.00.00.00.00.00.05",
+          "responseTs": "2020-01-09T15:25:52.603+01:00"
+        },
+        {
+          "request": "00.00.00.00.ff.ff",
+          "requestTs": "2020-01-09T15:25:52.604+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.80.00.00.00.a7.1e.08",
+          "responseTs": "2020-01-09T15:25:52.650+01:00"
+        },
+        {
+          "request": "00.00.00.02.ff.ff",
+          "requestTs": "2020-01-09T15:25:52.651+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.82.00.00.00.a7.fe.ff.ff.7f.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.04.00",
+          "responseTs": "2020-01-09T15:25:52.705+01:00"
+        },
+        {
+          "request": "00.00.00.01.ff.ff",
+          "requestTs": "2020-01-09T15:25:52.705+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.81.00.00.00.a7.fe.ff.ff.7f.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.04.00",
+          "responseTs": "2020-01-09T15:25:52.748+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.08.40.04",
+          "requestTs": "2020-01-09T15:25:52.749+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.40.5c.11.81",
+          "responseTs": "2020-01-09T15:25:52.806+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.10.40.04",
+          "requestTs": "2020-01-09T15:25:52.807+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.58.7c.11.81",
+          "responseTs": "2020-01-09T15:25:52.863+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.18.40.04",
+          "requestTs": "2020-01-09T15:25:52.865+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.57.7c.11.81",
+          "responseTs": "2020-01-09T15:25:52.922+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.20.40.04",
+          "requestTs": "2020-01-09T15:25:52.923+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.51.7c.11.81",
+          "responseTs": "2020-01-09T15:25:52.979+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.28.40.04",
+          "requestTs": "2020-01-09T15:25:52.981+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.4c.7c.11.81",
+          "responseTs": "2020-01-09T15:25:53.037+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.30.40.04",
+          "requestTs": "2020-01-09T15:25:53.038+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.4b.7c.11.81",
+          "responseTs": "2020-01-09T15:25:53.095+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.38.40.04",
+          "requestTs": "2020-01-09T15:25:53.096+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.4a.7c.11.81",
+          "responseTs": "2020-01-09T15:25:53.153+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.40.40.04",
+          "requestTs": "2020-01-09T15:25:53.154+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.2e.7c.11.81",
+          "responseTs": "2020-01-09T15:25:53.211+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.48.40.04",
+          "requestTs": "2020-01-09T15:25:53.212+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.2b.7c.11.81",
+          "responseTs": "2020-01-09T15:25:53.268+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.50.40.04",
+          "requestTs": "2020-01-09T15:25:53.270+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.28.7c.11.81",
+          "responseTs": "2020-01-09T15:25:53.326+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.58.40.04",
+          "requestTs": "2020-01-09T15:25:53.328+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.26.7c.11.81",
+          "responseTs": "2020-01-09T15:25:53.384+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.60.40.04",
+          "requestTs": "2020-01-09T15:25:53.385+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.24.7c.11.81",
+          "responseTs": "2020-01-09T15:25:53.442+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.68.40.04",
+          "requestTs": "2020-01-09T15:25:53.443+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.23.7c.11.81",
+          "responseTs": "2020-01-09T15:25:53.500+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.70.40.04",
+          "requestTs": "2020-01-09T15:25:53.501+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.1f.7c.11.81",
+          "responseTs": "2020-01-09T15:25:53.558+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.78.40.04",
+          "requestTs": "2020-01-09T15:25:53.559+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.1c.7c.11.81",
+          "responseTs": "2020-01-09T15:25:53.616+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.80.40.04",
+          "requestTs": "2020-01-09T15:25:53.618+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.19.7c.11.81",
+          "responseTs": "2020-01-09T15:25:53.674+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.88.40.04",
+          "requestTs": "2020-01-09T15:25:53.675+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.17.7c.11.81",
+          "responseTs": "2020-01-09T15:25:53.732+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.90.40.04",
+          "requestTs": "2020-01-09T15:25:53.733+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.16.7c.11.81",
+          "responseTs": "2020-01-09T15:25:53.795+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.98.40.04",
+          "requestTs": "2020-01-09T15:25:53.795+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.14.7c.11.81",
+          "responseTs": "2020-01-09T15:25:53.855+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.a0.40.04",
+          "requestTs": "2020-01-09T15:25:53.856+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.54.69.11.81",
+          "responseTs": "2020-01-09T15:25:53.917+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.a8.40.04",
+          "requestTs": "2020-01-09T15:25:53.918+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.43.7c.11.81",
+          "responseTs": "2020-01-09T15:25:53.979+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.b0.40.04",
+          "requestTs": "2020-01-09T15:25:53.980+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.40.7c.11.81",
+          "responseTs": "2020-01-09T15:25:54.042+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.b8.40.04",
+          "requestTs": "2020-01-09T15:25:54.043+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.3f.7c.11.81",
+          "responseTs": "2020-01-09T15:25:54.104+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.c0.40.04",
+          "requestTs": "2020-01-09T15:25:54.105+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.3d.7c.11.81",
+          "responseTs": "2020-01-09T15:25:54.164+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.c8.40.04",
+          "requestTs": "2020-01-09T15:25:54.165+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.3b.7c.11.81",
+          "responseTs": "2020-01-09T15:25:54.224+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.d0.40.04",
+          "requestTs": "2020-01-09T15:25:54.224+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.37.7c.11.81",
+          "responseTs": "2020-01-09T15:25:54.283+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.d8.40.04",
+          "requestTs": "2020-01-09T15:25:54.284+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.3c.7c.11.81",
+          "responseTs": "2020-01-09T15:25:54.343+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.e0.40.04",
+          "requestTs": "2020-01-09T15:25:54.343+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.41.7c.11.81",
+          "responseTs": "2020-01-09T15:25:54.402+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.e8.40.04",
+          "requestTs": "2020-01-09T15:25:54.403+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.54.7c.11.81",
+          "responseTs": "2020-01-09T15:25:54.461+01:00"
+        },
+        {
+          "request": "00.00.04.02.ff.ff.f0.40.04",
+          "requestTs": "2020-01-09T15:25:54.462+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.04.82.00.00.00.a7.34.7c.11.81",
+          "responseTs": "2020-01-09T15:25:54.520+01:00"
+        },
+        {
+          "request": "00.00.0d.03.ff.ff.00",
+          "requestTs": "2020-01-09T15:25:54.522+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.83.00.00.00.a7.00",
+          "responseTs": "2020-01-09T15:25:54.568+01:00"
+        },
+        {
+          "request": "00.00.00.08.ff.ff.00",
+          "requestTs": "2020-01-09T15:25:54.569+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.88.00.00.00.a7.00",
+          "responseTs": "2020-01-09T15:25:54.614+01:00"
+        },
+        {
+          "request": "00.00.00.09.ff.ff.ff.ff",
+          "requestTs": "2020-01-09T15:25:54.615+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.89.00.00.00.a7.ff.ff",
+          "responseTs": "2020-01-09T15:25:54.661+01:00"
+        },
+        {
+          "request": "00.00.00.12.ff.ff.fe.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "requestTs": "2020-01-09T15:25:54.664+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.92.00.00.00.a7.fe.1e",
+          "responseTs": "2020-01-09T15:26:04.700+01:00"
+        },
+        {
+          "request": "00.00.0d.00.ff.ff.03.ad.00",
+          "requestTs": "2020-01-09T15:26:05.703+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.80.00.00.00.a7.0a.00.08.10.00.08.20.0c.04.00.02.40.00.00.00.00.08.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.08.10.00.08.20.0c.04.00.02.40.00.00.00.00.08.00.00.00.00.00.00.00",
+          "responseTs": "2020-01-09T15:26:18.399+01:00"
+        },
+        {
+          "request": "00.00.0d.02.ff.ff.f8.00.08.10.00.08.20.0c.04.00.02.40.00.00.00.00.08.00.00.00.00.00.00.00.00.00.00.00.00.00.00.ad.00.a0.04.02.00.00",
+          "requestTs": "2020-01-09T15:26:19.402+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.82.00.00.00.a7.60.00.00.00.00.21.7c.11.81.26.7c.11.81.39.7c.11.81.3f.7c.11.81.48.7c.11.81.49.7c.11.81.50.7c.11.81.43.5c.11.81.44.5c.11.81.11.7c.11.81.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2020-01-09T15:26:25.183+01:00"
+        },
+        {
+          "request": "00.00.00.0d.ff.ff.00.20.7c.11.81",
+          "requestTs": "2020-01-09T15:26:27.186+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.8d.00.00.00.a7.1f.1f",
+          "responseTs": "2020-01-09T15:26:30.427+01:00"
+        },
+        {
+          "request": "00.00.00.0d.ff.ff.00.25.7c.11.81",
+          "requestTs": "2020-01-09T15:26:30.428+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.8d.00.00.00.a7.20.20",
+          "responseTs": "2020-01-09T15:26:33.674+01:00"
+        },
+        {
+          "request": "00.00.00.0d.ff.ff.00.38.7c.11.81",
+          "requestTs": "2020-01-09T15:26:33.674+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.8d.00.00.00.a7.21.21",
+          "responseTs": "2020-01-09T15:26:36.922+01:00"
+        },
+        {
+          "request": "00.00.00.0d.ff.ff.00.3e.7c.11.81",
+          "requestTs": "2020-01-09T15:26:36.922+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.8d.00.00.00.a7.22.22",
+          "responseTs": "2020-01-09T15:26:40.178+01:00"
+        },
+        {
+          "request": "00.00.00.0d.ff.ff.00.47.7c.11.81",
+          "requestTs": "2020-01-09T15:26:40.179+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.8d.00.00.00.a7.23.23",
+          "responseTs": "2020-01-09T15:26:43.424+01:00"
+        },
+        {
+          "request": "00.00.00.0d.ff.ff.00.48.7c.11.81",
+          "requestTs": "2020-01-09T15:26:43.424+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.8d.00.00.00.a7.24.24",
+          "responseTs": "2020-01-09T15:26:46.670+01:00"
+        },
+        {
+          "request": "00.00.00.0d.ff.ff.00.4f.7c.11.81",
+          "requestTs": "2020-01-09T15:26:46.671+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.8d.00.00.00.a7.25.25",
+          "responseTs": "2020-01-09T15:26:49.917+01:00"
+        },
+        {
+          "request": "00.00.00.0d.ff.ff.00.42.5c.11.81",
+          "requestTs": "2020-01-09T15:26:49.918+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.8d.00.00.00.a7.26.26",
+          "responseTs": "2020-01-09T15:26:53.162+01:00"
+        },
+        {
+          "request": "00.00.00.0d.ff.ff.00.43.5c.11.81",
+          "requestTs": "2020-01-09T15:26:53.163+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.8d.00.00.00.a7.27.27",
+          "responseTs": "2020-01-09T15:26:56.410+01:00"
+        },
+        {
+          "request": "00.00.00.0d.ff.ff.00.10.7c.11.81",
+          "requestTs": "2020-01-09T15:26:56.411+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.8d.00.00.00.a7.28.28",
+          "responseTs": "2020-01-09T15:26:59.659+01:00"
+        },
+        {
+          "request": "00.00.0d.00.ff.ff.00.00.00",
+          "requestTs": "2020-01-09T15:27:00.662+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.80.00.00.00.a7.28.fe.ff.ff.ff.ff.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2020-01-09T15:27:07.332+01:00"
+        },
+        {
+          "request": "00.00.00.07.ff.ff.01.00",
+          "requestTs": "2020-01-09T15:27:10.335+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.87.00.00.00.a7.28",
+          "responseTs": "2020-01-09T15:27:19.389+01:00"
+        },
+        {
+          "request": "00.00.00.00.ff.ff",
+          "requestTs": "2020-01-09T15:27:19.390+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.80.00.00.00.a7.28.09",
+          "responseTs": "2020-01-09T15:27:19.436+01:00"
+        },
+        {
+          "request": "00.00.00.02.ff.ff",
+          "requestTs": "2020-01-09T15:27:19.437+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.82.00.00.00.a7.fe.ff.ff.ff.ff.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2020-01-09T15:27:19.481+01:00"
+        },
+        {
+          "request": "00.00.00.01.ff.ff",
+          "requestTs": "2020-01-09T15:27:19.481+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.81.00.00.00.a7.fe.ff.ff.ff.ff.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2020-01-09T15:27:19.536+01:00"
+        }
+      ],
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_AutoNetwork",
+    "data": {
+      "msgId": "e794e526-cfbf-4876-bf89-784e72058754",
+      "rsp": {
+        "wave": 1,
+        "waveStateCode": 10,
+        "waveState": "Maximum number of waves reached."
+      },
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
+  }
 ]

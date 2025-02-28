@@ -5,8 +5,8 @@
     "req": {
       "nAdr": 0,
       "param": {
-        "bondAddr": 10,
-        "mid": 0
+        "bondAddr": 2,
+        "mid": 3234979565
       }
     },
     "returnVerbose": true

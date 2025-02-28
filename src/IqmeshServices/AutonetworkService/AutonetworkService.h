@@ -19,7 +19,6 @@
 #include "IAutonetworkService.h"
 #include "ShapeProperties.h"
 #include "IMessagingSplitterService.h"
-//#include "IJsCacheService.h"
 #include "IIqrfDpaService.h"
 #include "ITraceService.h"
 #include <string>
@@ -44,9 +43,6 @@ namespace iqrf {
 
     void attachInterface(IIqrfDpaService* iface);
     void detachInterface(IIqrfDpaService* iface);
-
-    //void attachInterface(IJsCacheService* iface);
-    //void detachInterface(IJsCacheService* iface);
 
     void attachInterface(IMessagingSplitterService* iface);
     void detachInterface(IMessagingSplitterService* iface);

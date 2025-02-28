@@ -1,12 +1,12 @@
 {
-    "mType": "mngDaemon_Version",
-    "data": {
-        "msgId": "testMngMode",
-        "rsp": {
-            "version": "v2.1.0 2019-01-11T06:32:06"
-        },
-        "insId": "iqrfgd2-default",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "mngDaemon_Version",
+  "data": {
+    "msgId": "55de81c5-c682-4439-9e44-32d13749fe3e",
+    "rsp": {
+      "version": "v2.1.0 2019-01-11T06:32:06"
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

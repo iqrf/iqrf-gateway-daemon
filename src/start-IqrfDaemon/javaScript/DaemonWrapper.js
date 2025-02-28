@@ -64,7 +64,7 @@ if (iqrf.embed.coordinator !== undefined) {
   };
 
   iqrf.embed.coordinator.BondNode_Request_req = function (param) {
-    return iqrf.embed.coordinator.BondNode_Request(param.reqAddr, param.bondingMask);
+    return iqrf.embed.coordinator.BondNode_Request(param.reqAddr, param.bondingTestRetries);
   };
 
   iqrf.embed.coordinator.BondNode_Response_rsp = function (rawHdp) {
@@ -111,12 +111,10 @@ if (iqrf.embed.coordinator !== undefined) {
     return iqrf.embed.coordinator.SetDpaParams_Request(param.dpaParam);
   };
 
-  iqrf.embed.coordinator.SetDpaParams_Response_rsp = function (rawHdp) {
-    var result =
-    {
-      prevDpaParam: iqrf.embed.coordinator.SetDpaParams_Response(rawHdp)
+  iqrf.embed.coordinator.SetDpaParams_Response_rsp = function (rawHdp){
+    return {
+        dpaParam: iqrf.embed.coordinator.SetDpaParams_Response(rawHdp)
     };
-    return result;
   };
 
   iqrf.embed.coordinator.SetHops_Request_req = function (param) {
@@ -152,7 +150,7 @@ if (iqrf.embed.coordinator !== undefined) {
   };
 
   iqrf.embed.coordinator.Restore_Request_req = function (param) {
-    return iqrf.embed.coordinator.Restore_Request(param.netData);
+    return iqrf.embed.coordinator.Restore_Request(param.networkData);
   };
 
   iqrf.embed.coordinator.Restore_Response_rsp = function (rawHdp) {
@@ -229,7 +227,7 @@ if (iqrf.embed.coordinator !== undefined) {
 ////////////////////////
 if (iqrf.embed.io !== undefined) {
   iqrf.embed.io.Direction_Request_req = function (param) {
-    return iqrf.embed.io.Direction_Request(param.ports);
+    return iqrf.embed.io.Direction_Request(param.subcommands);
   };
 
   iqrf.embed.io.Direction_Response_rsp = function (rawHdp) {
@@ -250,7 +248,7 @@ if (iqrf.embed.io !== undefined) {
   };
 
   iqrf.embed.io.Set_Request_req = function (param) {
-    return iqrf.embed.io.Set_Request(param.ports);
+    return iqrf.embed.io.Set_Request(param.subcommands);
   };
 
   iqrf.embed.io.Set_Response_rsp = function (rawHdp) {
@@ -267,7 +265,16 @@ if (iqrf.embed.os !== undefined) {
   };
 
   iqrf.embed.os.Read_Response_rsp = function (rawHdp) {
-    return iqrf.embed.os.Read_Response(rawHdp);
+    var result = iqrf.embed.os.Read_Response(rawHdp);
+    if (result.hasOwnProperty('trMcuType')) {
+        Object.defineProperty(result, 'trType', Object.getOwnPropertyDescriptor(result, 'trMcuType'));
+        delete result['trMcuType'];
+    }
+    if (result.hasOwnProperty('perNr')) {
+        Object.defineProperty(result, 'userPerNr', Object.getOwnPropertyDescriptor(result, 'perNr'));
+        delete result['perNr'];
+    }
+    return result;
   };
 
   iqrf.embed.os.Reset_Request_req = function (param) {
@@ -306,7 +313,21 @@ if (iqrf.embed.os !== undefined) {
   };
 
   iqrf.embed.os.Batch_Request_req = function (param) {
-    return iqrf.embed.os.Batch_Request(param.requests);
+    var requests = [];
+    for (var index = 0; index < param.requests.length; index++) {
+        var request = param.requests[index];
+        requests[index] = {
+            pnum: ("00" + request.pNum).slice(-2),
+            pcmd: ("00" + request.pCmd).slice(-2),
+        };
+        if (request.hasOwnProperty("hwpId")) {
+            requests[index].hwpid = ("0000" + request.hwpId.toString(16)).slice(-4);
+        }
+        if (request.hasOwnProperty("rData")) {
+            requests[index].rdata = request.rData;
+        }
+    }
+    return iqrf.embed.os.Batch_Request(requests);
   };
 
   iqrf.embed.os.Batch_Response_rsp = function (rawHdp) {
@@ -346,7 +367,6 @@ if (iqrf.embed.os !== undefined) {
   };
 
   iqrf.embed.os.LoadCode_Response_rsp = function (rawHdp) {
-    iqrf.embed.os.LoadCode_Response(rawHdp);
     var result =
     {
       loadingCode: iqrf.embed.os.LoadCode_Response(rawHdp)
@@ -355,7 +375,21 @@ if (iqrf.embed.os !== undefined) {
   };
 
   iqrf.embed.os.SelectiveBatch_Request_req = function (param) {
-    return iqrf.embed.os.SelectiveBatch_Request(param.selectedNodes, param.requests);
+      var requests = [];
+      for (var index = 0; index < param.requests.length; index++) {
+          var request = param.requests[index];
+          requests[index] = {
+              pnum: ("00" + request.pNum).slice(-2),
+              pcmd: ("00" + request.pCmd).slice(-2),
+          };
+          if (request.hasOwnProperty("hwpId")) {
+              requests[index].hwpid = ("0000" + request.hwpId.toString(16)).slice(-4);
+          }
+          if (request.hasOwnProperty("rData")) {
+              requests[index].rdata = request.rData;
+          }
+      }
+    return iqrf.embed.os.SelectiveBatch_Request(param.selectedNodes, requests);
   };
 
   iqrf.embed.os.SelectiveBatch_Response_rsp = function (rawHdp) {
@@ -409,7 +443,7 @@ if (iqrf.embed.os !== undefined) {
 ////////////////////////
 if (iqrf.embed.eeprom !== undefined) {
   iqrf.embed.eeprom.Read_Request_req = function (param) {
-    return iqrf.embed.eeprom.Read_Request(param.address, param.len)
+    return iqrf.embed.eeprom.Read_Request(param.address, param.length)
   };
 
   iqrf.embed.eeprom.Read_Response_rsp = function (rawHdp) {
@@ -434,7 +468,7 @@ if (iqrf.embed.eeprom !== undefined) {
 ////////////////////////
 if (iqrf.embed.eeeprom !== undefined) {
   iqrf.embed.eeeprom.Read_Request_req = function (param) {
-    return iqrf.embed.eeeprom.Read_Request(param.address, param.len)
+    return iqrf.embed.eeeprom.Read_Request(param.address, param.length)
   };
 
   iqrf.embed.eeeprom.Read_Response_rsp = function (rawHdp) {
@@ -459,7 +493,7 @@ if (iqrf.embed.eeeprom !== undefined) {
 ////////////////////////
 if (iqrf.embed.ram !== undefined) {
   iqrf.embed.ram.Read_Request_req = function (param) {
-    return iqrf.embed.ram.Read_Request(param.address, param.len)
+    return iqrf.embed.ram.Read_Request(param.address, param.length)
   };
 
   iqrf.embed.ram.Read_Response_rsp = function (rawHdp) {
@@ -690,7 +724,7 @@ if (iqrf.embed.node !== undefined) {
   iqrf.embed.node.Backup_Response_rsp = function (rawHdp) {
     var result =
     {
-      backupData: iqrf.embed.node.Backup_Response(rawHdp)
+      networkData: iqrf.embed.node.Backup_Response(rawHdp)
     };
     return result;
   };
@@ -743,7 +777,7 @@ if (iqrf.embed.node !== undefined) {
   };
 
   iqrf.embed.node.Restore_Request_req = function (param) {
-    return iqrf.embed.node.Restore_Request(param.backupData);
+    return iqrf.embed.node.Restore_Request(param.networkData);
   };
 
   iqrf.embed.node.Restore_Response_rsp = function (rawHdp) {
@@ -752,7 +786,15 @@ if (iqrf.embed.node !== undefined) {
   };
 
   iqrf.embed.node.ValidateBonds_Request_req = function (param) {
-    return iqrf.embed.node.ValidateBonds_Request(param.nodes);
+    var nodes = []
+    for (var index = 0; index < param.nodes.length; index++) {
+        var el = param.nodes[index]
+        nodes.push({
+            "bondAddr": el.address,
+            "mid": el.mid
+        })
+    }
+    return iqrf.embed.node.ValidateBonds_Request(nodes);
   };
 
   iqrf.embed.node.ValidateBonds_Response_rsp = function (rawHdp) {
@@ -816,19 +858,19 @@ if (iqrf.binaryoutput !== undefined) {
   iqrf.binaryoutput.Enumerate_Response_rsp = function (rawhdp) {
     var result =
     {
-      binOuts: iqrf.binaryoutput.Enumerate_Response(rawhdp)
+      count: iqrf.binaryoutput.Enumerate_Response(rawhdp)
     };
     return result;
   };
 
   iqrf.binaryoutput.SetOutput_Request_req = function (param) {
-    return iqrf.binaryoutput.SetOutput_Request(param.binOuts);
+    return iqrf.binaryoutput.SetOutput_Request(param.outputs);
   };
 
   iqrf.binaryoutput.SetOutput_Response_rsp = function (rawhdp) {
     var result =
     {
-      prevVals: iqrf.binaryoutput.SetOutput_Response(rawhdp)
+        previousStates: iqrf.binaryoutput.SetOutput_Response(rawhdp)
     };
     return result;
   };
@@ -859,12 +901,12 @@ if (iqrf.light !== undefined) {
   };
 
   iqrf.light.SetLai_Request_req = function (params) {
-    return iqrf.light.SetLai_Request(params.voltage * 1000);
+    return iqrf.light.SetLai_Request(params.ctrlSignal * 1000);
   };
 
   iqrf.light.SetLai_Response_rsp = function (rawHdp) {
     return {
-      prevVoltage: iqrf.light.SetLai_Response(rawHdp) / 1000,
+      ctrlSignal: iqrf.light.SetLai_Response(rawHdp) / 1000,
     };
   };
 
@@ -881,8 +923,13 @@ if (iqrf.light !== undefined) {
   };
 
   iqrf.light.FrcLaiRead_Request_req = function (params) {
+    var selectedNodes = [];
+    if (params && params.selectedNodes) {
+        selectedNodes = params.selectedNodes;
+    }
+
     return {
-      retpars: iqrf.light.FrcLaiRead_Request(params.selectedNodes)
+      retpars: iqrf.light.FrcLaiRead_Request(selectedNodes)
     };
   };
 
@@ -993,6 +1040,13 @@ if (iqrf.embed.explore !== undefined) {
 
   iqrf.embed.explore.Enumerate_Response_rsp = function (rawHdp) {
     var result = iqrf.embed.explore.Enumerate_Response(rawHdp);
+
+    // Rename perNr to userPerNr for compliance with DPA
+    if (result.hasOwnProperty('perNr')) {
+        Object.defineProperty(result, 'userPerNr', Object.getOwnPropertyDescriptor(result, 'perNr'));
+        delete result['perNr'];
+    }
+
     return result;
   };
 

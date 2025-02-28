@@ -1,119 +1,94 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"title": "Retrieve device metadata response",
-	"description": "Retrieves metadata from devices at specified addresses.",
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"$id": "#/properties/mType",
-			"title": "Message type",
-			"description": "IQRF DB - GetDeviceMetadata response.",
-			"type": "string",
-			"enum": [
-				"iqrfDb_GetDeviceMetadata"
-			]
-		},
-		"data": {
-			"$id": "#/properties/data",
-			"title": "Response data",
-			"description": "Response data.",
-			"type": "object",
-			"required": [
-				"msgId",
-				"rsp"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"$id": "#/properties/data/properties/msgId",
-					"title": "Message ID",
-					"description": "Message ID used for pairing requests and responses.",
-					"type": "string"
-				},
-				"rsp": {
-					"$id": "#/properties/data/properties/rsp",
-					"title": "Response parameters",
-					"description": "Response parameters.",
-					"type": "object",
-					"required": [
-						"devices"
-					],
-					"properties": {
-						"devices": {
-							"$id": "#/properties/data/properties/rsp/properties/devices",
-							"title": "Array of devices",
-							"description": "Status of operation",
-							"type": "array",
-							"additionalItems": false,
-							"items": {
-								"$id": "#/properties/data/properties/rsp/properties/devices/items",
-								"title": "Device",
-								"description": "Device address and status of operation.",
-								"type": "object",
-								"required": [
-									"address",
-									"success"
-								],
-								"additionalProperties": false,
-								"properties": {
-									"address": {
-										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/address",
-										"title": "Device address",
-										"description": "Address of device in network.",
-										"type": "integer",
-										"minimum": 0,
-										"maximum": 239
-									},
-									"success": {
-										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/success",
-										"title": "Operation success",
-										"description": "Indicates whether metadata were successfully stored.",
-										"type": "boolean"
-									},
-									"metadata": {
-										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/metadata",
-										"title": "Device metadata",
-										"description": "Device metadata object",
-										"oneOf": [
-											{ "type": "object" },
-											{ "type": "null" }
-										]
-									},
-									"errorStr": {
-										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/errorStr",
-										"title": "Error string",
-										"description": "Device metadata storing error string.",
-										"type": "string"
-									}
-								}
-							}
-						}
-					}
-				},
-				"insId": {
-					"$id": "#/properties/data/properties/insId",
-					"title": "Instance ID",
-					"description": "Daemon insteance ID.",
-					"type": "string"
-				},
-				"status": {
-					"$id": "#/properties/data/properties/status",
-					"title": "Status code",
-					"description": "Status code.",
-					"type": "integer"
-				},
-				"statusStr": {
-					"$id": "#/properties/data/properties/statusStr",
-					"title": "Status string",
-					"description": "Verbose status string",
-					"type": "string"
-				}
-			}
-		}
-	}
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "IQRF DB - GetDeviceMetadata response",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "iqrfDb_GetDeviceMetadata" }
+      ]
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/message/id"
+        },
+        "rsp": {
+          "title": "Response",
+          "description": "Holds response data",
+          "type": "object",
+          "required": [
+            "devices"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "devices": {
+              "$id": "#/properties/data/properties/rsp/properties/devices",
+              "title": "Array of devices",
+              "description": "Status of operation",
+              "type": "array",
+              "additionalItems": false,
+              "items": {
+                "$id": "#/properties/data/properties/rsp/properties/devices/items",
+                "title": "Device",
+                "description": "Device address and status of operation.",
+                "type": "object",
+                "required": [
+                  "address",
+                  "success"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "address": {
+                    "title": "Device address",
+                    "description": "Address of device in network.",
+                    "$ref": "definitions.json#/node/address"
+                  },
+                  "success": {
+                    "title": "Operation success",
+                    "description": "Indicates whether metadata were successfully retrieved.",
+                    "type": "boolean"
+                  },
+                  "metadata": {
+                    "$ref": "definitions.json#/device/metadata"
+                  },
+                  "errorStr": {
+                    "$id": "#/properties/data/properties/rsp/properties/devices/items/properties/errorStr",
+                    "title": "Error string",
+                    "description": "Device metadata storing error string.",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "insId": {
+          "$ref": "definitions.json#/response/insId"
+        },
+        "status": {
+          "$ref": "definitions.json#/response/status"
+        },
+        "statusStr": {
+          "$ref": "definitions.json#/response/statusStr"
+        }
+      }
+    }
+  }
 }

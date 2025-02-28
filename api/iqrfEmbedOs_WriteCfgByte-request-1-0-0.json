@@ -1,73 +1,102 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedOs_WriteCfgByte-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Peripheral OS - Write TR Configuration byte request",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "iqrfEmbedOs_WriteCfgByte" }
+      ]
     },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Embedded peripheral OS - Write Configuration Byte request.",
-            "enum": [
-                "iqrfEmbedOs_WriteCfgByte"
-            ]
+    "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/message/id"
         },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "param": {
-                            "type": "object",
-                            "properties": {
-                                "bytes": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "description": "Triplet of address, value, mask."    
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "required": [
-                        "nAdr",
-                        "param"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
+        "req": {
+          "title": "Request",
+          "description": "Contains request specific parameters.",
+          "type": "object",
+          "required": [
+            "nAdr",
+            "param"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/node/address"
             },
-            "required": [
-                "msgId",
-                "req"
-            ]
+            "hwpId": {
+              "$ref": "definitions.json#/request/hwpId"
+            },
+            "param": {
+              "title": "Request parameters",
+              "description": "Specific request parameters.",
+              "type": "object",
+              "required": [
+                "bytes"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "bytes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "description": "Triplet of address, value, mask.",
+                    "required": [
+                      "address",
+                      "value",
+                      "mask"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "address": {
+                        "type": "integer",
+                        "description": "Address of the item at configuration memory block. The valid address range is 0x01-0x1F for configuration values. Also, address 0x20 is a valid value for RFPGM settings. See parameter of setupRFPGM IQRF OS function.",
+                        "minimum": 0,
+                        "maximum": 255
+                      },
+                      "value": {
+                        "type": "integer",
+                        "description": "Value of the configuration item to write.",
+                        "minimum": 0,
+                        "maximum": 255
+                      },
+                      "mask": {
+                        "type": "integer",
+                        "description": "Specifies bits of the configuration byte to be modified by the corresponding bits of the Value parameter. Only bits that are set at the Mask will be written to the configuration byte i.e. when Mask equals to 0xFF then the whole Value will be written to the configuration byte. For example, when Mask equals to 0x12 then only bit.1 and bit.4 from Value will be written to the configuration byte.",
+                        "minimum": 0,
+                        "maximum": 255
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "timeout": {
+          "$ref": "definitions.json#/dpa/timeout"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/request/returnVerbose"
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+      }
+    }
+  }
 }

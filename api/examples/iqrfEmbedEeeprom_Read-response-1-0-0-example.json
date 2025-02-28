@@ -1,37 +1,41 @@
 {
-    "mType": "iqrfEmbedEeeprom_Read",
-    "data": {
-        "msgId": "testEmbedEeeprom",
-        "rsp": {
-            "nAdr": 1,
-            "hwpId": 2,
-            "rCode": 0,
-            "dpaVal": 76,
-            "result": {
-                "pData": [
-                    165,
-                    87,
-                    0,
-                    129,
-                    64,
-                    36,
-                    177,
-                    8,
-                    0,
-                    0
-                ]
-            }
-        },
-        "raw": {
-            "request": "01.00.04.02.ff.ff.00.00.0a",
-            "requestTs": "2018-07-17T16:30:28.176933",
-            "confirmation": "01.00.04.02.ff.ff.ff.3c.01.04.01",
-            "confirmationTs": "2018-07-17T16:30:28.208283",
-            "response": "01.00.04.82.02.00.00.4c.a5.57.00.81.40.24.b1.08.00.00",
-            "responseTs": "2018-07-17T16:30:28.342857"
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "iqrfEmbedEeeprom_Read",
+  "data": {
+    "msgId": "3d0a9fd0-42f2-434b-8997-825da52c0106",
+    "rsp": {
+      "nAdr": 1,
+      "pNum": 4,
+      "pCmd": 130,
+      "hwpId": 5122,
+      "rCode": 0,
+      "dpaVal": 94,
+      "result": {
+        "pData": [
+          5,
+          6,
+          8,
+          10,
+          11,
+          12,
+          13,
+          14,
+          0,
+          0
+        ]
+      }
+    },
+    "raw": [
+      {
+        "request": "01.00.04.02.ff.ff.00.00.0a",
+        "requestTs": "2024-12-09T11:58:56.489+01:00",
+        "confirmation": "01.00.04.02.ff.ff.ff.5c.01.08.01",
+        "confirmationTs": "2024-12-09T11:58:56.529+01:00",
+        "response": "01.00.04.82.02.14.00.5e.05.06.08.0a.0b.0c.0d.0e.00.00",
+        "responseTs": "2024-12-09T11:58:56.799+01:00"
+      }
+    ],
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

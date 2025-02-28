@@ -1,12 +1,12 @@
 {
   "mType": "iqrfEmbedEeprom_Read",
   "data": {
-    "msgId": "testEmbedEeprom",
+    "msgId": "8d46299a-cd4b-4e00-8c54-17599cdca17c",
     "req": {
       "nAdr": 1,
       "param": {
         "address": 0,
-        "len": 10
+        "length": 10
       }
     },
     "returnVerbose": true

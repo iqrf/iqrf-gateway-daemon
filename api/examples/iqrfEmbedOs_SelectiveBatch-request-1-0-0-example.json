@@ -11,11 +11,9 @@
         ],
         "requests": [
           {
-            "ctype": "dpa",
-            "type": "raw-hdp",
-            "pnum": "06",
-            "pcmd": "01",
-            "hwpid": "ffff"
+            "pNum": 6,
+            "pCmd": 1,
+            "hwpId": 65535
           }
         ]
       }

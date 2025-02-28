@@ -1,10 +1,9 @@
 {
   "mType": "iqrfEmbedCoordinator_AddrInfo",
   "data": {
-    "msgId": "testEmbedCoordinator",
+    "msgId": "7f82362b-f3dd-4f79-b079-9e105ea891bf",
     "req": {
-      "nAdr": 0,
-      "param": {}
+      "nAdr": 0
     },
     "returnVerbose": true
   }

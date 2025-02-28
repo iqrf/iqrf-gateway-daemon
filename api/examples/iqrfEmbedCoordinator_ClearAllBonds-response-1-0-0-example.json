@@ -1,24 +1,27 @@
 {
-    "mType": "iqrfEmbedCoordinator_ClearAllBonds",
-    "data": {
-        "msgId": "testEmbedCoordinator",
-        "rsp": {
-            "nAdr": 0,
-            "hwpId": 0,
-            "rCode": 0,
-            "dpaVal": 76,
-            "result": {}
-        },
-        "raw": {
-            "request": "00.00.00.03.ff.ff",
-            "requestTs": "2018-07-11T16:20:33.479102",
-            "confirmation": "",
-            "confirmationTs": "",
-            "response": "00.00.00.83.00.00.00.4c",
-            "responseTs": "2018-07-11T16:20:33.722364"
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "iqrfEmbedCoordinator_ClearAllBonds",
+  "data": {
+    "msgId": "903618b5-f06b-421f-be0b-9f3659cb13d3",
+    "rsp": {
+      "nAdr": 0,
+      "pNum": 0,
+      "pCmd": 131,
+      "hwpId": 0,
+      "rCode": 0,
+      "dpaVal": 0
+    },
+    "raw": [
+      {
+        "request": "00.00.00.03.ff.ff",
+        "requestTs": "2024-12-19T17:06:03.019+01:00",
+        "confirmation": "",
+        "confirmationTs": "",
+        "response": "00.00.00.83.00.00.00.00",
+        "responseTs": "2024-12-19T17:06:03.218+01:00"
+      }
+    ],
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

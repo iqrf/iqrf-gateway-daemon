@@ -17,6 +17,13 @@
 
 #define IMessagingSplitterService_EXPORTS
 
+#include <valijson/adapters/rapidjson_adapter.hpp>
+#include <valijson/utils/rapidjson_utils.hpp>
+#include <valijson/schema.hpp>
+#include <valijson/schema_parser.hpp>
+#include <valijson/validation_results.hpp>
+#include <valijson/validator.hpp>
+
 #include "TaskQueue.h"
 #include "ApiMsg.h"
 #include "JsonSplitter.h"
@@ -54,6 +61,20 @@
 TRC_INIT_MODULE(iqrf::JsonSplitter)
 
 using namespace rapidjson;
+
+static std::string m_schemesDir;
+
+static const rapidjson::Document * fetchDocument(const std::string &uri) {
+  rapidjson::Document *fetchedRoot = new rapidjson::Document();
+  if (!valijson::utils::loadDocument(m_schemesDir + '/' + uri, *fetchedRoot)) {
+    return nullptr;
+  }
+  return fetchedRoot;
+}
+
+static void freeDocument(const rapidjson::Document *adapter) {
+  delete adapter;
+}
 
 namespace iqrf {
   class MessageErrorMsg : public ApiMsg
@@ -95,7 +116,7 @@ namespace iqrf {
     /// List of messaging services
     std::list<MessagingInstance> m_messagingList;
     /// Directory containing request and response schemas
-    std::string m_schemesDir;
+    //std::string m_schemesDir;
     /// Messaging service mutex
     mutable std::mutex m_iMessagingServiceMapMux;
     /// Messaging service map
@@ -105,9 +126,9 @@ namespace iqrf {
     /// Registered message handlers
     std::map<std::string, FilteredMessageHandlerFunc > m_filterMessageHandlerFuncMap;
     /// Map of requests and validation schemas
-    std::map<std::string, rapidjson::SchemaDocument> m_validatorMapRequest;
+    std::map<std::string, rapidjson::Document> m_validatorMapRequest;
     /// Map of responses and validation schemas
-    std::map<std::string, rapidjson::SchemaDocument> m_validatorMapResponse;
+    std::map<std::string, rapidjson::Document> m_validatorMapResponse;
     /// Message type to handle
     std::map<std::string, MsgType> m_msgTypeToHandle;
     /// Message queue
@@ -263,26 +284,38 @@ namespace iqrf {
     }
 
     void validate(const IMessagingSplitterService::MsgType & msgType, const Document& doc,
-      const std::map<std::string, rapidjson::SchemaDocument>& validators, const std::string& direction) const
+      const std::map<std::string, rapidjson::Document>& validators, const std::string& direction) const
     {
       TRC_FUNCTION_ENTER(PAR(msgType.m_type))
       auto found = validators.find(getKey(msgType));
       if (found != validators.end()) {
-        SchemaValidator validator(found->second);
-        if (!doc.Accept(validator)) {
-          // Input JSON is invalid according to the schema
-          StringBuffer sb;
-          std::string schema, keyword, document;
-          validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-          schema = sb.GetString();
-          keyword = validator.GetInvalidSchemaKeyword();
-          sb.Clear();
-          validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-          document = sb.GetString();
-          THROW_EXC_TRC_WAR(std::logic_error, "Invalid " << direction << ": " <<
-            NAME_PAR(mType, msgType.m_type) << PAR(schema) << PAR(keyword) << NAME_PAR(message, document));
+        // parse schema
+        valijson::Schema schema;
+        valijson::SchemaParser parser;
+        valijson::adapters::RapidJsonAdapter schemaAdapter(found->second);
+        try {
+          parser.populateSchema(schemaAdapter, schema, fetchDocument, freeDocument);
+        } catch (std::exception &e) {
+          THROW_EXC_TRC_WAR(std::logic_error, "Failed to parse jsonschema: " << e.what());
         }
-        //TRC_DEBUG("OK");
+
+        valijson::Validator validator(valijson::Validator::kStrongTypes);
+        valijson::ValidationResults errors;
+        valijson::adapters::RapidJsonAdapter adapter(doc);
+
+        if (!validator.validate(schema, adapter, &errors)) {
+          valijson::ValidationResults::Error error;
+          while (errors.popError(error)) {
+            std::string context;
+            std::vector<std::string>::iterator itr = error.context.begin();
+            for (; itr != error.context.end(); ++itr) {
+              context += *itr;
+            }
+            THROW_EXC_TRC_WAR(std::logic_error, "Failed to validate " << direction << " message. Violating member: "
+              << context << ". Violation: " << error.description
+            );
+          }
+        }
         TRC_INFORMATION("Message successfully validated.")
       }
       else {
@@ -563,24 +596,38 @@ namespace iqrf {
           std::string ver;
 
           // get message type
-          if (Value* mTypeVal = Pointer("/properties/mType/enum/0").Get(sd)) {
-            mType = mTypeVal->GetString();
+          Value* mTypeVal = nullptr;
+
+          Value* allOf = Pointer("/properties/mType/allOf").Get(sd);
+          if (allOf != nullptr && allOf->IsArray() && allOf->Size() > 0) {
+            for (auto &item : allOf->GetArray()) {
+              auto found = item.FindMember("const");
+              if (found != item.MemberEnd()) {
+                mTypeVal = &found->value;
+                break;
+              }
+            }
           }
-          else {
+          if (mTypeVal == nullptr) {
+            mTypeVal = Pointer("/properties/mType/const").Get(sd);
+          }
+          if (mTypeVal == nullptr) {
+            mTypeVal = Pointer("/properties/mType/enum/0").Get(sd);
+          }
+          if (mTypeVal != nullptr) {
+            mType = mTypeVal->GetString();
+          } else {
             //defaulted to support daemon V1 messages
             THROW_EXC_TRC_WAR(std::logic_error, "Invalid schema: " << PAR(fname));
           }
 
           MsgType msgType(mType, major, minor, micro, possibleDriverFunction);
 
-          SchemaDocument schema(sd);
-
           if (direction == "request") {
-            m_validatorMapRequest.insert(std::make_pair(getKey(msgType), std::move(schema)));
+            m_validatorMapRequest.insert(std::make_pair(getKey(msgType), std::move(sd)));
             //m_msgTypeToHandle.insert(std::make_pair(getKey(msgType), msgType));
-          }
-          else if (direction == "response") {
-            m_validatorMapResponse.insert(std::make_pair(getKey(msgType), std::move(schema)));
+          } else if (direction == "response") {
+            m_validatorMapResponse.insert(std::make_pair(getKey(msgType), std::move(sd)));
           }
           m_msgTypeToHandle.insert(std::make_pair(getKey(msgType), msgType));
           TRC_DEBUG ("Add: " << NAME_PAR(key, getKey(msgType)) << PAR(msgType.m_type) << " ver" << msgType.m_major << '.' << msgType.m_minor << '.' << msgType.m_micro << " drv:" <<
@@ -695,6 +742,10 @@ namespace iqrf {
           m_iMessagingServiceMap.erase(found);
         }
       }
+    }
+
+    std::string getSchemasDir() {
+      return m_schemesDir;
     }
 
   };

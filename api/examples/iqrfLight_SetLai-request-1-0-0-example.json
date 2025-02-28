@@ -1,0 +1,13 @@
+{
+  "mType": "iqrfLight_SetLai",
+  "data": {
+    "msgId": "7b740fba-7e80-4c9b-a4bf-882f2cda237c",
+    "req": {
+      "nAdr": 4,
+      "param": {
+        "ctrlSignal": 3.5
+      }
+    },
+    "returnVerbose": true
+  }
+}

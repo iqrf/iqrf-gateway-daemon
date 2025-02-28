@@ -1,14 +1,26 @@
 {
   "mType": "iqrfEmbedNode_ValidateBonds",
   "data": {
-    "msgId": "testEmbedNode",
+    "msgId": "9beaf46c-6caf-4d41-88e4-a0903ddb414c",
     "req": {
-      "nAdr": 1,
+      "nAdr": 255,
       "param": {
         "nodes": [
           {
-            "bondAddr": 10,
-            "mid": 0
+            "address": 1,
+            "mid": 2165390031
+          },
+          {
+            "address": 2,
+            "mid": 2165406742
+          },
+          {
+            "address": 3,
+            "mid": 2165390033
+          },
+          {
+            "address": 4,
+            "mid": 2165390030
           }
         ]
       }

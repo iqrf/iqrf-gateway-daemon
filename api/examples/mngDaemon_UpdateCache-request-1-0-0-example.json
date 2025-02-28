@@ -1,7 +1,7 @@
 {
-	"mType": "mngDaemon_UpdateCache",
-	"data": {
-		"msgId": "ce9cd255-56bd-48e8-b7b3-1875668b4472",
-		"returnVerbose": true
-	}
+  "mType": "mngDaemon_UpdateCache",
+  "data": {
+    "msgId": "ce9cd255-56bd-48e8-b7b3-1875668b4472",
+    "returnVerbose": true
+  }
 }

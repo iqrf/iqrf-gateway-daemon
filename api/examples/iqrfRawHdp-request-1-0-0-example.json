@@ -1,13 +1,27 @@
-{
-  "mType": "iqrfRawHdp",
-  "data": {
-    "msgId": "testRawHdp",
-    "req": {
-      "nAdr": 1,
-      "pNum": 6,
-      "pCmd": 3,
-      "pData": []
-    },
-    "returnVerbose": true
+[
+  {
+    "mType": "iqrfRawHdp",
+    "data": {
+      "msgId": "f0885f20-36b4-41f6-a64b-70c9bfc008c8",
+      "req": {
+        "nAdr": 0,
+        "pNum": 6,
+        "pCmd": 3
+      },
+      "returnVerbose": true
+    }
+  },
+  {
+    "mType": "iqrfRawHdp",
+    "data": {
+      "msgId": "dcf397ac-b036-4560-ae81-ec67415f1007",
+      "req": {
+        "nAdr": 1,
+        "pNum": 7,
+        "pCmd": 3,
+        "pData": []
+      },
+      "returnVerbose": true
+    }
   }
-}
+]

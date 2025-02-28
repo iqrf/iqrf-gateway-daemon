@@ -1,16 +1,16 @@
 {
-	"mType": "iqrfSensor_ReadSensorsWithTypes",
-	"data": {
-		"msgId": "testEmbedSensor",
-		"req": {
-			"nAdr": 1,
-			"param": {
-				"sensorIndexes": [
-					0,
-					1
-				]
-			}
-		},
-		"returnVerbose": true
-	}
+  "mType": "iqrfSensor_ReadSensorsWithTypes",
+  "data": {
+    "msgId": "9c027341-8673-438e-b37f-9c617976d5b8",
+    "req": {
+      "nAdr": 1,
+      "param": {
+        "sensorIndexes": [
+          0,
+          1
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
 }

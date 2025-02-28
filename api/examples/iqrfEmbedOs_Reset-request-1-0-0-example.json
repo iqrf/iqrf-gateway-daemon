@@ -1,10 +1,9 @@
 {
   "mType": "iqrfEmbedOs_Reset",
   "data": {
-    "msgId": "testEmbedOs",
+    "msgId": "9def186e-0d20-426b-b2da-0655fcfda3d2",
     "req": {
-      "nAdr": 1,
-      "param": {}
+      "nAdr": 1
     },
     "returnVerbose": true
   }

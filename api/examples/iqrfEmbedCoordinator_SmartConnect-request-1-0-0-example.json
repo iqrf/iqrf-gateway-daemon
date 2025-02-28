@@ -1,40 +1,82 @@
-{
-  "mType": "iqrfEmbedCoordinator_SmartConnect",
-  "data": {
-    "msgId": "testEmbedCoordinator",
-    "req": {
-      "nAdr": 0,
-      "param": {
-        "reqAddr": 11,
-        "bondingTestRetries": 1,
-        "ibk": [
-          154,
-          105,
-          31,
-          26,
-          33,
-          1,
-          33,
-          101,
-          3,
-          229,
-          197,
-          136,
-          255,
-          231,
-          246,
-          194
-        ],
-        "mid": -2129646251,
-        "virtualDeviceAddress": 255,
-        "userData": [
-          0,
-          0,
-          0,
-          0
-        ]
-      }
-    },
-    "returnVerbose": true
+[
+  {
+    "mType": "iqrfEmbedCoordinator_SmartConnect",
+    "data": {
+      "msgId": "16dc503c-ba78-4f43-8f6c-901b3a0d10f6",
+      "req": {
+        "nAdr": 0,
+        "param": {
+          "reqAddr": 4,
+          "bondingTestRetries": 1,
+          "ibk": [
+            13,
+            162,
+            106,
+            209,
+            129,
+            137,
+            137,
+            52,
+            81,
+            234,
+            211,
+            72,
+            110,
+            8,
+            25,
+            253
+          ],
+          "mid": 2165390030,
+          "virtualDeviceAddress": 255,
+          "userData": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "returnVerbose": true
+    }
+  },
+  {
+    "mType": "iqrfEmbedCoordinator_SmartConnect",
+    "data": {
+      "msgId": "607cbfc3-1441-46fd-9581-5a832e5643d4",
+      "req": {
+        "nAdr": 0,
+        "param": {
+          "reqAddr": 254,
+          "bondingTestRetries": 0,
+          "ibk": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mid": 0,
+          "virtualDeviceAddress": 255,
+          "userData": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "returnVerbose": true
+    }
   }
-}
+]

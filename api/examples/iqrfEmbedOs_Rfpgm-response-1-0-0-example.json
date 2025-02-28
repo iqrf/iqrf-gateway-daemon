@@ -1,24 +1,27 @@
 {
-    "mType": "iqrfEmbedOs_Rfpgm",
-    "data": {
-        "msgId": "testEmbedOs",
-        "rsp": {
-            "nAdr": 1,
-            "hwpId": 2,
-            "rCode": 0,
-            "dpaVal": 66,
-            "result": {}
-        },
-        "raw": {
-            "request": "01.00.02.03.ff.ff",
-            "requestTs": "2018-07-16T18:51:20.953042",
-            "confirmation": "01.00.02.03.ff.ff.ff.3a.01.04.01",
-            "confirmationTs": "2018-07-16T18:51:20.984683",
-            "response": "01.00.02.83.02.00.00.42",
-            "responseTs": "2018-07-16T18:51:21.110096"
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "iqrfEmbedOs_Rfpgm",
+  "data": {
+      "msgId": "91ec7ca5-e988-44f8-948f-07067dbc09f9",
+      "rsp": {
+          "nAdr": 1,
+          "pNum": 2,
+          "pCmd": 131,
+          "hwpId": 5122,
+          "rCode": 0,
+          "dpaVal": 92
+      },
+      "raw": [
+          {
+              "request": "01.00.02.03.ff.ff",
+              "requestTs": "2024-12-19T14:59:53.014+01:00",
+              "confirmation": "01.00.02.03.ff.ff.ff.5b.01.08.01",
+              "confirmationTs": "2024-12-19T14:59:53.055+01:00",
+              "response": "01.00.02.83.02.14.00.5c",
+              "responseTs": "2024-12-19T14:59:53.307+01:00"
+          }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
+  }
 }

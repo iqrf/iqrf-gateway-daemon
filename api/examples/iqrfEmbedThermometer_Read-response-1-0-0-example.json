@@ -1,24 +1,30 @@
 {
-    "mType": "iqrfEmbedThermometer_Read",
-    "data": {
-        "msgId": "testEmbedThermometer",
-        "rsp": {
-            "nAdr": 3,
-            "hwpId": 0,
-            "rCode": 0,
-            "dpaVal": 64,
-            "errorStr": "Error: iqrf.embed.thermometer.Read_Response: Temperature sensor missing"
-        },
-        "raw": {
-            "request": "03.00.0a.00.ff.ff",
-            "requestTs": "2018-07-17T17:18:30.750507",
-            "confirmation": "03.00.0a.00.ff.ff.ff.35.01.04.01",
-            "confirmationTs": "2018-07-17T17:18:30.774930",
-            "response": "03.00.0a.80.00.00.00.40.80.04.00",
-            "responseTs": "2018-07-17T17:18:30.907359"
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "BAD_RESPONSE",
-        "status": -7
-    }
+  "mType": "iqrfEmbedThermometer_Read",
+  "data": {
+    "msgId": "b8d80a71-d7fa-4ca8-8379-f0fb0e7f3337",
+    "rsp": {
+      "nAdr": 3,
+      "pNum": 10,
+      "pCmd": 128,
+      "hwpId": 22530,
+      "rCode": 0,
+      "dpaVal": 94,
+      "result": {
+        "temperature": 20.3125
+      }
+    },
+    "raw": [
+      {
+        "request": "03.00.0a.00.ff.ff",
+        "requestTs": "2024-12-11T11:20:20.814+01:00",
+        "confirmation": "03.00.0a.00.ff.ff.ff.5e.03.08.03",
+        "confirmationTs": "2024-12-11T11:20:20.854+01:00",
+        "response": "03.00.0a.80.02.58.00.5e.14.45.01",
+        "responseTs": "2024-12-11T11:20:21.262+01:00"
+      }
+    ],
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

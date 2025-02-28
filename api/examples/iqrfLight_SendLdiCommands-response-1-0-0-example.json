@@ -1,0 +1,43 @@
+{
+  "mType": "iqrfLight_SendLdiCommands",
+  "data": {
+    "msgId": "00647088-464e-4c93-be0d-4446c7a8087b",
+    "rsp": {
+      "nAdr": 4,
+      "pNum": 74,
+      "pCmd": 128,
+      "hwpId": 0,
+      "rCode": 0,
+      "dpaVal": 84,
+      "result": {
+        "answers": [
+          {
+            "status": 128,
+            "value": 0
+          },
+          {
+            "status": 129,
+            "value": 96
+          },
+          {
+            "status": 129,
+            "value": 13
+          }
+        ]
+      }
+    },
+    "raw": [
+      {
+        "request": "04.00.4a.00.ff.ff.00.00.ff.90.ff.f1",
+        "requestTs": "2024-06-07T11:29:45.780+02:00",
+        "confirmation": "04.00.4a.00.ff.ff.ff.54.03.08.03",
+        "confirmationTs": "2024-06-07T11:29:45.806+02:00",
+        "response": "04.00.4a.80.00.00.00.54.80.00.81.60.81.0d",
+        "responseTs": "2024-06-07T11:29:46.226+02:00"
+      }
+    ],
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
+}

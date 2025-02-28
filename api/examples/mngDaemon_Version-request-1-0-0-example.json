@@ -1,7 +1,7 @@
 {
-    "mType": "mngDaemon_Version",
-    "data": {
-        "msgId": "testMngMode",
-        "returnVerbose": true
-    }
+  "mType": "mngDaemon_Version",
+  "data": {
+    "msgId": "55de81c5-c682-4439-9e44-32d13749fe3e",
+    "returnVerbose": true
+  }
 }

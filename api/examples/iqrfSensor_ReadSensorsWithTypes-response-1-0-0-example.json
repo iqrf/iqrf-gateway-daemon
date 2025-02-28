@@ -1,51 +1,53 @@
 {
-	"mType": "iqrfSensor_ReadSensorsWithTypes",
-	"data": {
-		"msgId": "testEmbedSensor",
-		"rsp": {
-			"nAdr": 1,
-			"hwpId": 5122,
-			"rCode": 0,
-			"dpaVal": 81,
-			"result": {
-				"sensors": [
-					{
-						"id": "TEMPERATURE",
-						"type": 1,
-						"name": "Temperature",
-						"shortName": "t",
-						"value": 28.5,
-						"unit": "°C",
-						"decimalPlaces": 4
-					},
-					{
-						"id": "CO2",
-						"type": 2,
-						"name": "Carbon dioxide",
-						"shortName": "CO2",
-						"value": 2439,
-						"unit": "ppm",
-						"decimalPlaces": 0
-					}
-				],
-				"sensorIndexes": [
-					0,
-					1
-				]
-			}
-		},
-		"raw": [
-			{
-				"request": "01.00.5e.01.ff.ff.03.00.00.00",
-				"requestTs": "2022-12-15T08:50:55.602+01:00",
-				"confirmation": "01.00.5e.01.ff.ff.ff.50.01.08.01",
-				"confirmationTs": "2022-12-15T08:50:55.629+01:00",
-				"response": "01.00.5e.81.02.14.00.51.01.c8.01.02.87.09",
-				"responseTs": "2022-12-15T08:50:55.876+01:00"
-			}
-		],
-		"insId": "iqrfgd2-default",
-		"statusStr": "ok",
-		"status": 0
-	}
+  "mType": "iqrfSensor_ReadSensorsWithTypes",
+  "data": {
+    "msgId": "9c027341-8673-438e-b37f-9c617976d5b8",
+    "rsp": {
+      "nAdr": 1,
+      "pNum": 94,
+      "pCmd": 129,
+      "hwpId": 5122,
+      "rCode": 0,
+      "dpaVal": 94,
+      "result": {
+        "sensors": [
+          {
+            "id": "TEMPERATURE",
+            "type": 1,
+            "name": "Temperature",
+            "shortName": "T",
+            "value": 21,
+            "unit": "°C",
+            "decimalPlaces": 4
+          },
+          {
+            "id": "CO2",
+            "type": 2,
+            "name": "Carbon dioxide",
+            "shortName": "CO2",
+            "value": 2439,
+            "unit": "ppm",
+            "decimalPlaces": 0
+          }
+        ],
+        "sensorIndexes": [
+          0,
+          1
+        ]
+      }
+    },
+    "raw": [
+      {
+        "request": "01.00.5e.01.ff.ff.03.00.00.00",
+        "requestTs": "2024-12-03T11:39:24.042+01:00",
+        "confirmation": "01.00.5e.01.ff.ff.ff.5c.01.08.01",
+        "confirmationTs": "2024-12-03T11:39:24.083+01:00",
+        "response": "01.00.5e.81.02.14.00.5e.01.50.01.02.87.09",
+        "responseTs": "2024-12-03T11:39:24.340+01:00"
+      }
+    ],
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

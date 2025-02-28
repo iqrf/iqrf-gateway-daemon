@@ -1,543 +1,482 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_EnumerateDevice-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "IQMESH Network - Enumerate Device response",
+  "description": "(c) IQRF Tech",
   "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
   "properties": {
     "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - Enumerate Device response.",
-      "enum": [
-        "iqmeshNetwork_EnumerateDevice"
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "iqmeshNetwork_EnumerateDevice" }
       ]
     },
     "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
       "type": "object",
+      "required": [
+        "msgId",
+        "status",
+        "statusStr"
+      ],
+      "additionalProperties": false,
       "properties": {
         "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
+          "$ref": "definitions.json#/message/id"
         },
         "rsp": {
+          "title": "Response",
+          "description": "Holds response data",
           "type": "object",
-          "description": "Returns following values, see its description.",
+          "required": [
+            "deviceAddr",
+            "manufacturer",
+            "osRead",
+            "product",
+            "standards"
+          ],
+          "additionalProperties": false,
           "properties": {
             "deviceAddr": {
-              "type": "integer",
-              "description": "Device address to enumerate."
+              "$ref": "definitions.json#/node/address"
             },
             "manufacturer": {
-              "type": "string",
-              "description": "Manufacture name."
+              "$ref": "definitions.json#/device/manufacturer"
             },
             "product": {
-              "type": "string",
-              "description": "Product name."
+              "$ref": "definitions.json#/device/product"
             },
             "standards": {
-              "type": "array",
-              "description": "Supported standards by the device.",
-              "items": {
-                "type": "string"
-              }
+              "$ref": "definitions.json#/enumeration/standards"
             },
             "discovery": {
-              "type": "object",
+              "title": "Discovery",
               "description": "First response.",
-              "properties": {
-                "discovered": {
-                  "type": "boolean",
-                  "description": "Device is discovered."
-                },
-                "vrn": {
-                  "type": "integer",
-                  "description": "Device VRN integer."
-                },
-                "zone": {
-                  "type": "integer",
-                  "description": "Device zone."
-                },
-                "parent": {
-                  "type": "integer",
-                  "description": "Device parent."
-                }
-              },
+              "type": "object",
               "required": [
                 "discovered",
                 "vrn",
                 "zone",
                 "parent"
-              ]
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "discovered": {
+                  "$ref": "definitions.json#/node/discovered"
+                },
+                "vrn": {
+                  "$ref": "definitions.json#/node/vrn"
+                },
+                "zone": {
+                  "$ref": "definitions.json#/node/zone"
+                },
+                "parent": {
+                  "$ref": "definitions.json#/node/parent"
+                }
+              }
             },
             "osRead": {
+              "title": "OS Read",
+              "description": "Embedded peripheral OS - Read response.",
               "type": "object",
-              "description": "Returns Embedded peripheral OS - Read response.",
-              "properties": {
-                "mid": {
-                  "type": "string",
-                  "description": "TR Module ID."
-                },
-                "osVersion": {
-                  "type": "string",
-                  "description": "IQRF OS version."
-                },
-                "trMcuType": {
-                  "type": "object",
-                  "description": "See DPA guide.",
-                  "properties": {
-                    "value": {
-                      "type": "integer",
-                      "description": "TR&McuType value."
-                    },
-                    "trType": {
-                      "type": "string",
-                      "description": "TR module type."
-                    },
-                    "fccCertified": {
-                      "type": "boolean",
-                      "description": "TR module is FCC certified."
-                    },
-                    "mcuType": {
-                      "type": "string",
-                      "description": "TR module MCU type."
-                    }
-                  }
-                },
-                "osBuild": {
-                  "type": "string",
-                  "description": "IQRF OS build."
-                },
-                "rssi": {
-                  "type": "string",
-                  "description": "See lastRSSI at IQRF OS Reference Guide."
-                },
-                "supplyVoltage": {
-                  "type": "string",
-                  "description": "Module supply voltage"
-                },
-                "flags": {
-                  "type": "object",
-                  "description": "See DPA guide.",
-                  "additionalProperties": false,
-                  "properties": {
-                    "value": {
-                      "type": "integer",
-                      "description": "Flags value."
-                    },
-                    "insufficientOsBuild": {
-                      "type": "boolean",
-                      "description": "Flags.0 - Insufficient OsBuild. (DPA < 4.17)"
-                    },
-                    "insufficientOsVersion": {
-                      "type": "boolean",
-                      "description": "Flags.0 - Insufficient OsVersion. (DPA >= 4.17)"
-                    },
-                    "interfaceType": {
-                      "type": "string",
-                      "description": "Flags.1 - Interface type."
-                    },
-                    "dpaHandlerDetected": {
-                      "type": "boolean",
-                      "description": "Flags.2 - Custom DPA handler was detected."
-                    },
-                    "dpaHandlerNotDetectedButEnabled": {
-                      "type": "boolean",
-                      "description": "Flags.3 - Custom DPA Handler is not detected but enabled."
-                    },
-                    "noInterfaceSupported": {
-                      "type": "boolean",
-                      "description": "Flags.4 - No interface supported."
-                    },
-                    "iqrfOsChanged": {
-                      "type": "boolean",
-                      "description": "Flags.5 - IQRF OS is changed from the originally manufactured version."
-                    },
-                    "frcAggregationEnabled": {
-                      "type": "boolean",
-                      "description": "Flags.6 - is 1 if the FRC Aggregation feature is enabled by the TR manufacturer."
-                    }
-                  }
-                },
-                "slotLimits": {
-                  "type": "object",
-                  "description": "See DPA guide.",
-                  "properties": {
-                    "value": {
-                      "type": "integer",
-                      "description": "Slot limits value."
-                    },
-                    "shortestTimeslot": {
-                      "type": "string",
-                      "description": "Shortest timeslot length in 10 ms units."
-                    },
-                    "longestTimeslot": {
-                      "type": "string",
-                      "description": "Longets timeslot length in 10 ms units."
-                    }
-                  }
-                }
-              },
               "required": [
+                "flags",
                 "mid",
                 "osVersion",
-                "osBuild"
-              ]
-            },
-            "peripheralEnumeration": {
-              "type": "object",
-              "description": "Reduced or full eperExploreEnum.",
+                "osBuild",
+                "trMcuType",
+                "rssi",
+                "slotLimits",
+                "supplyVoltage"
+              ],
+              "additionalProperties": false,
               "properties": {
-                "dpaVer": {
-                  "type": "string",
-                  "description": "DPA version."
+                "mid": {
+                  "$ref": "definitions.json#/transceiver/idStr"
                 },
-                "perNr": {
-                  "type": "integer",
-                  "description": "Number of all non-embedded peripherals implemented by Custom DPA Handler."
+                "osVersion": {
+                  "$ref": "definitions.json#/os/versionStr"
                 },
-                "embPers": {
-                  "type": "array",
-                  "description": "Bits array (starting from LSb of the 1st byte) specifying which of 32 embedded peripherals are enabled in the HWP Configuration.",
-                  "items": {
-                    "type": "integer"
-                  }
+                "osBuild": {
+                  "$ref": "definitions.json#/os/buildStr"
                 },
-                "hwpId": {
-                  "type": "integer",
-                  "description": "Hardware profile identification."
+                "trMcuType": {
+                  "$ref": "definitions.json#/transceiver/typeParsed"
                 },
-                "hwpIdVer": {
-                  "type": "integer",
-                  "description": "Hardware profile version."
+                "rssi": {
+                  "$ref": "definitions.json#/node/rssiStr"
+                },
+                "supplyVoltage": {
+                  "$ref": "definitions.json#/device/supplyVoltageStr"
                 },
                 "flags": {
-                  "type": "object",
-                  "description": "Various flags.",
-                  "properties": {
-                    "value": {
-                      "type": "integer"
-                    },
-                    "rfModeStd": {
-                      "type": "boolean"
-                    },
-                    "rfModeLp": {
-                      "type": "boolean"
-                    },
-                    "stdAndLpNetwork": {
-                      "type": "boolean"
-                    }
-                  }
+                  "$ref": "definitions.json#/os/flagsParsed"
                 },
-                "userPers": {
-                  "type": "array",
-                  "description": "Bits array (starting from LSb of the 1st byte) specifying which of non-embedded peripherals are implemented.",
-                  "items": {
-                    "type": "integer"
-                  }
+                "slotLimits": {
+                  "$ref": "definitions.json#/node/timeslotLimitsParsed"
                 }
-              },
+              }
+            },
+            "peripheralEnumeration": {
+              "title": "Peripheral Enumeration",
+              "description": "Device exploration - Peripheral enumeration response.",
+              "type": "object",
               "required": [
                 "dpaVer",
+                "embPers",
+                "flags",
                 "hwpId",
-                "hwpIdVer"
-              ]
+                "hwpIdVer",
+                "perNr",
+                "userPers"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "dpaVer": {
+                  "$ref": "definitions.json#/dpa/versionStr"
+                },
+                "hwpId": {
+                  "$ref": "definitions.json#/response/hwpId"
+                },
+                "hwpIdVer": {
+                  "$ref": "definitions.json#/device/hwpIdVersion"
+                },
+                "embPers": {
+                  "$ref": "definitions.json#/peripheral/embedded"
+                },
+                "perNr": {
+                  "$ref": "definitions.json#/peripheral/userCnt"
+                },
+                "userPers": {
+                  "$ref": "definitions.json#/peripheral/user"
+                },
+                "flags": {
+                  "$ref": "definitions.json#/enumeration/flagsParsed"
+                }
+              }
             },
             "trConfiguration": {
+              "title": "TR Configuration",
+              "description": "Embedded peripheral OS - Read TR Configuration response.",
               "type": "object",
-              "description": "Reduced or full eperOsReadCfg.",
+              "required": [
+                "embPers",
+                "customDpaHandler",
+                "dpaAutoexec",
+                "routingOff",
+                "ioSetup",
+                "peerToPeer",
+                "rfBand",
+                "rfChannelA",
+                "rfChannelB",
+                "txPower",
+                "rxFilter",
+                "lpRxTimeout",
+                "rfAltDsmChannel",
+                "uartBaudrate",
+                "rfPgmEnableAfterReset",
+                "rfPgmTerminateAfter1Min",
+                "rfPgmTerminateMcuPin",
+                "rfPgmDualChannel",
+                "rfPgmLpMode",
+                "rfPgmIncorrectUpload"
+              ],
+              "additionalProperties": false,
               "properties": {
-                "embPeripherals": {
+                "embPers": {
+                  "title": "Embedded peripherals",
+                  "description": "Information about the embedded peripheral configuration of the TR module.",
                   "type": "object",
-                  "description": "Embedded peripherals enabled on the node.",
+                  "required": [
+                    "values",
+                    "coordinator",
+                    "node",
+                    "os",
+                    "eeprom",
+                    "eeeprom",
+                    "ram",
+                    "ledr",
+                    "ledg",
+                    "io",
+                    "thermometer",
+                    "uart"
+                  ],
+                  "additionalProperties": false,
                   "properties": {
                     "values": {
+                      "title": "Supported embedded peripherals",
+                      "description": "Bits array (stored in 4 bytes) specifying which of 32 embedded peripherals are enabled in the TR Configuration.",
                       "type": "array",
-                      "description": "An array of 32 bits. Each bit enables/disables one of the embedded 32 predefined peripherals.",
                       "items": {
-                        "type": "integer"
+                        "description": "One byte of EmbeddedPers.",
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 255
                       },
+                      "minItems": 4,
                       "maxItems": 4
                     },
                     "coordinator": {
-                      "type": "boolean",
-                      "description": "If coordinator is enabled."
+                      "title": "Coordinator",
+                      "description": "If coordinator is enabled.",
+                      "type": "boolean"
                     },
                     "node": {
-                      "type": "boolean",
-                      "description": "If node is enabled."
+                      "title": "Node",
+                      "description": "If node is enabled.",
+                      "type": "boolean"
                     },
                     "os": {
-                      "type": "boolean",
-                      "description": "If OS is enabled."
+                      "title": "OS",
+                      "description": "If OS is enabled.",
+                      "type": "boolean"
                     },
                     "eeprom": {
-                      "type": "boolean",
-                      "description": "If EEPROM is enabled."
+                      "title": "EEPROM",
+                      "description": "If EEPROM is enabled.",
+                      "type": "boolean"
                     },
                     "eeeprom": {
-                      "type": "boolean",
-                      "description": "If EEEPROM is enabled."
+                      "title": "EEEPROM",
+                      "description": "If EEEPROM is enabled.",
+                      "type": "boolean"
                     },
                     "ram": {
-                      "type": "boolean",
-                      "description": "If RAM is enabled."
+                      "title": "RAM",
+                      "description": "If RAM is enabled.",
+                      "type": "boolean"
                     },
                     "ledr": {
-                      "type": "boolean",
-                      "description": "If LEDR is enabled."
+                      "title": "Red LED",
+                      "description": "If LEDR is enabled.",
+                      "type": "boolean"
                     },
                     "ledg": {
-                      "type": "boolean",
-                      "description": "If LEDG is enabled."
+                      "title": "Green LED",
+                      "description": "If LEDG is enabled.",
+                      "type": "boolean"
                     },
                     "spi": {
-                      "type": "boolean",
-                      "description": "If SPI is enabled."
+                      "title": "SPI",
+                      "description": "If SPI is enabled.",
+                      "type": "boolean"
                     },
                     "io": {
-                      "type": "boolean",
-                      "description": "If IO is enabled."
+                      "title": "IO",
+                      "description": "If IO is enabled.",
+                      "type": "boolean"
                     },
                     "thermometer": {
-                      "type": "boolean",
-                      "description": "If thermometer is enabled."
+                      "title": "Thermometer",
+                      "description": "If thermometer is enabled.",
+                      "type": "boolean"
                     },
                     "pwm": {
-                      "type": "boolean",
-                      "description": "If PWM is enabled."
+                      "title": "PWM",
+                      "description": "If PWM is enabled.",
+                      "type": "boolean"
                     },
                     "uart": {
-                      "type": "boolean",
-                      "description": "If UART is enabled."
+                      "title": "UART",
+                      "description": "If UART is enabled.",
+                      "type": "boolean"
                     },
                     "frc": {
-                      "type": "boolean",
-                      "description": "If FRC is enabled."
+                      "title": "FRC",
+                      "description": "If FRC is enabled.",
+                      "type": "boolean"
                     }
                   }
                 },
-                "rfBand": {
-                  "type": "string",
-                  "enum": ["868", "916", "433"],
-                  "description": "Used RF band."
-                },
-                "rfChannelA": {
-                  "type": "integer",
-                  "description": "Main RF channel A of the main network. Valid numbers depend on used RF band."
-                },
-                "rfChannelB": {
-                  "type": "integer",
-                  "description": "Same as above but second B channel. Used at RFPGM only."
-                },
-                "rfSubChannelA": {
-                  "type": "integer",
-                  "description": "Main RF channel A of the optional subordinate network in case the node also plays a role of the coordinator of such network. Valid numbers depend on used RF band. Available for DPA<400."
-                },
-                "rfSubChannelB": {
-                  "type": "integer",
-                  "description": "Same as above but second B channel."
-                },
-                "txPower": {
-                  "type": "integer",
-                  "description": "RF output power. Valid numbers 0-7."
-                },
-                "rxFilter": {
-                  "type": "integer",
-                  "description": "RF signal filter. Valid numbers 0-64."
-                },
-                "lpRxTimeout": {
-                  "type": "integer",
-                  "description": "Timeout for receiving RF packets at LP mode at N device."
-                },
-                "rfAltDsmChannel": {
-                  "type": "integer",
-                  "description": "A nonzero value specifies an alternative DPA service mode channel."
-                },
-                "localFrcReception": {
-                  "type": "boolean",
-                  "description": "If set, then Local FRC reception is enabled at [N]."
-                },
-                "rfPgmEnableAfterReset": {
-                  "type": "boolean",
-                  "description": "If sets, then activates RFPGM invoking by TR module reset."
-                },
-                "rfPgmTerminateAfter1Min": {
-                  "type": "boolean",
-                  "description": "If sets, then terminates RFPGM automatically ~1 minute after reset."
-                },
-                "rfPgmTerminateMcuPin": {
-                  "type": "boolean",
-                  "description": "If sets, then terminates RFPGM by dedicated pin of the TR module."
-                },
-                "rfPgmDualChannel": {
-                  "type": "boolean",
-                  "description": "If sets, then enables single or dual channel function."
-                },
-                "rfPgmLpMode": {
-                  "type": "boolean",
-                  "description": "RFPGM receiving mode setting. If set, then LP (low power) Rx mode is used during RFPGM. Otherwise STD (standard) Rx mode is used."
-                },
-                "rfPgmIncorrectUpload": {
-                  "type": "boolean",
-                  "description": "Read only. Indicates that the last RFPGM has successfully been completed."
-                },
+
                 "customDpaHandler": {
-                  "type": "boolean",
-                  "description": "If set, then a Custom DPA handler is called in case of an event."
+                  "title": "Custom DPA handler",
+                  "description": "If set, then a Custom DPA handler is called in case of an event.",
+                  "type": "boolean"
                 },
                 "dpaPeerToPeer": {
-                  "type": "boolean",
-                  "description": "If set, then DP2P is enabled at [N]."
+                  "title": "DPA P2P",
+                  "description": "If set, then DP2P is enabled at [N].",
+                  "type": "boolean"
                 },
                 "nodeDpaInterface": {
-                  "type": "boolean",
-                  "description": "If set, then Node device can be controlled by a SPI or UART interface. Valid only in DPA version < 4.00"
-                },
-                "uartBaudrate": {
-                  "type": "integer",
-                  "description": "Baud rate of the UART interface if one is used."
+                  "title": "Node DPA interface",
+                  "description": "If set, then Node device can be controlled by a SPI or UART interface. Valid only in DPA version < 4.00",
+                  "type": "boolean"
                 },
                 "dpaAutoexec": {
-                  "type": "boolean",
-                  "description": "If set, then DPA Autoexec is run at a later stage of the module boot time."
+                  "title": "DPA Autoexec",
+                  "description": "If set, then DPA Autoexec is run at a later stage of the module boot time.",
+                  "type": "boolean"
                 },
                 "routingOff": {
-                  "type": "boolean",
-                  "description": "If set, then the Node device does not route packets on the background."
+                  "title": "Routing Off",
+                  "description": "If set, then the Node device does not route packets on the background.",
+                  "type": "boolean"
                 },
                 "ioSetup": {
-                  "type": "boolean",
-                  "description": "If set, then DPA IO Setup is run at an early stage of the module boot time."
+                  "title": "IO Setup",
+                  "description": "If set, then DPA IO Setup is run at an early stage of the module boot time.",
+                  "type": "boolean"
                 },
                 "peerToPeer": {
-                  "type": "boolean",
-                  "description": "If set, then device receives also peer-to-peer (non-networking) packets and raises PeerToPeer event."
+                  "title": "P2P",
+                  "description": "If set, then device receives also peer-to-peer (non-networking) packets and raises PeerToPeer event.",
+                  "type": "boolean"
                 },
                 "neverSleep": {
-                  "type": "boolean",
-                  "description": "If set, then unbonded Node using default IQRF buttons never sleeps during the button bonding. From DPA v3.03"
+                  "title": "Do not sleep",
+                  "description": "If set, then unbonded Node using default IQRF buttons never sleeps during the button bonding. From DPA v3.03",
+                  "type": "boolean"
                 },
                 "stdAndLpNetwork": {
-                  "type": "boolean",
-                  "description": "If the bit is set, then the [C] controls the STD+LP network; otherwise, it controls the STD network. The bit can only be changed if the network is empty (no [Ns] are bonded) otherwise the network will stop working. From DPA v4.00"
+                  "title": "STD+LP Network",
+                  "description": "If the bit is set, then the [C] controls the STD+LP network; otherwise, it controls the STD network. The bit can only be changed if the network is empty (no [Ns] are bonded) otherwise the network will stop working. From DPA v4.00",
+                  "type": "boolean"
                 },
+
+                "rfBand": {
+                  "title": "Radio frequency band",
+                  "description": "Used RF band (in MHz).",
+                  "type": "string",
+                  "enum": [
+                    "868",
+                    "916",
+                    "433"
+                  ]
+                },
+                "rfChannelA": {
+                  "title": "Main RF Channel - A",
+                  "description": "Main RF channel A of the network. Valid numbers depend on used RF band.",
+                  "type": "integer"
+                },
+                "rfChannelB": {
+                  "title": "Secondary RF Channel - B",
+                  "description": "Secondary B channel is used by RFPGM only.",
+                  "type": "integer"
+                },
+                "rfSubChannelA": {
+                  "title": "Subordinate RF Channel - A",
+                  "description": "Main RF channel A of the optional subordinate network in case the node also plays a role of the coordinator of such network. Valid numbers depend on used RF band. Available for DPA<400.",
+                  "type": "integer"
+                },
+                "rfSubChannelB": {
+                  "title": "Subordinate RF Channel - B",
+                  "description": "Same as above but second B channel.",
+                  "type": "integer"
+                },
+                "txPower": {
+                  "title": "Transmission power",
+                  "description": "RF output power. Valid numbers 0-7.",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 7
+                },
+                "rxFilter": {
+                  "title": "Radio signal filter",
+                  "description": "RF signal filter. Valid numbers 0-64.",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 64
+                },
+                "lpRxTimeout": {
+                  "title": "LP RX timeout",
+                  "description": "Timeout for receiving RF packets at LP mode at N device.",
+                  "type": "integer"
+                },
+                "rfAltDsmChannel": {
+                  "title": "Alternative DPA Service mode channel",
+                  "description": "A nonzero value specifies an alternative DPA service mode channel.",
+                  "type": "integer"
+                },
+                "uartBaudrate": {
+                  "title": "UART Baudrate",
+                  "description": "Baud rate of the UART interface if one is used.",
+                  "type": "integer"
+                },
+                "localFrcReception": {
+                  "title": "Local FRC reception",
+                  "description": "If set, then Local FRC reception is enabled at [N].",
+                  "type": "boolean"
+                },
+
+                "rfPgmEnableAfterReset": {
+                  "title": "RFPGM after reset",
+                  "description": "If sets, then activates RFPGM invoking by TR module reset.",
+                  "type": "boolean"
+                },
+                "rfPgmTerminateAfter1Min": {
+                  "title": "Terminate RFPGM on timeout",
+                  "description": "If sets, then terminates RFPGM automatically ~1 minute after reset.",
+                  "type": "boolean"
+                },
+                "rfPgmTerminateMcuPin": {
+                  "title": "Terminate RFPGM on PIN",
+                  "description": "If sets, then terminates RFPGM by dedicated pin of the TR module.",
+                  "type": "boolean"
+                },
+                "rfPgmDualChannel": {
+                  "title": "Dual channel RFPGM",
+                  "description": "Enables dual channel function.",
+                  "type": "boolean"
+                },
+                "rfPgmLpMode": {
+                  "title": "RFPGM LP mode",
+                  "description": "RFPGM receiving mode setting. If set, then LP (low power) Rx mode is used during RFPGM. Otherwise STD (standard) Rx mode is used.",
+                  "type": "boolean"
+                },
+                "rfPgmIncorrectUpload": {
+                  "title": "RFPGM incorrect upload",
+                  "description": "Read only. Indicates that the last RFPGM has successfully been completed.",
+                  "type": "boolean"
+                },
+
                 "thermometerSensorPresent": {
-                  "type": "boolean",
-                  "description": "If set, on-board thermometer sensor chip is present."
+                  "title": "Thermometer sensor",
+                  "description": "If set, on-board thermometer sensor chip is present.",
+                  "type": "boolean"
                 },
                 "serialEepromPresent": {
-                  "type": "boolean",
-                  "description": "If set, serial EEPROM chip is present."
+                  "title": "Serial EEPROM",
+                  "description": "If set, serial EEPROM chip is present.",
+                  "type": "boolean"
                 },
-                "transcieverILType": {
-                  "type": "boolean",
-                  "description": "If set, transciever is IL type for Israel region."
+                "transceiverIlType": {
+                  "title": "TR Type - IL",
+                  "description": "If set, transceiver is IL type for Israel region.",
+                  "type": "boolean"
                 }
               }
             },
             "morePeripheralsInfo": {
+              "title": "Information about peripherals",
+              "description": "If requested, this object contains the result of Get information of more peripherals result.",
               "type": "array",
-              "description": "Returns the same information as Get peripheral information but for up to 14 peripherals of consecutive indexes starting with the specified PCMD.",
               "items": {
-                "type": "object",
-                "properties": {
-                  "perTe": {
-                    "type": "integer",
-                    "description": "Extended peripheral characteristic. See Extended Peripheral Characteristic constants."
-                  },
-                  "perT": {
-                    "type": "integer",
-                    "description": "Peripheral type. If the peripheral is not supported or enabled, then PerTx = PERIPHERAL_TYPE_DUMMY. See Peripheral Types constants."
-                  },
-                  "par1": {
-                    "type": "integer",
-                    "description": "Optional peripheral specific information."
-                  },
-                  "par2": {
-                    "type": "integer",
-                    "description": "Optional peripheral specific information."
-                  }
-                },
-                "required": [
-                  "perTe",
-                  "perT",
-                  "par1",
-                  "par2"
-                ]
+                "$ref": "definitions.json#/peripheral/information"
               },
               "maxItems": 14
             }
-          },
-          "required": [
-            "deviceAddr"
-          ]
-        },
-        "raw": {
-          "type": "array",
-          "description": "Returns array of objects req-cnf-rsp, see its description.",
-          "items": {
-            "type": "object",
-            "properties": {
-              "request": {
-                "type": "string",
-                "description": "Binary buffer with DPA request."
-              },
-              "requestTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "confirmation": {
-                "type": "string",
-                "description": "Binary buffer with DPA confirmation."
-              },
-              "confirmationTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "response": {
-                "type": "string",
-                "description": "Binary buffer with DPA response."
-              },
-              "responseTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              }
-            },
-            "required": [
-              "request",
-              "requestTs",
-              "confirmation",
-              "confirmationTs",
-              "response",
-              "responseTs"
-            ]
           }
         },
+        "raw": {
+          "$ref": "definitions.json#/response/raw"
+        },
         "insId": {
-          "type": "string",
-          "description": "IQRF GW daemon instance identification."
+          "$ref": "definitions.json#/response/insId"
         },
         "status": {
-          "type": "integer",
-          "description": "IQRF GW daemon API (general or mType) status."
+          "$ref": "definitions.json#/response/status"
         },
         "statusStr": {
-          "type": "string",
-          "description": "IQRF GW daemon API (general or mType) status in string form."
+          "$ref": "definitions.json#/response/statusStr"
         }
-      },
-      "required": [
-        "msgId",
-        "status"
-      ]
+      }
     }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+  }
 }

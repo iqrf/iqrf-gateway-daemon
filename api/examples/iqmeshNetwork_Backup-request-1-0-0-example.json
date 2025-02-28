@@ -1,11 +1,22 @@
-{
-	"mType": "iqmeshNetwork_Backup",
-	"data": {
-		"msgId": "3d75a581-1d88-458d-bcc6-59fbfaaf49a5",
-		"req": {
-		"deviceAddr": 0,
-		"wholeNetwork": true
-		},
-		"returnVerbose": false
-	}
-}
+[
+  {
+    "mType": "iqmeshNetwork_Backup",
+    "data": {
+      "msgId": "3d75a581-1d88-458d-bcc6-59fbfaaf49a5",
+      "req": {
+        "deviceAddr": 0
+      },
+      "returnVerbose": false
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_Backup",
+    "data": {
+      "msgId": "7e9b0dea-9398-4587-b638-16ebe349d205",
+      "req": {
+        "wholeNetwork": true
+      },
+      "returnVerbose": true
+    }
+  }
+]

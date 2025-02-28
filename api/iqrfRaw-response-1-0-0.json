@@ -1,106 +1,70 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "iqrfRaw-response",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Message type for Raw communication.",
-            "enum": [
-                "iqrfRaw"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response"
-                },
-                "rsp": {
-                    "type": "object",
-                    "properties": {
-                        "rData": {
-                            "type": "string",
-                            "description": "Binary buffer with DPA response"
-                        }
-                    },
-                    "required": [
-                        "rData"
-                    ]
-                },
-                "raw": {
-                    "type": "array",
-                    "description": "Returns array of objects req-cnf-rsp, see its description.",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "request": {
-                                "type": "string",
-                                "description": "Binary buffer with DPA request."
-                            },
-                            "requestTs": {
-                                "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-                            },
-                            "confirmation": {
-                                "type": "string",
-                                "description": "Binary buffer with DPA confirmation."
-                            },
-                            "confirmationTs": {
-                                "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-                            },
-                            "response": {
-                                "type": "string",
-                                "description": "Binary buffer with DPA response."
-                            },
-                            "responseTs": {
-                                "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-                            }
-                        },
-                        "required": [
-                            "request",
-                            "requestTs",
-                            "confirmation",
-                            "confirmationTs",
-                            "response",
-                            "responseTs"
-                        ]
-                    }
-                },
-                "insId": {
-                    "type": "string",
-                    "description": "IQRF GW daemon instance identification."
-                },
-                "status": {
-                    "type": "integer",
-                    "description": "IQRF GW daemon API (general or mType) status."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
-                }
-            },
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ]
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Raw DPA response",
+  "description": "© IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        {
+          "description": "Message type for Raw DPA communication.",
+          "const": "iqrfRaw"
         }
+      ]
     },
-    "required": [
-        "mType",
-        "data"
-    ]
+    "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/message/id"
+        },
+        "rsp": {
+          "title": "Response",
+          "description": "Contains response specific data.",
+          "type": "object",
+          "required": [
+            "rData"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "rData": {
+              "description": "Raw DPA response encoded as comma separated hex bytes.",
+              "type": "string",
+              "examples": [
+                "00.00.00.80.00.00.00.00.0A.32"
+              ]
+            }
+          }
+        },
+        "raw": {
+          "$ref": "definitions.json#/response/raw"
+        },
+        "insId": {
+          "$ref": "definitions.json#/response/insId"
+        },
+        "status": {
+          "$ref": "definitions.json#/response/status"
+        },
+        "statusStr": {
+          "$ref": "definitions.json#/response/statusStr"
+        },
+        "timeout": {
+          "$ref": "definitions.json#/dpa/timeout"
+        }
+      }
+    }
+  }
 }

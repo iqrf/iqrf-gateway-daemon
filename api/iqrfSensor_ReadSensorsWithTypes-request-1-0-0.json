@@ -1,94 +1,87 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "iqrfSensor_ReadSensorsWithTypes-request",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"type": "string",
-			"description": "Standard peripheral Sensor - Read with Types request.",
-			"enum": ["iqrfSensor_ReadSensorsWithTypes"]
-		},
-		"data": {
-			"type": "object",
-			"required": [
-				"msgId",
-				"req"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"type": "string",
-					"description": "Message identification for binding request with response."
-				},
-				"req": {
-					"type": "object",
-					"required": [
-						"nAdr",
-						"param"
-					],
-					"additionalProperties": false,
-					"properties": {
-						"nAdr": {
-							"type": "integer",
-							"description": "Network device address."
-						},
-						"hwpId": {
-							"type": "integer",
-							"description": "Hardware profile identification."
-						},
-						"param": {
-							"type": "object",
-							"additionalProperties": false,
-							"properties": {
-								"sensorIndexes": {
-									"oneOf": [
-										{ "type": "null" },
-										{ "type": "integer" },
-										{ "type": "array",
-											"items": {
-												"type":"integer"
-											}
-										}
-									],
-									"description": "Specifies sensors to read data from. Undefined: Missing parameter: reads 1st sensor. Number: -1: reads all sensors. Array: array of indexes: specifies sensors to read."
-								},
-								"writtenData": {
-									"type": "array",
-									"minItems": 1,
-									"items": {
-										"type": "array",
-										"minItems": 5,
-										"maxItems": 5,
-										"items": {
-											"type": "integer",
-											"minimum": 0,
-											"maximum": 255
-										}
-									}
-								}
-							}
-						}
-					}
-				},
-				"timeout": {
-					"type": "integer",
-					"description": "Timeout to wait for IQRF DPA response."
-				},
-				"returnVerbose": {
-					"type": "boolean",
-					"description": "Flag that includes additional parameters in the response."
-				}
-			}
-		}
-	}
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Interoperability Standard Sensor - Read Sensors with Types request",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "iqrfSensor_ReadSensorsWithTypes" }
+      ]
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/message/id"
+        },
+        "req": {
+          "title": "Request",
+          "description": "Contains request specific parameters.",
+          "type": "object",
+          "required": [
+            "nAdr",
+            "param"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/node/address"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/request/hwpId"
+            },
+            "param": {
+              "title": "Request parameters",
+              "description": "Specific request parameters.",
+              "type": "object",
+              "required": [
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "sensorIndexes": {
+                  "$ref": "definitions.json#/interoperability/sensor/indexes"
+                },
+                "writtenData": {
+                  "description": "Optional data to write to the sensors. Every sensor data consists of an array of 5 bytes - 1 sensor index and 4 actual data.",
+                  "type": "array",
+                  "items": {
+                    "description": "Data for one sensor, consisting of 1 byte sensor index and 4 bytes actual data.",
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 255
+                    },
+                    "minItems": 5,
+                    "maxItems": 5
+                  },
+                  "minItems": 1
+                }
+              }
+            }
+          }
+        },
+        "timeout": {
+          "$ref": "definitions.json#/dpa/timeout"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/request/returnVerbose"
+        }
+      }
+    }
+  }
 }

@@ -1,59 +1,63 @@
 {
-    "mType": "iqrfBinaryoutput_SetOutput",
-    "data": {
-        "msgId": "testEmbedBout",
-        "rsp": {
-            "nAdr": 2,
-            "hwpId": 3074,
-            "rCode": 0,
-            "dpaVal": 66,
-            "result": {
-                "prevVals": [
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false
-                ]
-            }
-        },
-        "raw": {
-            "request": "02.00.4b.00.ff.ff.01.00.00.00.01",
-            "requestTs": "2018-07-18T14:19:25.847926",
-            "confirmation": "02.00.4b.00.ff.ff.ff.3f.02.04.02",
-            "confirmationTs": "2018-07-18T14:19:25.880370",
-            "response": "02.00.4b.80.02.0c.00.42.00.00.00.00",
-            "responseTs": "2018-07-18T14:19:26.58392"
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "iqrfBinaryoutput_SetOutput",
+  "data": {
+    "msgId": "80bb036c-5c22-48c9-9e40-12411e2856a7",
+    "rsp": {
+      "nAdr": 2,
+      "pNum": 75,
+      "pCmd": 128,
+      "hwpId": 3074,
+      "rCode": 0,
+      "dpaVal": 94,
+      "result": {
+        "previousStates": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      }
+    },
+    "raw": [
+      {
+        "request": "02.00.4b.00.ff.ff.20.00.00.00.01",
+        "requestTs": "2024-12-03T10:13:04.169+01:00",
+        "confirmation": "02.00.4b.00.ff.ff.ff.5c.02.08.02",
+        "confirmationTs": "2024-12-03T10:13:04.211+01:00",
+        "response": "02.00.4b.80.02.0c.00.5e.00.00.00.00",
+        "responseTs": "2024-12-03T10:13:04.537+01:00"
+      }
+    ],
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

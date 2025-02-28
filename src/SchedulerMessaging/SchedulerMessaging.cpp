@@ -18,11 +18,6 @@
 #define IMessagingService_EXPORTS
 
 #include "SchedulerMessaging.h"
-#include "rapidjson/pointer.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
-#include "Trace.h"
-#include <vector>
 
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
@@ -44,8 +39,6 @@ namespace iqrf {
   {
   private:
     MessagingInstance m_messagingInstance = MessagingInstance(MessagingType::SCHEDULER);
-
-    //IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     ISchedulerService* m_iSchedulerService = nullptr;
     IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
 

@@ -29,8 +29,9 @@
 
 #include "Messages/MngBaseMsg.h"
 #include "Messages/MngExitMsg.h"
-#include "Messages/MngModeMsg.h"
+#include "Messages/MngGetModeMsg.h"
 #include "Messages/MngReloadCoordinatorMsg.h"
+#include "Messages/MngSetModeMsg.h"
 #include "Messages/MngUpdateCacheMsg.h"
 #include "Messages/MngVersionMsg.h"
 
@@ -88,11 +89,14 @@ namespace iqrf {
 			Document respDoc;
 			std::unique_ptr<MngBaseMsg> msg;
 			if (msgType.m_type == "mngDaemon_Exit") {
-				msg = std::make_unique<MngExitMsg>(MngExitMsg(doc, m_iSchedulerService));
-			} else if (msgType.m_type == "mngDaemon_Mode") {
-				msg = std::make_unique<MngModeMsg>(MngModeMsg(doc, m_iUdpConnectorService));
+				this->handleExitMessage(messaging, std::move(doc));
+				return;
+			} else if (msgType.m_type == "mngDaemon_GetMode") {
+				msg = std::make_unique<MngGetModeMsg>(MngGetModeMsg(doc, m_iUdpConnectorService));
 			} else if (msgType.m_type == "mngDaemon_ReloadCoordinator") {
 				msg = std::make_unique<MngReloadCoordinatorMsg>(MngReloadCoordinatorMsg(doc, m_dpaService, m_dbService));
+			} else if (msgType.m_type == "mngDaemon_SetMode") {
+				msg = std::make_unique<MngSetModeMsg>(MngSetModeMsg(doc, m_iUdpConnectorService));
 			} else if (msgType.m_type == "mngDaemon_UpdateCache") {
 				msg = std::make_unique<MngUpdateCacheMsg>(MngUpdateCacheMsg(doc, m_dbService, m_cacheService));
 			} else if (msgType.m_type == "mngDaemon_Version") {
@@ -131,10 +135,50 @@ namespace iqrf {
 			TRC_FUNCTION_LEAVE("");
 		}
 
+		void handleExitMessage(const MessagingInstance &messaging, rapidjson::Document doc) {
+			TRC_FUNCTION_ENTER("");
+			MngExitMsg msg(doc);
+			Document rspdoc;
+
+			try {
+				auto time = msg.getExitTime();
+				if (time > 0) {
+					Document schedDoc;
+					Pointer("/task/restart").Set(schedDoc, true);
+					m_iSchedulerService->scheduleInternalTask(
+						"JsonMngApi",
+						"00000000-0000-0000-0000-000000000000",
+						schedDoc,
+						std::chrono::system_clock::now() + std::chrono::milliseconds(time),
+						false,
+						true
+					);
+					std::cout << "Exit scheduled in " << time << " ms." << std::endl;
+					TRC_INFORMATION("Exit scheduled in " << time << " ms.");
+					msg.setStatus("ok", 0);
+					msg.createResponse(rspdoc);
+					m_iMessagingSplitterService->sendMessage(messaging, std::move(rspdoc));
+				} else {
+					std::cout << "Exiting now." << std::endl;
+					TRC_INFORMATION("Exiting now.");
+					msg.setStatus("ok", 0);
+					msg.createResponse(rspdoc);
+					m_iMessagingSplitterService->sendMessage(messaging, std::move(rspdoc));
+					m_iLaunchService->exit();
+				}
+			} catch (const std::exception &e) {
+				msg.setStatus("err", -1);
+				Document errorDoc;
+				msg.createResponse(errorDoc);
+				m_iMessagingSplitterService->sendMessage(messaging, std::move(errorDoc));
+			}
+			TRC_FUNCTION_LEAVE("");
+		}
+
 		void handleSchedulerMsg(const rapidjson::Value &val) {
 			(void)val;
-			TRC_INFORMATION(std::endl << "Scheduled Exit ... " << std::endl);
-			std::cout << std::endl << "Scheduled Exit ... " << std::endl;
+			std::cout << "Exiting now." << std::endl;
+			TRC_INFORMATION(std::endl << "Exiting now.");
 			m_iLaunchService->exit();
 		}
 

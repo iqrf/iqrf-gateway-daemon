@@ -1,50 +1,50 @@
 [
-	{
-		"mType": "iqmeshNetwork_OtaUpload",
-		"data": {
-			"msgId": "0ab908d7-0ce1-44e1-b928-a0268ce212ac",
-			"repeat": 1,
-			"req": {
-				"deviceAddr": 255,
-				"fileName": "test.hex",
-				"startMemAddr": 8192,
-				"loadingAction": "Upload",
-				"uploadEepromData": false,
-				"uploadEeepromData": false
-			},
-			"returnVerbose": true
-		}
-	},
-	{
-		"mType": "iqmeshNetwork_OtaUpload",
-		"data": {
-			"msgId": "22ee3e35-f9f7-4f6f-8811-d09da8c34f74",
-			"repeat": 1,
-			"req": {
-				"deviceAddr": 255,
-				"fileName": "test.hex",
-				"startMemAddr": 8192,
-				"loadingAction": "Verify",
-				"uploadEepromData": false,
-				"uploadEeepromData": false
-			},
-			"returnVerbose": true
-		}
-	},
-	{
-		"mType": "iqmeshNetwork_OtaUpload",
-		"data": {
-			"msgId": "c2cbe16f-fcde-4c6c-8fc2-136742712e32",
-			"repeat": 1,
-			"req": {
-				"deviceAddr": 255,
-				"fileName": "test.hex",
-				"startMemAddr": 8192,
-				"loadingAction": "Load",
-				"uploadEepromData": false,
-				"uploadEeepromData": false
-			},
-			"returnVerbose": true
-		}
-	}
+  {
+    "mType": "iqmeshNetwork_OtaUpload",
+    "data": {
+      "msgId": "0ab908d7-0ce1-44e1-b928-a0268ce212ac",
+      "repeat": 1,
+      "req": {
+        "deviceAddr": 2,
+        "fileName": "DPA-Node-STD-7xD-V417-220224.iqrf",
+        "startMemAddr": 768,
+        "loadingAction": "Upload",
+        "uploadEepromData": true,
+        "uploadEeepromData": true
+      },
+      "returnVerbose": false
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_OtaUpload",
+    "data": {
+      "msgId": "03fba990-cc7a-4c1e-b450-7dd458d91474",
+      "repeat": 1,
+      "req": {
+        "deviceAddr": 2,
+        "fileName": "DPA-Node-STD-7xD-V417-220224.iqrf",
+        "startMemAddr": 768,
+        "loadingAction": "Verify",
+        "uploadEepromData": true,
+        "uploadEeepromData": true
+      },
+      "returnVerbose": false
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_OtaUpload",
+    "data": {
+      "msgId": "03fba990-cc7a-4c1e-b450-7dd458d91474",
+      "repeat": 1,
+      "req": {
+        "deviceAddr": 2,
+        "fileName": "DPA-Node-STD-7xD-V417-220224.iqrf",
+        "startMemAddr": 768,
+        "loadingAction": "Load",
+        "uploadEepromData": true,
+        "uploadEeepromData": true
+      },
+      "returnVerbose": false
+    }
+  }
 ]

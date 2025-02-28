@@ -1,11 +1,10 @@
 {
   "mType": "iqrfEmbedOs_Rfpgm",
   "data": {
-    "msgId": "testEmbedOs",
-    "req": {
-      "nAdr": 1,
-      "param": {}
-    },
-    "returnVerbose": true
+      "msgId": "91ec7ca5-e988-44f8-948f-07067dbc09f9",
+      "req": {
+          "nAdr": 1
+      },
+      "returnVerbose": true
   }
 }

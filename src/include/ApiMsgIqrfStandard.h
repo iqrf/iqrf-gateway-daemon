@@ -62,11 +62,13 @@ namespace iqrf {
         m_hwpid = hwpidVal->GetInt();
 
       const Value* reqParamObj = Pointer("/data/req/param").Get(doc);
-      m_requestParamDoc.CopyFrom(*reqParamObj, m_requestParamDoc.GetAllocator());
-      StringBuffer buffer;
-      Writer<rapidjson::StringBuffer> writer(buffer);
-      m_requestParamDoc.Accept(writer);
-      m_requestParamStr = buffer.GetString();
+      if (reqParamObj != nullptr) {
+        m_requestParamDoc.CopyFrom(*reqParamObj, m_requestParamDoc.GetAllocator());
+        StringBuffer buffer;
+        Writer<rapidjson::StringBuffer> writer(buffer);
+        m_requestParamDoc.Accept(writer);
+        m_requestParamStr = buffer.GetString();
+      }
     }
 
     int getTimeout() const { return m_timeout; }
@@ -127,21 +129,27 @@ namespace iqrf {
       }
 
       bool r = (bool)m_res && m_res->isResponded();
-      int pnum = -1;
-      int pcmd = -1;
-      if (r) {
-        pnum = m_res->getResponse().DpaPacket().DpaResponsePacket_t.PNUM;
-        pcmd = m_res->getResponse().DpaPacket().DpaResponsePacket_t.PCMD;
-      } else if (!m_driverTranslateSuccess && !m_unresolvablePerCmd) {
-        pnum = m_dpaRequest.DpaPacket().DpaRequestPacket_t.PNUM;
-        pcmd = m_dpaRequest.DpaPacket().DpaRequestPacket_t.PCMD + 0x80;
-      }
       Pointer("/data/rsp/nAdr").Set(doc, m_nadr);
-      Pointer("/data/rsp/pnum").Set(doc, pnum);
-      Pointer("/data/rsp/pcmd").Set(doc, pcmd);
-      Pointer("/data/rsp/hwpId").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.HWPID : -1);
-      Pointer("/data/rsp/rCode").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode : -1);
-      Pointer("/data/rsp/dpaVal").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.DpaValue : -1);
+      if (r) {
+        Pointer("/data/rsp/pNum").Set(doc, m_res->getResponse().DpaPacket().DpaResponsePacket_t.PNUM);
+        Pointer("/data/rsp/pCmd").Set(doc, m_res->getResponse().DpaPacket().DpaResponsePacket_t.PCMD);
+      } else if (!m_driverTranslateSuccess && !m_unresolvablePerCmd) {
+        Pointer("/data/rsp/pNum").Set(doc, m_dpaRequest.DpaPacket().DpaRequestPacket_t.PNUM);
+        Pointer("/data/rsp/pCmd").Set(doc, m_dpaRequest.DpaPacket().DpaRequestPacket_t.PCMD + 0x80);
+      } else {
+        Pointer("/data/rsp/pNum").Set(doc, Value(kNullType));
+        Pointer("/data/rsp/pCmd").Set(doc, Value(kNullType));
+      }
+      if (r) {
+        Pointer("/data/rsp/hwpId").Set(doc, m_res->getResponse().DpaPacket().DpaResponsePacket_t.HWPID);
+        Pointer("/data/rsp/rCode").Set(doc, m_res->getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode);
+        Pointer("/data/rsp/dpaVal").Set(doc, m_res->getResponse().DpaPacket().DpaResponsePacket_t.DpaValue);
+      } else {
+        Pointer("/data/rsp/hwpId").Set(doc, Value(kNullType));
+        Pointer("/data/rsp/rCode").Set(doc, Value(kNullType));
+        Pointer("/data/rsp/dpaVal").Set(doc, Value(kNullType));
+      }
+
       Pointer(m_payloadKey.c_str()).Set(doc, m_payload);
 
       if (getVerbose()) {

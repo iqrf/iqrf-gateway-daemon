@@ -1,88 +1,104 @@
 {
-    "mType": "iqrfEmbedExplore_MorePeripheralsInformation",
-    "data": {
-        "msgId": "testEmbedExplore",
-        "timeout": 1000,
-        "rsp": {
-            "nAdr": 1,
-            "hwpId": 2,
-            "rCode": 0,
-            "dpaVal": 81,
-            "result": {
-                "peripherals": [
-                    {
-                        "perTe": 3,
-                        "perT": 2,
-                        "par1": 56,
-                        "par2": 0
-                    },
-                    {
-                        "perTe": 3,
-                        "perT": 3,
-                        "par1": 22,
-                        "par2": 131
-                    },
-                    {
-                        "perTe": 3,
-                        "perT": 4,
-                        "par1": 192,
-                        "par2": 55
-                    },
-                    {
-                        "perTe": 3,
-                        "perT": 5,
-                        "par1": 128,
-                        "par2": 16
-                    },
-                    {
-                        "perTe": 3,
-                        "perT": 6,
-                        "par1": 48,
-                        "par2": 48
-                    },
-                    {
-                        "perTe": 3,
-                        "perT": 7,
-                        "par1": 0,
-                        "par2": 0
-                    },
-                    {
-                        "perTe": 3,
-                        "perT": 7,
-                        "par1": 1,
-                        "par2": 0
-                    },
-                    {
-                        "perTe": 3,
-                        "perT": 0,
-                        "par1": 0,
-                        "par2": 0
-                    },
-                    {
-                        "perTe": 3,
-                        "perT": 9,
-                        "par1": 23,
-                        "par2": 0
-                    },
-                    {
-                        "perTe": 1,
-                        "perT": 11,
-                        "par1": 0,
-                        "par2": 0
-                    }
-                ]
-            }
-        },
-        "raw": {
-            "request": "01.00.ff.01.ff.ff",
-            "requestTs": "2018-07-04T20:50:06.126513",
-            "confirmation": "01.00.ff.01.ff.ff.ff.4b.01.04.01",
-            "confirmationTs": "2018-07-04T20:50:06.158959",
-            "response": "01.00.ff.81.02.00.00.51.03.02.38.00.03.03.16.83.03.04.c0.37.03.05.80.10.03.06.30.30.03.07.00.00.03.07.01.00.03.00.00.00.03.09.17.00.01.0b.00.00",
-            "responseTs": "2018-07-04T20:50:06.337696"
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "iqrfEmbedExplore_MorePeripheralsInformation",
+  "data": {
+    "msgId": "757c30f9-bee6-474b-a5fc-e687a621aad2",
+    "timeout": 1000,
+    "rsp": {
+      "nAdr": 1,
+      "pNum": 255,
+      "pCmd": 129,
+      "hwpId": 5122,
+      "rCode": 0,
+      "dpaVal": 94,
+      "result": {
+        "peripherals": [
+          {
+            "perTe": 3,
+            "perT": 2,
+            "par1": 56,
+            "par2": 0
+          },
+          {
+            "perTe": 3,
+            "perT": 3,
+            "par1": 36,
+            "par2": 194
+          },
+          {
+            "perTe": 3,
+            "perT": 4,
+            "par1": 192,
+            "par2": 55
+          },
+          {
+            "perTe": 3,
+            "perT": 5,
+            "par1": 128,
+            "par2": 0
+          },
+          {
+            "perTe": 3,
+            "perT": 6,
+            "par1": 48,
+            "par2": 48
+          },
+          {
+            "perTe": 3,
+            "perT": 7,
+            "par1": 0,
+            "par2": 0
+          },
+          {
+            "perTe": 3,
+            "perT": 7,
+            "par1": 1,
+            "par2": 0
+          },
+          {
+            "perTe": 3,
+            "perT": 0,
+            "par1": 0,
+            "par2": 0
+          },
+          {
+            "perTe": 3,
+            "perT": 9,
+            "par1": 23,
+            "par2": 0
+          },
+          {
+            "perTe": 1,
+            "perT": 11,
+            "par1": 0,
+            "par2": 0
+          },
+          {
+            "perTe": 3,
+            "perT": 0,
+            "par1": 0,
+            "par2": 0
+          },
+          {
+            "perTe": 3,
+            "perT": 10,
+            "par1": 55,
+            "par2": 0
+          }
+        ]
+      }
+    },
+    "raw": [
+      {
+        "request": "01.00.ff.01.ff.ff",
+        "requestTs": "2024-12-02T15:50:42.835+01:00",
+        "confirmation": "01.00.ff.01.ff.ff.ff.5c.01.08.01",
+        "confirmationTs": "2024-12-02T15:50:42.873+01:00",
+        "response": "01.00.ff.81.02.14.00.5e.03.02.38.00.03.03.24.c2.03.04.c0.37.03.05.80.00.03.06.30.30.03.07.00.00.03.07.01.00.03.00.00.00.03.09.17.00.01.0b.00.00.03.00.00.00.03.0a.37.00",
+        "responseTs": "2024-12-02T15:50:43.179+01:00"
+      }
+    ],
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

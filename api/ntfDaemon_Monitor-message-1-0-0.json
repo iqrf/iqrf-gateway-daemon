@@ -1,60 +1,79 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "ntfDaemon_Monitor-message",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Daemon monitoring - Notification message.",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "ntfDaemon_Monitor" }
+      ]
     },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Daemon monitoring - notifications.",
-            "enum": [
-                "ntfDaemon_Monitor"
-            ]
+    "data": {
+      "title": "Message data",
+      "description": "Daemon monitoring notification information.",
+      "type": "object",
+      "required": [
+        "num",
+        "timestamp",
+        "dpaQueueLen",
+        "iqrfChannelState",
+        "dpaChannelState",
+        "msgQueueLen",
+        "operMode"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "num": {
+          "title": "Message counter",
+          "description": "Ever increasing counter of messages, which counts from zero at start-up.",
+          "type": "integer"
         },
-        "data": {
-            "type": "object",
-            "properties": {
-                "num": {
-                    "type": "integer",
-                    "description": "Message counter. It counts from zero at start-up."
-                },
-                "timestamp": {
-                    "type": "integer",
-                    "description": "Time since epoch in seconds (Unix time)."
-                },
-                "dpaQueueLen": {
-                    "type": "integer",
-                    "description": "Length of pending DPA transaction queue (16 is maximum)."
-                },
-                "dpaChannelState": {
-                    "type": "string",
-                    "description": "State (Ready/NotReady/ExclusiveAccess) of DPA channel - one of USB CDC, SPI or UART interface."
-                },
-                "msgQueueLen": {
-                    "type": "integer",
-                    "description": "Length of pending API msg queue (32 is maximum)."
-                },
-                "operMode": {
-                    "type": "string",
-                    "description": "Daemon mode (operational/service/forwarding)."
-                }
-            },
-            "required": [
-                "num",
-                "timestamp",
-                "dpaQueueLen",
-                "dpaChannelState",
-                "msgQueueLen",
-                "operMode"
-            ]
+        "timestamp": {
+          "title": "Timestamp",
+          "description": "Time since epoch in seconds (Unix time).",
+          "type": "integer"
+        },
+        "dpaQueueLen": {
+          "title": "DPA queue length",
+          "description": "Length of pending DPA transaction queue (16 is maximum).",
+          "type": "integer"
+        },
+        "iqrfChannelState": {
+          "title": "IQRF channel state",
+          "description": "State (Ready/NotReady/ExclusiveAccess) of IQRF channel.",
+          "type": "string"
+        },
+        "dpaChannelState": {
+          "title": "DPA channel state",
+          "description": "State (Ready/NotReady/ExclusiveAccess) of DPA channel - one of USB CDC, SPI or UART interface.",
+          "type": "string"
+        },
+        "msgQueueLen": {
+          "title": "Message queue length",
+          "description": "Length of pending API msg queue (32 is maximum).",
+          "type": "integer"
+        },
+        "operMode": {
+          "title": "Operational mode",
+          "description": "Daemon mode (operational/service/forwarding).",
+          "type": "string"
+        },
+        "enumInProgress": {
+          "description": "Enumeration is currently running.",
+          "type": "boolean"
+        },
+        "dataReadingInProgress": {
+          "description": "Data read is currently running.",
+          "type": "boolean"
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+      }
+    }
+  }
 }

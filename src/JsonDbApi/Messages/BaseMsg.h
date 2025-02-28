@@ -46,12 +46,6 @@ namespace iqrf {
 		virtual ~BaseMsg() {};
 
 		/**
-		 * Prepares response document
-		 * @param doc Response document
-		 */
-		void createResponsePayload(Document &doc) override;
-
-		/**
 		 * Returns messaging instance
 		 * @return Messaging instance
 		 */

@@ -1,124 +1,83 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_WriteTrConf-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "IQMESH Network - Write TR configuration response",
+  "description": "(c) IQRF Tech",
   "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
   "properties": {
     "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - Write TR configuration response.",
-      "enum": [
-        "iqmeshNetwork_WriteTrConf"
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "iqmeshNetwork_WriteTrConf" }
       ]
     },
     "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
       "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
       "properties": {
         "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
+          "$ref": "definitions.json#/message/id"
         },
         "rsp": {
+          "title": "Response",
+          "description": "Holds response data",
           "type": "object",
-          "description": "Returns following values, see its description.",
+          "required": [
+            "deviceAddr"
+          ],
+          "additionalProperties": false,
           "properties": {
             "deviceAddr": {
-              "type": "integer",
-              "description": "Device address to write the configuration to. Broadcast address is also allowed."
+              "$ref": "definitions.json#/response/hwpId"
             },
             "notMatchedNodes": {
-              "type": "array",
               "description": "Nodes that set bit1 in FrcAcknowledgedBroadcastBits response (their HWPID doesn't match).",
+              "type": "array",
               "items": {
                 "type": "integer"
               }
             },
             "notRespondedNodes": {
-              "type": "array",
               "description": "Nodes that didn't respond to FrcAcknowledgedBroadcastBits response.",
+              "type": "array",
               "items": {
                 "type": "integer"
               }
             },
             "writeSuccess": {
-              "type": "boolean",
-              "description": "If sets, then configuration has been successfully written."
+              "description": "The configuration has been successfully written.",
+              "type": "boolean"
             },
             "restartNeeded": {
-              "type": "boolean",
-              "description": "Restart required, but not done yet."
+              "description": "Restart required, but not done yet.",
+              "type": "boolean"
             }
-          },
-          "required": [
-            "deviceAddr"
-          ]
-        },
-        "raw": {
-          "type": "array",
-          "description": "Returns array of objects req-cnf-rsp, see its description.",
-          "items": {
-            "type": "object",
-            "properties": {
-              "request": {
-                "type": "string",
-                "description": "Binary buffer with DPA request."
-              },
-              "requestTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "confirmation": {
-                "type": "string",
-                "description": "Binary buffer with DPA confirmation."
-              },
-              "confirmationTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "response": {
-                "type": "string",
-                "description": "Binary buffer with DPA response."
-              },
-              "responseTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              }
-            },
-            "required": [
-              "request",
-              "requestTs",
-              "confirmation",
-              "confirmationTs",
-              "response",
-              "responseTs"
-            ]
           }
         },
+        "raw": {
+          "$ref": "definitions.json#/response/raw"
+        },
         "insId": {
-          "type": "string",
-          "description": "IQRF GW daemon instance identification."
+          "$ref": "definitions.json#/response/insId"
         },
         "status": {
-          "type": "integer",
-          "description": "IQRF GW daemon API (general or mType) status."
+          "$ref": "definitions.json#/response/status"
         },
         "statusStr": {
-          "type": "string",
-          "description": "IQRF GW daemon API (general or mType) status in string form."
+          "$ref": "definitions.json#/response/statusStr"
         }
-      },
-      "required": [
-        "msgId",
-        "status"
-      ]
+      }
     }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+  }
 }

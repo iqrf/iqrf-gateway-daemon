@@ -4,12 +4,11 @@
     "msgId": "7fdb55bc-8216-4dcd-af5d-80f67d056f71",
     "rsp": {
       "nAdr": 4,
-      "pnum": 74,
-      "pcmd": 129,
+      "pNum": 74,
+      "pCmd": 129,
       "hwpId": 0,
       "rCode": 0,
-      "dpaVal": 90,
-      "result": {}
+      "dpaVal": 90
     },
     "raw": [
       {

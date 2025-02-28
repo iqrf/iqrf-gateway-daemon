@@ -1,10 +1,9 @@
 {
   "mType": "iqrfSensor_Enumerate",
   "data": {
-    "msgId": "testEmbedSensor",
+    "msgId": "aa62798e-75d4-44f6-b3fd-7a484ac97f82",
     "req": {
-      "nAdr": 1,
-      "param": {}
+      "nAdr": 1
     },
     "returnVerbose": true
   }

@@ -1,10 +1,9 @@
 {
   "mType": "iqrfEmbedThermometer_Read",
   "data": {
-    "msgId": "testEmbedThermometer",
+    "msgId": "b8d80a71-d7fa-4ca8-8379-f0fb0e7f3337",
     "req": {
-      "nAdr": 3,
-      "param": {}
+      "nAdr": 3
     },
     "returnVerbose": true
   }

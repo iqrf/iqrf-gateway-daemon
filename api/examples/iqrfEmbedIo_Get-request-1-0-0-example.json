@@ -1,10 +1,9 @@
 {
   "mType": "iqrfEmbedIo_Get",
   "data": {
-    "msgId": "testEmbedIo",
+    "msgId": "0b718a5f-115e-43ed-a137-56da08ebeb81",
     "req": {
-      "nAdr": 1,
-      "param": {}
+      "nAdr": 1
     },
     "returnVerbose": true
   }

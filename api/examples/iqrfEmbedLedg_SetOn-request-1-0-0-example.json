@@ -1,11 +1,10 @@
 {
-	"mType": "iqrfEmbedLedg_SetOn",
-	"data": {
-		"req": {
-			"nAdr": 0,
-			"param": {}
-		},
-		"returnVerbose": true,
-		"msgId": "30d1802f-92b1-458e-ac46-7026548f7435"
-	}
+  "mType": "iqrfEmbedLedg_SetOn",
+  "data": {
+    "msgId": "30d1802f-92b1-458e-ac46-7026548f7435",
+    "req": {
+      "nAdr": 0
+    },
+    "returnVerbose": true
+  }
 }

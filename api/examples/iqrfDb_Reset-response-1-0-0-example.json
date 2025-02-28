@@ -2,7 +2,6 @@
   "mType": "iqrfDb_Reset",
   "data": {
     "msgId": "df939d51-f50a-420d-b7d8-c7fd70dfa4d5",
-    "rsp": {},
     "insId": "iqrfgd2-default",
     "statusStr": "ok",
     "status": 0

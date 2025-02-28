@@ -1,146 +1,113 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedCoordinator_AddrInfo-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Peripheral Coordinator - AddrInfo response",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "iqrfEmbedCoordinator_AddrInfo" }
+      ]
     },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Embedded peripheral Coordinator - Addressing Information response.",
-            "enum": [
-                "iqrfEmbedCoordinator_AddrInfo"
-            ]
+    "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/message/id"
         },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "rsp": {
-                    "type": "object",
-                    "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "pnum": {
-							"type": "integer",
-							"description": "Peripheral number."
-						},
-						"pcmd": {
-							"type": "integer",
-							"description": "Peripheral response command."
-						},
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "rCode": {
-                            "type": "integer",
-                            "description": "DPA error code."
-                        },
-                        "dpaVal": {
-                            "type": "integer",
-                            "description": "DPA value."
-                        },
-                        "result": {
-                            "type": "object",
-                            "properties": {
-                                "devNr": {
-                                    "type": "integer",
-                                    "description": "Number of bonded network nodes."
-                                },
-                                "did": {
-                                    "type": "integer",
-                                    "description": "Discovery ID of the network."
-                                }
-                            }
-                        },
-                        "errorStr": {
-                            "type": "string",
-                            "description": "Error description from JS drivers."
-                        }
-                    },
-                    "required": [
-                        "nAdr",
-                        "hwpId",
-                        "rCode",
-                        "dpaVal"
-                    ]
-                },
-                "raw": {
-					"type": "array",
-					"description": "Returns array of objects req-cnf-rsp, see its description.",
-					"items": {
-						"type": "object",
-						"properties": {
-							"request": {
-								"type": "string",
-								"description": "Binary buffer with DPA request."
-							},
-							"requestTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							},
-							"confirmation": {
-								"type": "string",
-								"description": "Binary buffer with DPA confirmation."
-							},
-							"confirmationTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							},
-							"response": {
-								"type": "string",
-								"description": "Binary buffer with DPA response."
-							},
-							"responseTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							}
-						},
-						"required": [
-							"request",
-							"requestTs",
-							"confirmation",
-							"confirmationTs",
-							"response",
-							"responseTs"
-						]
-					}
-                },
-                "insId": {
-                    "type": "string",
-                    "description": "IQRF GW daemon instance identification."
-                },
-                "status": {
-                    "type": "integer",
-                    "description": "IQRF GW daemon API (general or mType) status."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
-                }
+        "rsp": {
+          "title": "Response",
+          "description": "Holds response data",
+          "type": "object",
+          "required": [
+            "nAdr",
+            "pNum",
+            "pCmd",
+            "hwpId",
+            "rCode",
+            "dpaVal"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/node/address"
             },
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ]
+            "pNum": {
+              "$ref": "definitions.json#/peripheral/number"
+            },
+            "pCmd": {
+              "$ref": "definitions.json#/peripheral/command"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/response/hwpId"
+            },
+            "rCode": {
+              "$ref": "definitions.json#/response/rCode"
+            },
+            "dpaVal": {
+              "$ref": "definitions.json#/response/dpaVal"
+            },
+            "result": {
+              "title": "Result",
+              "description": "Contains the results of the request",
+              "type": "object",
+              "required": [
+                "devNr",
+                "did"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "devNr": {
+                  "title": "Device number",
+                  "description": "Number of bonded network nodes.",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 239
+                },
+                "did": {
+                  "title": "Discovery ID",
+                  "description": "Discovery ID of the network.",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 255
+                }
+              }
+            },
+            "errorStr": {
+              "$ref": "definitions.json#/response/errorStr"
+            }
+          }
+        },
+        "raw": {
+          "$ref": "definitions.json#/response/raw"
+        },
+        "insId": {
+          "$ref": "definitions.json#/response/insId"
+        },
+        "status": {
+          "$ref": "definitions.json#/response/status"
+        },
+        "statusStr": {
+          "$ref": "definitions.json#/response/statusStr"
+        },
+        "timeout": {
+          "$ref": "definitions.json#/dpa/timeout"
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+      }
+    }
+  }
 }

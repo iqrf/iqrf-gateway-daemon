@@ -1,9 +1,0 @@
-mType: cfgDaemon_Component
-data:
-  msgId: testMetaDataCfg
-  rsp:
-    componentName: iqrf::JsonMngMetaDataApi
-    componentInstance: JsonMngMetaDataApi
-  insId: iqrfgd2-default
-  statusStr: ok
-  status: 0

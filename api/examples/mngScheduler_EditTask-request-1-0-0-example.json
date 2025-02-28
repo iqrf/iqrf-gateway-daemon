@@ -1,60 +1,60 @@
 {
-	"mType":"mngScheduler_EditTask",
-	"data":{
-		"req":{
-			"clientId":"SchedulerMessaging",
-			"taskId":"7152e0c3-9281-4068-b240-8294e461d256",
-			"newTaskId":"4cc98a1f-c944-4aa2-a727-433421cf95bc",
-			"description":"Example task #3",
-			"task":[
-				{
-					"message":{
-						"mType":"iqrfEmbedLedr_Pulse",
-						"data":{
-							"msgId":"testEmbedLedr",
-							"req":{
-								"nAdr":1,
-								"param":{
-
-								}
-							},
-							"returnVerbose":true
-						}
-					},
-					"messaging":[
-						"WebsocketMessaging"
-					]
-				},
-				{
-					"message":{
-						"mType":"iqrfEmbedLedg_Pulse",
-						"data":{
-							"msgId":"testEmbedLedg",
-							"req":{
-								"nAdr":1,
-								"param":{
-
-								}
-							},
-							"returnVerbose":true
-						}
-					},
-					"messaging":[
-						"MqttMessaging"
-					]
-				}
-			],
-			"timeSpec":{
-				"cronTime":"0 */10 * * * * *",
-				"exactTime":false,
-				"periodic":false,
-				"period":0,
-				"startTime":""
-			},
-			"persist":true,
-			"enabled":true
-		},
-		"returnVerbose":true,
-		"msgId":"69d1f245-06c1-4e1a-a7cf-ab64963cacba"
-	}
+  "mType": "mngScheduler_EditTask",
+  "data": {
+    "msgId": "69d1f245-06c1-4e1a-a7cf-ab64963cacba",
+    "req": {
+      "clientId": "SchedulerMessaging",
+      "taskId": "7152e0c3-9281-4068-b240-8294e461d256",
+      "newTaskId": "4cc98a1f-c944-4aa2-a727-433421cf95bc",
+      "description": "Example task #3",
+      "task": [
+        {
+          "message": {
+            "mType": "iqrfEmbedLedr_Pulse",
+            "data": {
+              "msgId": "testEmbedLedr",
+              "req": {
+                "nAdr": 1
+              },
+              "returnVerbose": true
+            }
+          },
+          "messaging": [
+            {
+              "instance": "WebsocketMessaging",
+              "type": "ws"
+            }
+          ]
+        },
+        {
+          "message": {
+            "mType": "iqrfEmbedLedg_Pulse",
+            "data": {
+              "msgId": "testEmbedLedg",
+              "req": {
+                "nAdr": 1
+              },
+              "returnVerbose": true
+            }
+          },
+          "messaging": [
+            {
+              "instance": "MqttMessaging",
+              "type": "mqtt"
+            }
+          ]
+        }
+      ],
+      "timeSpec": {
+        "cronTime": "0 */10 * * * * *",
+        "exactTime": false,
+        "periodic": false,
+        "period": 0,
+        "startTime": ""
+      },
+      "persist": true,
+      "enabled": true
+    },
+    "returnVerbose": true
+  }
 }

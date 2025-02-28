@@ -1,37 +1,49 @@
 [
-    {
-        "mType": "iqmeshNetwork_RemoveBond",
-        "data": {
-            "msgId": "a02b4528-38a3-486b-b554-c120f02676e4",
-            "repeat": 2,
-            "req": {
-                "deviceAddr": 1,
-                "hwpId": 65535
-            },
-            "returnVerbose": true
-        }
-    },
-    {
-        "mType": "iqmeshNetwork_RemoveBond",
-        "data": {
-            "msgId": "49430fd9-a93b-413f-a0bb-7f3239453a2d",
-            "repeat": 2,
-            "req": {
-                "allNodes": true
-            },
-            "returnVerbose": true
-        }
-    },
-    {
-        "mType": "iqmeshNetwork_RemoveBond",
-        "data": {
-            "msgId": "0c20ed16-2634-4221-97e6-e105993eab25",
-            "repeat": 2,
-            "req": {
-                "deviceAddr": 1,
-                "coordinatorOnly": true
-            },
-            "returnVerbose": true
-        }
+  {
+    "mType": "iqmeshNetwork_RemoveBond",
+    "data": {
+      "msgId": "a02b4528-38a3-486b-b554-c120f02676e4",
+      "repeat": 2,
+      "req": {
+        "deviceAddr": 1,
+        "hwpId": 65535
+      },
+      "returnVerbose": true
     }
+  },
+  {
+    "mType": "iqmeshNetwork_RemoveBond",
+    "data": {
+      "msgId": "7f5b396c-ae07-4ec7-8984-7ac1f65b0303",
+      "repeat": 2,
+      "req": {
+        "deviceAddr": [1, 2],
+        "hwpId": 65535
+      },
+      "returnVerbose": true
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_RemoveBond",
+    "data": {
+      "msgId": "49430fd9-a93b-413f-a0bb-7f3239453a2d",
+      "repeat": 2,
+      "req": {
+        "allNodes": true
+      },
+      "returnVerbose": true
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_RemoveBond",
+    "data": {
+      "msgId": "0c20ed16-2634-4221-97e6-e105993eab25",
+      "repeat": 2,
+      "req": {
+        "deviceAddr": 1,
+        "coordinatorOnly": true
+      },
+      "returnVerbose": true
+    }
+  }
 ]

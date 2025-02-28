@@ -1,37 +1,41 @@
 {
-    "mType": "iqrfEmbedEeprom_Read",
-    "data": {
-        "msgId": "testEmbedEeprom",
-        "rsp": {
-            "nAdr": 1,
-            "hwpId": 2,
-            "rCode": 0,
-            "dpaVal": 77,
-            "result": {
-                "pData": [
-                    0,
-                    1,
-                    2,
-                    3,
-                    4,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0
-                ]
-            }
-        },
-        "raw": {
-            "request": "01.00.03.00.ff.ff.00.0a",
-            "requestTs": "2018-07-17T16:28:14.112711",
-            "confirmation": "01.00.03.00.ff.ff.ff.3b.01.04.01",
-            "confirmationTs": "2018-07-17T16:28:14.143809",
-            "response": "01.00.03.80.02.00.00.4d.00.01.02.03.04.00.00.00.00.00",
-            "responseTs": "2018-07-17T16:28:14.278814"
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "iqrfEmbedEeprom_Read",
+  "data": {
+    "msgId": "8d46299a-cd4b-4e00-8c54-17599cdca17c",
+    "rsp": {
+      "nAdr": 1,
+      "pNum": 3,
+      "pCmd": 128,
+      "hwpId": 5122,
+      "rCode": 0,
+      "dpaVal": 94,
+      "result": {
+        "pData": [
+          2,
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "raw": [
+      {
+        "request": "01.00.03.00.ff.ff.00.0a",
+        "requestTs": "2024-12-09T10:46:14.190+01:00",
+        "confirmation": "01.00.03.00.ff.ff.ff.5c.01.08.01",
+        "confirmationTs": "2024-12-09T10:46:14.230+01:00",
+        "response": "01.00.03.80.02.14.00.5e.02.06.00.00.00.00.00.00.00.00",
+        "responseTs": "2024-12-09T10:46:14.490+01:00"
+      }
+    ],
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

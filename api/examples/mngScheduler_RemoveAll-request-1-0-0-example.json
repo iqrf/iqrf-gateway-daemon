@@ -1,10 +1,10 @@
 {
-	"mType":"mngScheduler_RemoveAll",
-	"data":{
-		"req":{
-			"clientId":"SchedulerMessaging"
-		},
-		"returnVerbose":true,
-		"msgId":"7ec8d07e-0293-4ba7-8e81-9efbc3677cd4"
-	}
+  "mType": "mngScheduler_RemoveAll",
+  "data": {
+    "msgId": "7ec8d07e-0293-4ba7-8e81-9efbc3677cd4",
+    "req": {
+      "clientId": "SchedulerMessaging"
+    },
+    "returnVerbose": true
+  }
 }

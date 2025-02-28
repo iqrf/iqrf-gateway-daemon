@@ -1,52 +1,52 @@
 {
-	"mType":"mngScheduler_GetTask",
-	"data":{
-		"msgId":"20ecb6be-6d83-4cd8-a155-839ed992f792",
-		"rsp":{
-			"clientId":"SchedulerMessaging",
-			"taskId":"617c6004-3e00-4f45-be7f-4ddade78c2e5",
-			"description":"Example task",
-			"task":[
-				{
-					"message":{
-						"mType":"iqrfEmbedLedr_Pulse",
-						"data":{
-							"msgId":"testEmbedLedr",
-							"req":{
-								"nAdr":1,
-								"param":{
-
-								}
-							},
-							"returnVerbose":true
-						}
-					},
-					"messaging":[
-						"WebsocketMessaging"
-					]
-				}
-			],
-			"timeSpec":{
-				"cronTime":[
-					"",
-					"",
-					"",
-					"",
-					"",
-					"",
-					""
-				],
-				"exactTime":true,
-				"periodic":false,
-				"period":0,
-				"startTime":"2023-01-01T12:00:00Z"
-			},
-			"persist":true,
-			"enabled":true,
-			"active":true
-		},
-		"insId":"iqrfgd2-default",
-		"statusStr":"ok",
-		"status":0
-	}
+  "mType": "mngScheduler_GetTask",
+  "data": {
+    "msgId": "20ecb6be-6d83-4cd8-a155-839ed992f792",
+    "rsp": {
+      "clientId": "SchedulerMessaging",
+      "taskId": "617c6004-3e00-4f45-be7f-4ddade78c2e5",
+      "description": "Example task",
+      "task": [
+        {
+          "message": {
+            "mType": "iqrfEmbedLedr_Pulse",
+            "data": {
+              "msgId": "testEmbedLedr",
+              "req": {
+                "nAdr": 1
+              },
+              "returnVerbose": true
+            }
+          },
+          "messaging": [
+            {
+              "instance": "WebsocketMessaging",
+              "type": "ws"
+            }
+          ]
+        }
+      ],
+      "timeSpec": {
+        "cronTime": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "exactTime": true,
+        "periodic": false,
+        "period": 0,
+        "startTime": "2023-01-01T12:00:00Z"
+      },
+      "persist": true,
+      "enabled": true,
+      "active": true
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

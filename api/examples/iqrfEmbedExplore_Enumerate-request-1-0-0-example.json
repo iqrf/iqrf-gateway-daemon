@@ -1,11 +1,10 @@
 {
   "mType": "iqrfEmbedExplore_Enumerate",
   "data": {
-    "msgId": "testEmbedExplore",
+    "msgId": "13ee3365-0bde-464e-8a6d-9ec94910bc67",
     "timeout": 1000,
     "req": {
-      "nAdr": 1,
-      "param": {}
+      "nAdr": 1
     },
     "returnVerbose": true
   }

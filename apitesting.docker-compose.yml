@@ -35,7 +35,7 @@ services:
       - 1883
 
   emulator:
-    image: iqrftech/iqrf-tr-emulator:latest
+    image: iqrftech/iqrf-tr-emulator:v3.x
     container_name: network_emulator
     expose:
       - 10000
@@ -43,7 +43,7 @@ services:
       - mosquitto
 
   tests:
-    image: iqrftech/iqrf-gateway-daemon-api-testing:latest
+    image: iqrftech/iqrf-gateway-daemon-api-testing:v3.x
     container_name: tavern_test
     depends_on:
       - mosquitto

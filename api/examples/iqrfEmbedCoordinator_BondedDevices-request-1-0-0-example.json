@@ -1,10 +1,9 @@
 {
   "mType": "iqrfEmbedCoordinator_BondedDevices",
   "data": {
-    "msgId": "testEmbedCoordinator",
+    "msgId": "f44491c0-c4e0-4a04-89d4-afb8529cd607",
     "req": {
-      "nAdr": 0,
-      "param": {}
+      "nAdr": 0
     },
     "returnVerbose": true
   }

@@ -22,12 +22,10 @@
 #include "IUdpMessagingService.h"
 #include "IIqrfChannelService.h"
 #include "IIqrfDpaService.h"
-#include "TaskQueue.h"
 #include "Trace.h"
 #include <string>
 
 #include "crc.h"
-#include "EnumStringConvertor.h"
 #include "rapidjson/pointer.h"
 
 #include "Commands/BaseCommand.h"

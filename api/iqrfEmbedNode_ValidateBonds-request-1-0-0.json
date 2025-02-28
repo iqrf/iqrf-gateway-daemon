@@ -1,87 +1,93 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedNode_ValidateBonds-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Peripheral Node - ValidateBonds request",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "iqrfEmbedNode_ValidateBonds" }
+      ]
     },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Embedded peripheral Node - Validate bonds request.",
-            "enum": [
-                "iqrfEmbedNode_ValidateBonds"
-            ]
+    "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/message/id"
         },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "param": {
-                            "type": "object",
-                            "properties": {
-                                "nodes": {
-                                    "type": "array",
-                                    "description": "Array of pairs.",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "bondAddr": {
-                                                "type": "integer",
-                                                "description": "Address of the node to validate."
-                                            },
-                                            "mid": {
-                                                "type": "integer",
-                                                "description": "MID to check against."
-                                            }
-                                        },
-                                        "required": [
-                                            "bondAddr",
-                                            "mid"
-                                        ]
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "required": [
-                        "nAdr",
-                        "param"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
+        "req": {
+          "title": "Request",
+          "description": "Contains request specific parameters.",
+          "type": "object",
+          "required": [
+            "nAdr",
+            "param"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/node/address"
             },
-            "required": [
-                "msgId",
-                "req"
-            ]
+            "hwpId": {
+              "$ref": "definitions.json#/request/hwpId"
+            },
+            "param": {
+              "title": "Request parameters",
+              "description": "Specific request parameters.",
+              "type": "object",
+              "required": [
+                "nodes"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "nodes": {
+                  "title": "Node bonding information",
+                  "description": "Array of network [N] address and [N] MID pairs.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "address",
+                      "mid"
+                    ],
+                    "properties": {
+                      "address": {
+                        "description": "Address of the node to validate.",
+                        "$ref": "definitions.json#/node/address"
+                      },
+                      "mid": {
+                        "description": "MID to check against.",
+                        "$ref": "definitions.json#/transceiver/id"
+                      }
+                    }
+                  },
+                  "minItems": 1,
+                  "maxItems": 11
+                }
+              }
+            }
+          }
+        },
+        "timeout": {
+          "$ref": "definitions.json#/dpa/timeout"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/request/returnVerbose"
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+      }
+    }
+  }
 }

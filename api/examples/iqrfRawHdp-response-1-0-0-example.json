@@ -1,28 +1,58 @@
-{
+[
+  {
     "mType": "iqrfRawHdp",
     "data": {
-        "msgId": "testRawHdp",
-        "rsp": {
-            "nAdr": 1,
-            "pNum": 6,
-            "pCmd": 131,
-            "hwpId": 0,
-            "rCode": 0,
-            "dpaVal": 64,
-            "pData": []
-        },
-        "raw": [
-            {
-                "request": "01.00.06.03.ff.ff",
-                "requestTs": "2018-10-17T10:04:32.795787",
-                "confirmation": "01.00.06.03.ff.ff.ff.00.01.08.01",
-                "confirmationTs": "2018-10-17T10:04:32.830633",
-                "response": "01.00.06.83.00.00.00.40",
-                "responseTs": "2018-10-17T10:04:33.78499"
-            }
-        ],
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
+      "msgId": "f0885f20-36b4-41f6-a64b-70c9bfc008c8",
+      "rsp": {
+        "nAdr": 0,
+        "pNum": 6,
+        "pCmd": 131,
+        "hwpId": 0,
+        "rCode": 0,
+        "dpaVal": 92,
+        "pData": []
+      },
+      "raw": [
+        {
+          "request": "00.00.06.03.ff.ff",
+          "requestTs": "2024-12-02T10:38:46.611+01:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.06.83.00.00.00.5c",
+          "responseTs": "2024-12-02T10:38:46.640+01:00"
+        }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
     }
-}
+  },
+  {
+    "mType": "iqrfRawHdp",
+    "data": {
+      "msgId": "dcf397ac-b036-4560-ae81-ec67415f1007",
+      "rsp": {
+        "nAdr": 1,
+        "pNum": 7,
+        "pCmd": 131,
+        "hwpId": 5122,
+        "rCode": 0,
+        "dpaVal": 94,
+        "pData": []
+      },
+      "raw": [
+        {
+          "request": "01.00.07.03.ff.ff",
+          "requestTs": "2024-12-02T10:35:31.487+01:00",
+          "confirmation": "01.00.07.03.ff.ff.ff.00.01.08.01",
+          "confirmationTs": "2024-12-02T10:35:31.526+01:00",
+          "response": "01.00.07.83.02.14.00.5e",
+          "responseTs": "2024-12-02T10:35:31.779+01:00"
+        }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
+    }
+  }
+]

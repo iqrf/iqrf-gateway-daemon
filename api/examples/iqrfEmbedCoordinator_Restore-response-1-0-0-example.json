@@ -1,24 +1,27 @@
 {
-    "mType": "iqrfEmbedCoordinator_Restore",
-    "data": {
-        "msgId": "testEmbedCoordinator",
-        "rsp": {
-            "nAdr": 0,
-            "hwpId": 0,
-            "rCode": 0,
-            "dpaVal": 0,
-            "result": {}
-        },
-        "raw": {
-            "request": "00.00.00.0c.ff.ff.ed.60.14.51.82.de.7c.72.de.f8.90.a3.ee.82.75.ed.90.54.a7.b7.81.33.ca.65.70.07.7b.24.03.43.08.1e.82.62.ce.0b.10.2b.23.43.a3.58.d6.a6.8c.91.11.68.a8",
-            "requestTs": "2018-07-09T12:42:08.227756",
-            "confirmation": "",
-            "confirmationTs": "",
-            "response": "00.00.00.8c.00.00.00.00",
-            "responseTs": "2018-07-09T12:42:08.286055"
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "iqrfEmbedCoordinator_Restore",
+  "data": {
+    "msgId": "337bfc95-f050-4761-b7ae-4c8bb29d7a41",
+    "rsp": {
+      "nAdr": 0,
+      "pNum": 0,
+      "pCmd": 140,
+      "hwpId": 0,
+      "rCode": 0,
+      "dpaVal": 92
+    },
+    "raw": [
+      {
+        "request": "00.00.00.0c.ff.ff.4a.a1.f5.92.0c.35.5a.36.a5.ce.01.47.c7.d2.68.8b.44.b1.7b.f0.15.1e.a2.6e.1b.4e.ae.f9.74.a3.89.ce.6c.be.1e.eb.61.75.c0.95.ef.68.98.08.9c.c1.82.43.a8",
+        "requestTs": "2024-12-02T17:24:16.794+01:00",
+        "confirmation": "",
+        "confirmationTs": "",
+        "response": "00.00.00.8c.00.00.00.5c",
+        "responseTs": "2024-12-02T17:24:16.883+01:00"
+      }
+    ],
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

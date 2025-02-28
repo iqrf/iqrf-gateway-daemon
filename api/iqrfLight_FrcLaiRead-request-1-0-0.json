@@ -1,90 +1,75 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"type": "string",
-			"description": "Standard peripheral Light - Read Voltage of lighting analog interface (LAI) using FRC.",
-			"enum": ["iqrfLight_FrcLaiRead"]
-		},
-		"data": {
-			"type": "object",
-			"required": [
-				"msgId",
-				"req"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"title": "Message ID",
-					"description": "Message identification for binding request with response.",
-					"type": "string"
-				},
-				"timeout": {
-					"type": "integer",
-					"description": "Timeout to wait for IQRF DPA response."
-				},
-				"req": {
-					"type": "object",
-					"required": [
-						"nAdr",
-						"param"
-					],
-					"additionalProperties": false,
-					"properties": {
-						"nAdr": {
-							"title": "Device address",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 255
-						},
-						"hwpId": {
-							"title": "HWPID",
-							"description": "Hardware profile identification.",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 65535
-						},
-						"param": {
-							"type": "object",
-							"additionalProperties": false,
-							"properties": {
-								"selectedNodes": {
-									"title": "Selected nodes",
-									"description": "List of nodes to execute FRC command.",
-									"type": "array",
-									"additionalItems": false,
-									"items": {
-										"title": "Device address",
-										"type": "integer",
-										"minimum": 0,
-										"maximum": 239
-									}
-								},
-								"getExtraResult": {
-									"type": "boolean",
-									"description": "If set Extra result DPA message is sent and processed",
-									"default": true
-								},
-								"extFormat": {
-									"type": "boolean",
-									"description": "Sensors returns in extended format",
-									"default": false
-								}
-							}
-						}
-					}
-				},
-				"returnVerbose": {
-					"type": "boolean",
-					"description": "Flag that includes additional parameters in the response."
-				}
-			}
-		}
-	}
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Interoperability Standard Light - FRC Read LAI request",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "iqrfLight_FrcLaiRead" }
+      ]
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/message/id"
+        },
+        "req": {
+          "title": "Request",
+          "description": "Contains request specific parameters.",
+          "type": "object",
+          "required": [
+            "nAdr"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/node/address"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/request/hwpId"
+            },
+            "param": {
+              "title": "Request parameters",
+              "description": "Specific request parameters.",
+              "type": "object",
+              "required": [],
+              "additionalProperties": false,
+              "properties": {
+                "selectedNodes": {
+                  "$ref": "definitions.json#/frc/selectedNodes"
+                },
+                "getExtraResult": {
+                  "$ref": "definitions.json#/frc/extraResult"
+                },
+                "extFormat": {
+                  "$ref": "definitions.json#/frc/extendedFormat"
+                }
+              }
+            }
+          }
+        },
+        "timeout": {
+          "$ref": "definitions.json#/dpa/timeout"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/request/returnVerbose"
+        }
+      }
+    }
+  }
 }

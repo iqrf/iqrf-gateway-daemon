@@ -1,10 +1,9 @@
 {
   "mType": "iqrfEmbedOs_FactorySettings",
   "data": {
-    "msgId": "testEmbedOs",
+    "msgId": "5093523a-bdb7-4b6a-a85b-ce07f30e3d19",
     "req": {
-      "nAdr": 1,
-      "param": {}
+      "nAdr": 3
     },
     "returnVerbose": true
   }

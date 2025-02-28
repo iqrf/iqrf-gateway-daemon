@@ -1,58 +1,75 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_Backup-request",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "IQMESH Network - Backup request",
+  "description": "(c) IQRF Tech",
   "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - Backup request.",
-      "enum": [
-        "iqmeshNetwork_Backup"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "req": {
-          "type": "object",
-          "properties": {
-            "deviceAddr": {
-              "type": "integer",
-              "description": "Address of device to backup (0 - [C] device, 1..239 - [N] device)",
-              "default": 0
-            },
-            "wholeNetwork": {
-              "type": "boolean",
-              "description": "Backup the whole Network ",
-              "default": false
-            }
-          },
-          "required": [
-            "deviceAddr"
-          ]
-        },
-        "returnVerbose": {
-          "type": "boolean",
-          "description": "Flag that includes additional parameters in the response."
-        }
-      },
-      "required": [
-        "msgId",
-        "req"
-      ]
-    }
-  },
   "required": [
     "mType",
     "data"
-  ]
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "iqmeshNetwork_Backup" }
+      ]
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/message/id"
+        },
+        "req": {
+          "oneOf": [
+            {
+              "title": "Backup a device",
+              "description": "Specific parameters for the backup of a single device.",
+              "type": "object",
+              "required": [
+                "deviceAddr"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "deviceAddr": {
+                  "description": "Address of device to backup. [0: coordinator, 1-239: node]",
+                  "$ref": "definitions.json#/node/address"
+                }
+              }
+            },
+            {
+              "title": "Backup the network",
+              "description": "Specific parameters for backing up the whole network.",
+              "type": "object",
+              "required": [
+                "wholeNetwork"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "wholeNetwork": {
+                  "description": "Backup the whole Network ",
+                  "type": "boolean",
+                  "const": true
+                }
+              }
+            }
+          ]
+        },
+        "repeat": {
+          "$ref": "definitions.json#/iqmesh/repeat"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/request/returnVerbose"
+        }
+      }
+    }
+  }
 }

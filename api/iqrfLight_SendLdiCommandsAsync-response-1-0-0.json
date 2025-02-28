@@ -1,143 +1,87 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"title": "Message type",
-			"description": "Standard peripheral Light - Send LDI commands and returns answers synchronously.",
-			"type": "string",
-			"enum": ["iqrfLight_SendLdiCommandsAsync"]
-		},
-		"data": {
-			"type": "object",
-			"required": [
-				"msgId",
-				"rsp",
-				"status"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"title": "Message ID",
-					"description": "Message identification for binding request with response.",
-					"type": "string"
-				},
-				"rsp": {
-					"title": "Response object",
-					"type": "object",
-					"required": [
-						"nAdr",
-						"hwpId",
-						"rCode",
-						"dpaVal"
-					],
-					"additionalProperties": false,
-					"properties": {
-						"nAdr": {
-							"title": "Device address",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 255
-						},
-						"pnum": {
-							"title": "Peripheral number",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 255
-						},
-						"pcmd": {
-							"title": "Peripheral command",
-							"description": "Peripheral response command.",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 255
-						},
-						"hwpId": {
-							"title": "HWPID",
-							"description": "Hardware profile identification.",
-							"type": "integer"
-						},
-						"rCode": {
-							"title": "DPA error code",
-							"type": "integer"
-						},
-						"dpaVal": {
-							"title": "DPA value",
-							"type": "integer"
-						},
-						"result": {
-							"type": "object",
-              "properties": {}
-						},
-						"errorStr": {
-							"type": "string",
-							"description": "Error description from JS drivers."
-						}
-					}
-				},
-				"raw": {
-					"type": "array",
-					"description": "Returns array of objects req-cnf-rsp, see its description.",
-					"items": {
-						"type": "object",
-						"properties": {
-							"request": {
-								"type": "string",
-								"description": "Binary buffer with DPA request."
-							},
-							"requestTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							},
-							"confirmation": {
-								"type": "string",
-								"description": "Binary buffer with DPA confirmation."
-							},
-							"confirmationTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							},
-							"response": {
-								"type": "string",
-								"description": "Binary buffer with DPA response."
-							},
-							"responseTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							}
-						},
-						"required": [
-							"request",
-							"requestTs",
-							"confirmation",
-							"confirmationTs",
-							"response",
-							"responseTs"
-						]
-					}
-				},
-				"insId": {
-					"type": "string",
-					"description": "IQRF GW daemon instance identification."
-				},
-				"status": {
-					"type": "integer",
-					"description": "IQRF GW daemon API (general or mType) status."
-				},
-				"statusStr": {
-					"type": "string",
-					"description": "IQRF GW daemon API (general or mType) status in string form."
-				},
-				"timeout": {
-					"type": "integer",
-					"description": "Timeout to wait for IQRF DPA response."
-				}
-			}
-		}
-	}
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Interoperability Standard Light - Send LDI Commands Asynchronously response",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "iqrfLight_SendLdiCommandsAsync" }
+      ]
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/message/id"
+        },
+        "rsp": {
+          "title": "Response",
+          "description": "Holds response data",
+          "type": "object",
+          "required": [
+            "nAdr",
+            "pNum",
+            "pCmd",
+            "hwpId",
+            "rCode",
+            "dpaVal"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/node/address"
+            },
+            "pNum": {
+              "$ref": "definitions.json#/peripheral/number"
+            },
+            "pCmd": {
+              "$ref": "definitions.json#/peripheral/command"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/response/hwpId"
+            },
+            "rCode": {
+              "$ref": "definitions.json#/response/rCode"
+            },
+            "dpaVal": {
+              "$ref": "definitions.json#/response/dpaVal"
+            },
+            "errorStr": {
+              "$ref": "definitions.json#/response/errorStr"
+            }
+          }
+        },
+        "raw": {
+          "$ref": "definitions.json#/response/raw"
+        },
+        "insId": {
+          "$ref": "definitions.json#/response/insId"
+        },
+        "status": {
+          "$ref": "definitions.json#/response/status"
+        },
+        "statusStr": {
+          "$ref": "definitions.json#/response/statusStr"
+        },
+        "timeout": {
+          "$ref": "definitions.json#/dpa/timeout"
+        }
+      }
+    }
+  }
 }

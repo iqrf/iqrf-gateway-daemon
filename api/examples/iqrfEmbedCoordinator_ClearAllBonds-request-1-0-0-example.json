@@ -1,10 +1,9 @@
 {
   "mType": "iqrfEmbedCoordinator_ClearAllBonds",
   "data": {
-    "msgId": "testEmbedCoordinator",
+    "msgId": "903618b5-f06b-421f-be0b-9f3659cb13d3",
     "req": {
-      "nAdr": 0,
-      "param": {}
+      "nAdr": 0
     },
     "returnVerbose": true
   }

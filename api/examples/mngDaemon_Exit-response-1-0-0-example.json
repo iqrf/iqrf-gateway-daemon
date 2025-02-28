@@ -1,12 +1,12 @@
 {
-	"mType": "mngDaemon_Exit",
-	"data": {
-		"msgId": "testMngExit",
-		"rsp": {
-			"timeToExit": 5000
-		},
-		"insId": "iqrfgd2-default",
-		"statusStr": "ok",
-		"status": 0
-	}
+  "mType": "mngDaemon_Exit",
+  "data": {
+    "msgId": "f0ec192b-a7b5-460a-8c9e-30d69b673417",
+    "rsp": {
+      "timeToExit": 5000
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

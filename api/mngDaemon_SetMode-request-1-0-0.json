@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Daemon Management - Set mode request",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "mngDaemon_SetMode" }
+      ]
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/message/id"
+        },
+        "req": {
+          "title": "Request",
+          "description": "Contains request specific parameters.",
+          "type": "object",
+          "required": [
+            "operMode"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "operMode": {
+              "description": "Daemon operating mode.",
+              "type": "string",
+              "enum": [
+                "forwarding",
+                "operational",
+                "service"
+              ]
+            }
+          }
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/request/returnVerbose"
+        }
+      }
+    }
+  }
+}

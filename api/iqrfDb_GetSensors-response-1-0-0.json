@@ -1,214 +1,158 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"title": "GetSensors response",
-	"description": "Retrieves device addresses and the implemented sensors.",
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"$id": "#/properties/mType",
-			"title": "Message type",
-			"description": "IQRF DB - GetSensors response.",
-			"type": "string",
-			"enum": [
-				"iqrfDb_GetSensors"
-			]
-		},
-		"data": {
-			"$id": "#/properties/data",
-			"title": "Response data",
-			"description": "Response data.",
-			"type": "object",
-			"required": [
-				"msgId",
-				"rsp"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"$id": "#/properties/data/properties/msgId",
-					"title": "Message ID",
-					"description": "Message ID used for pairing requests and responses.",
-					"type": "string"
-				},
-				"rsp": {
-					"$id": "#/properties/data/properties/rsp",
-					"title": "Response parameters",
-					"description": "Response parameters.",
-					"type": "object",
-					"required": [
-						"sensorDevices"
-					],
-					"additionalProperties": false,
-					"properties": {
-						"sensorDevices": {
-							"$id": "#/properties/data/properties/rsp/properties/sensorDevices",
-							"title": "Sensor devices",
-							"type": "array",
-							"additionalItems": false,
-							"items": {
-								"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items",
-								"title": "Sensor device",
-								"type": "object",
-								"required": [
-									"address",
-									"sensors"
-								],
-								"additionalProperties": false,
-								"properties": {
-									"address": {
-										"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/address",
-										"title": "Device address",
-										"type": "integer",
-										"minimum": 0,
-										"maximum": 239
-									},
-									"sensors": {
-										"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors",
-										"title": "Device sensors",
-										"type": "array",
-										"additionalItems": false,
-										"items": {
-											"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items",
-											"title": "Device sensor",
-											"type": "object",
-											"required": [
-												"index",
-												"type",
-												"name",
-												"shortname",
-												"unit",
-												"decimalPlaces",
-												"frc2Bit",
-												"frc1Byte",
-												"frc2Byte",
-												"frc4Byte",
-												"value",
-												"updated",
-												"metadata"
-											],
-											"additionalProperties": false,
-											"properties": {
-												"index": {
-													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/index",
-													"title": "Sensor index",
-													"type": "integer",
-													"minimum": 0,
-													"maximum": 31
-												},
-												"type": {
-													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/type",
-													"title": "Sensor type",
-													"type": "integer",
-													"minimum": 0,
-													"maximum": 255
-												},
-												"name": {
-													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/name",
-													"title": "Quantity name",
-													"type": "string"
-												},
-												"shortname": {
-													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/shortname",
-													"title": "Quantity short name",
-													"type": "string"
-												},
-												"unit": {
-													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/unit",
-													"title": "Unit of measurement",
-													"oneOf": [
-														{ "type": "string" },
-														{ "type": "null" }
-													]
-												},
-												"decimalPlaces": {
-													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/decimalPlaces",
-													"title": "Decimal places",
-													"type": "integer",
-													"minimum": 0
-												},
-												"frc2Bit": {
-													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/frc2Bit",
-													"title": "2-bit FRC implemented",
-													"type": "boolean"
-												},
-												"frc1Byte": {
-													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/frc1Byte",
-													"title": "1-byte FRC implemented",
-													"type": "boolean"
-												},
-												"frc2Byte": {
-													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/frc2Byte",
-													"title": "2-byte FRC implemented",
-													"type": "boolean"
-												},
-												"frc4Byte": {
-													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/frc4Byte",
-													"title": "4-byte FRC implemented",
-													"type": "boolean"
-												},
-												"value": {
-													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/value",
-													"title": "Last measured value",
-													"oneOf": [
-														{ "type": "number" },
-														{
-															"type": "array",
-															"additionalItems": false,
-															"items": {
-																"type": "integer"
-															}
-														},
-														{ "type": "null" }
-													]
-												},
-												"updated": {
-													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/updated",
-													"title": "Last measurement timestamp",
-													"oneOf": [
-														{ "type": "string" },
-														{ "type": "null" }
-													]
-												},
-												"metadata": {
-													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/metadata",
-													"title": "Additional data",
-													"oneOf": [
-														{ "type": "object" },
-														{ "type": "null" }
-													]
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				},
-				"insId": {
-					"$id": "#/properties/data/properties/insId",
-					"title": "Instance ID",
-					"description": "Daemon insteance ID.",
-					"type": "string"
-				},
-				"status": {
-					"$id": "#/properties/data/properties/status",
-					"title": "Status code",
-					"description": "Status code.",
-					"type": "integer"
-				},
-				"statusStr": {
-					"$id": "#/properties/data/properties/statusStr",
-					"title": "Status string",
-					"description": "Verbose status string",
-					"type": "string"
-				}
-			}
-		}
-	}
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "IQRF DB - GetSensors response",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "iqrfDb_GetSensors" }
+      ]
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/message/id"
+        },
+        "rsp": {
+          "title": "Response",
+          "description": "Holds response data",
+          "type": "object",
+          "required": [
+            "devices"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "devices": {
+              "title": "Devices containing sensors",
+              "type": "array",
+              "items": {
+                "title": "Device containing sensors",
+                "type": "object",
+                "required": [
+                  "address",
+                  "sensors"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "address": {
+                    "title": "Device address",
+                    "$ref": "definitions.json#/node/address"
+                  },
+                  "sensors": {
+                    "title": "Device sensors",
+                    "type": "array",
+                    "items": {
+                      "title": "Device sensor",
+                      "type": "object",
+                      "required": [
+                        "index",
+                        "type",
+                        "name",
+                        "shortname",
+                        "unit",
+                        "decimalPlaces",
+                        "frc2Bit",
+                        "frc1Byte",
+                        "frc2Byte",
+                        "frc4Byte",
+                        "value",
+                        "updated",
+                        "metadata"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "index": {
+                          "allOf": [
+                            {
+                              "$ref": "definitions.json#/interoperability/sensor/index"
+                            },
+                            {
+                              "minimum": 0,
+                              "maximum": 31
+                            }
+                          ]
+                        },
+                        "type": {
+                          "$ref": "definitions.json#/interoperability/sensor/type"
+                        },
+                        "name": {
+                          "$ref": "definitions.json#/interoperability/sensor/name"
+                        },
+                        "shortname": {
+                          "$ref": "definitions.json#/interoperability/sensor/shortName"
+                        },
+                        "unit": {
+                          "$ref": "definitions.json#/interoperability/sensor/unit"
+                        },
+                        "decimalPlaces": {
+                          "$ref": "definitions.json#/interoperability/sensor/decimalPlaces"
+                        },
+                        "frc2Bit": {
+                          "title": "2-bit FRC implemented",
+                          "type": "boolean"
+                        },
+                        "frc1Byte": {
+                          "title": "1-byte FRC implemented",
+                          "type": "boolean"
+                        },
+                        "frc2Byte": {
+                          "title": "2-byte FRC implemented",
+                          "type": "boolean"
+                        },
+                        "frc4Byte": {
+                          "title": "4-byte FRC implemented",
+                          "type": "boolean"
+                        },
+                        "value": {
+                          "$ref": "definitions.json#/interoperability/sensor/value"
+                        },
+                        "updated": {
+                          "oneOf": [
+                            {
+                              "title": "Timestamp",
+                              "description": "Timestamp of the last measurement",
+                              "type": "string"
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "metadata": {
+                          "$ref": "definitions.json#/frc/metadata"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "insId": {
+          "$ref": "definitions.json#/response/insId"
+        },
+        "status": {
+          "$ref": "definitions.json#/response/status"
+        },
+        "statusStr": {
+          "$ref": "definitions.json#/response/statusStr"
+        }
+      }
+    }
+  }
 }

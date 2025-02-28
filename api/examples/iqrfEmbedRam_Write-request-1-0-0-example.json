@@ -1,17 +1,18 @@
 {
   "mType": "iqrfEmbedRam_Write",
   "data": {
-    "msgId": "testEmbedRam",
+    "msgId": "14b63155-d033-484c-bf18-d5ec945af19a",
     "req": {
       "nAdr": 1,
       "param": {
         "address": 0,
         "pData": [
-          0,
-          1,
-          2,
-          3,
-          4
+          119,
+          172,
+          235,
+          188,
+          125,
+          100
         ]
       }
     },

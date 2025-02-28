@@ -1,8 +1,7 @@
 {
-    "mType": "iqrfDb_GetBinaryOutputs",
-    "data": {
-        "msgId": "0e99e3da-0703-4963-87da-3652877607df",
-        "req": {},
-        "returnVerbose": true
-    }
+  "mType": "iqrfDb_GetBinaryOutputs",
+  "data": {
+    "msgId": "a406ef2e-f4c1-438b-b105-f374bf2433aa",
+    "returnVerbose": true
+  }
 }

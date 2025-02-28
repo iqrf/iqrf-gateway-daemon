@@ -1,24 +1,27 @@
 {
-    "mType": "iqrfEmbedUart_Open",
-    "data": {
-        "msgId": "testEmbedUart",
-        "rsp": {
-            "nAdr": 3,
-            "hwpId": 0,
-            "rCode": 0,
-            "dpaVal": 74,
-            "result": {}
-        },
-        "raw": {
-            "request": "03.00.0c.00.ff.ff.04",
-            "requestTs": "2018-07-17T18:02:40.758568",
-            "confirmation": "03.00.0c.00.ff.ff.ff.3c.01.04.01",
-            "confirmationTs": "2018-07-17T18:02:40.787155",
-            "response": "03.00.0c.80.00.00.00.4a",
-            "responseTs": "2018-07-17T18:02:40.921447"
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "iqrfEmbedUart_Open",
+  "data": {
+    "msgId": "4e6e67b0-12db-4ecf-8eff-b209fab54b8f",
+    "rsp": {
+      "nAdr": 1,
+      "pNum": 12,
+      "pCmd": 128,
+      "hwpId": 5122,
+      "rCode": 0,
+      "dpaVal": 95
+    },
+    "raw": [
+      {
+        "request": "01.00.0c.00.ff.ff.04",
+        "requestTs": "2024-12-11T12:15:28.219+01:00",
+        "confirmation": "01.00.0c.00.ff.ff.ff.5d.01.08.01",
+        "confirmationTs": "2024-12-11T12:15:28.258+01:00",
+        "response": "01.00.0c.80.02.14.00.5f",
+        "responseTs": "2024-12-11T12:15:28.511+01:00"
+      }
+    ],
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

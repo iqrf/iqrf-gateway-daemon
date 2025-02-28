@@ -1,11 +1,11 @@
 {
   "mType": "iqrfEmbedIo_Set",
   "data": {
-    "msgId": "testEmbedIo",
+    "msgId": "351d867d-f0ec-4c29-89dd-e65fe80c2d17",
     "req": {
       "nAdr": 1,
       "param": {
-        "ports": [
+        "subcommands": [
           {
             "port": 0,
             "mask": 4,

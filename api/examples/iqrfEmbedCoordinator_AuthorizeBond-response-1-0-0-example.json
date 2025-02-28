@@ -2,25 +2,27 @@
   {
     "mType": "iqrfEmbedCoordinator_AuthorizeBond",
     "data": {
-      "msgId": "paramsObject",
+      "msgId": "483b89a0-3a23-4ec4-a71c-31e7b470c452",
       "rsp": {
         "nAdr": 0,
+        "pNum": 0,
+        "pCmd": 141,
         "hwpId": 0,
         "rCode": 0,
-        "dpaVal": 0,
+        "dpaVal": 86,
         "result": {
-          "bondAddr": 10,
-          "devNr": 6
+          "bondAddr": 4,
+          "devNr": 4
         }
       },
       "raw": [
         {
-          "request": "00.00.00.0d.ff.ff.0a.00.00.00.00",
-          "requestTs": "2023-03-28T11:43:18.919+02:00",
+          "request": "00.00.00.0d.ff.ff.04.ce.3a.11.81",
+          "requestTs": "2024-12-20T10:23:11.075+01:00",
           "confirmation": "",
           "confirmationTs": "",
-          "response": "00.00.00.8d.00.00.00.00.0a.06",
-          "responseTs": "2023-03-28T11:43:19.446+02:00"
+          "response": "00.00.00.8d.00.00.00.56.04.04",
+          "responseTs": "2024-12-20T10:23:11.534+01:00"
         }
       ],
       "insId": "iqrfgd2-default",
@@ -31,25 +33,27 @@
   {
     "mType": "iqrfEmbedCoordinator_AuthorizeBond",
     "data": {
-      "msgId": "paramsArray",
+      "msgId": "def9f9a5-aa03-4382-93cf-7c24fbd34a0a",
       "rsp": {
         "nAdr": 0,
+        "pNum": 0,
+        "pCmd": 141,
         "hwpId": 0,
         "rCode": 0,
-        "dpaVal": 64,
+        "dpaVal": 93,
         "result": {
           "bondAddr": 0,
-          "devNr": 5
+          "devNr": 4
         }
       },
       "raw": [
         {
-          "request": "00.00.00.0d.ff.ff.0b.01.00.00.00.0c.02.00.00.00",
-          "requestTs": "2023-03-28T11:41:58.152+02:00",
+          "request": "00.00.00.0d.ff.ff.01.cf.3a.11.81.02.16.7c.11.81",
+          "requestTs": "2024-12-20T15:08:43.542+01:00",
           "confirmation": "",
           "confirmationTs": "",
-          "response": "00.00.00.8d.00.00.00.40.00.05",
-          "responseTs": "2023-03-28T11:41:58.893+02:00"
+          "response": "00.00.00.8d.00.00.00.5d.00.04",
+          "responseTs": "2024-12-20T15:08:43.749+01:00"
         }
       ],
       "insId": "iqrfgd2-default",

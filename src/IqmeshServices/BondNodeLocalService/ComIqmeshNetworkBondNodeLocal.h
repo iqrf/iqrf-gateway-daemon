@@ -25,12 +25,10 @@ namespace iqrf {
   {
     TBondNodeInputParams()
     {
-      bondingMask = 255;
       bondingTestRetries = 1;
       repeat = 1;
     }
     uint16_t deviceAddress;
-    int bondingMask;
     int bondingTestRetries;
     int repeat;
   }TBondNodeInputParams;
@@ -76,11 +74,6 @@ namespace iqrf {
       // Device address
       if ((jsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc))) {
         m_bondNodeInputParams.deviceAddress = (uint16_t)jsonVal->GetInt();
-      }
-
-      // bondingMak
-      if ((jsonVal = rapidjson::Pointer("/data/req/bondingMak").Get(doc))) {
-        m_bondNodeInputParams.bondingMask = jsonVal->GetInt();
       }
 
       // bondingTestRetries

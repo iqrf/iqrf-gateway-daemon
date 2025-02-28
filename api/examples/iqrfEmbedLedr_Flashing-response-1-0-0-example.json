@@ -1,26 +1,27 @@
 {
-    "mType": "iqrfEmbedLedr_Flashing",
-    "data": {
-        "msgId": "testEmbedLedr",
-        "rsp": {
-            "nAdr": 1,
-            "hwpId": 0,
-            "rCode": 0,
-            "dpaVal": 78,
-            "result": {}
-        },
-        "raw": [
-            {
-                "request": "01.00.06.04.ff.ff",
-                "requestTs": "2018-10-19T11:49:15.265089",
-                "confirmation": "01.00.06.04.ff.ff.ff.00.0d.08.0d",
-                "confirmationTs": "2018-10-19T11:49:15.298536",
-                "response": "01.00.06.84.00.00.00.4e",
-                "responseTs": "2018-10-19T11:49:16.520077"
-            }
-        ],
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "iqrfEmbedLedr_Flashing",
+  "data": {
+    "msgId": "a89f031d-7d04-4f0c-864d-0886833ff07a",
+    "rsp": {
+      "nAdr": 1,
+      "pNum": 6,
+      "pCmd": 132,
+      "hwpId": 5122,
+      "rCode": 0,
+      "dpaVal": 95
+    },
+    "raw": [
+      {
+        "request": "01.00.06.04.ff.ff",
+        "requestTs": "2024-12-11T10:44:58.787+01:00",
+        "confirmation": "01.00.06.04.ff.ff.ff.5e.01.08.01",
+        "confirmationTs": "2024-12-11T10:44:58.827+01:00",
+        "response": "01.00.06.84.02.14.00.5f",
+        "responseTs": "2024-12-11T10:44:59.069+01:00"
+      }
+    ],
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

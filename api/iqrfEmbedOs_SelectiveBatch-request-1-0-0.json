@@ -1,82 +1,105 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "iqrfEmbedOs_SelectiveBatch-request",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"type": "string",
-			"description": "Embedded peripheral OS - Selective Batch request.",
-			"enum": ["iqrfEmbedOs_SelectiveBatch"]
-		},
-		"data": {
-			"type": "object",
-			"required": [
-				"msgId",
-				"req"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"type": "string",
-					"description": "Message identification for binding request with response."
-				},
-				"timeout": {
-					"type": "integer",
-					"description": "Timeout to wait for IQRF DPA response."
-				},
-				"req": {
-					"type": "object",
-					"required": [
-						"nAdr",
-						"param"
-					],
-					"additionalProperties": false,
-					"properties": {
-						"nAdr": {
-							"type": "integer",
-							"description": "Network device address."
-						},
-						"hwpId": {
-							"type": "integer",
-							"description": "Hardware profile identification."
-						},
-						"param": {
-							"type": "object",
-							"additionalProperties": false,
-							"properties": {
-								"selectedNodes": {
-									"type": "array",
-									"description": "Array if integer values corresponding to the selected nodes.",
-									"items": {
-										"type": "integer"
-									}
-								},
-								"requests": {
-									"type": "array",
-									"description": "Array of objects (requests).",
-									"items": {
-										"type": "object"
-									}
-								}
-							}
-						}
-					}
-				},
-				"returnVerbose": {
-					"type": "boolean",
-					"description": "Flag that includes additional parameters in the response."
-				}
-			}
-		}
-	}
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Peripheral OS - Selective Batch request",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "iqrfEmbedOs_SelectiveBatch" }
+      ]
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Contains the message payload.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/message/id"
+        },
+        "req": {
+          "title": "Request",
+          "description": "Contains request specific parameters.",
+          "type": "object",
+          "required": [
+            "nAdr",
+            "param"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/node/address"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/request/hwpId"
+            },
+            "param": {
+              "title": "Request parameters",
+              "description": "Specific request parameters.",
+              "type": "object",
+              "required": [
+                "selectedNodes",
+                "requests"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "selectedNodes": {
+                  "$ref": "definitions.json#/frc/selectedNodes"
+                },
+                "requests": {
+                  "type": "array",
+                  "description": "Array of DPA Requests to be executed.",
+                  "items": {
+                    "type": "object",
+                    "title": "DPA Request",
+                    "description": "Single DPA Request which shall run in a batch.",
+                    "required": [
+                      "pNum",
+                      "pCmd"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "pNum": {
+                        "$ref": "definitions.json#/peripheral/number"
+                      },
+                      "pCmd": {
+                        "$ref": "definitions.json#/peripheral/command"
+                      },
+                      "hwpId": {
+                        "$ref": "definitions.json#/response/hwpId"
+                      },
+                      "rData": {
+                        "type": "string",
+                        "description": "Request data encoded as comma separated hex bytes.",
+                        "examples": [
+                          "94.c0.53.2a"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "timeout": {
+          "$ref": "definitions.json#/dpa/timeout"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/request/returnVerbose"
+        }
+      }
+    }
+  }
 }
