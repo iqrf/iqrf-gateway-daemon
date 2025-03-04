@@ -1,6 +1,6 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema",
-  "title": "Message error response",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Message error response - JSON validation error",
   "description": "(c) IQRF Tech",
   "type": "object",
   "required": [
@@ -11,8 +11,12 @@
   "properties": {
     "mType": {
       "allOf": [
-        { "$ref": "definitions.json#/message/type" },
-        { "const": "messageError" }
+        {
+          "$ref": "definitions.json#/message/type"
+        },
+        {
+          "const": "messageError"
+        }
       ]
     },
     "data": {
@@ -22,45 +26,105 @@
       "required": [
         "msgId",
         "rsp",
-        "status"
+        "status",
+        "statusStr",
+        "insId"
       ],
       "additionalProperties": false,
       "properties": {
         "msgId": {
           "$ref": "definitions.json#/message/id"
         },
-        "rsp": {
-          "title": "Response",
-          "description": "Holds response data",
-          "type": "object",
-          "required": [
-            "errorStr",
-            "wrongMsg"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "errorStr": {
-              "title": "Error description",
-              "description": "Human readable description of the error.",
-              "type": "string"
-            },
-            "wrongMsg": {
-              "title": "Wrong message",
-              "description": "Textual representation of the wrong message.",
-              "type": "string"
-            }
-          }
-        },
-        "insId": {
-          "$ref": "definitions.json#/response/insId"
-        },
         "status": {
           "$ref": "definitions.json#/response/status"
         },
         "statusStr": {
           "$ref": "definitions.json#/response/statusStr"
+        },
+        "insId": {
+          "$ref": "definitions.json#/response/insId"
+        },
+        "rsp": {
+          "title": "Response",
+          "description": "Holds response data",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "message": {
+              "title": "Received message",
+              "description": "Contents of received message.",
+              "type": "string"
+            },
+            "error": {
+              "title": "Error message",
+              "description": "Cause of error or validation failure.",
+              "type": "string"
+            },
+            "offset": {
+              "title": "Parse error offset",
+              "description": "Offset in received message where JSON parsing error begins.",
+              "type": "integer"
+            },
+            "ignoredMessage": {
+              "title": "Ignored message",
+              "description": "Message type of received and discarded image.",
+              "type": "string"
+            },
+            "capacity": {
+              "title": "Queue capacity",
+              "description": "Capacity of message queue that refused received message.",
+              "type": "integer"
+            }
+          }
         }
-      }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "status": {"enum": [1, 4]},
+            "rsp": {
+              "required": ["message", "error"],
+              "not": {"required": ["offset", "ignoredMessage", "capacity"]}
+            }
+          }
+        },
+        {
+          "properties": {
+            "status": {"const": 2},
+            "rsp": {
+              "required": ["message", "error", "offset"],
+              "not": {"required": ["ignoredMessage", "capacity"]}
+            }
+          }
+        },
+        {
+          "properties": {
+            "status": {"const": 3},
+            "rsp": {
+              "required": ["message"],
+              "not": {"required": ["error", "offset", "ignoredMessage", "capacity"]}
+            }
+          }
+        },
+        {
+          "properties": {
+            "status": {"enum": [5, 7]},
+            "rsp": {
+              "required": ["ignoredMessage"],
+              "not": {"required": ["message", "error", "offset", "capacity"]}
+            }
+          }
+        },
+        {
+          "properties": {
+            "status": {"enum": [6, 8]},
+            "rsp": {
+              "required": ["ignoredMessage", "capacity"],
+              "not": {"required": ["message", "error", "offset"]}
+            }
+          }
+        }
+      ]
     }
   }
 }

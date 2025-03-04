@@ -25,7 +25,8 @@
         "dpaQueueLen",
         "iqrfChannelState",
         "dpaChannelState",
-        "msgQueueLen",
+        "managementQueueLen",
+        "networkQueueLen",
         "operMode"
       ],
       "additionalProperties": false,
@@ -55,9 +56,14 @@
           "description": "State (Ready/NotReady/ExclusiveAccess) of DPA channel - one of USB CDC, SPI or UART interface.",
           "type": "string"
         },
-        "msgQueueLen": {
-          "title": "Message queue length",
-          "description": "Length of pending API msg queue (32 is maximum).",
+        "managementQueueLen": {
+          "title": "Management message queue length",
+          "description": "Length of pending API management message queue.",
+          "type": "integer"
+        },
+        "networkQueueLen": {
+          "title": "Network message queue length",
+          "description": "Length of pending API network message queue.",
           "type": "integer"
         },
         "operMode": {

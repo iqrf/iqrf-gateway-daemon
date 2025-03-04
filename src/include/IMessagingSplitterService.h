@@ -24,6 +24,7 @@
 #include <functional>
 #include <list>
 #include <string>
+#include <sstream>
 #include <vector>
 
 
@@ -61,13 +62,20 @@ namespace iqrf {
       int m_micro = 0;
       std::string m_possibleDriverFunction;
       FilteredMessageHandlerFunc m_handlerFunc;
+
+      std::string getKey() const {
+        std::ostringstream oss;
+        oss << m_type << '.' << m_major << '.' << m_minor << '.' << m_micro;
+        return oss.str();
+      }
     };
 
     virtual void sendMessage(const MessagingInstance &messaging, rapidjson::Document doc) const = 0;
     virtual void sendMessage(const std::list<MessagingInstance> &messagings, rapidjson::Document doc) const = 0;
     virtual void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc) = 0;
     virtual void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters) = 0;
-    virtual int getMsgQueueLen() const = 0;
+    virtual int getNetworkQueueLen() const = 0;
+    virtual int getManagementQueueLen() const = 0;
 
     virtual ~IMessagingSplitterService() {}
   };
