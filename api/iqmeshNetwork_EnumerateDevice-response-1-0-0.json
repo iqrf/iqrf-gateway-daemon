@@ -22,7 +22,8 @@
       "required": [
         "msgId",
         "status",
-        "statusStr"
+        "statusStr",
+        "insId"
       ],
       "additionalProperties": false,
       "properties": {

@@ -11,12 +11,8 @@
   "properties": {
     "mType": {
       "allOf": [
-        {
-          "$ref": "definitions.json#/message/type"
-        },
-        {
-          "const": "iqmeshNetwork_FrcParams"
-        }
+        { "$ref": "definitions.json#/message/type" },
+        { "const": "iqmeshNetwork_FrcParams" }
       ]
     },
     "data": {
@@ -25,8 +21,9 @@
       "type": "object",
       "required": [
         "msgId",
-        "rsp",
-        "status"
+        "status",
+        "statusStr",
+        "insId"
       ],
       "additionalProperties": false,
       "properties": {
