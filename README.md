@@ -6,7 +6,7 @@ The IQRF gateway-daemon project provides open-source components for building IQR
 Together they form ready-to-use solution, including an user-friendly 
 [web-interface](https://gitlab.iqrf.org/open-source/iqrf-gateway-webapp).
 Components can be extended or added based on the project requirements. All components 
-are licenced under Apache Licence 2.0 and can be used for commercial purposes.
+are licenced under AGPL-3.0 and can be used for commercial purposes.
 
 ## Documentation
 
