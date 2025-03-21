@@ -1,10 +1,10 @@
-iqrf-gateway-daemon (2.99.1~alpha~1.gbp7e73f6) UNRELEASED; urgency=medium
-
-  ** SNAPSHOT build @7e73f625627e524f4cfbcf70cdde13c7bb82e4d0 **
+iqrf-gateway-daemon (2.99.1) stable; urgency=medium
 
   * UNRELEASED
+  * Prepare for version 2.99.1-alpha
+  * using agpl-3.0 license
 
- -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 07 Feb 2025 12:24:06 +0100
+ -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 21 Mar 2025 15:26:01 +0100
 
 iqrf-gateway-daemon (2.99.0) stable; urgency=medium
 
