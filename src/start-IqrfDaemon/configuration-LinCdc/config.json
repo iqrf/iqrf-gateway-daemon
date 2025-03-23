@@ -113,6 +113,13 @@
             "startlevel": 0
         },
         {
+            "name": "iqrf::IqrfTinyDb",
+            "libraryPath": "iqrf-gateway-daemon/bin",
+            "libraryName": "IqrfTinyDb",
+            "enabled": true,
+            "startlevel": 0
+        },
+        {
             "name": "iqrf::IqrfBackup",
             "libraryPath": "iqrf-gateway-daemon/bin",
             "libraryName": "IqrfBackup",
@@ -144,7 +151,7 @@
             "name": "iqrf::MqttMessaging",
             "libraryPath": "iqrf-gateway-daemon/bin",
             "libraryName": "MqttMessaging",
-            "enabled": true,
+            "enabled": false,
             "startlevel": 10
         },
         {

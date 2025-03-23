@@ -72,10 +72,14 @@ set(valijson_BUILD_TESTS OFF)
 add_subdirectory(libraries/valijson EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/sqlite_orm EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/sqlitec++ EXCLUDE_FROM_ALL)
+set(TinyOrm_DIR ${CMAKE_SOURCE_DIR}/cmake)
+add_subdirectory(libraries/tinyorm EXCLUDE_FROM_ALL)
 
 #add_subdirectory(src)
 
 enable_testing()
+
+set(CMAKE_DEBUG_POSTFIX "")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/include)
 

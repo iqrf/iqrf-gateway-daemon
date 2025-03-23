@@ -37,3 +37,6 @@
 [submodule "libraries/sqlitec++"]
 	path = libraries/sqlitec++
 	url = https://github.com/SRombauts/SQLiteCpp.git
+[submodule "libraries/tinyorm"]
+	path = libraries/tinyorm
+	url = https://github.com/silverqx/TinyORM.git

@@ -16,7 +16,7 @@
 
 project(IqrfSensorData)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(COMPONENT iqrf::IqrfSensorData)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IIqrfSensorData)
@@ -40,9 +40,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibdpa_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/src/DpaParser)
-
+include_directories(${CMAKE_SOURCE_DIR}/libraries/tinyorm)
 
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
+find_package(QT NAMES Qt6 COMPONENTS Core REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
+find_package(TinyOrm REQUIRED)
 
 if(SHAPE_STATIC_LIBS)
 	add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES} ${_DBENTITIES})
@@ -52,6 +55,8 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	nlohmann_json::nlohmann_json
+	Qt${QT_VERSION_MAJOR}::Core
+	TinyOrm::TinyOrm
 )
 
 DeployShapeComponent(${PROJECT_NAME})

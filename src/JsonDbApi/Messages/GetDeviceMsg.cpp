@@ -37,8 +37,13 @@ namespace iqrf {
 	}
 
 	void GetDeviceMsg::handleMsg(IIqrfDb *dbService) {
-		device = dbService->getDevice(address);
-		product = dbService->getProductById(device.getProductId());
+		auto devicePtr = dbService->getDeviceByAddress(address);
+		if (devicePtr == nullptr) {
+			throw std::logic_error("Device at address " + std::to_string(address) + " does not exist.");
+		}
+		device = *devicePtr.get();
+		auto productPtr = dbService->getProduct(device.getProductId());
+		product = *productPtr.get();
 		if (dbService->hasSensors(device.getAddress())) {
 			sensors = dbService->getDeviceSensorsByAddress(device.getAddress());
 		}
@@ -62,7 +67,7 @@ namespace iqrf {
 				} else {
 					Pointer("/product").Create(object, allocator);
 				}
-				Pointer("/discovered").Set(object, device.isDiscovered(), allocator);
+				Pointer("/discovered").Set(object, device.getDiscovered(), allocator);
 				Pointer("/vrn").Set(object, device.getVrn(), allocator);
 				Pointer("/zone").Set(object, device.getZone(), allocator);
 				std::shared_ptr<uint8_t> parent = device.getParent();

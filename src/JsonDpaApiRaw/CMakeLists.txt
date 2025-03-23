@@ -16,6 +16,7 @@
 
 project(JsonDpaApiRaw)
 
+set(CMAKE_CXX_STANDARD 20)
 set(COMPONENT iqrf::JsonDpaApiRaw)
 DeclareShapeComponent(${COMPONENT})
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDb UNREQUIRED SINGLE)
@@ -36,6 +37,9 @@ include_directories(${clibdpa_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/src/DpaParser)
 
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
+find_package(QT NAMES Qt6 COMPONENTS Core REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
+find_package(TinyOrm REQUIRED)
 
 if(SHAPE_STATIC_LIBS)
     add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
@@ -45,6 +49,8 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	nlohmann_json::nlohmann_json
+    Qt${QT_VERSION_MAJOR}::Core
+	TinyOrm::TinyOrm
 )
 
 DeployShapeComponent(${PROJECT_NAME})

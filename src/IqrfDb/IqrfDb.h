@@ -53,6 +53,13 @@
 #include "Common.h"
 #include "QueryHandler.h"
 
+#include <orm/db.hpp>
+
+#include "repos/device_repo.hpp"
+#include "repos/driver_repo.hpp"
+#include "repos/product_repo.hpp"
+#include "Storage.h"
+
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
 #endif
@@ -118,7 +125,7 @@ namespace iqrf {
 		 * @param addr Device address
 		 * @return Device
 		 */
-		Device getDevice(const uint8_t &addr) override;
+		std::unique_ptr<TDevice> getDeviceByAddress(const unsigned char addr) override;
 
 		/**
 		 * Returns vector of devices
@@ -132,7 +139,7 @@ namespace iqrf {
 		 */
 		std::set<uint8_t> getDeviceAddrs() override;
 
-		Product getProductById(const uint32_t &productId) override;
+		std::unique_ptr<TProduct> getProduct(const unsigned long long productId) override;
 
 		///// DEVICE PERIPHERAL API
 
@@ -718,6 +725,7 @@ namespace iqrf {
 		std::string m_wrapperPath;
 		/// Database accessor
 		std::shared_ptr<Storage> m_db = nullptr;
+		std::shared_ptr<Orm::DatabaseManager> m_dbs = nullptr;
 		/// Query handler
 		QueryHandler query;
 		/// DPA service

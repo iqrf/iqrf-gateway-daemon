@@ -18,10 +18,13 @@
 
 #include "IqrfDb.h"
 
+#include "Migrations.h"
+
 #include "iqrf__IqrfDb.hxx"
 
 TRC_INIT_MODULE(iqrf::IqrfDb);
 
+using Orm::DB;
 using json = nlohmann::json;
 
 namespace iqrf {
@@ -100,48 +103,39 @@ namespace iqrf {
 
 	///// DB API
 
-	Device IqrfDb::getDevice(const uint8_t &addr) {
-		return this->query.getDevice(addr);
+	std::unique_ptr<TDevice> IqrfDb::getDeviceByAddress(const unsigned char addr) {
+		return DeviceRepo::getByAddress(addr);
 	}
 
-	std::vector<DeviceProductTuple> IqrfDb::getDevices(std::vector<uint8_t> requestedDevices) {
-		return this->query.getDevices(requestedDevices);
+	std::vector<DeviceProductTuple> IqrfDb::getDevices(std::vector<unsigned char> requestedDevices) {
+		//
 	}
 
 	std::set<uint8_t> IqrfDb::getDeviceAddrs() {
-		return this->query.getDeviceAddrs();
+		return DeviceRepo::getDeviceAddresses();
 	}
 
 	uint32_t IqrfDb::getDeviceMid(const uint8_t &address) {
-		return this->query.getDeviceMid(address);
+		return DeviceRepo::getByAddress(address)->getMid();
 	}
 
 	uint16_t IqrfDb::getDeviceHwpid(const uint8_t &address) {
 		return this->query.getDeviceHwpid(address);
 	}
 
-	Product IqrfDb::getProductById(const uint32_t &productId) {
-		return this->query.getProductById(productId);
+	std::unique_ptr<TProduct> IqrfDb::getProduct(const unsigned long long productId) {
+		return ProductRepo::get(productId);
 	}
 
 	///// DEVICE PERIPHERAL API
 
 	bool IqrfDb::deviceImplementsPeripheral(const uint32_t &id, const int16_t peripheral) {
-		auto records = m_db->select(
-			&Driver::getId,
-			inner_join<ProductDriver>(
-				on(
-					c(&ProductDriver::getDriverId) == &Driver::getId)
-				),
-			inner_join<Device>(
-				on(c(&Device::getProductId) == &ProductDriver::getProductId)
-			),
-			where(
-				c(&Device::getId) == id
-				and c(&Driver::getPeripheralNumber) == peripheral
-			)
-		);
-		return records.size() > 0;
+		auto records = DB::table("devices")
+			->join("product_drivers", "devices.product_id", "=", "product_drivers.product_id")
+			.join("drivers", "product_drivers.driver_id", "=", "drivers.id")
+			.select("drivers.id")
+			.count();
+		return records > 0;
 	}
 
 	///// BINARY OUTPUT API
@@ -601,7 +595,7 @@ namespace iqrf {
 
 	void IqrfDb::updateDbDrivers() {
 		TRC_FUNCTION_ENTER("");
-		auto dbDrivers = m_db->get_all<Driver>();
+		auto dbDrivers = TDriver::all();
 		for (auto &dbDriver : dbDrivers) {
 			auto driver = m_cacheService->getDriver(dbDriver.getPeripheralNumber(), dbDriver.getVersion());
 			if (driver == nullptr) {
@@ -614,7 +608,7 @@ namespace iqrf {
 			TRC_INFORMATION("[IqrfDb] Updating code of driver per " << std::to_string(dbDriver.getPeripheralNumber()) << ", version " << std::to_string(dbDriver.getVersion()));
 			dbDriver.setDriver(*driver->getDriver());
 			dbDriver.setDriverHash(driverHash);
-			m_db->update(dbDriver);
+			dbDriver.save();
 		}
 		TRC_FUNCTION_LEAVE("");
 	}
@@ -743,11 +737,10 @@ namespace iqrf {
 			THROW_EXC(std::logic_error, e.what());
 		}
 
-		auto dbDevices = m_db->get_all<Device>();
+		auto dbDevices = TDevice::all();
 
-		for (std::vector<Device>::iterator it = dbDevices.begin(); it != dbDevices.end(); ++it) {
-			Device device = *it;
-			uint8_t addr = device.getAddress();
+		for (const auto &device : dbDevices) {
+			auto addr = device.getAddress();
 			// remove devices that are not in network from db
 			if (m_toEnumerate.find(addr) == m_toEnumerate.end()) {
 				m_toDelete.insert(device.getId());

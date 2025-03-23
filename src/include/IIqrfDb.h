@@ -33,6 +33,9 @@
 #include <set>
 #include <vector>
 
+#include "../IqrfDb/models/device.hpp"
+#include "../IqrfDb/models/product.hpp"
+
 typedef std::tuple<Device, Product> DeviceProductTuple;
 typedef std::tuple<uint8_t, uint8_t> AddrIndex;
 typedef std::unordered_map<uint8_t, std::vector<AddrIndex>> SensorSelectMap;
@@ -190,7 +193,7 @@ namespace iqrf {
 		 */
 		virtual void reloadCoordinatorDrivers() = 0;
 
-		virtual Device getDevice(const uint8_t &addr) = 0;
+		virtual std::unique_ptr<TDevice> getDeviceByAddress(const unsigned char addr) = 0;
 
 		/**
 		 * Retrieves information about devices in network
@@ -204,7 +207,7 @@ namespace iqrf {
 		 */
 		virtual std::set<uint8_t> getDeviceAddrs() = 0;
 
-		virtual Product getProductById(const uint32_t &productId) = 0;
+		virtual std::unique_ptr<TProduct> getProduct(const unsigned long long productId) = 0;
 
 		///// DEVICE PERIPHERAL API
 

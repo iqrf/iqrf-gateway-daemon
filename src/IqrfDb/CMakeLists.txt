@@ -16,7 +16,7 @@
 
 project(IqrfDb)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(COMPONENT iqrf::IqrfDb)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IIqrfDb)
@@ -40,6 +40,9 @@ include_directories(${CMAKE_SOURCE_DIR}/src/DpaParser)
 
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 find_package(OpenSSL REQUIRED)
+find_package(QT NAMES Qt6 COMPONENTS Core REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
+find_package(TinyOrm REQUIRED)
 
 if (NOT OPENSSL_FOUND)
 	message(FATAL_ERROR "OpenSSL library not found.")
@@ -53,6 +56,8 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	nlohmann_json::nlohmann_json
+	Qt${QT_VERSION_MAJOR}::Core
+	TinyOrm::TinyOrm
 	sqlite_orm::sqlite_orm
 	SQLiteCpp
 	OpenSSL::Crypto

@@ -63,9 +63,9 @@ namespace iqrf {
 		// Device address
 		uint8_t address;
 		/// Vector of devices with product information
-		Device device;
+		TDevice device;
 		/// Product info
-		Product product;
+		TProduct product;
 		/// Sensors
 		std::map<uint8_t, Sensor> sensors;
 		/// Binout count
