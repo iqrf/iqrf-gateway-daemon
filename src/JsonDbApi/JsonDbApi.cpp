@@ -11,7 +11,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -86,7 +86,11 @@ namespace iqrf {
 		if (msgType.m_type == "iqrfDb_Enumerate") {
 			std::unique_lock<std::mutex> lock(m_enumerateMutex);
 			if (m_enumerateMsg) {
-				sendEnumerationErrorResponse(messaging, IIqrfDb::EnumerationError::Errors::AlreadyRunning, std::move(request));
+				sendEnumerationErrorResponse(
+					messaging,
+					IIqrfDb::EnumerationError::Errors::AlreadyRunning,
+					std::move(request)
+				);
 			} else {
 				m_enumerateMsg = std::make_unique<EnumerateMsg>(EnumerateMsg(request));
 				m_enumerateMsg->setMessaging(messaging);
@@ -105,12 +109,30 @@ namespace iqrf {
 			msg = std::make_unique<GetLightsMsg>(GetLightsMsg(request));
 		} else if (msgType.m_type == "iqrfDb_GetSensors") {
 			msg = std::make_unique<GetSensorsMsg>(GetSensorsMsg(request));
-		} else if (msgType.m_type == "iqrfDb_Reset") {
-			msg = std::make_unique<ResetMsg>(ResetMsg(request));
 		} else if (msgType.m_type == "iqrfDb_GetDeviceMetadata") {
 			msg = std::make_unique<GetDeviceMetadataMsg>(GetDeviceMetadataMsg(request));
 		} else if (msgType.m_type == "iqrfDb_SetDeviceMetadata") {
 			msg = std::make_unique<SetDeviceMetadataMsg>(SetDeviceMetadataMsg(request));
+		} else if (msgType.m_type == "iqrfDb_Reset" || msgType.m_type == "infoDaemon_Reset") { // Legacy API messages
+			msg = std::make_unique<ResetMsg>(ResetMsg(request));
+		} else if (msgType.m_type == "infoDaemon_GetBinaryOutputs") {
+			msg = std::make_unique<LegacyGetBinaryOutputsMsg>(LegacyGetBinaryOutputsMsg(request));
+		} else if (msgType.m_type == "infoDaemon_GetLights") {
+			msg = std::make_unique<LegacyGetLightsMsg>(LegacyGetLightsMsg(request));
+		} else if (msgType.m_type == "infoDaemon_GetMidMetaData") {
+			msg = std::make_unique<LegacyGetMidMetaDataMsg>(LegacyGetMidMetaDataMsg(request));
+		} else if (msgType.m_type == "infoDaemon_GetNodeMetaData") {
+			msg = std::make_unique<LegacyGetNodeMetaDataMsg>(LegacyGetNodeMetaDataMsg(request));
+		} else if (msgType.m_type == "infoDaemon_GetNodes") {
+			msg = std::make_unique<LegacyGetNodesMsg>(LegacyGetNodesMsg(request));
+		} else if (msgType.m_type == "infoDaemon_GetSensors") {
+			msg = std::make_unique<LegacyGetSensorsMsg>(LegacyGetSensorsMsg(request));
+		} else if (msgType.m_type == "infoDaemon_MidMetaDataAnnotate") {
+			msg = std::make_unique<LegacyMidMetaDataAnnotateMsg>(LegacyMidMetaDataAnnotateMsg(request));
+		} else if (msgType.m_type == "infoDaemon_SetMidMetaData") {
+			msg = std::make_unique<LegacySetMidMetaDataMsg>(LegacySetMidMetaDataMsg(request));
+		} else if (msgType.m_type == "infoDaemon_SetNodeMetaData") {
+			msg = std::make_unique<LegacySetNodeMetaDataMsg>(LegacySetNodeMetaDataMsg(request));
 		}
 
 		try {

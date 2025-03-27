@@ -11,7 +11,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -38,21 +38,33 @@ namespace iqrf {
 		GetBinaryOutputsMsg(const Document &doc) : BaseMsg(doc) {};
 
 		/**
-		 * Destructor
-		 */
-		virtual ~GetBinaryOutputsMsg() {};
-
-		/**
 		 * Handles get binary outputs request
 		 * @param dbService IQRF DB service
 		 */
-		void handleMsg(IIqrfDb *dbService) override;
+		void handleMsg(IIqrfDb *dbService) override {
+			bos = dbService->getBinaryOutputCountMap();
+		}
 
 		/**
 		 * Populates response document with binary outputs response
 		 * @param doc Response document
 		 */
-		void createResponsePayload(Document &doc) override;
+		void createResponsePayload(Document &doc) override {
+			if (m_status == 0) {
+				Value array(kArrayType);
+				Document::AllocatorType &allocator = doc.GetAllocator();
+
+				for (auto &item : bos) {
+					Value object;
+					Pointer("/address").Set(object, item.first, allocator);
+					Pointer("/count").Set(object, item.second, allocator);
+					array.PushBack(object, allocator);
+				}
+
+				Pointer("/data/rsp/binoutDevices").Set(doc, array, allocator);
+			}
+			BaseMsg::createResponsePayload(doc);
+		}
 	private:
 		/// Map of device addresses and number of implemented binary outputs
 		std::map<uint8_t, uint8_t> bos;

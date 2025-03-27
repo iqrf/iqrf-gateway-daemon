@@ -11,7 +11,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -167,7 +167,7 @@ namespace iqrf {
 			}
 			// handle response
 			if (type == 129 || type == 160) {
-				auto map = m_dbService->getSensorDeviceHwpids(type);
+				auto map = m_dbService->getSensorDeviceHwpidAddressMap(type);
 				sensorFrc.processResponseSensorDrv(map, nodes, true);
 			} else {
 				sensorFrc.processResponseDrv();
@@ -187,7 +187,14 @@ namespace iqrf {
 						std::vector<int> frcs(cacheQuantity->m_frcs.begin(), cacheQuantity->m_frcs.end());
 						for (auto &addr : diff) {
 							auto globalIdx = m_dbService->getGlobalSensorIndex(addr, type, idx);
-							auto dbSensor = m_dbService->getSensorByAddrIndexType(addr, globalIdx, type);
+							if (!globalIdx.has_value()) {
+								THROW_EXC_TRC_WAR(std::runtime_error,
+									"Could not find device sensor by address " << std::to_string(addr) <<
+									", type " << std::to_string(type) <<
+									", type index" << std::to_string(idx)
+								);
+							}
+							auto dbSensor = m_dbService->getSensorByAddressIndexType(addr, globalIdx.value(), type);
 							auto fakeSensor = sensor::jsdriver::item::Sensor(
 								addr,
 								idx,
@@ -254,13 +261,19 @@ namespace iqrf {
 			//setOfflineFrc(result);
 			auto sensorData = sendSensorFrc(result, type, idx, vector);
 			for (auto &sensor : sensorData) {
-				sensor.setIdx(
-					m_dbService->getGlobalSensorIndex(
-						sensor.getAddr(),
-						sensor.getType(),
-						sensor.getIdx()
-					)
+				auto globalIdx = m_dbService->getGlobalSensorIndex(
+					sensor.getAddr(),
+					sensor.getType(),
+					sensor.getIdx()
 				);
+				if (!globalIdx.has_value()) {
+					THROW_EXC_TRC_WAR(std::runtime_error,
+						"Could not find device sensor by address " << std::to_string(sensor.getAddr()) <<
+						", type " << std::to_string(sensor.getType()) <<
+						", type index" << std::to_string(sensor.getIdx())
+					);
+				}
+				sensor.setIdx(globalIdx.value());
 			}
 			result.addSensorData(sensorData);
 		}
@@ -269,14 +282,14 @@ namespace iqrf {
 	void IqrfSensorData::setDeviceHwpidMid(SensorDataResult &result, std::set<uint8_t> &nodes) {
 		for (auto &addr : nodes) {
 			try {
-				uint16_t hwpid = m_dbService->getDeviceHwpid(addr);
-				result.setDeviceHwpid(addr, hwpid);
+				auto hwpid = m_dbService->getDeviceHwpid(addr);
+				result.setDeviceHwpid(addr, hwpid.has_value() ? hwpid.value() : 0);
 			} catch (const std::exception &e) {
 				result.setDeviceHwpid(addr, 0);
 			}
 			try {
-				uint32_t mid = m_dbService->getDeviceMid(addr);
-				result.setDeviceMid(addr, mid);
+				auto mid = m_dbService->getDeviceMid(addr);
+				result.setDeviceMid(addr, mid.has_value() ? mid.value() : 0);
 			} catch (const std::exception &e) {
 				result.setDeviceMid(addr, 0);
 			}
@@ -314,7 +327,7 @@ namespace iqrf {
 	}
 
 	void IqrfSensorData::getDataByFrc(SensorDataResult &result) {
-		std::set<uint8_t> allNodes = m_dbService->getDeviceAddrs();
+		std::set<uint8_t> allNodes = m_dbService->getDeviceAddresses();
 		if (allNodes.count(0) > 0) {
 			allNodes.erase(0);
 		}
@@ -327,7 +340,7 @@ namespace iqrf {
 		if (noRssi.size() > 0) {
 			getRssi(result, noRssi);
 		}
-		SensorSelectMap map = m_dbService->constructSensorSelectMap();
+		auto map = m_dbService->getSensorTypeAddressIndexMap();
 		std::set<uint8_t> sensorNodes;
 		for (const auto& [type, addrIdx] : map) {
 			TRC_DEBUG("type: " << std::to_string(type));

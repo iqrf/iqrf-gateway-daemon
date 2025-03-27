@@ -52,6 +52,7 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	nlohmann_json::nlohmann_json
+	DbEntities
 )
 
 DeployShapeComponent(${PROJECT_NAME})

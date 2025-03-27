@@ -11,7 +11,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -39,20 +39,29 @@ namespace iqrf {
 		GetLightsMsg(const Document &doc) : BaseMsg(doc) {};
 
 		/**
-		 * Destructor
-		 */
-		virtual ~GetLightsMsg() {};
-
-		/**
 		 * Handles get lights request
 		 * @param dbService IQRF DB service
 		 */
-		void handleMsg(IIqrfDb *dbService) override;
+		void handleMsg(IIqrfDb *dbService) override {
+			lights = dbService->getLightAddresses();
+		}
 
 		/**
 		 * Populates response document with lights response
 		 */
-		void createResponsePayload(Document &doc) override;
+		void createResponsePayload(Document &doc) override {
+			if (m_status == 0) {
+				Value array(kArrayType);
+				Document::AllocatorType &allocator = doc.GetAllocator();
+
+				for (auto &item : lights) {
+					array.PushBack(item, allocator);
+				}
+
+				Pointer("/data/rsp/lightDevices").Set(doc, array, allocator);
+			}
+			BaseMsg::createResponsePayload(doc);
+		}
 	private:
 		/// Set of device addresses implementing lights standard
 		std::set<uint8_t> lights;

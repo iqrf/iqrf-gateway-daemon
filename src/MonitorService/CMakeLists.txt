@@ -53,6 +53,7 @@ endif()
 target_link_libraries(${PROJECT_NAME}
     nlohmann_json::nlohmann_json
 	Dpa
+    DbEntities
 )
 
 DeployShapeComponent(${PROJECT_NAME})
