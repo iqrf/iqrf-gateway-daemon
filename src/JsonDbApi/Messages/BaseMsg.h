@@ -11,7 +11,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -42,27 +42,33 @@ namespace iqrf {
 		BaseMsg(const Document &doc) : ApiMsg(doc) {};
 
 		/**
-		 * Destructor
-		 */
-		virtual ~BaseMsg() {};
-
-		/**
 		 * Prepares response document
 		 * @param doc Response document
 		 */
-		void createResponsePayload(Document &doc) override;
+		void createResponsePayload(Document &doc) override {
+			Value *v = Pointer("/data/rsp").Get(doc);
+			if (!v) {
+				Value empty;
+				empty.SetObject();
+				Pointer("/data/rsp").Set(doc, empty);
+			}
+		}
 
 		/**
 		 * Returns messaging instance
 		 * @return Messaging instance
 		 */
-		const std::shared_ptr<MessagingInstance>& getMessaging() const;
+		const std::shared_ptr<MessagingInstance>& getMessaging() const {
+			return messaging;
+		}
 
 		/**
 		 * Sets messaging instance
 		 * @param messagingId Messaging instance
 		 */
-		void setMessaging(const MessagingInstance &messaging);
+		void setMessaging(const MessagingInstance &messaging) {
+			this->messaging = std::make_shared<MessagingInstance>(messaging);
+		}
 
 		/**
 		 * Message handler method

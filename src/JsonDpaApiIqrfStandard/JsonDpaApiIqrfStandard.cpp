@@ -11,7 +11,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -103,7 +103,7 @@ namespace iqrf {
 		Document allResponseDoc;
 		std::unique_ptr<ComIqrfStandard> com(shape_new ComIqrfStandard(doc));
 
-		if (m_dbService && m_dbService->addMetadataToMessage()) {
+		if (m_dbService && m_dbService->getMetadataToMessages()) {
 			Document metaDataDoc;
 			try {
 				metaDataDoc = m_dbService->getDeviceMetadataDoc(com->getNadr());
@@ -324,7 +324,7 @@ namespace iqrf {
 
 			Document allResponseDoc;
 
-			if (m_dbService && m_dbService->addMetadataToMessage()) {
+			if (m_dbService && m_dbService->getMetadataToMessages()) {
 				Document metaDataDoc;
 				try {
 					metaDataDoc = m_dbService->getDeviceMetadataDoc(com->getNadr());

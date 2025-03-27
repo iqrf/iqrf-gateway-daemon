@@ -1,0 +1,65 @@
+{
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"title": "Database reset response",
+	"description": "Resets database.",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$id": "#/properties/mType",
+			"title": "Message type",
+			"description": "IQRF DB - Legacy API compatibility Reset response.",
+			"type": "string",
+			"enum": [
+				"infoDaemon_Reset"
+			]
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Response data",
+			"description": "Response data.",
+			"type": "object",
+			"required": [
+				"msgId",
+				"rsp"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"$id": "#/properties/data/properties/msgId",
+					"title": "Message ID",
+					"description": "Message ID used for pairing requests and responses.",
+					"type": "string"
+				},
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response parameters",
+					"description": "Response parameters.",
+					"type": "object"
+				},
+				"insId": {
+					"$id": "#/properties/data/properties/insId",
+					"title": "Instance ID",
+					"description": "Daemon insteance ID.",
+					"type": "string"
+				},
+				"status": {
+					"$id": "#/properties/data/properties/status",
+					"title": "Status code",
+					"description": "Status code.",
+					"type": "integer"
+				},
+				"statusStr": {
+					"$id": "#/properties/data/properties/statusStr",
+					"title": "Status string",
+					"description": "Verbose status string",
+					"type": "string"
+				}
+			}
+		}
+	}
+}

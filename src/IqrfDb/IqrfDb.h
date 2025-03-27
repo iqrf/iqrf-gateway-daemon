@@ -11,7 +11,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -49,9 +49,9 @@
 #include "rapidjson/pointer.h"
 #include "rapidjson/rapidjson.h"
 #include <SQLiteCpp/SQLiteCpp.h>
-#include <sqlite_orm/sqlite_orm.h>
 #include "Common.h"
-#include "QueryHandler.h"
+
+using namespace iqrf::db::models;
 
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
@@ -59,10 +59,6 @@
 #define TRC_CHANNEL 0
 
 #define EEEPROM_READ_MAX_LEN 54
-
-#define PERIPHERAL_LIGHT 74
-#define PERIPHERAL_BINOUT 75
-#define PERIPHERAL_SENSOR 94
 
 typedef std::shared_ptr<Product> ProductPtr;
 typedef std::tuple<uint16_t, uint16_t, uint16_t, uint16_t> UniqueProduct;
@@ -113,59 +109,21 @@ namespace iqrf {
 		 */
 		void reloadCoordinatorDrivers() override;
 
-		/**
-		 * Returns device by address
-		 * @param addr Device address
-		 * @return Device
-		 */
-		Device getDevice(const uint8_t &addr) override;
-
-		/**
-		 * Returns vector of devices
-		 * @return Vector of devices
-		 */
-		std::vector<DeviceProductTuple> getDevices(std::vector<uint8_t> requestedDevices = {}) override;
-
-		/**
-		 * Returns addresses of devices in network from database
-		 * @return std::set<uint8_t> Set of device addresses
-		 */
-		std::set<uint8_t> getDeviceAddrs() override;
-
-		Product getProductById(const uint32_t &productId) override;
-
-		///// DEVICE PERIPHERAL API
-
-		/**
-		 * Check if device implements peripheral
-		 * @param deviceId Device ID
-		 * @param peripheral Peripheral
-		 * @return `true` if Device implements peripheral, `false` otherwise
-		 */
-		bool deviceImplementsPeripheral(const uint32_t &deviceId, const int16_t peripheral) override;
-
 		///// BINARY OUTPUT API
-
-		/**
-		 * Check if a binary output record exists for device
-		 * @param deviceId Device ID
-		 * @return `true` if a binary output record exists, `false` otherwise
-		 */
-		bool binaryOutputExists(const uint32_t &deviceId) override;
 
 		/**
 		 * Return binary output entity by ID
 		 * @param id Binary output ID
 		 * @return Binary output entity
 		 */
-		std::unique_ptr<BinaryOutput> getBinaryOutput(const uint32_t &id) override;
+		std::unique_ptr<BinaryOutput> getBinaryOutput(const uint32_t id) override;
 
 		/**
 		 * Return binary output entity by device ID
 		 * @param deviceId Device ID
 		 * @return Binary output entity
 		 */
-		std::unique_ptr<BinaryOutput> getBinaryOutputByDeviceId(const uint32_t &deviceId) override;
+		std::unique_ptr<BinaryOutput> getBinaryOutputByDeviceId(const uint32_t deviceId) override;
 
 		/**
 		 * Insert binary output record
@@ -184,13 +142,13 @@ namespace iqrf {
 		 * Remove binary output record by ID
 		 * @param id Binary output ID
 		 */
-		void removeBinaryOutput(const uint32_t &id) override;
+		void removeBinaryOutput(const uint32_t id) override;
 
 		/**
 		 * Remove binary output record by device ID
 		 * @param deviceId Device ID
 		 */
-		void removeBinaryOutputByDeviceId(const uint32_t &deviceId) override;
+		void removeBinaryOutputByDeviceId(const uint32_t deviceId) override;
 
 		/**
 		 * Get addresses of devices implementing binary output
@@ -204,28 +162,171 @@ namespace iqrf {
 		 */
 		std::map<uint8_t, uint8_t> getBinaryOutputCountMap() override;
 
-		///// LIGHT API
+		///// DEVICE API
 
 		/**
-		 * Check if a light record exists for device
-		 * @param deviceId Device ID
-		 * @return `true` if a light record exists, `false` otherwise
+		 * Returns device by address
+		 * @param addr Device address
+		 * @return Device
 		 */
-		bool lightExists(const uint32_t &deviceId) override;
+		std::unique_ptr<Device> getDeviceByAddress(const uint8_t address) override;
+
+		/**
+		 * Returns device by module ID
+		 * @param mid Module ID
+		 * @return Device
+		 */
+		std::unique_ptr<Device> getDeviceByMid(const uint32_t mid) override;
+
+		/**
+		 * Returns vector of device and product pairs
+		 * @return Vector of device and product pairs
+		 */
+		std::vector<std::pair<Device, Product>> getDevices(const std::vector<uint8_t>& requestedDevices = {}) override;
+
+		/**
+		 * Update device record
+		 * @param device Device entity
+		 */
+		void updateDevice(Device &device) override;
+
+		/**
+		 * Returns addresses of devices in network from database
+		 * @return std::set<uint8_t> Set of device addresses
+		 */
+		std::set<uint8_t> getDeviceAddresses() override;
+
+		/**
+		 * Retrieves device MID specified by address
+		 * @param address Device address
+		 * @return Device MID
+		 */
+		std::optional<uint32_t> getDeviceMid(const uint8_t address) override;
+
+		/**
+		 * Retrieves device HWPID specified by address
+		 * @param address Device address
+		 * @return Device HWPID
+		 */
+		std::optional<uint16_t> getDeviceHwpid(const uint8_t address) override;
+
+		/**
+		 * Check if device implements peripheral
+		 * @param deviceId Device ID
+		 * @param peripheral Peripheral
+		 * @return `true` if Device implements peripheral, `false` otherwise
+		 */
+		bool deviceImplementsPeripheral(const uint32_t &deviceId, const int16_t peripheral) override;
+
+		/**
+		 * Retrieves metadata stored at device specified by address
+		 * @param address Device address
+		 * @return Device metadata
+		 */
+		std::shared_ptr<std::string> getDeviceMetadata(const uint8_t address) override;
+
+		/**
+		 * Retrieves metadata stored at device specified by address in a rapidjson document
+		 * @param address Device address
+		 * @return Device metadata document
+		 */
+		rapidjson::Document getDeviceMetadataDoc(const uint8_t address) override;
+
+		/**
+		 * Sets metadata to device at specified address
+		 * @param address Device address
+		 * @param metadata Metadata to store
+		 */
+		void setDeviceMetadata(const uint8_t address, std::shared_ptr<std::string> metadata) override;
+
+		/**
+		 * Retrieves node map of node addresses, and their hwpids and MIDs
+		 * @return Map of node addresses, and their hwpids and MIDs
+		 */
+		std::map<uint8_t, embed::node::NodeMidHwpid> getNodeMidHwpidMap() override;
+
+		///// DEVICE SENSOR API
+
+		/**
+		 * Checks if device has sensors
+		 * @param address Device address
+		 * @return `true` if device has sensors, `false` otherwise
+		 */
+		bool deviceHasSensors(const uint8_t address) override;
+
+		/**
+		 * Retrieves map of device addresses and vector of sensor index and data
+		 * @return Map of device addresses and vector of sensor index and data
+		 */
+		std::map<uint8_t, std::vector<std::pair<uint8_t, Sensor>>> getDeviceAddressIndexSensorMap() override;
+
+		/**
+		 * Retrieves map of device addresses and vector of device sensors and sensors
+		 * @return Map of device addresses and vector of device sensors and sensors
+		 */
+		std::map<uint8_t, std::vector<std::pair<DeviceSensor, Sensor>>> getDeviceAddressSensorMap() override;
+
+		/**
+		 * Constructs and returns a map of sensor types, devices that implement them and their local indexes
+		 * @return Map of sensor types and devices
+		 */
+		std::unordered_map<uint8_t, std::vector<std::pair<uint8_t, uint8_t>>> getSensorTypeAddressIndexMap() override;
+
+		/**
+		 * Retrieves global sensor index from address, type and type index
+		 * @param address Device address
+		 * @param type Sensor type
+		 * @param index Type index
+		 * @return Global sensor index
+		 */
+		std::optional<uint8_t> getGlobalSensorIndex(const uint8_t address, const uint8_t type, const uint8_t index) override;
+
+		/**
+		 * Returns map of hwpids and devices implementing sensor device specified by type and index
+		 * @param type Sensor type
+		 * @return Map of hwpids and device addresses
+		 */
+		std::map<uint16_t, std::set<uint8_t>> getSensorDeviceHwpidAddressMap(const uint8_t type) override;
+
+		/**
+		 * Stores value of sensor
+		 * @param address Device address
+		 * @param type Sensor type
+		 * @param index Sensor index
+		 * @param value Last measured value
+		 * @param updated Last updated
+		 * @param frc Data from FRC response
+		 */
+		void setDeviceSensorValue(const uint8_t address, const uint8_t type, const uint8_t index, const double value,
+			std::shared_ptr<std::string> updated, bool frc) override;
+
+		/**
+		 * Stores value of sensor as metadata (for non-atomic values)
+		 * @param address Device address
+		 * @param type Sensor type
+		 * @param index Sensor index
+		 * @param metadata Last measured value
+		 * @param updated Last updated
+		 * @param frc Data from FRC response
+		 */
+		void setDeviceSensorMetadata(const uint8_t address, const uint8_t type, const uint8_t index, json &metadata,
+			std::shared_ptr<std::string> updated, bool frc);
+
+		///// LIGHT API
 
 		/**
 		 * Return light entity by ID
 		 * @param id Light ID
 		 * @return Light entity
 		 */
-		std::unique_ptr<Light> getLight(const uint32_t &id) override;
+		std::unique_ptr<Light> getLight(const uint32_t id) override;
 
 		/**
 		 * Return light entity by device ID
 		 * @param deviceId Device ID
 		 * @return Light entity
 		 */
-		std::unique_ptr<Light> getLightByDeviceId(const uint32_t &deviceId) override;
+		std::unique_ptr<Light> getLightByDeviceId(const uint32_t deviceId) override;
 
 		/**
 		 * Insert light record
@@ -244,13 +345,13 @@ namespace iqrf {
 		 * Remove light record by ID
 		 * @param id Light ID
 		 */
-		void removeLight(const uint32_t &id) override;
+		void removeLight(const uint32_t id) override;
 
 		/**
 		 * Remove light record by device ID
 		 * @param deviceId Device ID
 		 */
-		void removeLightByDeviceId(const uint32_t &deviceId) override;
+		void removeLightByDeviceId(const uint32_t deviceId) override;
 
 		/**
 		 * Get addresses of devices implementing light
@@ -258,115 +359,40 @@ namespace iqrf {
 		 */
 		std::set<uint8_t> getLightAddresses() override;
 
+		///// PRODUCT API
+
+		/**
+		 * Get product entity by ID
+		 * @param productId Product ID
+		 * @return
+		 */
+		std::unique_ptr<Product> getProduct(const uint32_t productId) override;
+
 		///// SENSOR API
 
-		std::unique_ptr<Sensor> getSensorByAddrIndexType(const uint8_t &deviceAddress, const uint8_t &index, const uint8_t &type) override;
-
-		bool hasSensors(const uint8_t &deviceAddress) override;
+		/**
+		 * Get sensor entity by device address, global index and sensor type
+		 * @param address Device address
+		 * @param index Global index
+		 * @param type Sensor type
+		 * @return Sensor entity
+		 */
+		std::unique_ptr<Sensor> getSensorByAddressIndexType(const uint8_t address, const uint8_t index,
+			const uint8_t type) override;
 
 		/**
 		 * Returns map of device sensor indexes and Sensor entities
-		 * @param deviceAddress Device address
+		 * @param address Device address
 		 */
-		std::map<uint8_t, Sensor> getDeviceSensorsByAddress(const uint8_t &deviceAddress) override;
+		std::map<uint8_t, Sensor> getDeviceSensorsMapByAddress(const uint8_t address) override;
 
 		/**
 		 * Returns map of device sensor indexes and sensor IDs
-		 * @param deviceAddress Device address
-		 */
-		std::map<uint8_t, uint32_t> getDeviceSensorIndexIdMap(const uint8_t &deviceAddress) override;
-
-		/**
-		 * Returns map of device addresses and implemented sensors
-		 * @return Map of device addresses and implemented sensors
-		 */
-		std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> getSensors() override;
-
-		/**
-		 * Constructs and returns a map of sensor types, devices that implement them and their local indexes
-		 * @return Map of sensor types and devices
-		 */
-		SensorSelectMap constructSensorSelectMap() override;
-
-		/**
-		 * Retrieves global sensor index from address, type and type index
 		 * @param address Device address
-		 * @param type Sensor type
-		 * @param index Type index
-		 * @return Global sensor index
 		 */
-		uint8_t getGlobalSensorIndex(const uint8_t &address, const uint8_t &type, const uint8_t &index) override;
+		std::map<uint8_t, uint32_t> getDeviceSensorsIdMapByAddress(const uint8_t address) override;
 
-		/**
-		 * Stores value of sensor
-		 * @param address Device address
-		 * @param type Sensor type
-		 * @param index Sensor index
-		 * @param value Last measured value
-		 * @param updated Last updated
-		 */
-		void setSensorValue(const uint8_t &address, const uint8_t &type, const uint8_t &index, const double &value, std::shared_ptr<std::string> updated) override;
-
-		/**
-		 * Retrieves device HWPID specified by address
-		 * @param address Device address
-		 * @return Device HWPID
-		 */
-		uint16_t getDeviceHwpid(const uint8_t &address) override;
-
-		/**
-		 * Retrieves device MID specified by address
-		 * @param address Device address
-		 * @return Device MID
-		 */
-		uint32_t getDeviceMid(const uint8_t &address) override;
-
-		/**
-		 * Retrieves metadata stored at device specified by address
-		 * @param address Device address
-		 * @return Device metadata
-		 */
-		std::shared_ptr<std::string> getDeviceMetadata(const uint8_t &address) override;
-
-		/**
-		 * Retrieves metadata stored at device specified by address in a rapidjson document
-		 * @param address Device address
-		 * @return Device metadata document
-		 */
-		rapidjson::Document getDeviceMetadataDoc(const uint8_t &address) override;
-
-		/**
-		 * Sets metadata to device at specified address
-		 * @param address Device address
-		 * @param metadata Metadata to store
-		 */
-		void setDeviceMetadata(const uint8_t &address, std::shared_ptr<std::string> metadata) override;
-
-		/**
-		 * Returns map of hwpids and devices implementing sensor device specified by type and index
-		 * @param type Sensor type
-		 * @return Map of hwpids and device addresses
-		 */
-		std::map<uint16_t, std::set<uint8_t>> getSensorDeviceHwpids(const uint8_t &type) override;
-
-		/**
-		 * Checks if metadata should be added to messages
-		 * @return true if metadata should be added to messages, false otherwise
-		 */
-		bool addMetadataToMessage() override;
-
-		/**
-		 * Register enumeration handler
-		 * @param clientId Handler owner
-		 * @param handler Handler function
-		 */
-		void registerEnumerationHandler(const std::string &clientId, EnumerationHandler handler) override;
-
-		/**
-		 * Unregister enumeration handler
-		 * @param clientId Handler owner
-		 */
-		void unregisterEnumerationHandler(const std::string &clientId) override;
+		///// OTHER API
 
 		/**
 		 * Updates sensor values from map of addresses and sensor objects
@@ -390,7 +416,37 @@ namespace iqrf {
 		 */
 		void updateSensorValues(const uint8_t &type, const uint8_t &index, const std::set<uint8_t> &selectedNodes, const std::string &sensors) override;
 
-		std::map<uint8_t, embed::node::NodeMidHwpid> getNodeMidHwpidMap() override;
+		/**
+		 * Checks if metadata should be added to messages
+		 * @return true if metadata should be added to messages, false otherwise
+		 */
+		bool getMetadataToMessages() override;
+
+		/**
+		 * Sets including metadata to messages
+		 * @param includeMetadata Metadata inclusion setting
+		 */
+		void setMetadataToMessages(bool includeMetadata) override;
+
+		/**
+		 * Register enumeration handler
+		 * @param clientId Handler owner
+		 * @param handler Handler function
+		 */
+		void registerEnumerationHandler(const std::string &clientId, EnumerationHandler handler) override;
+
+		/**
+		 * Unregister enumeration handler
+		 * @param clientId Handler owner
+		 */
+		void unregisterEnumerationHandler(const std::string &clientId) override;
+
+		/**
+		 * Get quantity by type from cache
+		 * @param type Sensor type
+		 * @return Cache quantity
+		 */
+		std::shared_ptr<IJsCacheService::Quantity> getQuantityByType(const uint8_t type) override;
 
 		/**
 		 * Component instance lifecycle activate step
@@ -484,10 +540,9 @@ namespace iqrf {
 
 		/**
 		 * Execute migrations
-		 * @param db Database
 		 * @param migration Migration name
 		 */
-		void executeMigration(SQLite::Database &db, const std::string &migration);
+		void executeMigration(const std::string &migration);
 
 		/**
 		 * Assign product names if product doesn't have a name and is available in cache
@@ -717,9 +772,7 @@ namespace iqrf {
 		/// Path to daemon js wrapper
 		std::string m_wrapperPath;
 		/// Database accessor
-		std::shared_ptr<Storage> m_db = nullptr;
-		/// Query handler
-		QueryHandler query;
+		std::shared_ptr<SQLite::Database> m_db = nullptr;
 		/// DPA service
 		IIqrfDpaService *m_dpaService = nullptr;
 		/// Enumeration condition variable
@@ -757,7 +810,7 @@ namespace iqrf {
 		/// Enumerate network when daemon launches
 		bool m_enumerateOnLaunch = false;
 		/// Include device metadata in responses
-		bool m_metadataTomessages = false;
+		bool m_metadataToMessages = false;
 		/// Controls whether enumeration should run or stop
 		std::atomic_bool m_enumRun;
 		/// Repeat enumeration in case of a failure

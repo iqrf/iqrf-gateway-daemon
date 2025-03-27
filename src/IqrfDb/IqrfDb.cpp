@@ -11,7 +11,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -98,246 +98,98 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	///// DB API
-
-	Device IqrfDb::getDevice(const uint8_t &addr) {
-		return this->query.getDevice(addr);
-	}
-
-	std::vector<DeviceProductTuple> IqrfDb::getDevices(std::vector<uint8_t> requestedDevices) {
-		return this->query.getDevices(requestedDevices);
-	}
-
-	std::set<uint8_t> IqrfDb::getDeviceAddrs() {
-		return this->query.getDeviceAddrs();
-	}
-
-	uint32_t IqrfDb::getDeviceMid(const uint8_t &address) {
-		return this->query.getDeviceMid(address);
-	}
-
-	uint16_t IqrfDb::getDeviceHwpid(const uint8_t &address) {
-		return this->query.getDeviceHwpid(address);
-	}
-
-	Product IqrfDb::getProductById(const uint32_t &productId) {
-		return this->query.getProductById(productId);
-	}
-
-	///// DEVICE PERIPHERAL API
-
-	bool IqrfDb::deviceImplementsPeripheral(const uint32_t &id, const int16_t peripheral) {
-		auto records = m_db->select(
-			&Driver::getId,
-			inner_join<ProductDriver>(
-				on(
-					c(&ProductDriver::getDriverId) == &Driver::getId)
-				),
-			inner_join<Device>(
-				on(c(&Device::getProductId) == &ProductDriver::getProductId)
-			),
-			where(
-				c(&Device::getId) == id
-				and c(&Driver::getPeripheralNumber) == peripheral
-			)
-		);
-		return records.size() > 0;
-	}
-
 	///// BINARY OUTPUT API
 
-	bool IqrfDb::binaryOutputExists(const uint32_t &deviceId) {
-		auto count = m_db->count<BinaryOutput>(
-			where(
-				c(&BinaryOutput::getDeviceId) == deviceId
-			)
-		);
-		return count > 0;
+	std::unique_ptr<BinaryOutput> IqrfDb::getBinaryOutput(const uint32_t id) {
+		db::repos::BinaryOutputRepository binoutRepo(m_db);
+		return binoutRepo.get(id);
 	}
 
-	std::unique_ptr<BinaryOutput> IqrfDb::getBinaryOutput(const uint32_t &id) {
-		return m_db->get_pointer<BinaryOutput>(id);
-	}
-
-	std::unique_ptr<BinaryOutput> IqrfDb::getBinaryOutputByDeviceId(const uint32_t &deviceId) {
-		auto records = m_db->get_all<BinaryOutput>(
-			where(
-				c(&BinaryOutput::getDeviceId) == deviceId
-			)
-		);
-		if (records.size() == 0) {
-			return nullptr;
-		}
-		return std::make_unique<BinaryOutput>(records[0]);
+	std::unique_ptr<BinaryOutput> IqrfDb::getBinaryOutputByDeviceId(const uint32_t deviceId) {
+		db::repos::BinaryOutputRepository binoutRepo(m_db);
+		return binoutRepo.get(deviceId);
 	}
 
 	uint32_t IqrfDb::insertBinaryOutput(BinaryOutput &binaryOutput) {
-		return m_db->insert<BinaryOutput>(binaryOutput);
+		db::repos::BinaryOutputRepository binoutRepo(m_db);
+		return binoutRepo.insert(binaryOutput);
 	}
 
 	void IqrfDb::updateBinaryOutput(BinaryOutput &binaryOutput) {
-		m_db->update<BinaryOutput>(binaryOutput);
+		db::repos::BinaryOutputRepository binoutRepo(m_db);
+		binoutRepo.update(binaryOutput);
 	}
 
-	void IqrfDb::removeBinaryOutput(const uint32_t &id) {
-		m_db->remove<BinaryOutput>(id);
+	void IqrfDb::removeBinaryOutput(const uint32_t id) {
+		db::repos::BinaryOutputRepository binoutRepo(m_db);
+		binoutRepo.remove(id);
 	}
 
-	void IqrfDb::removeBinaryOutputByDeviceId(const uint32_t &deviceId) {
-		m_db->remove_all<BinaryOutput>(
-			where(
-				c(&BinaryOutput::getDeviceId) == deviceId
-			)
-		);
+	void IqrfDb::removeBinaryOutputByDeviceId(const uint32_t deviceId) {
+		db::repos::BinaryOutputRepository binoutRepo(m_db);
+		binoutRepo.removeByDeviceId(deviceId);
 	}
 
 	std::set<uint8_t> IqrfDb::getBinaryOutputAddresses() {
-		auto records = m_db->select(
-			&Device::getAddress,
-			inner_join<BinaryOutput>(
-				on(
-					c(&BinaryOutput::getDeviceId) == &Device::getId
-				)
-			)
-		);
-		return std::set<uint8_t>(records.begin(), records.end());
+		db::repos::BinaryOutputRepository binoutRepo(m_db);
+		return binoutRepo.getAddresses();
 	}
 
 	std::map<uint8_t, uint8_t> IqrfDb::getBinaryOutputCountMap() {
-		auto records = m_db->select(
-			columns(
-				&Device::getAddress,
-				&BinaryOutput::getCount
-			),
-			inner_join<BinaryOutput>(
-				on(
-					c(&BinaryOutput::getDeviceId) == &Device::getId
-				)
-			)
-		);
-		std::map<uint8_t, uint8_t> map;
-		for (auto const &record : records) {
-			map.insert(
-				std::make_pair(
-					std::get<0>(record),
-					std::get<1>(record)
-				)
-			);
-		}
-		return map;
+		db::repos::BinaryOutputRepository binoutRepo(m_db);
+		return binoutRepo.getAddressCountMap();
 	}
 
-	///// LIGHT API
+	///// DEVICE API
 
-
-	bool IqrfDb::lightExists(const uint32_t &deviceId) {
-		auto count = m_db->count<Light>(
-			where(
-				c(&Light::getDeviceId) == deviceId
-			)
-		);
-		return count > 0;
+	std::unique_ptr<Device> IqrfDb::getDeviceByAddress(const uint8_t address) {
+		db::repos::DeviceRepository deviceRepo(m_db);
+		return std::move(deviceRepo.getByAddress(address));
 	}
 
-	std::unique_ptr<Light> IqrfDb::getLight(const uint32_t &id) {
-		return m_db->get_pointer<Light>(id);
+	std::unique_ptr<Device> IqrfDb::getDeviceByMid(const uint32_t mid) {
+		db::repos::DeviceRepository deviceRepo(m_db);
+		return std::move(deviceRepo.getByMid(mid));
 	}
 
-	std::unique_ptr<Light> IqrfDb::getLightByDeviceId(const uint32_t &deviceId) {
-		auto records = m_db->get_all<Light>(
-			where(
-				c(&Light::getDeviceId) == deviceId
-			)
-		);
-		if (records.size() == 0) {
-			return nullptr;
-		}
-		return std::make_unique<Light>(records[0]);
+	std::vector<std::pair<Device, Product>> IqrfDb::getDevices(const std::vector<uint8_t>& requestedDevices) {
+		db::repos::DeviceRepository deviceRepo(m_db);
+		return deviceRepo.getDeviceProductPairs(requestedDevices);
 	}
 
-	uint32_t IqrfDb::insertLight(Light &light) {
-		return m_db->insert<Light>(light);
+	void IqrfDb::updateDevice(Device &device) {
+		db::repos::DeviceRepository deviceRepo(m_db);
+		deviceRepo.update(device);
 	}
 
-	void IqrfDb::updateLight(Light &light) {
-		m_db->update<Light>(light);
+	std::set<uint8_t> IqrfDb::getDeviceAddresses() {
+		db::repos::DeviceRepository deviceRepo(m_db);
+		return deviceRepo.getAddresses();
 	}
 
-	void IqrfDb::removeLight(const uint32_t &id) {
-		m_db->remove<Light>(id);
+	std::optional<uint32_t> IqrfDb::getDeviceMid(const uint8_t address) {
+		db::repos::DeviceRepository deviceRepo(m_db);
+		return deviceRepo.getMidByAddress(address);
 	}
 
-	void IqrfDb::removeLightByDeviceId(const uint32_t &deviceId) {
-		m_db->remove_all<Light>(
-			where(
-				c(&Light::getDeviceId) == deviceId
-			)
-		);
+	std::optional<uint16_t> IqrfDb::getDeviceHwpid(const uint8_t address) {
+		db::repos::DeviceRepository deviceRepo(m_db);
+		return deviceRepo.getHwpidByAddress(address);
 	}
 
-	std::set<uint8_t> IqrfDb::getLightAddresses() {
-		auto records = m_db->select(
-			&Device::getAddress,
-			inner_join<Light>(
-				on(
-					c(&Light::getDeviceId) == &Device::getId
-				)
-			)
-		);
-		return std::set<uint8_t>(records.begin(), records.end());
+	bool IqrfDb::deviceImplementsPeripheral(const uint32_t &id, const int16_t peripheral) {
+		db::repos::DeviceRepository deviceRepo(m_db);
+		return deviceRepo.implementsPeripheral(id, peripheral);
 	}
 
-	///// SENSOR API
-
-	std::unique_ptr<Sensor> IqrfDb::getSensorByAddrIndexType(const uint8_t &deviceAddress, const uint8_t &index, const uint8_t &type) {
-		auto records = m_db->select(
-			&DeviceSensor::getSensorId,
-			where(
-				c(&DeviceSensor::getAddress) == deviceAddress
-				and c(&DeviceSensor::getGlobalIndex) == index
-				and c(&DeviceSensor::getType) == type
-			)
-		);
-		if (records.size() == 0) {
-			return nullptr;
-		}
-		return m_db->get_pointer<Sensor>(records[0]);
+	std::shared_ptr<std::string> IqrfDb::getDeviceMetadata(const uint8_t address) {
+		db::repos::DeviceRepository deviceRepo(m_db);
+		return deviceRepo.getMetadataByAddress(address);
 	}
 
-	bool IqrfDb::hasSensors(const uint8_t &deviceAddress) {
-		return this->query.hasSensors(deviceAddress);
-	}
-
-	std::map<uint8_t, Sensor> IqrfDb::getDeviceSensorsByAddress(const uint8_t &deviceAddress) {
-		return this->query.getDeviceSensorsByAddress(deviceAddress);
-	}
-
-	std::map<uint8_t, uint32_t> IqrfDb::getDeviceSensorIndexIdMap(const uint8_t &deviceAddress) {
-		return this->query.getDeviceSensorIndexIdMap(deviceAddress);
-	}
-
-	std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> IqrfDb::getSensors() {
-		return this->query.getSensors();
-	}
-
-	SensorSelectMap IqrfDb::constructSensorSelectMap() {
-		return this->query.constructSensorSelectMap();
-	}
-
-	uint8_t IqrfDb::getGlobalSensorIndex(const uint8_t &address, const uint8_t &type, const uint8_t &index) {
-		return this->query.getGlobalSensorIndex(address, type, index);
-	}
-
-	void IqrfDb::setSensorValue(const uint8_t &address, const uint8_t &type, const uint8_t &index, const double &value, std::shared_ptr<std::string> updated) {
-		this->query.setSensorValue(address, type, index, value, updated);
-	}
-
-	std::shared_ptr<std::string> IqrfDb::getDeviceMetadata(const uint8_t &address) {
-		return this->query.getDeviceMetadata(address);
-	}
-
-	rapidjson::Document IqrfDb::getDeviceMetadataDoc(const uint8_t &address) {
-		auto metadata = this->query.getDeviceMetadata(address);
+	rapidjson::Document IqrfDb::getDeviceMetadataDoc(const uint8_t address) {
+		db::repos::DeviceRepository deviceRepo(m_db);
+		auto metadata = deviceRepo.getMetadataByAddress(address);
 		rapidjson::Document doc;
 		if (metadata) {
 			doc.Parse(metadata.get()->c_str());
@@ -348,37 +200,167 @@ namespace iqrf {
 		return doc;
 	}
 
-	void IqrfDb::setDeviceMetadata(const uint8_t &address, std::shared_ptr<std::string> metadata) {
-		this->query.setDeviceMetadata(address, metadata);
+	void IqrfDb::setDeviceMetadata(const uint8_t address, std::shared_ptr<std::string> metadata) {
+		db::repos::DeviceRepository deviceRepo(m_db);
+		auto device = deviceRepo.getByAddress(address);
+		if (device == nullptr) {
+			throw std::logic_error("Device at address " + std::to_string(address) + " does not exist.");
+		}
+		device->setMetadata(metadata);
+		deviceRepo.update(*device);
 	}
 
-	std::map<uint16_t, std::set<uint8_t>> IqrfDb::getSensorDeviceHwpids(const uint8_t &type) {
-		return this->query.getSensorDeviceHwpids(type);
+	std::map<uint8_t, embed::node::NodeMidHwpid> IqrfDb::getNodeMidHwpidMap() {
+		db::repos::DeviceRepository deviceRepo(m_db);
+		return deviceRepo.getNodeMidHwpidMap();
 	}
 
-	bool IqrfDb::addMetadataToMessage() {
-		return m_metadataTomessages;
+	///// DEVICE SENSORS API
+
+	bool IqrfDb::deviceHasSensors(const uint8_t address) {
+		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
+		return deviceSensorRepo.deviceHasSensors(address);
 	}
 
-	void IqrfDb::registerEnumerationHandler(const std::string &clientId, EnumerationHandler handler) {
-		std::lock_guard<std::mutex> lock(m_enumMutex);
-		m_enumHandlers.insert(std::make_pair(clientId, handler));
+	std::map<uint8_t, std::vector<std::pair<uint8_t, Sensor>>> IqrfDb::getDeviceAddressIndexSensorMap() {
+		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
+		return deviceSensorRepo.getDeviceAddressIndexSensorMap();
 	}
 
-	void IqrfDb::unregisterEnumerationHandler(const std::string &clientId) {
-		std::lock_guard<std::mutex> lock(m_enumMutex);
-		m_enumHandlers.erase(clientId);
+	std::map<uint8_t, std::vector<std::pair<DeviceSensor, Sensor>>> IqrfDb::getDeviceAddressSensorMap() {
+		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
+		return deviceSensorRepo.getDeviceAddressSensorMap();
 	}
+
+	std::unordered_map<uint8_t, std::vector<std::pair<uint8_t, uint8_t>>> IqrfDb::getSensorTypeAddressIndexMap() {
+		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
+		return deviceSensorRepo.getSensorTypeAddressIndexMap();
+	}
+
+	std::optional<uint8_t> IqrfDb::getGlobalSensorIndex(const uint8_t address, const uint8_t type, const uint8_t typeIndex) {
+		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
+		return deviceSensorRepo.getGlobalSensorIndex(address, type, typeIndex);
+	}
+
+	std::map<uint16_t, std::set<uint8_t>> IqrfDb::getSensorDeviceHwpidAddressMap(const uint8_t type) {
+		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
+		return deviceSensorRepo.getHwpidAddressesMap(type);
+	}
+
+	void IqrfDb::setDeviceSensorValue(const uint8_t address, const uint8_t type, const uint8_t index,
+		const double value, std::shared_ptr<std::string> updated, bool frc) {
+		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
+		auto ds = deviceSensorRepo.getByAddressTypeIndex(address, type, index, frc);
+		if (ds == nullptr) {
+			throw std::logic_error("Device at address " + std::to_string(address)
+				+ " does not implement sensor of type " + std::to_string(type)
+				+ " at index " + std::to_string(index)
+			);
+		}
+		ds->setValue(value);
+		ds->setUpdated(updated);
+		deviceSensorRepo.update(*ds);
+	}
+
+	void IqrfDb::setDeviceSensorMetadata(const uint8_t address, const uint8_t type, const uint8_t index, json &metadata,
+		std::shared_ptr<std::string> updated, bool frc) {
+		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
+		auto ds = deviceSensorRepo.getByAddressTypeIndex(address, type, index, frc);
+		if (ds == nullptr) {
+			throw std::logic_error("Device at address " + std::to_string(address)
+				+ " does not implement sensor of type " + std::to_string(type)
+				+ " at index " + std::to_string(index)
+			);
+		}
+		std::shared_ptr<std::string> current = ds->getMetadata();
+		if (current) {
+			json j = json::parse(*current.get());
+			if (j.count("datablock")) {
+				metadata["datablock"] = j["datablock"];
+			}
+		}
+		current = std::make_shared<std::string>(metadata.dump());
+		if (metadata.count("datablock")) {
+			ds->setUpdated(updated);
+		}
+		ds->setMetadata(current);
+		deviceSensorRepo.update(*ds);
+	}
+
+	///// LIGHT API
+
+	std::unique_ptr<Light> IqrfDb::getLight(const uint32_t id) {
+		db::repos::LightRepository lightRepo(m_db);
+		return lightRepo.get(id);
+	}
+
+	std::unique_ptr<Light> IqrfDb::getLightByDeviceId(const uint32_t deviceId) {
+		db::repos::LightRepository lightRepo(m_db);
+		return lightRepo.getByDeviceId(deviceId);
+	}
+
+	uint32_t IqrfDb::insertLight(Light &light) {
+		db::repos::LightRepository lightRepo(m_db);
+		return lightRepo.insert(light);
+	}
+
+	void IqrfDb::updateLight(Light &light) {
+		db::repos::LightRepository lightRepo(m_db);
+		lightRepo.update(light);
+	}
+
+	void IqrfDb::removeLight(const uint32_t id) {
+		db::repos::LightRepository lightRepo(m_db);
+		lightRepo.remove(id);
+	}
+
+	void IqrfDb::removeLightByDeviceId(const uint32_t deviceId) {
+		db::repos::LightRepository lightRepo(m_db);
+		lightRepo.removeByDeviceId(deviceId);
+	}
+
+	std::set<uint8_t> IqrfDb::getLightAddresses() {
+		db::repos::LightRepository lightRepo(m_db);
+		return lightRepo.getAddresses();
+	}
+
+	///// PRODUCT API
+
+	std::unique_ptr<Product> IqrfDb::getProduct(const uint32_t productId) {
+		db::repos::ProductRepository productRepo(m_db);
+		return std::move(productRepo.get(productId));
+	}
+
+	///// SENSOR API
+
+	std::unique_ptr<Sensor> IqrfDb::getSensorByAddressIndexType(const uint8_t address, const uint8_t index,
+		const uint8_t type) {
+		db::repos::SensorRepository sensorRepo(m_db);
+		return sensorRepo.getByAddressIndexType(address, index, type);
+	}
+
+	std::map<uint8_t, Sensor> IqrfDb::getDeviceSensorsMapByAddress(const uint8_t address) {
+		db::repos::SensorRepository sensorRepo(m_db);
+		return sensorRepo.getDeviceSensorIndexMap(address);
+	}
+
+	std::map<uint8_t, uint32_t> IqrfDb::getDeviceSensorsIdMapByAddress(const uint8_t address) {
+		db::repos::SensorRepository sensorRepo(m_db);
+		return sensorRepo.getDeviceSensorIdIndexMap(address);
+	}
+
+	///// OTHER API
 
 	void IqrfDb::updateSensorValues(const std::map<uint8_t, std::vector<sensor::item::Sensor>> &devices) {
 		TRC_FUNCTION_ENTER("");
+		db::repos::DeviceRepository deviceRepo(m_db);
 		std::shared_ptr<std::string> timestamp = IqrfDbAux::getCurrentTimestamp();
-		for (auto &device : devices) {
-			const uint8_t addr = device.first;
-			if (!this->query.deviceExists(addr)) {
+		for (auto &[addr, sensors] : devices) {
+			auto dbDevice = deviceRepo.getByAddress(addr);
+			if (dbDevice == nullptr) {
 				continue;
 			}
-			for (auto &sensor : device.second) {
+			for (auto &sensor : sensors) {
 				if (!sensor.isValueSet()) {
 					continue;
 				}
@@ -386,7 +368,7 @@ namespace iqrf {
 					if (sensor.getType() == 192) {
 						auto &v = sensor.hasBreakdown() ? sensor.getBreakdownValueArray() : sensor.getValueArray();
 						json block = {{"datablock", json(v)}};
-						this->query.setSensorMetadata(addr, sensor.getType(), sensor.getIdx(), block, timestamp);
+						this->setDeviceSensorMetadata(addr, sensor.getType(), sensor.getIdx(), block, timestamp, false);
 					} else {
 						double val;
 						if (sensor.hasBreakdown()) {
@@ -394,7 +376,7 @@ namespace iqrf {
 						} else {
 							val = sensor.getValue();
 						}
-						this->query.setSensorValue(addr, sensor.getType(), sensor.getIdx(), val, timestamp);
+						this->setDeviceSensorValue(addr, sensor.getType(), sensor.getIdx(), val, timestamp, false);
 					}
 				} catch (const std::logic_error &e) {
 					TRC_WARNING(e.what());
@@ -420,7 +402,7 @@ namespace iqrf {
 						continue;
 					}
 					json block = {{"datablock", item["value"]}};
-					this->query.setSensorMetadata(address, item["type"], i, block, timestamp);
+					this->setDeviceSensorMetadata(address, item["type"], i, block, timestamp, false);
 					continue;
 				}
 				val = item["value"];
@@ -429,7 +411,7 @@ namespace iqrf {
 						val = item["breakdown"][0]["value"];
 					}
 				}
-				this->query.setSensorValue(address, item["type"], i, val, timestamp);
+				this->setDeviceSensorValue(address, item["type"], i, val, timestamp, false);
 			} catch (const std::logic_error &e) {
 				TRC_WARNING(e.what());
 			}
@@ -449,7 +431,7 @@ namespace iqrf {
 				}
 				if (type == 192) {
 					json block = {{"datablock", item["value"]}};
-					this->query.setSensorMetadata(i, type, index, block, timestamp, true);
+					this->setDeviceSensorMetadata(i, type, index, block, timestamp, true);
 					continue;
 				}
 				double val;
@@ -460,7 +442,7 @@ namespace iqrf {
 							val = item["breakdown"][0]["value"];
 						}
 					}
-					this->query.setSensorValue(i, type, index, val, timestamp, true);
+					this->setDeviceSensorValue(i, type, index, val, timestamp, true);
 				} catch (const std::logic_error &e) {
 					TRC_WARNING(e.what());
 				}
@@ -474,7 +456,7 @@ namespace iqrf {
 				}
 				if (type == 192) {
 					json block = {{"datablock", item["value"]}};
-					this->query.setSensorMetadata(i, type, index, block, timestamp, true);
+					this->setDeviceSensorMetadata(i, type, index, block, timestamp, true);
 					continue;
 				}
 				double val;
@@ -485,7 +467,7 @@ namespace iqrf {
 							val = item["breakdown"][0]["value"];
 						}
 					}
-					this->query.setSensorValue(i, type, index, val, timestamp, true);
+					this->setDeviceSensorValue(i, type, index, val, timestamp, true);
 				} catch (const std::logic_error &e) {
 					TRC_WARNING(e.what());
 				}
@@ -494,20 +476,43 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	std::map<uint8_t, embed::node::NodeMidHwpid> IqrfDb::getNodeMidHwpidMap() {
-		return this->query.getNodeMidHwpidMap();
+	bool IqrfDb::getMetadataToMessages() {
+		std::lock_guard<std::mutex> lock(m_enumMutex);
+		return m_metadataToMessages;
+	}
+
+	void IqrfDb::setMetadataToMessages(bool includeMetadata) {
+		std::lock_guard<std::mutex> lock(m_enumMutex);
+		m_metadataToMessages = includeMetadata;
+	}
+
+	void IqrfDb::registerEnumerationHandler(const std::string &clientId, EnumerationHandler handler) {
+		std::lock_guard<std::mutex> lock(m_enumMutex);
+		m_enumHandlers.insert(std::make_pair(clientId, handler));
+	}
+
+	void IqrfDb::unregisterEnumerationHandler(const std::string &clientId) {
+		std::lock_guard<std::mutex> lock(m_enumMutex);
+		m_enumHandlers.erase(clientId);
+	}
+
+	std::shared_ptr<IJsCacheService::Quantity> IqrfDb::getQuantityByType(const uint8_t type) {
+		return m_cacheService->getQuantity(type);
 	}
 
 	///// Private methods /////
 
 	void IqrfDb::initializeDatabase() {
-		migrateDatabase();
-		m_db = std::make_shared<Storage>(initializeDb(m_dbPath));
+		m_db = std::make_shared<SQLite::Database>(
+			SQLite::Database(
+				m_dbPath,
+				SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE
+			)
+		);
 		try {
-			auto res = m_db->sync_schema(true);
-			this->query = QueryHandler(m_db);
+			migrateDatabase();
 		} catch (const std::exception &e) {
-			THROW_EXC_TRC_WAR(std::logic_error, "[IqrfDB] Sync schema failed: " << e.what());
+			THROW_EXC_TRC_WAR(std::logic_error, "[IqrfDb] Failed to migrate database to latest version: " << e.what());
 		}
 	}
 
@@ -521,35 +526,29 @@ namespace iqrf {
 			}
 		}
 		std::sort(migrations.begin(), migrations.end());
-		// determine which migrations need to be executed
-		bool exists = std::filesystem::exists(m_dbPath);
-		SQLite::Database db(m_dbPath, SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE);
 		std::vector<std::string> migrationsToExecute;
-		if (!exists) {
-			// DB does not exist, execute all migrations
-			migrationsToExecute = migrations;
-		} else {
-			// DB exists, get executed migrations
-			std::set<std::string> executedMigrations;
-			SQLite::Statement query(db, "SELECT m.version FROM migrations as m");
-			while (query.executeStep()) {
-				auto version = query.getColumn(0).getString();
-				executedMigrations.insert(version);
-			}
-			// determine executed migrations and migrations to execute
-			for (auto &migration : migrations) {
-				if (executedMigrations.count(migration) == 0) {
-					migrationsToExecute.push_back(migration);
-				}
+		std::set<std::string> executedMigrations;
+		if (m_db->tableExists("migrations")) {
+			db::repos::MigrationRepository migrationRepo(m_db);
+			executedMigrations = migrationRepo.getExecutedVersions();
+		}
+		// determine executed migrations and migrations to execute
+		for (auto &migration : migrations) {
+			if (executedMigrations.count(migration) == 0) {
+				migrationsToExecute.push_back(migration);
 			}
 		}
-		// execute missing migrations
-		for (const auto &migration : migrationsToExecute) {
-			executeMigration(db, migrationDir + migration + ".sql");
+		try {
+			// execute missing migrations
+			for (const auto &migration : migrationsToExecute) {
+				executeMigration(migrationDir + migration + ".sql");
+			}
+		} catch (const std::exception &e) {
+			THROW_EXC_TRC_WAR(std::logic_error, e.what());
 		}
 	}
 
-	void IqrfDb::executeMigration(SQLite::Database &db, const std::string &migration) {
+	void IqrfDb::executeMigration(const std::string &migration) {
 		std::vector<std::string> statements;
 		// try to access migration file
 		std::ifstream migrationFile(migration);
@@ -576,7 +575,7 @@ namespace iqrf {
 		try {
 			// execute migration statements
 			for (auto &statement : statements) {
-				db.exec(statement);
+				m_db->exec(statement);
 			}
 		} catch (const std::exception &e) {
 			THROW_EXC_TRC_WAR(std::logic_error, e.what());
@@ -585,7 +584,8 @@ namespace iqrf {
 
 	void IqrfDb::updateDbProductNames() {
 		TRC_FUNCTION_ENTER("");
-		for (auto dbProduct : m_db->iterate<Product>()) {
+		db::repos::ProductRepository productRepo(m_db);
+		for (auto dbProduct : productRepo.getAll()) {
 			if (dbProduct.getName() != nullptr) {
 				continue;
 			}
@@ -594,15 +594,15 @@ namespace iqrf {
 				continue;
 			}
 			dbProduct.setName(std::make_shared<std::string>(cacheProduct->m_name));
-			m_db->update(dbProduct);
+			productRepo.update(dbProduct);
 		}
 		TRC_FUNCTION_LEAVE("");
 	}
 
 	void IqrfDb::updateDbDrivers() {
 		TRC_FUNCTION_ENTER("");
-		auto dbDrivers = m_db->get_all<Driver>();
-		for (auto &dbDriver : dbDrivers) {
+		db::repos::DriverRepository driverRepo(m_db);
+		for (auto &dbDriver : driverRepo.getAll()) {
 			auto driver = m_cacheService->getDriver(dbDriver.getPeripheralNumber(), dbDriver.getVersion());
 			if (driver == nullptr) {
 				continue;
@@ -614,7 +614,7 @@ namespace iqrf {
 			TRC_INFORMATION("[IqrfDb] Updating code of driver per " << std::to_string(dbDriver.getPeripheralNumber()) << ", version " << std::to_string(dbDriver.getVersion()));
 			dbDriver.setDriver(*driver->getDriver());
 			dbDriver.setDriverHash(driverHash);
-			m_db->update(dbDriver);
+			driverRepo.update(dbDriver);
 		}
 		TRC_FUNCTION_LEAVE("");
 	}
@@ -743,10 +743,9 @@ namespace iqrf {
 			THROW_EXC(std::logic_error, e.what());
 		}
 
-		auto dbDevices = m_db->get_all<Device>();
+		db::repos::DeviceRepository deviceRepo(m_db);
 
-		for (std::vector<Device>::iterator it = dbDevices.begin(); it != dbDevices.end(); ++it) {
-			Device device = *it;
+		for (const auto &device : deviceRepo.getAll()) {
 			uint8_t addr = device.getAddress();
 			// remove devices that are not in network from db
 			if (m_toEnumerate.find(addr) == m_toEnumerate.end()) {
@@ -1324,7 +1323,9 @@ namespace iqrf {
 
 	void IqrfDb::productPackageEnumeration() {
 		TRC_FUNCTION_ENTER("");
-		using namespace sqlite_orm;
+		db::repos::DriverRepository driverRepo(m_db);
+		db::repos::ProductRepository productRepo(m_db);
+		db::repos::ProductDriverRepository productDriverRepo(m_db);
 		if (m_deviceProductMap.count(0) != 0) {
 			m_toEnumerate.insert(0);
 		}
@@ -1346,24 +1347,30 @@ namespace iqrf {
 			if (cacheProduct != nullptr) {
 				product->setName(std::make_shared<std::string>(cacheProduct->m_name));
 			}
-			std::shared_ptr<IJsCacheService::Package> package = m_cacheService->getPackage(hwpid, hwpidVersion, osBuild, dpaVersion);
+			std::shared_ptr<IJsCacheService::Package> package = m_cacheService->getPackage(
+				hwpid,
+				hwpidVersion,
+				osBuild,
+				dpaVersion
+			);
 			if (package == nullptr) {
 				// try to find db product
-				uint32_t productId = this->query.getProductId(hwpid, hwpidVersion, osBuild, dpaVersion);
-				if (productId > 0) {
+				auto dbProduct = productRepo.get(hwpid, hwpidVersion, osBuild, dpaVersion);
+				if (dbProduct != nullptr) {
 					// found in db, enumerate from existing record
-					Product dbProduct = m_db->get<Product>(productId);
-					product->setHandlerUrl(dbProduct.getHandlerUrl());
-					product->setHandlerHash(dbProduct.getHandlerHash());
-					product->setCustomDriver(dbProduct.getCustomDriver());
-					product->setPackageId(dbProduct.getPackageId());
-					product->setName(dbProduct.getName());
-					std::set<uint32_t> driverIds = this->query.getProductDriversIds(productId);
+					product->setHandlerUrl(dbProduct->getHandlerUrl());
+					product->setHandlerHash(dbProduct->getHandlerHash());
+					product->setCustomDriver(dbProduct->getCustomDriver());
+					product->setPackageId(dbProduct->getPackageId());
+					product->setName(dbProduct->getName());
+					std::set<uint32_t> driverIds = productDriverRepo.getDriverIds(dbProduct->getId());
 					for (auto id : driverIds) {
 						product->drivers.insert(id);
 					}
 					continue;
 				}
+				this->enumerateNoncertifiedProduct(addr);
+				continue;
 				// try hwpid 0 package
 				package = m_cacheService->getPackage(0, 0, osBuild, dpaVersion);
 			}
@@ -1376,7 +1383,13 @@ namespace iqrf {
 				}
 			}
 			if (package == nullptr) {
-				TRC_WARNING("Cannot find package for: " << NAME_PAR(nadr, addr) << NAME_PAR(hwpid, 0) << NAME_PAR(hwpidVer, 0) << NAME_PAR(osBuild, osBuild) << " any DPA");
+				TRC_WARNING("Cannot find package for: "
+					<< NAME_PAR(nadr, addr)
+					<< NAME_PAR(hwpid, 0)
+					<< NAME_PAR(hwpidVer, 0)
+					<< NAME_PAR(osBuild, osBuild)
+					<< " any DPA"
+				);
 				continue;
 			}
 
@@ -1389,17 +1402,24 @@ namespace iqrf {
 			if (package->m_driver.length() != 0) {
 				product->setCustomDriver(std::make_shared<std::string>(package->m_driver));
 			}
-			product->setPackageId(std::make_shared<uint32_t>(package->m_packageId));
+			product->setPackageId(package->m_packageId);
 			for (auto &item : package->m_stdDriverVect) {
 				int16_t per = item.getId();
 				double version = item.getVersion();
-				auto dbDriver = m_db->select(&Driver::getId, where(c(&Driver::getPeripheralNumber) == per and c(&Driver::getVersion) == version));
-				if (dbDriver.size() == 0) {
-					Driver driver(item.getName(), per, version, item.getVersionFlags(), *item.getDriver(), generateDriverHash(*item.getDriver()));
-					uint32_t driverId = m_db->insert(driver);
+				auto dbDriver = driverRepo.getByPeripheralVersion(per, version);
+				if (dbDriver == nullptr) {
+					Driver driver(
+						item.getName(),
+						per,
+						version,
+						item.getVersionFlags(),
+						*item.getDriver(),
+						generateDriverHash(*item.getDriver())
+					);
+					uint32_t driverId = driverRepo.insert(driver);
 					product->drivers.insert(driverId);
 				} else {
-					product->drivers.insert(dbDriver[0]);
+					product->drivers.insert(dbDriver->getId());
 				}
 			}
 		}
@@ -1407,15 +1427,18 @@ namespace iqrf {
 	}
 
 	void IqrfDb::enumerateNoncertifiedProduct(const uint8_t &addr) {
+		db::repos::DriverRepository driverRepo(m_db);
+		db::repos::ProductRepository productRepo(m_db);
+		db::repos::ProductDriverRepository productDriverRepo(m_db);
 		auto &product = m_deviceProductMap[addr];
-		uint32_t dbProductId = this->query.getProductIdNoncertified(
+		auto dbProductId = productRepo.getNoncertifiedProductId(
 			product->getHwpid(),
 			product->getHwpidVersion(),
 			product->getOsBuild(),
 			product->getDpaVersion()
 		);
-		if (dbProductId > 0) {
-			std::set<uint32_t> driverIds = this->query.getProductDriversIds(dbProductId);
+		if (dbProductId.has_value()) {
+			std::set<uint32_t> driverIds = productDriverRepo.getDriverIds(dbProductId.value());
 			for (auto id : driverIds) {
 				product->drivers.insert(id);
 			}
@@ -1431,47 +1454,54 @@ namespace iqrf {
 				continue;
 			}
 			double version = candidate->getVersion();
-			auto dbDriver = m_db->select(&Driver::getId, where(c(&Driver::getPeripheralNumber) == per and c(&Driver::getVersion) == version));
-			if (dbDriver.size() == 0) {
-				Driver driver(candidate->getName(), per, version, candidate->getVersionFlags(), *candidate->getDriver(), generateDriverHash(*candidate->getDriver()));
-				uint32_t driverId = m_db->insert(driver);
+			auto dbDriver = driverRepo.getByPeripheralVersion(per, version);
+			if (dbDriver == nullptr) {
+				Driver driver(
+					candidate->getName(),
+					per,
+					version,
+					candidate->getVersionFlags(),
+					*candidate->getDriver(),
+					generateDriverHash(*candidate->getDriver())
+				);
+				uint32_t driverId = driverRepo.insert(driver);
 				product->drivers.insert(driverId);
 			} else {
-				product->drivers.insert(dbDriver[0]);
+				product->drivers.insert(dbDriver->getId());
 			}
 		}
 	}
 
 	void IqrfDb::updateDatabaseProducts() {
 		TRC_FUNCTION_ENTER("");
-		using namespace sqlite_orm;
-		m_db->begin_transaction();
-		for (auto &deleteId : m_toDelete) {
-			m_db->remove<Device>(deleteId);
+		SQLite::Transaction transaction(*m_db);
+		db::repos::DeviceRepository deviceRepo(m_db);
+		db::repos::ProductDriverRepository productDriverRepo(m_db);
+		db::repos::ProductRepository productRepo(m_db);
+		for (auto &deviceId : m_toDelete) {
+			deviceRepo.remove(deviceId);
 		}
 		uint32_t productId = -1;
-		for (auto &addr : m_toEnumerate) {
+		for (const uint8_t addr : m_toEnumerate) {
 			ProductPtr &product = m_deviceProductMap[addr];
 			try {
 				// create a new product or update existing
-				auto dbProduct = m_db->select(&Product::getId,
-					where(
-						c(&Product::getHwpid) == product->getHwpid() and
-						c(&Product::getHwpidVersion) == product->getHwpidVersion() and
-						c(&Product::getOsBuild) == product->getOsBuild() and
-						c(&Product::getDpaVersion) == product->getDpaVersion()
-					)
+				auto dbProduct = productRepo.get(
+					product->getHwpid(),
+					product->getHwpidVersion(),
+					product->getOsBuild(),
+					product->getDpaVersion()
 				);
 
 				// store new product or use existing
-				if (dbProduct.size() == 0) {
-					productId = m_db->insert(*product.get());
+				if (dbProduct == nullptr) {
+					productId = productRepo.insert(*product.get());
 				} else {
-					productId = dbProduct[0];
+					productId = dbProduct->getId();
 				}
 
 				// update product drivers, reuse dbProductDrivers to delete old unused drivers by erasing intersecting elements
-				auto dbProductDrivers = this->query.getProductDriversIds(productId);
+				auto dbProductDrivers = productDriverRepo.getDriverIds(productId);
 				if (dbProductDrivers != product->drivers) {
 					for (auto &driverId : product->drivers) {
 						if (dbProductDrivers.count(driverId)) {
@@ -1481,72 +1511,71 @@ namespace iqrf {
 						} else {
 							// add new product driver
 							ProductDriver productDriver(productId, driverId);
-							m_db->replace(productDriver);
+							productDriverRepo.insert(productDriver);
 						}
 					}
 					// remove old unused product drivers
 					for (auto &driverId : dbProductDrivers) {
 						// remove old set
-						m_db->remove_all<ProductDriver>(
-							where(
-								c(&ProductDriver::getProductId) == productId and
-								c(&ProductDriver::getDriverId) == driverId
-							)
-						);
+						productDriverRepo.remove(productId, driverId);
 					}
 				}
-
 
 				// create a new device or update existing
 				bool discovered = m_discovered.find(addr) != m_discovered.end();
 				uint32_t mid = m_mids[addr];
 				uint8_t vrn = discovered ? m_vrns[addr] : 0;
 				uint8_t zone = discovered ? m_zones[addr] : 0;
-				std::shared_ptr<uint8_t> parent = discovered ? std::make_shared<uint8_t>(m_parents[addr]) : nullptr;
-				if (!this->query.deviceExists(addr)) {
+				std::optional<uint8_t> parent = std::nullopt;
+				if (discovered) {
+					parent = m_parents[addr];
+				}
+				auto dbDevice = deviceRepo.getByAddress(addr);
+				if (dbDevice == nullptr) {
 					// create new
-					Device device(addr, discovered, mid, vrn, zone, parent);
-					device.setProductId(productId);
-					m_db->insert(device);
+					Device device(addr, discovered, mid, productId, vrn, zone, parent);
+					deviceRepo.insert(device);
 				} else {
 					// update existing
-					Device device = this->query.getDevice(addr);
-					if (device.isDiscovered() != discovered) {
-						device.setDiscovered(discovered);
+					if (dbDevice->isDiscovered() != discovered) {
+						dbDevice->setDiscovered(discovered);
 					}
-					if (device.getMid() != mid) {
-						device.setMid(mid);
+					if (dbDevice->getMid() != mid) {
+						dbDevice->setMid(mid);
 					}
-					if (device.getVrn() != vrn) {
-						device.setVrn(vrn);
+					if (dbDevice->getVrn() != vrn) {
+						dbDevice->setVrn(vrn);
 					}
-					if (device.getZone() != zone) {
-						device.setZone(zone);
+					if (dbDevice->getZone() != zone) {
+						dbDevice->setZone(zone);
 					}
-					if (device.getParent() != parent) {
-						device.setParent(parent);
+					if (dbDevice->getParent() != parent) {
+						dbDevice->setParent(parent);
 					}
-					if (device.getProductId() != productId) {
-						device.setProductId(productId);
+					if (dbDevice->getProductId() != productId) {
+						dbDevice->setProductId(productId);
 					}
-					m_db->update(device);
+					deviceRepo.update(*dbDevice);
 				}
 			} catch (const std::system_error &e) {
 				CATCH_EXC_TRC_WAR(const std::system_error, e, "Failed to insert entity to database - [" << e.code() << "]: " << e.what());
-				m_db->rollback();
+				transaction.rollback();
 				return;
 			}
 		}
-		m_db->commit();
+		transaction.commit();
 		TRC_FUNCTION_LEAVE("");
 	}
 
 	void IqrfDb::standardEnumeration() {
 		TRC_FUNCTION_ENTER("");
-		using namespace sqlite_orm;
+		db::repos::BinaryOutputRepository binaryOutputRepo(m_db);
+		db::repos::DeviceRepository deviceRepo(m_db);
+		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
+		db::repos::LightRepository lightRepo(m_db);
 		// select devices to enumerate
 		std::map<uint32_t, uint8_t> devices;
-		for (auto &device : m_db->iterate<Device>()) {
+		for (auto &device : deviceRepo.getAll()) {
 			if (!device.isEnumerated() || m_toEnumerate.count(device.getAddress())) {
 				devices.insert(std::make_pair(device.getId(), device.getAddress()));
 			}
@@ -1554,34 +1583,30 @@ namespace iqrf {
 
 		for (auto &[deviceId, address] : devices) {
 			// begin transaction
-			m_db->begin_transaction();
+			SQLite::Transaction transaction(*m_db);
 			try {
 				if (this->deviceImplementsPeripheral(deviceId, PERIPHERAL_BINOUT)) {
 					binoutEnumeration(deviceId, address);
 				} else {
-					if (this->binaryOutputExists(deviceId)) {
-						this->removeBinaryOutputByDeviceId(deviceId);
-					}
+					binaryOutputRepo.removeByDeviceId(deviceId);
 				}
 				if (this->deviceImplementsPeripheral(deviceId, PERIPHERAL_LIGHT)) {
 					lightEnumeration(deviceId);
 				} else {
-					if (this->lightExists(deviceId)) {
-						this->removeLightByDeviceId(deviceId);
-					}
+					lightRepo.removeByDeviceId(deviceId);
 				}
 				if (this->deviceImplementsPeripheral(deviceId, PERIPHERAL_SENSOR)) {
 					sensorEnumeration(address);
 				} else {
-					this->query.removeSensors(address);
+					deviceSensorRepo.removeMultipleByAddress(address);
 				}
 				// set as enumerated
-				auto dbDevice = m_db->get<Device>(deviceId);
-				dbDevice.setEnumerated(true);
-				m_db->update<Device>(dbDevice);
-				m_db->commit();
+				auto dbDevice = deviceRepo.get(deviceId);
+				dbDevice->setEnumerated(true);
+				deviceRepo.update(*dbDevice);
+				transaction.commit();
 			}  catch (const std::exception &e) {
-				m_db->rollback();
+				transaction.rollback();
 				CATCH_EXC_TRC_WAR(std::exception, e, e.what());
 			}
 		}
@@ -1590,7 +1615,7 @@ namespace iqrf {
 
 	void IqrfDb::binoutEnumeration(const uint32_t &deviceId, const uint8_t &address) {
 		TRC_FUNCTION_ENTER("");
-		using namespace sqlite_orm;
+		db::repos::BinaryOutputRepository binaryOutputRepo(m_db);
 		std::unique_ptr<IDpaTransactionResult2> result;
 		try {
 			// Build binary output enumerate request
@@ -1609,37 +1634,38 @@ namespace iqrf {
 		DpaMessage binoutEnumerateResponse = result->getResponse();
 		const uint8_t count = binoutEnumerateResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[0];
 
-		auto dbBinaryOutput = this->getBinaryOutputByDeviceId(deviceId);
+		auto dbBinaryOutput = binaryOutputRepo.getByDeviceId(deviceId);
 		if (dbBinaryOutput == nullptr) {
-			BinaryOutput newBinaryOutput(deviceId, count);
-			this->insertBinaryOutput(newBinaryOutput);
+			BinaryOutput binaryOutput(deviceId, count);
+			binaryOutputRepo.insert(binaryOutput);
 		} else if (dbBinaryOutput->getCount() != count) {
 			dbBinaryOutput->setCount(count);
-			this->updateBinaryOutput(*dbBinaryOutput);
+			binaryOutputRepo.update(*dbBinaryOutput);
 		}
 		TRC_FUNCTION_LEAVE("");
 	}
 
 	void IqrfDb::lightEnumeration(const uint32_t &deviceId) {
 		TRC_FUNCTION_ENTER("");
-		using namespace sqlite_orm;
-
-		auto dbLight = this->getLightByDeviceId(deviceId);
+		db::repos::LightRepository lightRepo(m_db);
+		auto dbLight = lightRepo.getByDeviceId(deviceId);
 		if (dbLight == nullptr) {
-			Light newLight(deviceId);
-			this->insertLight(newLight);
+			Light light(deviceId);
+			lightRepo.insert(light);
 		}
 		TRC_FUNCTION_LEAVE("");
 	}
 
 	void IqrfDb::sensorEnumeration(const uint8_t &address) {
 		TRC_FUNCTION_ENTER("");
+		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
+		db::repos::SensorRepository sensorRepo(m_db);
 		std::unique_ptr<IDpaTransactionResult2> result;
 		sensor::jsdriver::Enumerate sensorEnum(m_renderService, address);
 		m_dpaService->executeDpaTransactionRepeat(sensorEnum.getRequest(), result, 1);
 		sensorEnum.processDpaTransactionResult(std::move(result));
 
-		auto oldSensors = this->query.getDeviceSensorIndexIdMap(address);
+		auto oldSensors = deviceSensorRepo.getGlobalIndexSensorIdMap(address);
 		auto &sensors = sensorEnum.getSensors();
 
 		uint8_t cnt[255] = {0};
@@ -1649,9 +1675,9 @@ namespace iqrf {
 			uint8_t type = item->getType();
 			bool breakdown = item->hasBreakdown();
 			std::string name = breakdown ? item->getBreakdownName() : item->getName();
-			bool exists = this->query.sensorTypeExists(type, name);
-			if (exists) {
-				sensorId = this->query.getSensorId(type, name);
+			auto dbSensor = sensorRepo.getByTypeName(type, name);
+			if (dbSensor != nullptr) {
+				sensorId = dbSensor->getId();
 			} else {
 				// Get sensor information, breakdown if possible
 				std::string shortname = breakdown ? item->getBreakdownShortName() : item->getShortName();
@@ -1665,7 +1691,7 @@ namespace iqrf {
 				bool frc4Byte = frcs.find(iqrf::sensor::STD_SENSOR_FRC_4BYTES) != frcs.end();
 				Sensor sensor(type, name, shortname, unit, decimals, frc2Bit, frc1Byte, frc2Byte, frc4Byte);
 				// Store new sensor and get ID
-				sensorId = m_db->insert(sensor);
+				sensorId = sensorRepo.insert(sensor);
 			}
 
 			// store device and sensor
@@ -1673,8 +1699,9 @@ namespace iqrf {
 
 			auto candidate = oldSensors.find(index);
 			if (candidate == oldSensors.end() || (candidate != oldSensors.end() && candidate->second != sensorId)) {
-				this->query.removeDeviceSensor(address, index);
-				m_db->replace(DeviceSensor(address, type, index, cnt[type], sensorId, nullptr));
+				deviceSensorRepo.removeByAddressIndex(address, index);
+				DeviceSensor ds(address, type, index, cnt[type], sensorId);
+				deviceSensorRepo.insert(ds);
 				cnt[type] += 1;
 			}
 			oldSensors.erase(index);
@@ -1686,7 +1713,7 @@ namespace iqrf {
 			for (const auto &[key, value] : oldSensors) {
 				indexesToDelete.push_back(key);
 			}
-			this->query.removeDeviceSensors(address, indexesToDelete);
+			deviceSensorRepo.removeMultipleByAddressIndexes(address, indexesToDelete);
 		}
 		TRC_FUNCTION_LEAVE("");
 	}
@@ -1807,17 +1834,20 @@ namespace iqrf {
 
 	void IqrfDb::loadProductDrivers() {
 		TRC_FUNCTION_ENTER("");
-		using namespace sqlite_orm;
+		db::repos::DeviceRepository deviceRepo(m_db);
+		db::repos::DriverRepository driverRepo(m_db);
+		db::repos::ProductDriverRepository productDriverRepo(m_db);
+		db::repos::ProductRepository productRepo(m_db);
 		std::string wrapper = loadWrapper();
 
 		try {
 
-			std::map<uint32_t, std::set<uint32_t>> productsDriversMap = this->query.getProductsDriversMap();
+			std::map<uint32_t, std::set<uint32_t>> productsDriversMap = productDriverRepo.getProductsDriversMap();
 			std::set<uint32_t> productsToLoad;
 
-			uint32_t coordinatorProductId = this->query.getCoordinatorProductId();
+			auto coordinatorProductId = productRepo.getCoordinatorProductId();
 
-			auto deviceAddrProductIdMap = this->query.getDeviceProductIdMap();
+			auto deviceAddrProductIdMap = deviceRepo.getAddressProductIdMap();
 			for (auto &[addr, productId] : deviceAddrProductIdMap) {
 				if (productsToLoad.count(productId)) {
 					continue;
@@ -1839,11 +1869,11 @@ namespace iqrf {
 			}
 
 			for (uint32_t productId : productsToLoad) {
-				std::string customDriver = this->query.getProductCustomDriver(productId);
-				std::vector<Driver> drivers = this->query.getProductDrivers(productId);
+				auto customDriver = productRepo.getCustomDriver(productId);
+				std::vector<Driver> drivers = productDriverRepo.getDrivers(productId);
 
 				if (productId == coordinatorProductId) { // ensure standard FRC backwards compatibility
-					drivers = this->query.getNewestDrivers();
+					drivers = driverRepo.getLatest();
 				}
 
 				std::ostringstream drv, adr;
@@ -1855,7 +1885,9 @@ namespace iqrf {
 					drv << '[' << driver.getPeripheralNumber() << ',' << std::fixed << std::setprecision(2) << driver.getVersion() << ']';
 				}
 
-				ss << customDriver << std::endl;
+				if (customDriver != nullptr) {
+					ss << *customDriver << std::endl;
+				}
 				ss << wrapper << std::endl;
 				bool success = m_renderService->loadContextCode(productId, ss.str(), driverSet);
 
@@ -1868,9 +1900,9 @@ namespace iqrf {
 					continue;
 				}
 
-				std::vector<uint8_t> addresses = this->query.getProductAddresses(productId);
+				auto addresses = deviceRepo.getProductAddresses(productId);
 
-				for (auto addr : addresses) {
+				for (const auto addr : addresses) {
 					m_renderService->mapAddressToContext(addr, productId);
 					adr << std::to_string(addr) << ", ";
 				}
@@ -1879,7 +1911,7 @@ namespace iqrf {
 					<< std::endl << "nadr: " << adr.str()
 					<< std::endl << "drv:  " << drv.str()
 					<< std::endl
-							);
+				);
 			}
 		} catch (std::exception &e) {
 			CATCH_EXC_TRC_WAR(std::exception, e, "Failed to load drivers: " << e.what());
@@ -2013,7 +2045,7 @@ namespace iqrf {
 		m_instance = Pointer("/instance").Get(doc)->GetString();
 		m_autoEnumerateBeforeInvoked = Pointer("/autoEnumerateBeforeInvoked").Get(doc)->GetBool();
 		m_enumerateOnLaunch = Pointer("/enumerateOnLaunch").Get(doc)->GetBool();
-		m_metadataTomessages = Pointer("/metadataToMessages").Get(doc)->GetBool();
+		m_metadataToMessages = Pointer("/metadataToMessages").Get(doc)->GetBool();
 		TRC_FUNCTION_LEAVE("");
 	}
 

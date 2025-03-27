@@ -11,7 +11,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,6 +33,16 @@
 #include "Messages/ResetMsg.h"
 #include "Messages/GetDeviceMetadataMsg.h"
 #include "Messages/SetDeviceMetadataMsg.h"
+
+#include "Messages/LegacyGetBinaryOutputsMsg.h"
+#include "Messages/LegacyGetLightsMsg.h"
+#include "Messages/LegacyGetMidMetaDataMsg.h"
+#include "Messages/LegacyGetNodeMetaData.h"
+#include "Messages/LegacyGetNodesMsg.h"
+#include "Messages/LegacyGetSensorsMsg.h"
+#include "Messages/LegacyMidMetaDataAnnotateMsg.h"
+#include "Messages/LegacySetMidMetaDataMsg.h"
+#include "Messages/LegacySetNodeMetadata.h"
 
 #include <memory>
 #include <vector>
@@ -149,7 +159,18 @@ namespace iqrf {
 			"iqrfDb_Enumerate",
 			"iqrfDb_Reset",
 			"iqrfDb_GetDeviceMetadata",
-			"iqrfDb_SetDeviceMetadata"
+			"iqrfDb_SetDeviceMetadata",
+			// Legacy API messages
+			"infoDaemon_GetBinaryOutputs",
+			"infoDaemon_GetLights",
+			"infoDaemon_GetMidMetaData",
+			"infoDaemon_GetNodeMetaData",
+			"infoDaemon_GetNodes",
+			"infoDaemon_GetSensors",
+			"infoDaemon_MidMetaDataAnnotate",
+			"infoDaemon_Reset",
+			"infoDaemon_SetMidMetaData",
+			"infoDaemon_SetNodeMetaData"
 		};
 		/// Component instance name
 		std::string m_instance;

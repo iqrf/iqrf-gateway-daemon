@@ -1,0 +1,54 @@
+{
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"title": "GetSensors request",
+	"description": "Retrieves information about sensor devices in database.",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$id": "#/properties/mType",
+			"title": "Message type",
+			"description": "IQRF DB - Legacy API compatibility GetSensors request.",
+			"type": "string",
+			"enum": [
+				"infoDaemon_GetSensors"
+			]
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Request data",
+			"description": "Request data.",
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"$id": "#/properties/data/properties/msgId",
+					"title": "Message ID",
+					"description": "Message ID used for pairing requests and responses.",
+					"type": "string"
+				},
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request parameters",
+					"description": "Request parameters.",
+					"type": "object",
+					"additionalProperties": false
+				},
+				"returnVerbose": {
+					"$id": "#/properties/data/properties/returnVerbose",
+					"title": "Verbose response",
+					"description": "Return more verbose response.",
+					"type": "boolean"
+				}
+			}
+		}
+	}
+}

@@ -11,7 +11,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -126,7 +126,7 @@ namespace iqrf {
 				sensor::jsdriver::SensorFrc sensorFrc(apiMsgIqrfStandardFrc.getRequestParamDoc());
 				const uint8_t type = sensorFrc.getType();
 				if (type == 129 || type == 160) {
-					auto map = m_dbService->getSensorDeviceHwpids(type);
+					auto map = m_dbService->getSensorDeviceHwpidAddressMap(type);
 					jsDriverStandardFrcSolver.processResponseSensorDrv(map, sensorFrc.getSelectedNodes(), sensorFrc.getExtraResult());
 				} else {
 					jsDriverStandardFrcSolver.processResponseDrv();
@@ -161,7 +161,7 @@ namespace iqrf {
 					nodeMap
 				);
 
-				if (m_dbService && m_dbService->addMetadataToMessage()) {
+				if (m_dbService && m_dbService->getMetadataToMessages()) {
 					try {
 						for (auto itr = jsonDoc[arrayKey].begin(); itr != jsonDoc[arrayKey].end(); ++itr) {
 							uint8_t nadr = (*itr)["nAdr"].get<uint8_t>();

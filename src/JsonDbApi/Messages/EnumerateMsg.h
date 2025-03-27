@@ -11,7 +11,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,55 +27,81 @@ namespace iqrf {
 	class EnumerateMsg : public BaseMsg {
 	public:
 		/**
-		 * Base constructor
+		 * Delete default constructor
 		 */
-		EnumerateMsg();
+		EnumerateMsg() = delete;
 
 		/**
 		 * Constructor
 		 * @param doc Request document
 		 */
-		EnumerateMsg(const rapidjson::Document &doc);
-
-		/**
-		 * Destructor
-		 */
-		virtual ~EnumerateMsg() {};
+		EnumerateMsg(const rapidjson::Document &doc) : BaseMsg(doc) {
+			const Value *v = Pointer("/data/req/reenumerate").Get(doc);
+			if (v) {
+				parameters.reenumerate = v->GetBool();
+			}
+			v = Pointer("/data/req/standards").Get(doc);
+			if (v) {
+				parameters.standards = v->GetBool();
+			}
+		}
 
 		/**
 		 * Handle enumerate request
 		 * @param dbService IQRF DB service
 		 */
-		void handleMsg(IIqrfDb *dbService) override;
+		void handleMsg(IIqrfDb *dbService) override {
+			dbService->enumerate(parameters);
+		}
 
 		/**
 		 * Populates response document with enumeration progress
 		 * @param doc Response document
 		 */
-		void createResponsePayload(Document &doc) override;
+		void createResponsePayload(Document &doc) override {
+			Document::AllocatorType &allocator = doc.GetAllocator();
+			Pointer("/data/rsp/step").Set(doc, stepCode, allocator);
+			Pointer("/data/rsp/stepStr").Set(doc, stepStr, allocator);
+			BaseMsg::createResponsePayload(doc);
+		}
 
 		/**
 		 * Populates response document with enumeration error
 		 * @param doc Response document
 		 */
-		void createErrorResponsePayload(Document &doc);
+		void createErrorResponsePayload(Document &doc) {
+			Pointer("/mType").Set(doc, getMType());
+			Pointer("/data/msgId").Set(doc, getMsgId());
+			BaseMsg::createResponsePayload(doc);
+			if (getVerbose()) {
+				Pointer("/data/insId").Set(doc, getInsId());
+				Pointer("/data/statusStr").Set(doc, getStatusStr());
+			}
+			Pointer("/data/status").Set(doc, getStatus());
+		}
 
 		/**
 		 * Sets enumeration step code
 		 * @param stepCode Step code
 		 */
-		void setStepCode(const uint8_t &stepCode);
+		void setStepCode(const uint8_t &stepCode) {
+			this->stepCode = stepCode;
+		}
 
 		/**
 		 * Sets enumeration step message
 		 * @param errorStr Step message
 		 */
-		void setStepString(const std::string &stepStr);
+		void setStepString(const std::string &stepStr) {
+			this->stepStr = stepStr;
+		}
 
 		/**
 		 * Sets finished status of enumeration
 		 */
-		void setFinished();
+		void setFinished() {
+			finished = true;
+		}
 	private:
 		/// Enumeration parameters
 		IIqrfDb::EnumParams parameters;
