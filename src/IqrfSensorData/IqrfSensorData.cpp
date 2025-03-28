@@ -62,8 +62,12 @@ namespace iqrf {
 	///// Auxiliary methods
 
 	void IqrfSensorData::setErrorTransactionResult(SensorDataResult &result, std::unique_ptr<IDpaTransactionResult2> &transResult, const std::string &errorStr) {
-		result.setStatus(transResult->getErrorCode(), errorStr);
-		result.addTransactionResult(transResult);
+		if (transResult) {
+			result.setStatus(transResult->getErrorCode(), errorStr);
+			result.addTransactionResult(transResult);
+		} else {
+			result.setStatus(-1, errorStr);
+		}
 		THROW_EXC(std::logic_error, errorStr);
 	}
 
