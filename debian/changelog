@@ -1,10 +1,11 @@
-iqrf-gateway-daemon (2.99.2~alpha~1.gbp60fdb9) UNRELEASED; urgency=medium
-
-  ** SNAPSHOT build @60fdb990f96a8ab7d4bc814f489e6ad0711230e6 **
+iqrf-gateway-daemon (2.99.2) stable; urgency=medium
 
   * UNRELEASED
+  * Prepare for version 2.99.2-alpha
+  * IqrfSensorData: check if transaction result is available before setting error
+  * IqrfDb: include FRC driver if sensor or light standard is detected when enumerating noncertified devices
 
- -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 21 Mar 2025 15:29:02 +0100
+ -- Karel Hanák <karel.hanak@iqrf.org>  Sat, 29 Mar 2025 09:38:58 +0100
 
 iqrf-gateway-daemon (2.99.1) stable; urgency=medium
 
