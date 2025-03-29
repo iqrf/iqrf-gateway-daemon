@@ -1422,6 +1422,9 @@ namespace iqrf {
 			return;
 		}
 		auto pers = getEmbeddedStandardPeripherals(addr);
+		if ((pers.count(PERIPHERAL_SENSOR) == 1 || pers.count(PERIPHERAL_LIGHT)) && pers.count(PNUM_FRC) == 0) {
+			pers.insert(PNUM_FRC);
+		}
 		for (auto &per : pers) {
 			auto candidate = m_cacheService->getLatestDriver(per);
 			if (candidate == nullptr) {
