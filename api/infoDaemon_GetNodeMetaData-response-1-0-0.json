@@ -7,6 +7,11 @@
     "version": "1-0-0"
   },
   "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
   "properties": {
     "mType": {
       "type": "string",
@@ -17,6 +22,12 @@
     },
     "data": {
       "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
       "properties": {
         "msgId": {
           "type": "string",
@@ -24,18 +35,28 @@
         },
         "rsp": {
           "type": "object",
+          "required": [
+            "nAdr",
+            "metaData"
+          ],
+          "additionalProperties": false,
           "properties": {
             "nAdr": {
               "type": "integer",
               "description": "Node address."
             },
             "metaData": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "description": "Metadata Json."
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
-          },
-          "required": [
-            "nAdr",
-            "metaData"
-          ]
+          }
         },
         "insId": {
           "type": "string",
@@ -49,16 +70,7 @@
           "type": "string",
           "description": "IQRF GW daemon API (general or mType) status in string form."
         }
-      },
-      "required": [
-        "msgId",
-        "rsp",
-        "status"
-      ]
+      }
     }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+  }
 }

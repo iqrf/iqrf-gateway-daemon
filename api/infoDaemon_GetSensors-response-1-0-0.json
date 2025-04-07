@@ -1,53 +1,160 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "infoDaemon_GetSensors-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "infoDaemon_GetSensors-response",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "Daemon information - get all detected sensors.",
+      "enum": [
+        "infoDaemon_GetSensors"
+      ]
     },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Daemon information - get all detected sensors.",
-            "enum": [
-                "infoDaemon_GetSensors"
-            ]
+    "data": {
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
         },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "rsp": {
-                    "type": "object",
-                    "description": "TODO parameters to select sensor types."
-                },
-                "insId": {
-					"type": "string",
-					"description": "IQRF GW daemon instance identification."
-				},
-                "status": {
+        "rsp": {
+          "type": "object",
+          "description": "Response data",
+          "required": [
+            "sensorDevices"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "sensorDevices": {
+              "type": "array",
+              "description": "Sensor device data array",
+              "items": {
+                "type": "object",
+                "description": "Sensor device data",
+                "required": [
+                  "nAdr",
+                  "sensors"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "nAdr": {
                     "type": "integer",
-                    "description": "Status of operation."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
+                    "description": "Node address",
+                    "minimum": 1,
+                    "maximum": 239
+                  },
+                  "sensors": {
+                    "type": "array",
+                    "description": "Sensors array",
+                    "items": {
+                      "type": "object",
+                      "description": "Sensor data",
+                      "required": [
+                        "idx",
+                        "id",
+                        "type",
+                        "name",
+                        "shortName",
+                        "unit",
+                        "decimalPlaces",
+                        "frcs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "idx": {
+                          "type": "integer",
+                          "description": "Sensor index",
+                          "minimum": 0,
+                          "maximum": 31
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "Sensor identifier string",
+                          "minLength": 1
+                        },
+                        "type": {
+                          "type": "integer",
+                          "description": "Sensor type",
+                          "minimum": 1,
+                          "maximum": 255
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "Quantity name",
+                          "minLength": 1
+                        },
+                        "shortName": {
+                          "type": "string",
+                          "description": "Quantity short name",
+                          "minLength": 1
+                        },
+                        "unit": {
+                          "type": "string",
+                          "description": "Unit of measurement"
+                        },
+                        "decimalPlaces": {
+                          "type": "integer",
+                          "description": "Precision",
+                          "minimum": 0
+                        },
+                        "frcs": {
+                          "type": "array",
+                          "description": "Supported FRC commands",
+                          "items": {
+                            "type": "integer",
+                            "enum": [
+                              16, 144, 224, 249
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "metaData": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "description": "Metadata Json."
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
                 }
-            },
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ]
+              }
+            }
+          }
+        },
+        "insId": {
+          "type": "string",
+          "description": "IQRF GW daemon instance identification."
+        },
+        "status": {
+          "type": "integer",
+          "description": "Status of operation."
+        },
+        "statusStr": {
+          "type": "string",
+          "description": "IQRF GW daemon API (general or mType) status in string form."
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+      }
+    }
+  }
 }

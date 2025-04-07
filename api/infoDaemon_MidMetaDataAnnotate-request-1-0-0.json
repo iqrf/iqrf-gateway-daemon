@@ -1,51 +1,54 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "infoDaemon_MidMetaDataAnnotate-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "infoDaemon_MidMetaDataAnnotate-request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "Set/reset messages to be annotated by MetaData.",
+      "enum": [
+        "infoDaemon_MidMetaDataAnnotate"
+      ]
     },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Set/reset messages to be annotated by MetaData.",
-            "enum": [
-                "infoDaemon_MidMetaDataAnnotate"
-            ]
+    "data": {
+      "type": "object",
+      "required": [
+        "msgId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
         },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "annotate": {
-                            "type": "boolean",
-                            "description": "annotate value."
-                        }
-                    },
-                    "required": [
-                        "annotate"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
-            },
-            "required": [
-                "msgId"
-            ]
+        "req": {
+          "type": "object",
+          "required": [
+            "annotate"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "annotate": {
+              "type": "boolean",
+              "description": "annotate value."
+            }
+          }
+        },
+        "returnVerbose": {
+          "type": "boolean",
+          "description": "Flag that includes additional parameters in the response."
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+      }
+    }
+  }
 }

@@ -1,53 +1,99 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "infoDaemon_GetBinaryOutputs-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "infoDaemon_GetBinaryOutputs-response",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "Daemon information - get all detected binary outputs.",
+      "enum": [
+        "infoDaemon_GetBinaryOutputs"
+      ]
     },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Daemon information - get all detected binary outputs.",
-            "enum": [
-                "infoDaemon_GetBinaryOutputs"
-            ]
+    "data": {
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
         },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "rsp": {
-                    "type": "object",
-                    "description": "TODO parameters to select sensor types."
-                },
-                "insId": {
-					"type": "string",
-					"description": "IQRF GW daemon instance identification."
-				},
-                "status": {
+        "rsp": {
+          "type": "object",
+          "description": "Binout devices data",
+          "required": [
+            "binOutDevices"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "binOutDevices": {
+              "type": "array",
+              "description": "Binout device data array",
+              "items": {
+                "type": "object",
+                "description": "Binout device data",
+                "required": [
+                  "nAdr",
+                  "binOuts"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "nAdr": {
                     "type": "integer",
-                    "description": "Status of operation."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
+                    "description": "Node address",
+                    "minimum": 1,
+                    "maximum": 239
+                  },
+                  "sensors": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "metaData": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "description": "Metadata Json."
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
                 }
-            },
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ]
+              }
+            }
+          }
+        },
+        "insId": {
+          "type": "string",
+          "description": "IQRF GW daemon instance identification."
+        },
+        "status": {
+          "type": "integer",
+          "description": "Status of operation."
+        },
+        "statusStr": {
+          "type": "string",
+          "description": "IQRF GW daemon API (general or mType) status in string form."
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+      }
+    }
+  }
 }

@@ -1,83 +1,89 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "infoDaemon_GetLights-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "infoDaemon_GetLights-response",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "Daemon information - get all detected lights.",
+      "enum": [
+        "infoDaemon_GetLights"
+      ]
     },
-    "type": "object",
-    "required": [
-        "mType",
-        "data"
-    ],
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Daemon information - get all detected lights.",
-            "enum": ["infoDaemon_GetLights"]
+    "data": {
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
         },
-        "data": {
-            "type": "object",
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ],
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "rsp": {
-                    "type": "object",
-                    "description": "Response object",
-                    "required": [
-                        "lightDevices"
+        "rsp": {
+          "type": "object",
+          "description": "Response object",
+          "required": [
+            "lightDevices"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "lightDevices": {
+              "type": "array",
+              "additionalItems": false,
+              "items": {
+                "type": "object",
+                "required": [
+                  "nAdr"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "nAdr": {
+                    "type": "number",
+                    "description": "Device address",
+                    "minimum": 0,
+                    "maximum": 239
+                  },
+                  "metaData": {
+                    "oneOf": [
+                      {
+                        "type": "object"
+                      },
+                      {
+                        "type": "null"
+                      }
                     ],
-                    "additionalProperties": false,
-                    "properties": {
-                        "lightDevices": {
-                            "type": "array",
-                            "additionalItems": false,
-                            "items": {
-                                "type": "object",
-                                "required": [
-                                    "nAdr"
-                                ],
-                                "additionalProperties": false,
-                                "properties": {
-                                    "nAdr": {
-                                        "type": "number",
-                                        "description": "Device address",
-                                        "minimum": 0,
-                                        "maximum": 239
-                                    },
-                                    "metaData": {
-                                        "oneOf": [
-                                            {"type": "object"},
-                                            {"type": "null"}
-                                        ],
-                                        "description": "Device metedata"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "insId": {
-					"type": "string",
-					"description": "IQRF GW daemon instance identification."
-				},
-                "status": {
-                    "type": "integer",
-                    "description": "Status of operation."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
+                    "description": "Device metedata"
+                  }
                 }
+              }
             }
+          }
+        },
+        "insId": {
+          "type": "string",
+          "description": "IQRF GW daemon instance identification."
+        },
+        "status": {
+          "type": "integer",
+          "description": "Status of operation."
+        },
+        "statusStr": {
+          "type": "string",
+          "description": "IQRF GW daemon API (general or mType) status in string form."
         }
+      }
     }
+  }
 }
