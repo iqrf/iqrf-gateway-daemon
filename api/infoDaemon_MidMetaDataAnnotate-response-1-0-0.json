@@ -1,61 +1,64 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "infoDaemon_MidMetaDataAnnotate-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "infoDaemon_MidMetaDataAnnotate-response",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "Set/reset messages to be annotated by MetaData.",
+      "enum": [
+        "infoDaemon_MidMetaDataAnnotate"
+      ]
     },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Set/reset messages to be annotated by MetaData.",
-            "enum": [
-                "infoDaemon_MidMetaDataAnnotate"
-            ]
+    "data": {
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
         },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "rsp": {
-                    "type": "object",
-                    "properties": {
-                        "annotate": {
-                            "type": "boolean",
-                            "description": "annotate value."
-                        }
-                    },
-                    "required": [
-                        "annotate"
-                    ]
-                },
-                "insId": {
-                    "type": "string",
-                    "description": "IQRF GW daemon instance identification."
-                },
-                "status": {
-                    "type": "integer",
-                    "description": "Status of operation."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
-                }
-            },
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ]
+        "rsp": {
+          "type": "object",
+          "required": [
+            "annotate"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "annotate": {
+              "type": "boolean",
+              "description": "annotate value."
+            }
+          }
+        },
+        "insId": {
+          "type": "string",
+          "description": "IQRF GW daemon instance identification."
+        },
+        "status": {
+          "type": "integer",
+          "description": "Status of operation."
+        },
+        "statusStr": {
+          "type": "string",
+          "description": "IQRF GW daemon API (general or mType) status in string form."
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+      }
+    }
+  }
 }

@@ -1,63 +1,67 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "infoDaemon_SetMidMetaData-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "infoDaemon_SetMidMetaData-request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "Set MetaData assigned to mid.",
+      "enum": [
+        "infoDaemon_SetMidMetaData"
+      ]
     },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Set MetaData assigned to mid.",
-            "enum": [
-                "infoDaemon_SetMidMetaData"
-            ]
+    "data": {
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
         },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "mid": {
-                            "type": "integer",
-                            "description": "mid value."
-                        },
-                        "metaData": {
-                            "oneOf": [
-                                {
-                                    "type": "object",
-                                    "description": "Metadata Json."
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ]
-                        }
-                    },
-                    "required": [
-                        "mid",
-                        "metaData"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
+        "req": {
+          "type": "object",
+          "required": [
+            "mid",
+            "metaData"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "mid": {
+              "type": "integer",
+              "description": "mid value."
             },
-            "required": [
-                "msgId"
-            ]
+            "metaData": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "description": "Metadata Json."
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "returnVerbose": {
+          "type": "boolean",
+          "description": "Flag that includes additional parameters in the response."
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+      }
+    }
+  }
 }
