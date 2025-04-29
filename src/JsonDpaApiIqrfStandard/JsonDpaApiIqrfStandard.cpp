@@ -264,10 +264,7 @@ namespace iqrf {
 					com->createResponse(allResponseDoc, *res);
 				} else {
 					//no response but not considered as an error
-					Document rspObj;
-					Pointer("/response").Set(rspObj, "unrequired");
-					com->setPayload("/data/rsp/result", rspObj, false);
-					com->setStatus(res->getErrorString(), res->getErrorCode());
+					com->setStatus("No network response expected.", 256);
 					com->createResponse(allResponseDoc, *res);
 				}
 			}
