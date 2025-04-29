@@ -1263,11 +1263,19 @@ namespace iqrf {
         } else {
           TRC_WARNING("Inconsistency in driver versions: " << PAR(driverId) << PAR(driverVer) << " no driver found");
         }
-        if (driverId == PERIF_STANDARD_LIGHT && driverVer > 0) {
-          driver = m_iJsCacheService->getDriver(driverId, 0);
-          if (driver != nullptr) {
-            str2load += *driver->getDriver() + '\n';
-            TRC_INFORMATION("Loading deprecated DALI driver for compatibility.");
+        if (driverId == PERIF_STANDARD_LIGHT) {
+          if (driverVer > 0) {
+            driver = m_iJsCacheService->getDriver(driverId, 0);
+            if (driver != nullptr) {
+              str2load += *driver->getDriver() + '\n';
+              TRC_INFORMATION("Loading deprecated DALI driver for LIGHT backward compatibility.");
+            }
+          } else {
+            driver = m_iJsCacheService->getDriver(driverId, 1);
+            if (driver != nullptr) {
+              str2load += *driver->getDriver() + '\n';
+              TRC_INFORMATION("Loading LIGHT driver for DALI forward compatibility.");
+            }
           }
         }
       }
