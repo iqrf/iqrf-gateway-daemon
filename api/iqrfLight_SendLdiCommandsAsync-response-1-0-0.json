@@ -72,7 +72,7 @@
 						},
 						"result": {
 							"type": "object",
-              "properties": {}
+							"properties": {}
 						},
 						"errorStr": {
 							"type": "string",

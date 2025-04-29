@@ -72,8 +72,6 @@
 						},
 						"result": {
 							"type": "object",
-							"required": ["answers"],
-							"additionalProperties": false,
 							"properties": {
 								"answers": {
 									"type": "array",

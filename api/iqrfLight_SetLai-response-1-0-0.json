@@ -72,8 +72,6 @@
 						},
 						"result": {
 							"type": "object",
-							"required": ["prevVoltage"],
-							"additionalProperties": false,
 							"properties": {
 								"prevVoltage": {
 									"title": "Previous Voltage",

@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
 			args.push_back(argv[0]);
 			if (argc == 2) {
 				std::ifstream fileStream(argv[1]);
-        if (!fileStream.good()) {
+			if (!fileStream.good()) {
 					std::cerr << "Configuration file " << argv[1] << " does not exist." << std::endl;
 					return EXIT_FAILURE;
 				}
