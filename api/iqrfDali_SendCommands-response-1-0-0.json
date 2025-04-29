@@ -80,7 +80,8 @@
                             },
                             "required": [
                                 "answers"
-                            ]
+                            ],
+                            "additionalProperties": false
                         },
                         "errorStr": {
                             "type": "string",
