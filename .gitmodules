@@ -37,3 +37,6 @@
 [submodule "libraries/sqlitec++"]
 	path = libraries/sqlitec++
 	url = https://github.com/SRombauts/SQLiteCpp.git
+[submodule "libraries/googletest"]
+	path = libraries/googletest
+	url = https://github.com/google/googletest.git

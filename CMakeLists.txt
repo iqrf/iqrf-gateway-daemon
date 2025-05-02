@@ -49,6 +49,8 @@ include(${CMAKE_MODULE_PATH}/ShapeComponentDeclaration.cmake)
 set(PROJECT_INSTALL_PREFIX ${PROJECT_NAME})
 set(CMAKE_INSTALL_PREFIX ${shape_DEPLOY})
 
+set(BACKUP_BUILD_TESTING ${BUILD_TESTING})
+
 add_definitions(
   -DRAPIDJSON_HAS_STDSTRING
   -D_CRT_SECURE_NO_WARNINGS
@@ -65,6 +67,8 @@ add_subdirectory(libraries/iqrf-header-parser EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/croncpp EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/date EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/cpr EXCLUDE_FROM_ALL)
+# cpr sets BUILD_TESTING to false
+set(BUILD_TESTING ${BACKUP_BUILD_TESTING})
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 add_subdirectory(libraries/nlohmann_json EXCLUDE_FROM_ALL)
 set(valijson_BUILD_TESTS OFF)
@@ -135,9 +139,8 @@ add_subdirectory(src/IqmeshServices/RestartService)
 add_subdirectory(src/IqmeshServices/Maintenance)
 add_subdirectory(src/IqmeshServices/DpaParams)
 
-
 if(${BUILD_TESTING})
-	#add_subdirectory(src/tests)
+	add_subdirectory(tests)
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake @ONLY)
