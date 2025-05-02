@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "ErrorMessages.h"
 #include "ILaunchService.h"
 #include "IMessagingSplitterService.h"
 #include "ShapeProperties.h"
@@ -33,7 +34,8 @@ namespace iqrf {
     void sendMessage(const std::list<MessagingInstance> &messagings, rapidjson::Document doc) const override;
     void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc) override;
     void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters) override;
-    int getMsgQueueLen() const override;
+    int getManagementQueueLen() const override;
+    int getNetworkQueueLen() const override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

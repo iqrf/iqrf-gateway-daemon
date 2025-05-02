@@ -77,38 +77,11 @@ static void freeDocument(const rapidjson::Document *adapter) {
 }
 
 namespace iqrf {
-  class MessageErrorMsg : public ApiMsg
-  {
-  public:
-    MessageErrorMsg() = delete;
-    MessageErrorMsg(const std::string msgId, const std::string wrongMsg, const std::string errorStr)
-      :ApiMsg("messageError", msgId, true)
-      ,m_wrongMsg(wrongMsg)
-      ,m_errorStr(errorStr)
-    {
-    }
-
-    virtual ~MessageErrorMsg()
-    {
-    }
-
-    void createResponsePayload(rapidjson::Document& doc) override
-    {
-      Pointer("/data/rsp/wrongMsg").Set(doc, m_wrongMsg);
-      Pointer("/data/rsp/errorStr").Set(doc, m_errorStr);
-      setStatus("err",-1);
-    }
-
-  private:
-    std::string m_wrongMsg;
-    std::string m_errorStr;
-  };
 
   class JsonSplitter::Imp {
   private:
     /// Messaging ID and message pair
     typedef std::pair<MessagingInstance, std::vector<uint8_t>> MsgIdMsg;
-
     /// Instance ID
     std::string m_insId = "iqrfgd2-default";
     /// Validate responses
@@ -131,32 +104,55 @@ namespace iqrf {
     std::map<std::string, rapidjson::Document> m_validatorMapResponse;
     /// Message type to handle
     std::map<std::string, MsgType> m_msgTypeToHandle;
-    /// Message queue
-    TaskQueue<MsgIdMsg>* m_splitterMessageQueue = nullptr;
+    /// Management queue capacity
+    size_t m_managementQueueCapacity = 0;
+    /// Management message queue
+    TaskQueue<MsgIdMsg>* m_managementQueue = nullptr;
+    /// Network queue capacity
+    size_t m_networkQueueCapacity = 0;
+    /// Network message queue
+    TaskQueue<MsgIdMsg>* m_networkQueue = nullptr;
     /// Launch service interface
     shape::ILaunchService* m_iLaunchService = nullptr;
-
-    std::string getKey(const MsgType& msgType) const
-    {
-      std::ostringstream os;
-      os << msgType.m_type << '.' << msgType.m_major << '.' << msgType.m_minor << '.' << msgType.m_micro;
-      return os.str();
-    }
-
+    /// Management queue message whitelist
+    const std::set<std::string> m_managementQueueWhitelist = {
+      "iqrfDb_GetBinaryOutputs",
+      "iqrfDb_GetDevice",
+      "iqrfDb_GetDevices",
+      "iqrfDb_GetDeviceMetadata",
+      "iqrfDb_GetLights",
+      "iqrfDb_GetNetworkTopology",
+      "iqrfDb_GetSensors",
+      "iqrfDb_Reset",
+      "iqrfDb_SetDeviceMetadata",
+      "mngDaemon_Exit",
+      "mngDaemon_GetMode",
+      "mngDaemon_SetMode",
+      "mngDaemon_StartNetworkQueue",
+      "mngDaemon_StopNetworkQueue",
+      "mngDaemon_UpdateCache",
+      "mngDaemon_Version",
+      "mngScheduler_AddTask",
+      "mngScheduler_EditTask",
+      "mngScheduler_GetTask",
+      "mngScheduler_List",
+      "mngScheduler_RemoveAll",
+      "mngScheduler_RemoveTask",
+      "mngScheduler_StartTask",
+      "mngScheduler_StopTask",
+      "ntfDaemon_InvokeMonitor"
+    };
   public:
 
     // for logging only
-    static std::string JsonToStr(const rapidjson::Document& doc)
-    {
+    static std::string JsonToStr(const rapidjson::Document& doc) {
       StringBuffer buffer;
       Writer<StringBuffer> writer(buffer);
       doc.Accept(writer);
       return buffer.GetString();
     }
 
-    MsgType getMessageType(const rapidjson::Document& doc) const
-    {
-      using namespace rapidjson;
+    MsgType getMessageType(const rapidjson::Document& doc) const {
       std::string mType;
       std::string ver;
 
@@ -166,21 +162,28 @@ namespace iqrf {
       int micro = 0;
 
       // get message type
-      if (const Value* mTypeVal = Pointer("/mType").Get(doc)) {
+      if (const Value* mTypeVal = rapidjson::Pointer("/mType").Get(doc)) {
         mType = mTypeVal->GetString();
       } else {
         THROW_EXC_TRC_WAR(std::logic_error, "Missing message type");
       }
 
       // get version
-      if (const Value* verVal = Pointer("/ver").Get(doc)) {
+      if (const Value* verVal = rapidjson::Pointer("/ver").Get(doc)) {
         ver = verVal->GetString();
         std::replace(ver.begin(), ver.end(), '.', ' ');
         std::istringstream istr(ver);
         istr >> major >> minor >> micro;
       }
 
-      return MsgType(mType, major, minor, micro);
+      std::string key = mType + '.' + std::to_string(major) + '.' + std::to_string(minor) + '.' + std::to_string(micro);
+
+      auto handled = m_msgTypeToHandle.find(key);
+      if (handled == m_msgTypeToHandle.end()) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Unsupported message type: " << mType);
+      }
+
+      return handled->second;
     }
 
     void sendMessage(const MessagingInstance &messaging, rapidjson::Document doc) const {
@@ -198,14 +201,10 @@ namespace iqrf {
 
       // Check if message is allowed or supported
       MsgType mType = getMessageType(doc);
-      auto searchResult = m_msgTypeToHandle.find(getKey(mType));
-      if (searchResult == m_msgTypeToHandle.end()) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Unsupported message type: " << mType.m_type);
-      }
 
       // Validate generated response
       if (m_validateResponse) {
-        validate(searchResult->second, doc, m_validatorMapResponse, "response");
+        validate(mType, doc, m_validatorMapResponse, "response");
       }
 
       StringBuffer buffer;
@@ -267,16 +266,14 @@ namespace iqrf {
       }
     }
 
-    void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc)
-    {
+    void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc) {
       std::lock_guard<std::mutex> lck(m_filterMessageHandlerFuncMapMux);
       for (const auto & ft : msgTypeFilters) {
         m_filterMessageHandlerFuncMap.insert(std::make_pair(ft, handlerFunc));
       }
     }
 
-    void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters)
-    {
+    void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters) {
       std::lock_guard<std::mutex> lck(m_filterMessageHandlerFuncMapMux);
       for (const auto & ft : msgTypeFilters) {
         m_filterMessageHandlerFuncMap.erase(ft);
@@ -284,10 +281,9 @@ namespace iqrf {
     }
 
     void validate(const IMessagingSplitterService::MsgType & msgType, const Document& doc,
-      const std::map<std::string, rapidjson::Document>& validators, const std::string& direction) const
-    {
-      TRC_FUNCTION_ENTER(PAR(msgType.m_type))
-      auto found = validators.find(getKey(msgType));
+      const std::map<std::string, rapidjson::Document>& validators, const std::string& direction) const {
+      TRC_FUNCTION_ENTER(PAR(msgType.m_type));
+      auto found = validators.find(msgType.getKey());
       if (found != validators.end()) {
         // parse schema
         valijson::Schema schema;
@@ -325,8 +321,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    void handleMessageFromMessaging(const MessagingInstance &messaging, const std::vector<uint8_t>& message) const
-    {
+    void handleMessageFromMessaging(const MessagingInstance &messaging, const std::vector<uint8_t>& message) const {
       TRC_FUNCTION_ENTER(PAR(messaging.instance));
       using namespace rapidjson;
 
@@ -336,52 +331,120 @@ namespace iqrf {
         << NAME_PAR(Messaging ID, messaging.instance)
         << "\n"
         << NAME_PAR(Message, msgStr)
-        );
+      );
 
-      int queueLen = -1;
-      if (m_splitterMessageQueue) {
-        queueLen = static_cast<int>(m_splitterMessageQueue->size());
-        if (queueLen <= 32) { //TODO parameter
-          queueLen = m_splitterMessageQueue->pushToQueue(std::make_pair(messaging, message));
+      std::string msgId("unknown");
+
+      try {
+        Document doc;
+        doc.Parse(msgStr.c_str());
+
+        /// Check for JSON syntax errors
+        if (doc.HasParseError()) {
+          TRC_WARNING("Failed to parse JSON message: error " << doc.GetParseError() << " at position " << doc.GetErrorOffset());
+          sendMessage(messaging, JsonParseErrorMsg::createMessage(msgStr, doc.GetParseError(), doc.GetErrorOffset()));
+          return;
         }
-        else {
-          TRC_WARNING("Error queue overload: " << PAR(queueLen));
 
-          std::string str((char*)message.data(), message.size());
-          StringStream ss(str.data());
-          Document doc;
-          doc.ParseStream(ss);
-          std::string msgId("ignored");
+        msgId = Pointer("/data/msgId").GetWithDefault(doc, "unknown").GetString();
 
-          if (!doc.HasParseError()) {
-            msgId = Pointer("/data/msgId").GetWithDefault(doc, "ignored").GetString();
-          }
-          std::ostringstream oser;
-          oser << "daemon overload: " << PAR(queueLen);
-          Document rspDoc;
-          MessageErrorMsg msg(msgId, str, oser.str());
-          msg.createResponse(rspDoc);
-          try {
-            sendMessage(messaging, std::move(rspDoc));
-          }
-          catch (std::logic_error &ee) {
-            TRC_WARNING("Cannot create error response:" << ee.what());
-          }
+        /// Check for missing mType
+        if (!doc.HasMember("mType")) {
+          TRC_WARNING("mType missing in JSON message: " << msgStr);
+          sendMessage(messaging, MissingMTypeMsg::createMessage(msgId, msgStr));
+          return;
+        }
+
+        /// Validate request message
+        MsgType msgType = getMessageType(doc);
+        try {
+          validate(msgType, doc, m_validatorMapRequest, "request");
+        } catch (const std::logic_error &e) {
+          TRC_WARNING("Failed to validate JSON request: " << e.what());
+          sendMessage(messaging, ValidationErrorMsg::createMessage(msgId, msgStr, e.what()));
+          return;
+        }
+
+        if (m_managementQueueWhitelist.find(msgType.m_type) != m_managementQueueWhitelist.end()) {
+          handleManagementMessageFromMessaging(messaging, message, msgType.m_type, msgId);
+        } else {
+          handleNetworkMessageFromMessaging(messaging, message, msgType.m_type, msgId);
+        }
+      } catch (const std::exception &e) {
+        TRC_WARNING("Failed to process request from messaging: " << e.what());
+        try {
+          sendMessage(messaging, GeneralErrorMsg::createMessage(msgId, msgStr, e.what()));
+        } catch (const std::exception &ee) {
+          TRC_WARNING("Failed to send general error response: " << ee.what());
         }
       }
-      else {
-        TRC_WARNING("Not activated yet => message is dropped.");
+    }
+
+    void handleManagementMessageFromMessaging(const MessagingInstance &messaging, const std::vector<uint8_t> &message, const std::string &mType, const std::string &msgId) const {
+      if (!m_managementQueue) {
+        TRC_WARNING("Management message queue has not been initialized.");
+        sendMessage(messaging, MessageQueueNotInitializedErrorMsg::createMessage(msgId, mType, false));
+        return;
+      }
+      auto queueLen = m_managementQueue->size();
+      if (queueLen < m_managementQueueCapacity) {
+        m_managementQueue->pushToQueue(std::make_pair(messaging, message));
+      } else {
+        TRC_WARNING("Management queue full, message " << mType << ":" << msgId << " discarded.");
+        sendMessage(messaging, MessageQueueFullErrorMsg::createMessage(msgId, mType, false, m_managementQueueCapacity));
       }
       TRC_FUNCTION_LEAVE(PAR(queueLen))
     }
 
-    int getMsgQueueLen() const
-    {
-      return (int)m_splitterMessageQueue->size();
+    void handleNetworkMessageFromMessaging(const MessagingInstance &messaging, const std::vector<uint8_t> &message, const std::string &mType, const std::string &msgId) const {
+      if (!m_networkQueue) {
+        TRC_WARNING("Network message queue has not been initialized.");
+        sendMessage(messaging, MessageQueueNotInitializedErrorMsg::createMessage(msgId, mType, true));
+        return;
+      }
+      auto queueLen = m_networkQueue->size();
+      if (queueLen < m_networkQueueCapacity) {
+        m_networkQueue->pushToQueue(std::make_pair(messaging, message));
+      } else {
+        TRC_WARNING("Network queue full, message " << mType << ":" << msgId << " discarded.");
+        sendMessage(messaging, MessageQueueFullErrorMsg::createMessage(msgId, mType, true, m_networkQueueCapacity));
+      }
+      TRC_FUNCTION_LEAVE(PAR(queueLen))
     }
 
-    void handleMessageFromSplitterQueue(const MessagingInstance &messaging, const std::vector<uint8_t>& message) const
-    {
+    int getManagementQueueLen() const {
+      if (m_managementQueue) {
+        return static_cast<int>(m_managementQueue->size());
+      }
+      return -1;
+    }
+
+    int getNetworkQueueLen() const {
+      if (m_networkQueue) {
+        return static_cast<int>(m_networkQueue->size());
+      }
+      return -1;
+    }
+
+    void handleNetworkQueueMessages(const MessagingInstance &messaging, MsgType msgType, rapidjson::Document rq) {
+      try {
+        rapidjson::Document rsp;
+        rapidjson::Pointer("/mType").Set(rsp, msgType.m_type);
+        rapidjson::Pointer("/data/msgId").Set(rsp, rapidjson::Pointer("/data/msgId").GetWithDefault(rq, "unknown"));
+        if (msgType.m_type == "mngDaemon_StartNetworkQueue" && !m_networkQueue->isActive()) {
+          m_networkQueue->startQueue();
+        } else if (msgType.m_type == "mngDaemon_StopNetworkQueue" && m_networkQueue->isActive()) {
+          m_networkQueue->stopQueue();
+        }
+        rapidjson::Pointer("/data/status").Set(rsp, 0);
+        rapidjson::Pointer("/data/statusStr").Set(rsp, "ok");
+        sendMessage(messaging, std::move(rsp));
+      } catch (const std::logic_error &e) {
+        THROW_EXC_TRC_WAR(std::logic_error, e.what());
+      }
+    }
+
+    void handleMessageFromSplitterQueue(const MessagingInstance &messaging, const std::vector<uint8_t>& message) const {
       using namespace rapidjson;
 
       std::string str((char*)message.data(), message.size());
@@ -391,27 +454,15 @@ namespace iqrf {
       std::string msgId("undefined");
 
       try {
-        if (doc.HasParseError()) {
-          //TODO parse error handling => send back an error JSON with details
-          THROW_EXC_TRC_WAR(std::logic_error, "Json parse error: " << NAME_PAR(emsg, doc.GetParseError()) <<
-            NAME_PAR(eoffset, doc.GetErrorOffset()));
-        }
-
         msgId = Pointer("/data/msgId").GetWithDefault(doc, "undefined").GetString();
         MsgType msgType = getMessageType(doc);
 
-        auto foundType = m_msgTypeToHandle.find(getKey(msgType));
-        if (foundType == m_msgTypeToHandle.end()) {
-          THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType, msgType.m_type) << NAME_PAR(key, getKey(msgType)));
-        }
-
-        const std::string REQS("request");
-        msgType = foundType->second;
-        validate(msgType, doc, m_validatorMapRequest, REQS);
-
         std::map<std::string, FilteredMessageHandlerFunc > bestFitMap;
         { //lock scope
-          std::lock_guard<std::mutex> lck(m_filterMessageHandlerFuncMapMux);
+          if (msgType.m_type == "mngDaemon_Exit") {
+            m_networkQueue->stopQueue();
+          }
+          //std::lock_guard<std::mutex> lck(m_filterMessageHandlerFuncMapMux);
           for (const auto & filter : m_filterMessageHandlerFuncMap) {
             // best fit
             if (std::string::npos != msgType.m_type.find(filter.first)) {
@@ -431,27 +482,18 @@ namespace iqrf {
             try {
               selected(messaging, msgType, std::move(doc));
               TRC_INFORMATION("Incoming message successfully handled.");
-            }
-            catch (std::exception &e) {
+            } catch (std::exception &e) {
               THROW_EXC_TRC_WAR(std::logic_error, "Unhandled exception: " << e.what());
             }
-          }
-          else {
-            THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType.version, getKey(msgType)));
+          } else {
+            THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType.version, msgType.getKey()));
           }
         }
-
-      }
-      catch (std::logic_error &e) {
+      } catch (std::logic_error &e) {
         TRC_WARNING("Error while handling incoming message:" << e.what());
-
-        Document rspDoc;
-        MessageErrorMsg msg(msgId, str, e.what());
-        msg.createResponse(rspDoc);
         try {
-          sendMessage(messaging, std::move(rspDoc));
-        }
-        catch (std::logic_error &ee) {
+          sendMessage(messaging, GeneralErrorMsg::createMessage(msgId, str, e.what()));
+        } catch (const std::logic_error &ee) {
           TRC_WARNING("Cannot create error response:" << ee.what());
         }
       }
@@ -489,8 +531,7 @@ namespace iqrf {
     }
 
 #else
-    std::vector<std::string> getSchemesFiles(const std::string& schemesDir, const std::string& filter)
-    {
+    std::vector<std::string> getSchemesFiles(const std::string& schemesDir, const std::string& filter) {
       std::vector<std::string> fileVect;
 
       DIR *dir;
@@ -530,8 +571,7 @@ namespace iqrf {
 
 #endif
 
-    void loadJsonSchemesRequest(const std::string sdir)
-    {
+    void loadJsonSchemesRequest(const std::string sdir) {
       TRC_FUNCTION_ENTER(PAR(sdir));
 
       //std::vector<std::string> files = getSchemesFiles(sdir, "-request-");
@@ -622,18 +662,21 @@ namespace iqrf {
           }
 
           MsgType msgType(mType, major, minor, micro, possibleDriverFunction);
+          auto key = msgType.getKey();
 
           if (direction == "request") {
-            m_validatorMapRequest.insert(std::make_pair(getKey(msgType), std::move(sd)));
-            //m_msgTypeToHandle.insert(std::make_pair(getKey(msgType), msgType));
+            m_validatorMapRequest.insert(std::make_pair(key, std::move(sd)));
           } else if (direction == "response") {
-            m_validatorMapResponse.insert(std::make_pair(getKey(msgType), std::move(sd)));
+            m_validatorMapResponse.insert(std::make_pair(key, std::move(sd)));
           }
-          m_msgTypeToHandle.insert(std::make_pair(getKey(msgType), msgType));
-          TRC_DEBUG ("Add: " << NAME_PAR(key, getKey(msgType)) << PAR(msgType.m_type) << " ver" << msgType.m_major << '.' << msgType.m_minor << '.' << msgType.m_micro << " drv:" <<
-            msgType.m_possibleDriverFunction)
-        }
-        catch (std::exception & e) {
+          m_msgTypeToHandle.insert(std::make_pair(key, msgType));
+          TRC_DEBUG("Added: "
+            << PAR(key)
+            << PAR(msgType.m_type)
+            << " ver" << msgType.m_major << '.' << msgType.m_minor << '.' << msgType.m_micro
+            << " drv:" << msgType.m_possibleDriverFunction
+          );
+        } catch (std::exception & e) {
           CATCH_EXC_TRC_WAR(std::exception, e, "");
         }
       }
@@ -641,8 +684,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void activate(const shape::Properties *props)
-    {
+    void activate(const shape::Properties *props) {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
@@ -656,20 +698,33 @@ namespace iqrf {
       TRC_INFORMATION("loading schemes from: " << PAR(m_schemesDir));
       loadJsonSchemesRequest(m_schemesDir);
 
-      m_splitterMessageQueue = shape_new TaskQueue<MsgIdMsg>([&](const MsgIdMsg& msgIdMsg) {
+      m_managementQueue = shape_new TaskQueue<MsgIdMsg>([&](const MsgIdMsg &msgIdMsg) {
         handleMessageFromSplitterQueue(msgIdMsg.first, msgIdMsg.second);
       });
+      m_networkQueue = shape_new TaskQueue<MsgIdMsg>([&](const MsgIdMsg& msgIdMsg) {
+        handleMessageFromSplitterQueue(msgIdMsg.first, msgIdMsg.second);
+      });
+
+      registerFilteredMsgHandler(
+        {
+          "mngDaemon_StartNetworkQueue",
+          "mngDaemon_StopNetworkQueue"
+        },
+        [&](const MessagingInstance &messaging, const MsgType &msgType, rapidjson::Document doc) {
+          handleNetworkQueueMessages(messaging, msgType, std::move(doc));
+        }
+      );
 
       TRC_FUNCTION_LEAVE("")
     }
 
-    void modify(const shape::Properties *props)
-    {
+    void modify(const shape::Properties *props) {
       props->getMemberAsString("insId", m_insId);
       props->getMemberAsBool("validateJsonResponse", m_validateResponse);
       m_messagingList.clear();
 
       const Document &doc = props->getAsJson();
+      /// Messaging list
       const Value *val = Pointer("/messagingList").Get(doc);
       if (val && val->IsArray()) {
         const auto arr = val->GetArray();
@@ -686,11 +741,20 @@ namespace iqrf {
         m_messagingList.sort();
         m_messagingList.unique();
       }
+      // Management queue capacity
+      val = Pointer("/managementQueueCapacity").Get(doc);
+      if (val && val->IsUint64()) {
+        m_managementQueueCapacity = val->GetUint64();
+      }
+      // Network queue capacity
+      val = Pointer("/networkQueueCapacity").Get(doc);
+      if (val && val->IsUint64()) {
+        m_networkQueueCapacity = val->GetUint64();
+      }
       TRC_INFORMATION(PAR(m_validateResponse));
     }
 
-    void deactivate()
-    {
+    void deactivate() {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
@@ -698,25 +762,23 @@ namespace iqrf {
         "******************************"
       );
 
-      delete m_splitterMessageQueue;
+      delete m_networkQueue;
+      delete m_managementQueue;
 
       TRC_FUNCTION_LEAVE("")
     }
 
-    void attachInterface(shape::ILaunchService* iface)
-    {
+    void attachInterface(shape::ILaunchService* iface) {
       m_iLaunchService = iface;
     }
 
-    void detachInterface(shape::ILaunchService* iface)
-    {
+    void detachInterface(shape::ILaunchService* iface) {
       if (m_iLaunchService == iface) {
         m_iLaunchService = nullptr;
       }
     }
 
-    void attachInterface(iqrf::IMessagingService* iface)
-    {
+    void attachInterface(iqrf::IMessagingService* iface) {
       //TODO shall be targeted only to JSON content or "iqrf-daemon-api"
       std::unique_lock<std::mutex> lck(m_iMessagingServiceMapMux);
       auto candidate = iface->getMessagingInstance();
@@ -731,8 +793,7 @@ namespace iqrf {
       });
     }
 
-    void detachInterface(iqrf::IMessagingService* iface)
-    {
+    void detachInterface(iqrf::IMessagingService* iface) {
       std::unique_lock<std::mutex> lck(m_iMessagingServiceMapMux);
       {
         auto candidate = iface->getMessagingInstance();
@@ -780,9 +841,12 @@ namespace iqrf {
     m_imp->unregisterFilteredMsgHandler(msgTypeFilters);
   }
 
-  int JsonSplitter::getMsgQueueLen() const
-  {
-   return m_imp->getMsgQueueLen();
+  int JsonSplitter::getManagementQueueLen() const {
+   return m_imp->getManagementQueueLen();
+  }
+
+  int JsonSplitter::getNetworkQueueLen() const {
+    return m_imp->getNetworkQueueLen();
   }
 
   void JsonSplitter::activate(const shape::Properties *props)
