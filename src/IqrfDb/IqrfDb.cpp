@@ -1773,11 +1773,19 @@ namespace iqrf {
 			} else {
 				TRC_WARNING("[C] No driver found in cache for ID: " << driverId << ", version: " << driverVersion);
 			}
-			if (driverId == PERIPHERAL_LIGHT && driverVersion > 0) {
-				cacheDriver = m_cacheService->getDriver(driverId, 0);
-				if (cacheDriver != nullptr) {
-					ss << *cacheDriver->getDriver();
-					TRC_INFORMATION("[C] Loading deprecated DALI driver for compatibility.");
+			if (driverId == PERIPHERAL_LIGHT) {
+				if (driverVersion > 0) {
+					cacheDriver = m_cacheService->getDriver(driverId, 0);
+					if (cacheDriver != nullptr) {
+						ss << *cacheDriver->getDriver();
+						TRC_INFORMATION("Loading deprecated DALI driver for LIGHT backward compatibility.");
+					}
+				} else {
+					cacheDriver = m_cacheService->getDriver(driverId, 1);
+					if (cacheDriver != nullptr) {
+						ss << *cacheDriver->getDriver();
+						TRC_INFORMATION("Loading LIGHT driver for DALI forward compatibility.")
+					}
 				}
 			}
 		}
