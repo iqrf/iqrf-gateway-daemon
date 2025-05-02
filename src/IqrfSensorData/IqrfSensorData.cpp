@@ -251,7 +251,7 @@ namespace iqrf {
 			vectors.push_back(std::set<uint8_t>(addresses.begin(), addresses.end()));
 		}
 		for (auto &vector : vectors) {
-			setOfflineFrc(result);
+			//setOfflineFrc(result);
 			auto sensorData = sendSensorFrc(result, type, idx, vector);
 			for (auto &sensor : sensorData) {
 				sensor.setIdx(
