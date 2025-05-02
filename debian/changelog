@@ -1,10 +1,11 @@
-iqrf-gateway-daemon (2.6.4~alpha~1.gbp3be1d9) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.6.4) stable; urgency=medium
 
-  ** SNAPSHOT build @3be1d97d190ec2905e4fddba3ff1d65f1f7934c6 **
+  [ Karel Hanák ]
+  * Prepare for version 2.6.4-alpha
+  * api: allow unrequired response in light responses
+  * IqrfInfo: always attempt to load old and new dali/light driver
 
-  * UNRELEASED
-
- -- Karel Hanák <karel.hanak@iqrf.org>  Wed, 09 Apr 2025 11:22:26 +0200
+ -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 02 May 2025 14:46:14 +0200
 
 iqrf-gateway-daemon (2.6.3) stable; urgency=medium
 
