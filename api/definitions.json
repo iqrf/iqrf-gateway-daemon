@@ -1031,6 +1031,10 @@
     }
   },
   "scheduler": {
+    "active": {
+      "description": "Task is currently scheduled.",
+      "type": "boolean"
+    },
     "clientId": {
       "description": "Client identifier.",
       "type": "string"

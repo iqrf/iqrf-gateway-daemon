@@ -75,6 +75,9 @@
                       "taskId": {
                         "$ref": "definitions.json#/scheduler/taskId"
                       },
+                      "description": {
+                        "$ref": "definitions.json#/scheduler/description"
+                      },
                       "task": {
                         "oneOf": [
                           {
@@ -98,13 +101,8 @@
                       "enabled": {
                         "$ref": "definitions.json#/scheduler/enabled"
                       },
-                      "description": {
-                        "$ref": "definitions.json#/scheduler/description"
-                      },
                       "active": {
-                        "title": "Scheduled task active",
-                        "description": "The task is currently scheduled.",
-                        "type": "boolean"
+                        "$ref": "definitions.json#/scheduler/active"
                       }
                     }
                   }

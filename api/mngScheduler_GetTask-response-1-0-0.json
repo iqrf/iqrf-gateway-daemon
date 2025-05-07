@@ -72,9 +72,7 @@
               "$ref": "definitions.json#/scheduler/enabled"
             },
             "active": {
-              "title": "Scheduled task active",
-              "description": "The task is currently scheduled.",
-              "type": "boolean"
+              "$ref": "definitions.json#/scheduler/active"
             }
           }
         },
