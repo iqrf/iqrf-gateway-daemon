@@ -68,6 +68,7 @@ foreach(cfg ${CfgList})
 		${CMAKE_CURRENT_SOURCE_DIR}/configuration					configuration
 		${CMAKE_CURRENT_SOURCE_DIR}/configuration-${cfg}			configuration
 		${CMAKE_SOURCE_DIR}/api										configuration/apiSchemas
+		${CMAKE_SOURCE_DIR}/src/cache-update/schemas				configuration/cacheSchemas
 		${CMAKE_CURRENT_SOURCE_DIR}/schedulerSchemas				configuration/schedulerSchemas
    		${CMAKE_CURRENT_SOURCE_DIR}/DB/init							configuration/DB/init
 		${CMAKE_CURRENT_SOURCE_DIR}/javaScript						configuration/javaScript
