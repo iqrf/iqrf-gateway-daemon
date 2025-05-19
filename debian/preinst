@@ -23,6 +23,10 @@ if [ -d "/etc/iqrf-gateway-daemon/cfgSchemas" ]; then
     rm -rf /etc/iqrf-gateway-daemon/cfgSchemas
 fi
 
+if [ -d "/usr/share/iqrf-gateway-daemon/DB" ]; then
+    rm -rf /usr/share/iqrf-gateway-daemon/DB
+fi
+
 if [ -d "/var/cache/iqrf-gateway-daemon/scheduler/schema" ]; then
     rm -rf /var/cache/iqrf-gateway-daemon/scheduler/schema
 fi

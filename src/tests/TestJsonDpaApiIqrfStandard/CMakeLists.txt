@@ -39,8 +39,7 @@ DeployShapeConfiguration(${PROJECT_NAME}
 	${CMAKE_SOURCE_DIR}/api 									configuration/apiSchemas
 	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/javaScript 		configuration/javaScript
 	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/schedulerSchemas 	configuration/schedulerSchemas
-	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/DB/init 			configuration//DB/init
-	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/iqrfRepoCache 		configuration/iqrfRepoCache
+	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/DB/migrations 		configuration/DB/migrations
 )
 
 DeployShapeConfigurationStartUp("${PROJECT_INSTALL_PREFIX}/bin/iqrfgd2" ${PROJECT_NAME})

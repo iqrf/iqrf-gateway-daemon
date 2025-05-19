@@ -77,7 +77,7 @@ namespace iqrf {
 		 * @param driverIdSet Context drivers
 		 * @return true if context code was successfully loaded, false otherwise
 		 */
-		bool loadContextCode(int contextId, const std::string &js, const std::set<int> &driverIdSet) override;
+		bool loadContextCode(int contextId, const std::string &js, const std::set<uint32_t> &driverIdSet) override;
 
 		/**
 		 * Assigns context ID for device address
@@ -101,7 +101,14 @@ namespace iqrf {
 		 * @param contextId Context ID
 		 * @return Set of context driver IDs
 		 */
-		std::set<int> getDriverIdSet(int contextId) const override;
+		std::set<uint32_t> getDriverIdSet(int contextId) const override;
+
+		/**
+		 * Returns loaded product context ID by device address
+		 * @param address Device address
+		 * @return std::shared_ptr<int> Poaded product context ID
+		 */
+		std::shared_ptr<int> getDeviceAddrProductId(int address) const override;
 
 		/**
 		 * Clears all driver contexts, device and address mapping
@@ -141,6 +148,6 @@ namespace iqrf {
 		/// map of addresses and corresponding context IDs
 		std::map<int, int> m_addressContextMap;
 		/// map of context IDs and corresponding driver IDs
-		std::map<int, std::set<int>> m_contextDriverMap;
+		std::map<int, std::set<uint32_t>> m_contextDriverMap;
 	};
 }
