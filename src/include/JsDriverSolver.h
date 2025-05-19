@@ -170,7 +170,7 @@ namespace iqrf {
         if (!(val && val->IsString())) {
           THROW_EXC_TRC_WAR(std::logic_error, "Expected: string /pnum");
         }
-        parseHexaNum(pnum, val->GetString());
+        HexStringConversion::parseHexaNum(pnum, val->GetString());
       }
 
       {
@@ -178,7 +178,7 @@ namespace iqrf {
         if (!(val && val->IsString())) {
           THROW_EXC_TRC_WAR(std::logic_error, "Expected: string /pcmd");
         }
-        parseHexaNum(pcmd, val->GetString());
+        HexStringConversion::parseHexaNum(pcmd, val->GetString());
       }
 
       dpaRequest.DpaPacket().DpaRequestPacket_t.NADR = nadr;
@@ -191,7 +191,7 @@ namespace iqrf {
         if (!val->IsString()) {
           THROW_EXC_TRC_WAR(std::logic_error, "Expected: string /rdata");
         }
-        len += parseBinary(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData, val->GetString(), DPA_MAX_DATA_LENGTH);
+        len += HexStringConversion::parseBinary(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData, val->GetString(), DPA_MAX_DATA_LENGTH);
         dpaRequest.SetLength(sizeof(TDpaIFaceHeader) + len);
       }
       dpaRequest.SetLength(len);
@@ -214,10 +214,10 @@ namespace iqrf {
       uint8_t dpaval = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaValue;
 
       std::string pnumStr, pcmdStr, rcodeStr, dpavalStr;
-      pnumStr = encodeHexaNum(pnum);
-      pcmdStr = encodeHexaNum(pcmd);
-      rcodeStr = encodeHexaNum(rcode);
-      dpavalStr = encodeHexaNum(dpaval);
+      pnumStr = HexStringConversion::encodeHexaNum(pnum);
+      pcmdStr = HexStringConversion::encodeHexaNum(pcmd);
+      rcodeStr = HexStringConversion::encodeHexaNum(rcode);
+      dpavalStr = HexStringConversion::encodeHexaNum(dpaval);
 
       //nadr, hwpid is not interesting for drivers
       Pointer("/pnum").Set(rawHdpResponseVal, pnumStr, a);
@@ -227,7 +227,7 @@ namespace iqrf {
 
       int rsphdr = (int)(sizeof(TDpaIFaceHeader) + 2); // sizeof(rcode) + sizeof(dpaval)
       if (dpaResponse.GetLength() > rsphdr) {
-        Pointer("/rdata").Set(rawHdpResponseVal, encodeBinary(
+        Pointer("/rdata").Set(rawHdpResponseVal, HexStringConversion::encodeBinary(
           dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData, dpaResponse.GetLength() - rsphdr), a);
       }
 

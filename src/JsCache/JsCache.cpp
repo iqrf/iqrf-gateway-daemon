@@ -282,6 +282,24 @@ namespace iqrf {
     return driver;
   }
 
+  std::shared_ptr<IJsCacheService::StdDriver> JsCache::getLatestDriver(int id) const {
+    TRC_FUNCTION_ENTER(PAR(id));
+    std::shared_ptr<StdDriver> driver = nullptr;
+    auto found = m_standardMap.find(id);
+    if (found != m_standardMap.end()) {
+      const StdItem &stdItem = found->second;
+      double highestVersion = 0;
+      for (auto &item : stdItem.m_drivers) {
+        if (item.first > highestVersion) {
+          highestVersion = item.first;
+        }
+      }
+      driver = std::make_shared<StdDriver>(stdItem.m_drivers.at(highestVersion));
+    }
+    TRC_FUNCTION_LEAVE("");
+    return driver;
+  }
+
   std::shared_ptr<IJsCacheService::Manufacturer> JsCache::getManufacturer(uint16_t hwpid) const {
     TRC_FUNCTION_ENTER(PAR(hwpid));
 

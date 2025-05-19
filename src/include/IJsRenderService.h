@@ -44,7 +44,7 @@ namespace iqrf {
 		 * @param driverIdSet Context drivers
 		 * @return true if context code was successfully loaded, false otherwise
 		 */
-		virtual bool loadContextCode(int contextId, const std::string &js, const std::set<int> &driverIdSet) = 0;
+		virtual bool loadContextCode(int contextId, const std::string &js, const std::set<uint32_t> &driverIdSet) = 0;
 
 		/**
 		 * Assigns context ID for device address
@@ -68,7 +68,14 @@ namespace iqrf {
 		 * @param contextId Context ID
 		 * @return Set of context driver IDs
 		 */
-		virtual std::set<int> getDriverIdSet(int contextId) const = 0;
+		virtual std::set<uint32_t> getDriverIdSet(int contextId) const = 0;
+
+		/**
+		 * Returns loaded product context ID by device address
+		 * @param address Device address
+		 * @return std::shared_ptr<int> Poaded product context ID
+		 */
+		virtual std::shared_ptr<int> getDeviceAddrProductId(int address) const = 0;
 
 		/**
 		 * Clears all driver contexts, device and address mapping

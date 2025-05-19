@@ -1,0 +1,72 @@
+{
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "schema__iqrf__JsonDb",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"type": "object",
+	"required": [
+		"component",
+		"instance",
+		"autoEnumerateBeforeInvoked",
+		"enumerateOnLaunch",
+		"metadataToMessages"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"component": {
+			"type": "string",
+			"description": "Name of component.",
+			"enum": [
+				"iqrf::IqrfDb"
+			]
+		},
+		"instance": {
+			"type": "string",
+			"description": "Recomended iqrf::IqrfDb-(id)",
+			"pattern": "^[^&]+$",
+			"default": "iqrf::IqrfDb-1"
+		},
+		"autoEnumerateBeforeInvoked": {
+			"$id": "#/properties/autoEnumerateBeforeInvoked",
+			"title": "Auto enumerate before invoked",
+			"description": "Run enumeration automatically without initial user invocation",
+			"type": "boolean"
+		},
+		"enumerateOnLaunch": {
+			"$id": "#/properties/enumerateOnLaunch",
+			"title": "Enumerate on launch",
+			"description": "Run enumeration when Daemon starts.",
+			"type": "boolean"
+		},
+		"metadataToMessages": {
+			"$id" : "#/properties/metadataToMessages",
+			"title": "Attach metadata to messages",
+			"description": "Include device metadata in Daemon API responses.",
+			"type": "boolean"
+		},
+		"RequiredInterfaces": {
+			"type": "array",
+			"description": "Array of required interfaces.",
+			"items": {
+				"type": "object",
+				"required": [
+					"name",
+					"target"
+				],
+				"properties": {
+					"name": {
+						"type": "string",
+						"default": "iqrf::IMessagingService",
+						"description": "..."
+					},
+					"target": {
+						"type": "object"
+					}
+				}
+			}
+		}
+	}
+}

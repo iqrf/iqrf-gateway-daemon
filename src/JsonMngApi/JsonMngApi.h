@@ -18,7 +18,7 @@
 
 #include "ILaunchService.h"
 #include "IIqrfDpaService.h"
-#include "IIqrfInfo.h"
+#include "IIqrfDb.h"
 #include "ISchedulerService.h"
 #include "IJsCacheService.h"
 #include "IUdpConnectorService.h"
@@ -43,8 +43,8 @@ namespace iqrf {
 		void attachInterface(IIqrfDpaService *iface);
 		void detachInterface(IIqrfDpaService *iface);
 
-		void attachInterface(IIqrfInfo *iface);
-		void detachInterface(IIqrfInfo *iface);
+		void attachInterface(IIqrfDb *iface);
+		void detachInterface(IIqrfDb *iface);
 
 		void attachInterface(ISchedulerService *iface);
 		void detachInterface(ISchedulerService *iface);

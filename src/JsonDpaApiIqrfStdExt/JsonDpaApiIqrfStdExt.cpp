@@ -43,7 +43,7 @@ namespace iqrf {
   {
   private:
 
-    IIqrfInfo* m_iIqrfInfo = nullptr;
+    IIqrfDb* m_dbService = nullptr;
     iqrf::IJsRenderService* m_iJsRenderService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
@@ -104,8 +104,19 @@ namespace iqrf {
           jsDriverStandardFrcSolver.setFrcExtraDpaTransactionResult(std::move(transResultFrcExtra));
         }
 
-        // process *_Response
-        jsDriverStandardFrcSolver.processResponseDrv();
+        if (m_dbService && msgType.m_type == "iqrfSensor_Frc") {
+          sensor::jsdriver::SensorFrc sensorFrc(apiMsgIqrfStandardFrc.getRequestParamDoc());
+          const uint8_t type = sensorFrc.getType();
+          if (type == 129 || type == 160) {
+            auto map = m_dbService->getSensorDeviceHwpidAddressMap(type);
+            jsDriverStandardFrcSolver.processResponseSensorDrv(map, sensorFrc.getSelectedNodes(), sensorFrc.getExtraResult());
+          } else {
+            jsDriverStandardFrcSolver.processResponseDrv();
+          }
+          m_dbService->updateSensorValues(sensorFrc.getType(), sensorFrc.getIndex(), sensorFrc.getSelectedNodes(), jsDriverStandardFrcSolver.getResponseResultStr());
+        } else {
+          jsDriverStandardFrcSolver.processResponseDrv();
+        }
 
         json jsonDoc = json::parse(jsDriverStandardFrcSolver.getResponseResultStr());
         std::string arrayKey = apiMsgIqrfStandardFrc.getArrayKeyByMessageType(msgType.m_type);
@@ -118,8 +129,8 @@ namespace iqrf {
         }
         if (apiMsgIqrfStandardFrc.getExtFormat()) {
           std::map<uint8_t, embed::node::NodeMidHwpid> nodeMap;
-          if (m_iIqrfInfo) {
-            nodeMap = m_iIqrfInfo->getNodeMidHwpidMap();
+          if (m_dbService) {
+            nodeMap = m_dbService->getNodeMidHwpidMap();
           }
 
           jsDriverStandardFrcSolver.convertToExtendedFormat(
@@ -130,11 +141,11 @@ namespace iqrf {
             nodeMap
           );
 
-          if (m_iIqrfInfo && m_iIqrfInfo->getMidMetaDataToMessages()) {
+          if (m_dbService && m_dbService->getMetadataToMessages()) {
             try {
               for (auto itr = jsonDoc[arrayKey].begin(); itr != jsonDoc[arrayKey].end(); ++itr) {
                 uint8_t nadr = (*itr)["nAdr"].get<uint8_t>();
-                  std::string metadataStr = jutils::jsonToStr(m_iIqrfInfo->getNodeMetaData(nadr));
+                  std::string metadataStr = jutils::jsonToStr(m_dbService->getDeviceMetadataDoc(nadr));
                   (*itr)["metaData"] = json::parse(metadataStr);
               }
             } catch (const std::exception &e) {
@@ -224,15 +235,15 @@ namespace iqrf {
       (void)props; //silence -Wunused-parameter
     }
 
-    void attachInterface(IIqrfInfo* iface)
+    void attachInterface(IIqrfDb* iface)
     {
-      m_iIqrfInfo = iface;
+      m_dbService = iface;
     }
 
-    void detachInterface(IIqrfInfo* iface)
+    void detachInterface(IIqrfDb* iface)
     {
-      if (m_iIqrfInfo == iface) {
-        m_iIqrfInfo = nullptr;
+      if (m_dbService == iface) {
+        m_dbService = nullptr;
       }
     }
 
@@ -302,12 +313,12 @@ namespace iqrf {
     m_imp->modify(props);
   }
 
-  void JsonDpaApiIqrfStdExt::attachInterface(IIqrfInfo* iface)
+  void JsonDpaApiIqrfStdExt::attachInterface(IIqrfDb* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void JsonDpaApiIqrfStdExt::detachInterface(IIqrfInfo* iface)
+  void JsonDpaApiIqrfStdExt::detachInterface(IIqrfDb* iface)
   {
     m_imp->detachInterface(iface);
   }

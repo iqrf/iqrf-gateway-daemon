@@ -17,7 +17,7 @@
 #pragma once
 
 #include "DpaPerExceptions.h"
-#include "IIqrfInfo.h"
+#include "IIqrfDb.h"
 #include "IJsRenderService.h"
 #include "IIqrfDpaService.h"
 #include "IMessagingSplitterService.h"
@@ -39,8 +39,8 @@ namespace iqrf {
     void deactivate();
     void modify(const shape::Properties *props);
 
-    void attachInterface(IIqrfInfo* iface);
-    void detachInterface(IIqrfInfo* iface);
+    void attachInterface(IIqrfDb* iface);
+    void detachInterface(IIqrfDb* iface);
 
     void attachInterface(IJsRenderService* iface);
     void detachInterface(IJsRenderService* iface);

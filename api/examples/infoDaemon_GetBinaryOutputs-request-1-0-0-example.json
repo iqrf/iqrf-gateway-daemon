@@ -1,8 +1,0 @@
-{
-    "mType": "infoDaemon_GetBinaryOutputs",
-    "data": {
-        "msgId": "test",
-        "req": {},
-        "returnVerbose": true
-    }
-}

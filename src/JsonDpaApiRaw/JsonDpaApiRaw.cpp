@@ -83,7 +83,7 @@ namespace iqrf {
   class JsonDpaApiRaw::Imp
   {
   private:
-    IIqrfInfo* m_iIqrfInfo = nullptr;
+    IIqrfDb* m_dbService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::string m_name = "JsonDpaApiRaw";
@@ -120,16 +120,14 @@ namespace iqrf {
       std::unique_ptr<ComNadr> com = m_objectFactory.createObject(msgType.m_type, doc);
 
       // db metadata
-      if (m_iIqrfInfo) {
-        if (m_iIqrfInfo->getMidMetaDataToMessages()) {
-          Document metaDoc;
-          try {
-            metaDoc = m_iIqrfInfo->getNodeMetaData(com->getNadr());
-          } catch (const std::exception &e) {
-            TRC_WARNING(e.what());
-          }
-          com->setMidMetaData(metaDoc);
+      if (m_dbService && m_dbService->getMetadataToMessages()) {
+        Document metaDataDoc;
+        try {
+          metaDataDoc = m_dbService->getDeviceMetadataDoc(com->getNadr());
+        } catch (const std::exception &e) {
+          TRC_WARNING(e.what());
         }
+        com->setMidMetaData(metaDataDoc);
       }
 
       auto trn = m_iIqrfDpaService->executeDpaTransaction(com->getDpaRequest(), com->getTimeout());
@@ -155,7 +153,7 @@ namespace iqrf {
       Document fakeRequest;
       Pointer("/mType").Set(fakeRequest, "iqrfRaw");
       Pointer("/data/msgId").Set(fakeRequest, "async");
-      std::string rData = encodeBinary(msg.DpaPacket().Buffer, msg.GetLength());
+      std::string rData = HexStringConversion::encodeBinary(msg.DpaPacket().Buffer, msg.GetLength());
       //Pointer("/data/req/rData").Set(fakeRequest, "00.00.00.00.00.00");
       Pointer("/data/req/rData").Set(fakeRequest, rData);
       Document respDoc;
@@ -227,15 +225,15 @@ namespace iqrf {
       (void)props; //silence -Wunused-parameter
     }
 
-    void attachInterface(IIqrfInfo* iface)
+    void attachInterface(IIqrfDb* iface)
     {
-      m_iIqrfInfo = iface;
+      m_dbService = iface;
     }
 
-    void detachInterface(IIqrfInfo* iface)
+    void detachInterface(IIqrfDb* iface)
     {
-      if (m_iIqrfInfo == iface) {
-        m_iIqrfInfo = nullptr;
+      if (m_dbService == iface) {
+        m_dbService = nullptr;
       }
     }
 
@@ -292,12 +290,12 @@ namespace iqrf {
     m_imp->modify(props);
   }
 
-  void JsonDpaApiRaw::attachInterface(IIqrfInfo* iface)
+  void JsonDpaApiRaw::attachInterface(IIqrfDb* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void JsonDpaApiRaw::detachInterface(IIqrfInfo* iface)
+  void JsonDpaApiRaw::detachInterface(IIqrfDb* iface)
   {
     m_imp->detachInterface(iface);
   }

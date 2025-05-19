@@ -113,8 +113,8 @@ int main(int argc, char** argv) {
 			header <<
 				"============================================================================" << std::endl <<
 				PAR(DAEMON_VERSION) << std::endl << std::endl <<
-				"Copyright 2015 - 2023 IQRF Tech s.r.o." << std::endl <<
-				"Copyright 2019 - 2023 MICRORISC s.r.o." << std::endl <<
+				"Copyright 2015 - 2025 IQRF Tech s.r.o." << std::endl <<
+				"Copyright 2019 - 2025 MICRORISC s.r.o." << std::endl <<
 				"============================================================================" << std::endl;
 
 			std::cout << header.str();

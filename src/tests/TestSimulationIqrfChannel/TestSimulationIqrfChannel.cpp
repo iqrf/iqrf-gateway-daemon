@@ -63,7 +63,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       if (millisToDelay > 0)
         std::this_thread::sleep_for(std::chrono::milliseconds(millisToDelay));
-      m_accessControl.messageHandler(DotMsg(msg));
+      m_accessControl.messageHandler(HexStringConversion::DotMsg(msg));
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -140,7 +140,7 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
       std::unique_lock<std::mutex> lck(m_queueMux);
-      m_incomingMsgQueue.push(DotMsg(message));
+      m_incomingMsgQueue.push(HexStringConversion::DotMsg(message));
       m_cv.notify_one();
 
       TRC_FUNCTION_LEAVE("");
