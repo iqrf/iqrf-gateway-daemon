@@ -708,9 +708,9 @@ namespace iqrf {
 						standardEnumeration();
 						sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::StandardsDone));
 					}
+					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::Finish));
 					resetExclusiveAccess();
 					m_enumRepeat = false;
-					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::Finish));
 				} else {
 					TRC_DEBUG("DPA has exclusive access.");
 				}
@@ -1364,6 +1364,8 @@ namespace iqrf {
 					}
 					continue;
 				}
+				this->enumerateNoncertifiedProduct(addr);
+				continue;
 				// try hwpid 0 package
 				package = m_cacheService->getPackage(0, 0, osBuild, dpaVersion);
 			}
