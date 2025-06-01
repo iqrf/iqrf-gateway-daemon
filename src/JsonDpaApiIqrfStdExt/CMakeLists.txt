@@ -17,7 +17,7 @@ project(JsonDpaApiIqrfStdExt)
 
 set(COMPONENT iqrf::JsonDpaApiIqrfStdExt)
 DeclareShapeComponent(${COMPONENT})
-AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfInfo MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDb MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IJsRenderService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
@@ -44,6 +44,7 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+    DbEntities
     nlohmann_json::nlohmann_json
 )
 

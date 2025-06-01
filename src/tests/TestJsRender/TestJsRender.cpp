@@ -194,10 +194,10 @@ namespace iqrf {
     strStream << jsFile.rdbuf();
     std::string jsString = strStream.str();
     ASSERT_FALSE(jsString.empty());
-    std::set<int> driverIds = { 1, 2, 3 };
+    std::set<uint32_t> driverIds = { 1, 2, 3 };
     Imp::get().m_iJsRenderService->loadContextCode(0xFFFFFF, jsString, driverIds);
     Imp::get().m_iJsRenderService->mapAddressToContext(0xFFFFFF, 0xFFFFFF);
-    std::set<int> driverIdsExp = Imp::get().m_iJsRenderService->getDriverIdSet(0xFFFFFF);
+    std::set<uint32_t> driverIdsExp = Imp::get().m_iJsRenderService->getDriverIdSet(0xFFFFFF);
     EXPECT_EQ(driverIdsExp.size(), driverIds.size());
     auto it = driverIdsExp.begin();
     for (auto i : driverIds) {

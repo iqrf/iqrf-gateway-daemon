@@ -65,7 +65,7 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	bool JsRenderDuktape::loadContextCode(int contextId, const std::string &js, const std::set<int> &driverIdSet) {
+	bool JsRenderDuktape::loadContextCode(int contextId, const std::string &js, const std::set<uint32_t> &driverIdSet) {
 		TRC_FUNCTION_ENTER(PAR(contextId));
 		bool retval = true;
 		try {
@@ -94,13 +94,13 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	std::set<int> JsRenderDuktape::getDriverIdSet(int contextId) const {
+	std::set<uint32_t> JsRenderDuktape::getDriverIdSet(int contextId) const {
 		std::unique_lock<std::mutex> lck(m_contextMtx);
 		auto found = m_contextDriverMap.find(contextId);
 		if (found != m_contextDriverMap.end()) {
 			return found->second;
 		}
-		return std::set<int>();
+		return std::set<uint32_t>();
 	}
 
 	void JsRenderDuktape::callContext(int address, int hwpid, const std::string &fname, const std::string &params, std::string &ret) {
@@ -174,6 +174,14 @@ namespace iqrf {
 			TRC_DEBUG("Using default provisional hwpid context: " << PAR(uhwpid) << PAR(contextId));
 		}
 		return context->second;
+	}
+
+	std::shared_ptr<int> JsRenderDuktape::getDeviceAddrProductId(int address) const {
+		auto result = m_addressContextMap.find(address);
+		if (result == m_addressContextMap.end()) {
+			return nullptr;
+		}
+		return std::make_shared<int>(result->second);
 	}
 
 	void JsRenderDuktape::clearContexts() {

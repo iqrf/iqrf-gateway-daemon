@@ -15,12 +15,11 @@
 
 project(JsonMngApi)
 
-set(CMAKE_CXX_STANDARD 14)
 set(COMPONENT iqrf::JsonMngApi)
 DeclareShapeComponent(${COMPONENT})
 AddShapeRequiredInterface(${COMPONENT} shape::ILaunchService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfInfo MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDb MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::ISchedulerService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IJsCacheService UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IUdpConnectorService UNREQUIRED SINGLE)
@@ -47,5 +46,10 @@ if(SHAPE_STATIC_LIBS)
 else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
+
+target_link_libraries(${PROJECT_NAME}
+    DbEntities
+    nlohmann_json::nlohmann_json
+)
 
 DeployShapeComponent(${PROJECT_NAME})

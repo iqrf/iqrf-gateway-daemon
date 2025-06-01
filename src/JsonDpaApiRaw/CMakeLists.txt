@@ -17,7 +17,7 @@ project(JsonDpaApiRaw)
 
 set(COMPONENT iqrf::JsonDpaApiRaw)
 DeclareShapeComponent(${COMPONENT})
-AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfInfo UNREQUIRED SINGLE)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDb UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
@@ -41,5 +41,10 @@ if(SHAPE_STATIC_LIBS)
 else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
+
+target_link_libraries(${PROJECT_NAME}
+    DbEntities
+    nlohmann_json::nlohmann_json
+)
 
 DeployShapeComponent(${PROJECT_NAME})
