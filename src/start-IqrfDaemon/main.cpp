@@ -30,7 +30,6 @@ TRC_INIT_MNAME("iqrfgd2")
 //Shape buffer channel
 #define TRC_CHANNEL 0
 
-#ifndef SHAPE_PLATFORM_WINDOWS
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -69,10 +68,6 @@ void pidInit(const std::string &fileName) {
 		TRC_WARNING("Failed to create PID file: " << strerror(errno));
 	}
 }
-#else
-// dummy for win
-void pidInit(const std::string &fileName) {}
-#endif
 
 namespace bpo = boost::program_options;
 

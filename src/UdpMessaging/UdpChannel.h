@@ -18,18 +18,6 @@
 
 #include "ShapeDefines.h"
 
-#ifdef SHAPE_PLATFORM_WINDOWS
-
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
-#include <stdint.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <Iphlpapi.h>
-typedef int clientlen_t;
-#else
 #include <arpa/inet.h>
 #include <net/if.h>
 #include <netinet/in.h>
@@ -37,10 +25,6 @@ typedef int clientlen_t;
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-typedef int SOCKET;
-typedef void * SOCKADDR_STORAGE;
-typedef size_t clientlen_t;
-#endif
 
 #include "IChannel.h"
 #include "NetworkInterface.h"
@@ -176,7 +160,7 @@ private:
 	/// Indicates if thread continue listening
 	bool m_runListenThread;
 	/// Socket file descriptor
-	SOCKET m_sockfd = -1;
+	int m_sockfd = -1;
 	/// Listening transport structure
 	sockaddr_in m_listener;
 	/// Sending transport structure
@@ -185,7 +169,6 @@ private:
 	unsigned short m_remotePort;
 	/// Port to listen on
 	unsigned short m_localPort;
-#ifndef SHAPE_PLATFORM_WINDOWS
 	/// Message header structure for received messages
 	msghdr m_recHeader;
 	/// Control message header structure for received messages
@@ -198,7 +181,6 @@ private:
 	unsigned char *m_controlBuff;
 	/// Control meta buffer size
 	unsigned m_controlBuffSize = 0x100;
-#endif
 	/// Data buffer
 	unsigned char *m_dataBuff;
 	/// Data buffer size

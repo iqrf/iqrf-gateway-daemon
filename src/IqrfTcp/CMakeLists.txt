@@ -37,14 +37,8 @@ else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
-if (WIN32)
-	target_link_libraries(${PROJECT_NAME}
-		Ws2_32
-	)
-else()
-	target_link_libraries(${PROJECT_NAME}
-		rt
-	)
-endif()
+target_link_libraries(${PROJECT_NAME}
+	rt
+)
 
 DeployShapeComponent(${PROJECT_NAME})

@@ -25,14 +25,10 @@
 #include <algorithm>
 #include <set>
 
-#ifdef SHAPE_PLATFORM_WINDOWS
-#include <windows.h>
-#else
 #include <dirent.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#endif
 
 #include "iqrf__Scheduler.hxx"
 
@@ -482,7 +478,6 @@ namespace iqrf {
 		PrettyWriter<OStreamWrapper> writer(osw);
 		d.Accept(writer);
 		ofs.close();
-#ifndef SHAPE_PLATFORM_WINDOWS
 		int fd = open(fname.c_str(), O_RDWR);
 		if (fd < 0) {
 			TRC_WARNING("Failed to open file " << fname << ". " << errno << ": " << strerror(errno));
@@ -492,7 +487,6 @@ namespace iqrf {
 			}
 			close(fd);
 		}
-#endif
 	}
 
 	void Scheduler::deleteTaskFile(const TaskHandle &taskId) {
@@ -663,7 +657,6 @@ namespace iqrf {
 					PrettyWriter<OStreamWrapper> writer(ow);
 					taskDoc.Accept(writer);
 					os.close();
-#ifndef SHAPE_PLATFORM_WINDOWS
 					int fd = open(path.c_str(), O_RDWR);
 					if (fd < 0) {
 						TRC_WARNING("Failed to open file " << path << ". " << errno << ": " << strerror(errno));
@@ -673,7 +666,6 @@ namespace iqrf {
 						}
 						close(fd);
 					}
-#endif
 				}
 
 				std::shared_ptr<SchedulerRecord> record(shape_new SchedulerRecord(taskDoc));
@@ -699,35 +691,6 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-#ifdef SHAPE_PLATFORM_WINDOWS
-	std::set<std::string> Scheduler::getTaskFiles(const std::string &dir) const {
-		WIN32_FIND_DATA fid;
-		HANDLE found = INVALID_HANDLE_VALUE;
-
-		std::set<std::string> fileSet;
-		std::string sdirect(dir);
-		sdirect.append("/*.json");
-
-		found = FindFirstFile(sdirect.c_str(), &fid);
-
-		if (INVALID_HANDLE_VALUE == found) {
-			TRC_INFORMATION("Directory does not exist or empty Scheduler cache: " << PAR(sdirect));
-		}
-
-		do {
-			if (fid.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-				continue; // skip a directory
-			}
-			std::string fil(dir);
-			fil.append("/");
-			fil.append(fid.cFileName);
-			fileSet.insert(fil);
-		} while (FindNextFile(found, &fid) != 0);
-
-		FindClose(found);
-		return fileSet;
-	}
-#else
 	std::set<std::string> Scheduler::getTaskFiles(const std::string &dirStr) const {
 		std::set<std::string> fileSet;
 		std::string jsonExt = "json";
@@ -766,7 +729,7 @@ namespace iqrf {
 		}
 		return fileSet;
 	}
-#endif
+
 	///// auxiliary methods /////
 
 	std::string Scheduler::getTaskHandle(const std::string &taskId) {

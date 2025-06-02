@@ -1645,12 +1645,7 @@ namespace iqrf
     //-------------------
     std::string getFullFileName(const std::string &uploadPath, const std::string &fileName)
     {
-      char fileSeparator;
-#if defined(WIN32) || defined(_WIN32)
-      fileSeparator = '\\';
-#else
-      fileSeparator = '/';
-#endif
+      char fileSeparator = '/';
       std::string fullFileName = uploadPath;
       if (uploadPath[uploadPath.size() - 1] != fileSeparator)
       {

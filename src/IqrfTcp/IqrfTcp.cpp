@@ -33,17 +33,12 @@
 #include <cerrno>
 #include <cstring>
 
-#ifdef SHAPE_PLATFORM_WINDOWS
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#else
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <sys/socket.h>
 #include <unistd.h>
 typedef int SOCKET;
-#endif
 
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
@@ -190,15 +185,6 @@ namespace iqrf {
 
       using namespace rapidjson;
 
-#ifdef SHAPE_PLATFORM_WINDOWS
-      // Initialize Winsock
-      WSADATA wsaData = { 0 };
-      int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-      if (iResult != 0) {
-        THROW_EXC_TRC_WAR(std::logic_error, "WSAStartup failed: " << GetLastError());
-      }
-#endif
-
       try {
         uint16_t portnum = 0;
         std::string addrStr;
@@ -319,14 +305,8 @@ namespace iqrf {
         THROW_EXC_TRC_WAR(std::logic_error, "Socket is not open.")
       }
 
-#ifdef SHAPE_PLATFORM_WINDOWS
-      shutdown(sockfd, SD_BOTH);
-      closesocket(sockfd);
-      WSACleanup();
-#else
       shutdown(sockfd, SHUT_RDWR);
       close(sockfd);
-#endif
 
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<

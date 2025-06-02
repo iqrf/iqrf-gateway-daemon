@@ -134,24 +134,10 @@
       "startlevel": 0
     },
     {
-      "name": "iqrf::MqMessaging",
-      "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "MqMessaging",
-      "enabled": true,
-      "startlevel": 10
-    },
-    {
       "name": "iqrf::MqttMessaging",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "MqttMessaging",
       "enabled": true,
-      "startlevel": 10
-    },
-    {
-      "name": "iqrf::BufferedMqttMessaging",
-      "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "BufferedMqttMessaging",
-      "enabled": false,
       "startlevel": 10
     },
     {

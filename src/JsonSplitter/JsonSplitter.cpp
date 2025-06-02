@@ -29,12 +29,8 @@
 #include "rapidjson/schema.h"
 #include "Trace.h"
 
-#ifdef SHAPE_PLATFORM_WINDOWS
-#include <windows.h>
-#else
 #include <dirent.h>
 #include <sys/stat.h>
-#endif
 
 #include <mutex>
 #include <fstream>
@@ -436,38 +432,6 @@ namespace iqrf {
       }
     }
 
-#ifdef SHAPE_PLATFORM_WINDOWS
-    std::vector<std::string> getSchemesFiles(const std::string& schemesDir, const std::string& filter)
-    {
-      WIN32_FIND_DATA fid;
-      HANDLE found = INVALID_HANDLE_VALUE;
-
-      std::vector<std::string> fileVect;
-      std::string sdirect(schemesDir);
-      sdirect.append("/*");
-      sdirect.append(filter);
-      sdirect.append("*");
-
-      found = FindFirstFile(sdirect.c_str(), &fid);
-
-      if (INVALID_HANDLE_VALUE == found) {
-        THROW_EXC_TRC_WAR(std::logic_error, "JsonSchemes directory does not exist: " << PAR(schemesDir));
-      }
-
-      do {
-        if (fid.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-          continue; //skip a directory
-        std::string fil(schemesDir);
-        fil.append("/");
-        fil.append(fid.cFileName);
-        fileVect.push_back(fil);
-      } while (FindNextFile(found, &fid) != 0);
-
-      FindClose(found);
-      return fileVect;
-    }
-
-#else
     std::vector<std::string> getSchemesFiles(const std::string& schemesDir, const std::string& filter)
     {
       std::vector<std::string> fileVect;
@@ -506,8 +470,6 @@ namespace iqrf {
 
       return fileVect;
     }
-
-#endif
 
     void loadJsonSchemesRequest(const std::string sdir)
     {

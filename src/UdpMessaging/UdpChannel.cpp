@@ -20,16 +20,7 @@
 #include <time.h>
 #include <string.h>
 
-#ifndef SHAPE_PLATFORM_WINDOWS
-#define GetLastError() errno
-#define WSAGetLastError() errno
 #define SOCKET_ERROR -1
-int closesocket(int __fd) { return close(__fd); }
-typedef int opttype;
-#else
-#define SHUT_RD SD_RECEIVE
-typedef char opttype;
-#endif
 
 UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsigned int expiration, unsigned dataBuffSize) {
 	TRC_FUNCTION_ENTER(PAR(remotePort) << PAR(localPort) << PAR(dataBuffSize));
@@ -40,29 +31,18 @@ UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsi
 	m_expirationPeriod = expiration;
 	m_dataBuffSize = dataBuffSize;
 
-#ifdef SHAPE_PLATFORM_WINDOWS
-	// Initialize Winsock
-	WSADATA wsaData = { 0 };
-	int iResult = 0;
-
-	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (iResult != 0) {
-		THROW_EXC_TRC_WAR(UdpChannelException, "WSAStartup failed: " << GetLastError());
-	}
-#endif
-
 	m_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (m_sockfd == -1) {
-		THROW_EXC_TRC_WAR(UdpChannelException, "socket failed: " << GetLastError());
+		THROW_EXC_TRC_WAR(UdpChannelException, "socket failed: " << errno);
 	}
 
 	int ret;
-	opttype opt = 1;
+	int opt = 1;
 	// Enable packet info
 	ret = setsockopt(m_sockfd, IPPROTO_IP, IP_PKTINFO, &opt, sizeof(opt));;
 	if (ret == SOCKET_ERROR) {
-		closesocket(m_sockfd);
-		THROW_EXC_TRC_WAR(UdpChannelException, "setsockopt failed: " << GetLastError());
+		close(m_sockfd);
+		THROW_EXC_TRC_WAR(UdpChannelException, "setsockopt failed: " << errno);
 	}
 
 	// Initialize listener
@@ -79,7 +59,6 @@ UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsi
 	m_dataBuff = shape_new unsigned char[m_dataBuffSize];
 	memset(m_dataBuff, 0, m_dataBuffSize);
 
-#ifndef SHAPE_PLATFORM_WINDOWS
 	m_controlBuff = shape_new unsigned char[m_controlBuffSize];
 	memset(m_controlBuff, 0, m_controlBuffSize);
 
@@ -91,16 +70,12 @@ UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsi
 	m_recHeader.msg_iovlen = sizeof(m_recIov) / sizeof(*m_recIov);
 	m_recHeader.msg_control = m_controlBuff;
 	m_recHeader.msg_controllen = m_controlBuffSize;
-#else
-	m_receivingIp = "0.0.0.0";
-	m_receivingMac = "00-00-00-00-00-00";
-#endif
 
 	// Bind socket to all interfaces
 	ret = bind(m_sockfd, (struct sockaddr *)&m_listener, sizeof(m_listener));
 	if (ret == SOCKET_ERROR) {
-		closesocket(m_sockfd);
-		THROW_EXC_TRC_WAR(UdpChannelException, "bind failed: " << GetLastError());
+		close(m_sockfd);
+		THROW_EXC_TRC_WAR(UdpChannelException, "bind failed: " << errno);
 	}
 
 	m_listenThread = std::thread(&UdpChannel::listen, this);
@@ -109,16 +84,13 @@ UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsi
 
 UdpChannel::~UdpChannel() {
 	shutdown(m_sockfd, SHUT_RD);
-	closesocket(m_sockfd);
+	close(m_sockfd);
 
 	TRC_DEBUG("joining udp listening thread");
 	if (m_listenThread.joinable())
 		m_listenThread.join();
 	TRC_DEBUG("listening thread joined");
 
-#ifdef SHAPE_PLATFORM_WINDOWS
-	WSACleanup();
-#endif
 	delete[] m_controlBuff;
 	delete[] m_dataBuff;
 }
@@ -126,29 +98,19 @@ UdpChannel::~UdpChannel() {
 void UdpChannel::sendTo(const std::basic_string<unsigned char>& message) {
 	int sentBytes = sendto(m_sockfd, (const char *)message.data(), static_cast<unsigned int>(message.size()), 0, (struct sockaddr *)&m_sender, sizeof(m_sender));
 	if (sentBytes == SOCKET_ERROR) {
-		THROW_EXC_TRC_WAR(UdpChannelException, "Failed to send message, sendto(): [" << GetLastError() << "] " << strerror(GetLastError()));
+		THROW_EXC_TRC_WAR(UdpChannelException, "Failed to send message, sendto(): [" << errno << "] " << strerror(errno));
 	}
 }
 
 void UdpChannel::listen() {
 	TRC_FUNCTION_ENTER("thread starts");
 
-#ifdef SHAPE_PLATFORM_WINDOWS
-	socklen_t listenerLen = sizeof(m_listener);
-#endif
-
 	try {
 		m_isListening = true;
 		while (m_runListenThread) {
-#ifdef SHAPE_PLATFORM_WINDOWS
-			int recBytes = recvfrom(m_sockfd, (char *)m_dataBuff, m_dataBuffSize, 0, (struct sockaddr *)&m_listener, &listenerLen);
-			if (recBytes == SOCKET_ERROR) {
-				THROW_EXC_TRC_WAR(UdpChannelException, "Failed to receive message, recvfrom(): [" << GetLastError() << "] " << strerror(GetLastError()));
-			}
-#else
 			int recBytes = recvmsg(m_sockfd, &m_recHeader, 0);
 			if (recBytes == SOCKET_ERROR) {
-				THROW_EXC_TRC_WAR(UdpChannelException, "Failed to receive message, recvmsg(): [" << GetLastError() << "] " << strerror(GetLastError()));
+				THROW_EXC_TRC_WAR(UdpChannelException, "Failed to receive message, recvmsg(): [" << errno << "] " << strerror(errno));
 			}
 			identifyReceivingInterface();
 
@@ -158,20 +120,12 @@ void UdpChannel::listen() {
 
 			std::string senderIp(inet_ntoa(m_addr.sin_addr));
 			TRC_DEBUG("Received UDP datagram at IP " << m_receivingIp << ", MAC " << m_receivingMac << " from IP " << senderIp);
-#endif
 			if (recBytes > 0) {
 				if (m_messageHandler) {
-#ifdef SHAPE_PLATFORM_WINDOWS
-					std::basic_string<unsigned char> message(m_dataBuff, recBytes);
-					if (m_messageHandler(message) == 0) {
-						m_sender.sin_addr.s_addr = m_listener.sin_addr.s_addr;
-					}
-#else
 					std::basic_string<unsigned char> message((unsigned char *)m_recHeader.msg_iov[0].iov_base, recBytes);
 					if (m_messageHandler(message) == 0) {
 						m_sender.sin_addr = m_addr.sin_addr;
 					}
-#endif
 				} else {
 					TRC_WARNING("No message handler registered.");
 				}
@@ -185,7 +139,6 @@ void UdpChannel::listen() {
 	TRC_FUNCTION_LEAVE("thread stopped");
 }
 
-#ifndef SHAPE_PLATFORM_WINDOWS
 void UdpChannel::identifyReceivingInterface() {
 	m_receivingIp = "0.0.0.0";
 	m_receivingMac = "00-00-00-00-00-00";
@@ -252,21 +205,21 @@ void UdpChannel::findInterfaceByIndex(const int &idx) {
 
 	int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (sockfd == SOCKET_ERROR) {
-		TRC_WARNING("Failed to create socket for interface info: [" << GetLastError() << "]: " << strerror(GetLastError()));
+		TRC_WARNING("Failed to create socket for interface info: [" << errno << "]: " << strerror(errno));
 		return;
 	}
 
 	res = ioctl(sockfd, SIOCGIFCONF, (char *)&ifc);
 	if (res == SOCKET_ERROR) {
-		TRC_WARNING("Interface configuration ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
-		closesocket(sockfd);
+		TRC_WARNING("Interface configuration ioctl failed: [" << errno << "]: " << strerror(errno));
+		close(sockfd);
 		return;
 	}
 
 	for (unsigned int i = 0; i < ifc.ifc_len/sizeof(struct ifreq); ++i) {
 		res = ioctl(sockfd, SIOCGIFINDEX, &ifrs[i]);
 		if (res == SOCKET_ERROR) {
-			TRC_WARNING("Interface index ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
+			TRC_WARNING("Interface index ioctl failed: [" << errno << "]: " << strerror(errno));
 			break;
 		}
 
@@ -276,7 +229,7 @@ void UdpChannel::findInterfaceByIndex(const int &idx) {
 
 		res = ioctl(sockfd, SIOCGIFADDR, &ifrs[i]);
 		if (res == SOCKET_ERROR) {
-			TRC_WARNING("Interface IP ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
+			TRC_WARNING("Interface IP ioctl failed: [" << errno << "]: " << strerror(errno));
 			break;
 		}
 		char ipBuffer[INET_ADDRSTRLEN];
@@ -288,7 +241,7 @@ void UdpChannel::findInterfaceByIndex(const int &idx) {
 		uint8_t macBuffer[6];
 		res = ioctl(sockfd, SIOCGIFHWADDR, &ifrs[i]);
 		if (res == SOCKET_ERROR) {
-			TRC_WARNING("Interface MAC ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
+			TRC_WARNING("Interface MAC ioctl failed: [" << errno << "]: " << strerror(errno));
 			break;
 		}
 		memcpy(macBuffer, ifrs[i].ifr_hwaddr.sa_data, sizeof(macBuffer));
@@ -322,7 +275,7 @@ void UdpChannel::findInterfaceByIndex(const int &idx) {
 		}
 		break;
 	}
-	closesocket(sockfd);
+	close(sockfd);
 }
 
 int UdpChannel::getInterfaceMetric(const std::string &ip) {
@@ -379,7 +332,6 @@ std::string UdpChannel::convertToMacString(const uint8_t *macBytes) {
 	std::sprintf(buffer, "%02X-%02X-%02X-%02X-%02X-%02X", macBytes[0], macBytes[1], macBytes[2], macBytes[3], macBytes[4], macBytes[5]);
 	return std::string(buffer);
 }
-#endif
 
 void UdpChannel::registerReceiveFromHandler(ReceiveFromFunc messageHandler) {
 	m_messageHandler = messageHandler;

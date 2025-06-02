@@ -26,10 +26,7 @@
 #include <thread>
 #include <atomic>
 #include <cstring>
-
-#ifndef SHAPE_PLATFORM_WINDOWS
 #include <termios.h>
-#endif
 
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
@@ -412,9 +409,6 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-#ifdef SHAPE_PLATFORM_WINDOWS
-    int get_baud(int baud) { return baud; }
-#else
     // converts integer baud to Linux define
     int get_baud(int baud)
     {
@@ -433,7 +427,6 @@ namespace iqrf {
         return -1;
       }
     }
-#endif
 
     void deactivate()
     {

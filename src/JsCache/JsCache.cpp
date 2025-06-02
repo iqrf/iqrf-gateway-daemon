@@ -1285,29 +1285,6 @@ namespace iqrf {
     std::string cacheName = getCachePath("cache");
     std::string cacheNameBkp = getCachePath("cache.bkp");
     if (filesystem::exists(cacheName)) {
-
-#ifdef SHAPE_PLATFORM_WINDOWS
-      {
-        boost::filesystem::recursive_directory_iterator rdi(cacheNameBkp);
-        boost::filesystem::recursive_directory_iterator end_rdi;
-
-        for (; rdi != end_rdi; rdi++)
-        {
-          try
-          {
-            if (boost::filesystem::is_regular_file(rdi->status()))
-            {
-              boost::filesystem::remove(rdi->path());
-            }
-          }
-          catch (const std::exception &e)
-          {
-            CATCH_EXC_TRC_WAR(std::exception, e, "Cannot delete file");
-          }
-        }
-      }
-#endif
-
       filesystem::remove_all(cacheNameBkp);
       filesystem::rename(cacheName, cacheNameBkp);
     }
