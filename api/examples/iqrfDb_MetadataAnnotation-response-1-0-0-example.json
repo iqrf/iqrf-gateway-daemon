@@ -1,0 +1,12 @@
+{
+  "mType": "iqrfDb_MetadataAnnotation",
+  "data": {
+    "msgId": "5b8b9c09-4e34-4eb0-849e-dbf18411d54f",
+    "rsp": {
+      "annotate": true
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
+}

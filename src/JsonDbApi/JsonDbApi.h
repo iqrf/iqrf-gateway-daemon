@@ -130,16 +130,17 @@ namespace iqrf {
 		IMessagingSplitterService *m_splitterService = nullptr;
 		/// Vector of IQRF DB message types
 		std::vector<std::string> m_messageTypes = {
+			"iqrfDb_Enumerate",
 			"iqrfDb_GetBinaryOutput",
 			"iqrfDb_GetDalis",
 			"iqrfDb_GetDevice",
+			"iqrfDb_GetDeviceMetadata",
 			"iqrfDb_GetDevices",
 			"iqrfDb_GetNetworkTopology",
 			"iqrfDb_GetLights",
 			"iqrfDb_GetSensors",
-			"iqrfDb_Enumerate",
+			"iqrfDb_MetadataAnnotation",
 			"iqrfDb_Reset",
-			"iqrfDb_GetDeviceMetadata",
 			"iqrfDb_SetDeviceMetadata",
 			// Legacy API messages
 			"infoDaemon_Enumeration",

@@ -17,30 +17,25 @@
  */
 #pragma once
 
-#include <map>
-#include <set>
-
 #include "BaseMsg.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
-
-typedef std::tuple<bool, std::shared_ptr<std::string>> GetMetadataResponse;
 
 namespace iqrf {
 
 	/**
 	 * Database annotate metadata request message
 	 */
-	class LegacyMidMetaDataAnnotateMsg : public BaseMsg {
+	class MetadataAnnotation : public BaseMsg {
 	public:
 		/// Delete base constructor
-		LegacyMidMetaDataAnnotateMsg() = delete;
+		MetadataAnnotation() = delete;
 
 		/**
 		 * Constructor
 		 * @param doc Request document
 		 */
-		LegacyMidMetaDataAnnotateMsg(const Document &doc) : BaseMsg(doc) {
+		MetadataAnnotation(const Document &doc) : BaseMsg(doc) {
 			annotate = Pointer("/data/req/annotate").Get(doc)->GetBool();
 		}
 

@@ -23,6 +23,7 @@
 #include "Messages/GetNetworkTopologyMsg.h"
 #include "Messages/GetLightsMsg.h"
 #include "Messages/GetSensorsMsg.h"
+#include "Messages/MetadataAnnotation.h"
 #include "Messages/ResetMsg.h"
 #include "Messages/GetDeviceMetadataMsg.h"
 #include "Messages/SetDeviceMetadataMsg.h"
@@ -34,7 +35,6 @@
 #include "Messages/LegacyGetNodeMetaData.h"
 #include "Messages/LegacyGetNodesMsg.h"
 #include "Messages/LegacyGetSensorsMsg.h"
-#include "Messages/LegacyMidMetaDataAnnotateMsg.h"
 #include "Messages/LegacySetMidMetaDataMsg.h"
 #include "Messages/LegacySetNodeMetadata.h"
 
@@ -133,6 +133,8 @@ namespace iqrf {
 			msg = std::make_unique<GetSensorsMsg>(GetSensorsMsg(request));
 		} else if (msgType.m_type == "iqrfDb_GetDeviceMetadata") {
 			msg = std::make_unique<GetDeviceMetadataMsg>(GetDeviceMetadataMsg(request));
+		} else if (msgType.m_type == "iqrfDb_MetadataAnnotation" || msgType.m_type == "infoDaemon_MidMetaDataAnnotate") {
+			msg = std::make_unique<MetadataAnnotation>(MetadataAnnotation(request));
 		} else if (msgType.m_type == "iqrfDb_SetDeviceMetadata") {
 			msg = std::make_unique<SetDeviceMetadataMsg>(SetDeviceMetadataMsg(request));
 		} else if (msgType.m_type == "iqrfDb_Reset" || msgType.m_type == "infoDaemon_Reset") { // Legacy API messages
@@ -149,8 +151,6 @@ namespace iqrf {
 			msg = std::make_unique<LegacyGetNodesMsg>(LegacyGetNodesMsg(request));
 		} else if (msgType.m_type == "infoDaemon_GetSensors") {
 			msg = std::make_unique<LegacyGetSensorsMsg>(LegacyGetSensorsMsg(request));
-		} else if (msgType.m_type == "infoDaemon_MidMetaDataAnnotate") {
-			msg = std::make_unique<LegacyMidMetaDataAnnotateMsg>(LegacyMidMetaDataAnnotateMsg(request));
 		} else if (msgType.m_type == "infoDaemon_SetMidMetaData") {
 			msg = std::make_unique<LegacySetMidMetaDataMsg>(LegacySetMidMetaDataMsg(request));
 		} else if (msgType.m_type == "infoDaemon_SetNodeMetaData") {
