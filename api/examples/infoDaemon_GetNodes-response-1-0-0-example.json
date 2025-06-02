@@ -1,0 +1,39 @@
+{
+	"mType": "infoDaemon_GetNodes",
+	"data": {
+		"msgId": "cec80d68-182c-4bbb-98bb-790136b9e3ca",
+		"rsp": {
+			"nodes": [
+				{
+					"nAdr": 0,
+					"mid": 2164293634,
+					"disc": false,
+					"hwpid": 12292,
+					"hwpidVer": 6,
+					"osBuild": 2264,
+					"dpaVer": 1047
+				},
+				{
+					"nAdr": 1,
+					"mid": 2165406801,
+					"disc": true,
+					"hwpid": 1026,
+					"hwpidVer": 2,
+					"osBuild": 2264,
+					"dpaVer": 1047
+				},
+				{
+					"nAdr": 2,
+					"mid": 2165406755,
+					"disc": true,
+					"hwpid": 22530,
+					"hwpidVer": 1,
+					"osBuild": 2264,
+					"dpaVer": 1047
+				}
+			]
+		},
+		"status": 0,
+		"insId": "iqrfgd2-default"
+	}
+}

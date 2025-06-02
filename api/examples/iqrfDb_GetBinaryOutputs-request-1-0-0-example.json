@@ -1,0 +1,8 @@
+{
+	"mType": "iqrfDb_GetBinaryOutputs",
+	"data": {
+		"msgId": "a406ef2e-f4c1-438b-b105-f374bf2433aa",
+		"req": {},
+		"returnVerbose": true
+	}
+}

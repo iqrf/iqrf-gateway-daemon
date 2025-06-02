@@ -1,0 +1,8 @@
+{
+  "mType": "iqrfDb_GetSensors",
+  "data": {
+    "msgId": "3aecea02-7e0e-4fb9-9a59-13eca58f86be",
+    "req": {},
+    "returnVerbose": true
+  }
+}

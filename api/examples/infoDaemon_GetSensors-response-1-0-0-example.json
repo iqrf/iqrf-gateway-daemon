@@ -1,0 +1,48 @@
+{
+	"mType": "infoDaemon_GetSensors",
+	"data": {
+		"msgId": "814b2220-ca22-4239-96dd-2784c6e7c58b",
+		"rsp": {
+			"sensorDevices": [
+				{
+					"nAdr": 1,
+					"sensors": [
+						{
+							"idx": 0,
+							"id": "TEMPERATURE",
+							"type": 1,
+							"name": "Temperature",
+							"shortName": "T",
+							"unit": "°C",
+							"decimalPlaces": 4,
+							"frcs": [144, 224]
+						},
+						{
+							"idx": 1,
+							"id": "BINARYDATA7",
+							"type": 129,
+							"name": "Light indicator",
+							"shortName": "light",
+							"unit": "%",
+							"decimalPlaces": 1,
+							"frcs": [16, 144]
+						},
+						{
+							"idx": 2,
+							"id": "BINARYDATA7",
+							"type": 129,
+							"name": "Potentiometer",
+							"shortName": "pot",
+							"unit": "%",
+							"decimalPlaces": 1,
+							"frcs": [16, 144]
+						}
+					]
+				}
+			]
+		},
+		"insId": "iqrfgd2-default",
+		"statusStr": "ok",
+		"status": 0
+	}
+}

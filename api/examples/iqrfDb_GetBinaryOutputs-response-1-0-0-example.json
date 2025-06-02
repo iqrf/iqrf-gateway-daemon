@@ -1,0 +1,17 @@
+{
+  "mType": "iqrfDb_GetBinaryOutputs",
+  "data": {
+    "msgId": "a406ef2e-f4c1-438b-b105-f374bf2433aa",
+    "rsp": {
+      "binoutDevices": [
+        {
+          "address": 1,
+          "count": 4
+        }
+      ]
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
+}

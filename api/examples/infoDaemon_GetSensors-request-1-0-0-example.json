@@ -1,0 +1,8 @@
+{
+	"mType": "infoDaemon_GetSensors",
+	"data": {
+		"msgId": "814b2220-ca22-4239-96dd-2784c6e7c58b",
+		"req": {},
+		"returnVerbose": true
+	}
+}

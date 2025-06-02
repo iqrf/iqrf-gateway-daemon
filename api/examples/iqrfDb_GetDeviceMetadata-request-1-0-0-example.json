@@ -1,0 +1,13 @@
+{
+  "mType": "iqrfDb_GetDeviceMetadata",
+  "data": {
+    "msgId": "2eba5e62-055a-43ef-a497-e18ba617f9dd",
+    "req": {
+      "devices": [
+        0,
+        1
+      ]
+    },
+    "returnVerbose": true
+  }
+}

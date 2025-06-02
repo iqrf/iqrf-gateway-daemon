@@ -1,0 +1,8 @@
+{
+  "mType": "iqrfDb_GetLights",
+  "data": {
+    "msgId": "258debe1-5994-44aa-98fa-755783ecc211",
+    "req": {},
+    "returnVerbose": true
+  }
+}

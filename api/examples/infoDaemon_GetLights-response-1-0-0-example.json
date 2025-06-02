@@ -1,0 +1,16 @@
+{
+	"mType": "infoDaemon_GetLights",
+	"data": {
+		"msgId": "0bd02988-916c-4bfc-9c92-2b0cef56f061",
+		"rsp": {
+			"lightDevices": [
+				{
+					"nAdr": 2
+				}
+			]
+		},
+		"insId": "iqrfgd2-default",
+		"statusStr": "ok",
+		"status": 0
+	}
+}

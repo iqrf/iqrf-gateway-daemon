@@ -1,0 +1,11 @@
+{
+	"mType": "iqrfDb_Enumerate",
+	"data": {
+		"msgId": "cad2243f-ee92-4ff8-b983-41ce36a08caf",
+		"req": {
+			"standards": true,
+			"reenumerate": true
+		},
+		"returnVerbose": true
+	}
+}

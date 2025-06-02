@@ -1,0 +1,8 @@
+{
+	"mType": "infoDaemon_GetBinaryOutputs",
+	"data": {
+		"msgId": "d34c46be-ad8a-48c9-bbcf-61f0bc19e3b3",
+		"req": {},
+		"returnVerbose": true
+	}
+}

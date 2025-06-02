@@ -57,6 +57,12 @@
                                 "setPeriod",
                                 "getPeriod"
                             ]
+                        },
+                        "period": {
+                            "$id": "#/properties/data/properties/req/properties/period",
+                            "title": "Period",
+                            "description": "Enumeration period",
+                            "type": "integer"
                         }
                     }
                 },
