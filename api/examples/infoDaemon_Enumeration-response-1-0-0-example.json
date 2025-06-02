@@ -1,0 +1,63 @@
+[
+	{
+		"mType": "infoDaemon_Enumeration",
+		"data": {
+			"msgId": "3c087329-3ae6-419a-803d-34ef2e4a7de6",
+			"rsp": {
+				"command": "now"
+			},
+			"insId": "iqrfgd2-default",
+			"statusStr": "ok",
+			"status": 0
+		}
+	},
+	{
+		"mType": "infoDaemon_Enumeration",
+		"data": {
+			"msgId": "35b3ac86-6a8e-4d7b-aee7-19186fe8bb44",
+			"rsp": {
+				"command": "start"
+			},
+			"insId": "iqrfgd2-default",
+			"statusStr": "ok",
+			"status": 0
+		}
+	},
+
+	{
+		"mType": "infoDaemon_Enumeration",
+		"data": {
+			"msgId": "066b0550-a0ed-4b19-b21b-0faadc4a6d64",
+			"rsp": {
+				"command": "stop"
+			},
+			"insId": "iqrfgd2-default",
+			"statusStr": "Command stop is no longer supported.",
+			"status": -1
+		}
+	},
+	{
+		"mType": "infoDaemon_Enumeration",
+		"data": {
+			"msgId": "986ea9f1-039d-4377-ab2a-1320e8d3f157",
+			"rsp": {
+				"command": "getPeriod"
+			},
+			"insId": "iqrfgd2-default",
+			"statusStr": "Command getPeriod is no longer supported.",
+			"status": -1
+		}
+	},
+	{
+		"mType": "infoDaemon_Enumeration",
+		"data": {
+			"msgId": "d3b44431-9ed7-45d1-b075-32cb27395e5b",
+			"rsp": {
+				"command": "setPeriod"
+			},
+			"insId": "iqrfgd2-default",
+			"statusStr": "Command setPeriod is no longer supported.",
+			"status": -1
+		}
+	}
+]

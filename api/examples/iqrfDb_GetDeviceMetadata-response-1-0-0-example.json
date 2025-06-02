@@ -1,0 +1,27 @@
+{
+	"mType": "iqrfDb_GetDeviceMetadata",
+	"data": {
+		"msgId": "2eba5e62-055a-43ef-a497-e18ba617f9dd",
+		"rsp": {
+			"devices": [
+				{
+					"address": 0,
+					"success": true,
+					"metadata": {
+						"name": "coord"
+					}
+				},
+				{
+					"address": 1,
+					"success": true,
+					"metadata": {
+						"name": "sensor 1 + bo"
+					}
+				}
+			]
+		},
+		"insId": "iqrfgd2-default",
+		"statusStr": "ok",
+		"status": 0
+	}
+}

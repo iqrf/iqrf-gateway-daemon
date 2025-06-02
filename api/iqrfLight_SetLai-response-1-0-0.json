@@ -85,6 +85,13 @@
 								}
 							}
 						},
+						"metaData": {
+							"title": "User-defined metadata",
+							"oneOf": [
+								{"type": "object"},
+								{"type": "null"}
+							]
+						},
 						"errorStr": {
 							"type": "string",
 							"description": "Error description from JS drivers."

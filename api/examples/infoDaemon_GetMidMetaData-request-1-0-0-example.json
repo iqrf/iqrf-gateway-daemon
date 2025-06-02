@@ -1,0 +1,10 @@
+{
+	"mType": "infoDaemon_GetMidMetaData",
+	"data": {
+		"msgId": "8f39c31f-46d7-49e2-b829-0302fb228ad9",
+		"req": {
+			"mid": 2165406755
+		},
+		"returnVerbose": true
+	}
+}

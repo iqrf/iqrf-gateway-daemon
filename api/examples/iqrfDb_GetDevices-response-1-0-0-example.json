@@ -1,0 +1,217 @@
+[
+	{
+		"mType": "iqrfDb_GetDevices",
+		"data": {
+			"msgId": "dfa72579-59fe-417d-a8e6-19f4fb5780e4",
+			"rsp": {
+				"devices": [
+					{
+						"address": 0,
+						"hwpid": 12292,
+						"product": "IQUBE (IQD-GW-02)",
+						"discovered": false,
+						"vrn": 0,
+						"zone": 0,
+						"parent": null,
+						"mid": 2164293634,
+						"hwpidVersion": 6,
+						"osBuild": 2264,
+						"osVersion": "4.06D",
+						"dpa": 1047,
+						"metadata": {
+							"name": "coord"
+						}
+					},
+					{
+						"address": 1,
+						"hwpid": 1026,
+						"product": "DDC-SE-01 + DDC-RE-01",
+						"discovered": true,
+						"vrn": 1,
+						"zone": 0,
+						"parent": 0,
+						"mid": 2165406801,
+						"hwpidVersion": 2,
+						"osBuild": 2264,
+						"osVersion": "4.06D",
+						"dpa": 1047,
+						"metadata": {
+							"name": "sensor 1 + bo"
+						}
+					},
+					{
+						"address": 2,
+						"hwpid": 22530,
+						"product": "Light standard template",
+						"discovered": true,
+						"vrn": 2,
+						"zone": 0,
+						"parent": 0,
+						"mid": 2165406755,
+						"hwpidVersion": 1,
+						"osBuild": 2264,
+						"osVersion": "4.06D",
+						"dpa": 1047,
+						"metadata": {
+							"name": "light"
+						}
+					}
+				]
+			},
+			"insId": "iqrfgd2-default",
+			"statusStr": "ok",
+			"status": 0
+		}
+	},
+	{
+		"mType": "iqrfDb_GetDevices",
+		"data": {
+			"msgId": "ee88e11b-f75c-4601-8434-220bb58289d5",
+			"rsp": {
+				"devices": [
+					{
+						"address": 1,
+						"hwpid": 1026
+					}
+				]
+			},
+			"insId": "iqrfgd2-default",
+			"statusStr": "ok",
+			"status": 0
+		}
+	},
+	{
+		"mType": "iqrfDb_GetDevices",
+		"data": {
+			"msgId": "8aa08d78-f428-4ce6-9689-f8c61abecc36",
+			"rsp": {
+				"devices": [
+					{
+						"address": 1,
+						"hwpid": 1026,
+						"product": "DDC-SE-01 + DDC-RE-01",
+						"discovered": true,
+						"vrn": 1,
+						"zone": 0,
+						"parent": 0,
+						"mid": 2165406801,
+						"hwpidVersion": 2,
+						"osBuild": 2264,
+						"osVersion": "4.06D",
+						"dpa": 1047,
+						"metadata": {
+							"name": "sensor 1 + bo"
+						},
+						"sensors": [
+							{
+								"index": 0,
+								"type": 1,
+								"name": "Temperature",
+								"shortname": "T",
+								"unit": "°C",
+								"decimalPlaces": 4,
+								"frcs": [
+									144,
+									224
+								]
+							},
+							{
+								"index": 1,
+								"type": 129,
+								"name": "Light indicator",
+								"shortname": "light",
+								"unit": "%",
+								"decimalPlaces": 1,
+								"frcs": [
+									16,
+									144
+								]
+							},
+							{
+								"index": 2,
+								"type": 129,
+								"name": "Potentiometer",
+								"shortname": "pot",
+								"unit": "%",
+								"decimalPlaces": 1,
+								"frcs": [
+									16,
+									144
+								]
+							}
+						]
+					}
+				]
+			},
+			"insId": "iqrfgd2-default",
+			"statusStr": "ok",
+			"status": 0
+		}
+	},
+	{
+		"mType": "iqrfDb_GetDevices",
+		"data": {
+			"msgId": "f191d92c-1d9c-41fb-a4ee-d8df29040e64",
+			"rsp": {
+				"devices": [
+					{
+						"address": 0,
+						"hwpid": 12292,
+						"sensors": [],
+						"binouts": {
+							"count": 0
+						}
+					},
+					{
+						"address": 1,
+						"hwpid": 1026,
+						"sensors": [
+							{
+								"index": 0,
+								"type": 1,
+								"name": "Temperature",
+								"shortname": "T",
+								"unit": "°C",
+								"decimalPlaces": 4,
+								"frcs": [
+									144,
+									224
+								]
+							},
+							{
+								"index": 1,
+								"type": 129,
+								"name": "Light indicator",
+								"shortname": "light",
+								"unit": "%",
+								"decimalPlaces": 1,
+								"frcs": [
+									16,
+									144
+								]
+							},
+							{
+								"index": 2,
+								"type": 129,
+								"name": "Potentiometer",
+								"shortname": "pot",
+								"unit": "%",
+								"decimalPlaces": 1,
+								"frcs": [
+									16,
+									144
+								]
+							}
+						],
+						"binouts": {
+							"count": 4
+						}
+					}
+				]
+			},
+			"insId": "iqrfgd2-default",
+			"statusStr": "ok",
+			"status": 0
+		}
+	}
+]

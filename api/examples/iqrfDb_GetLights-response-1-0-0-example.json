@@ -1,0 +1,14 @@
+{
+  "mType": "iqrfDb_GetLights",
+  "data": {
+    "msgId": "258debe1-5994-44aa-98fa-755783ecc211",
+    "rsp": {
+      "lightDevices": [
+        2
+      ]
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
+}

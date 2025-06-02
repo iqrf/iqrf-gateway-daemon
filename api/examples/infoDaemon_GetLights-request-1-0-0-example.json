@@ -1,0 +1,8 @@
+{
+	"mType": "infoDaemon_GetLights",
+	"data": {
+		"msgId": "0bd02988-916c-4bfc-9c92-2b0cef56f061",
+		"req": {},
+		"returnVerbose": true
+	}
+}

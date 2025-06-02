@@ -1,0 +1,21 @@
+{
+	"mType": "iqrfDb_SetDeviceMetadata",
+	"data": {
+		"msgId": "619182d1-3e8b-44a5-b599-d906c1d0a957",
+		"rsp": {
+			"devices": [
+				{
+					"address": 0,
+					"success": true
+				},
+				{
+					"address": 1,
+					"success": true
+				}
+			]
+		},
+		"insId": "iqrfgd2-default",
+		"statusStr": "ok",
+		"status": 0
+	}
+}

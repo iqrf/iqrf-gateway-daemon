@@ -1,0 +1,60 @@
+{
+  "mType": "iqrfDb_GetSensors",
+  "data": {
+    "msgId": "3aecea02-7e0e-4fb9-9a59-13eca58f86be",
+    "rsp": {
+      "sensorDevices": [
+        {
+          "address": 1,
+          "sensors": [
+            {
+              "index": 0,
+              "type": 1,
+              "name": "Temperature",
+              "shortname": "T",
+              "unit": "°C",
+              "decimalPlaces": 4,
+              "frc2Bit": false,
+              "frc1Byte": true,
+              "frc2Byte": true,
+              "frc4Byte": false,
+              "value": 0,
+              "updated": "Mon, 02 Jun 25 08:02:36 GMT"
+            },
+            {
+              "index": 1,
+              "type": 129,
+              "name": "Light indicator",
+              "shortname": "light",
+              "unit": "%",
+              "decimalPlaces": 1,
+              "frc2Bit": true,
+              "frc1Byte": true,
+              "frc2Byte": false,
+              "frc4Byte": false,
+              "value": 44.9,
+              "updated": "Mon, 02 Jun 25 08:02:36 GMT"
+            },
+            {
+              "index": 2,
+              "type": 129,
+              "name": "Potentiometer",
+              "shortname": "pot",
+              "unit": "%",
+              "decimalPlaces": 1,
+              "frc2Bit": true,
+              "frc1Byte": true,
+              "frc2Byte": false,
+              "frc4Byte": false,
+              "value": 30.7,
+              "updated": "Mon, 02 Jun 25 08:02:36 GMT"
+            }
+          ]
+        }
+      ]
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
+}
