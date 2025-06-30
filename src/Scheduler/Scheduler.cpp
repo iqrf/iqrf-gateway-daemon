@@ -24,6 +24,7 @@
 #include "ShapeDefines.h"
 #include <algorithm>
 #include <set>
+#include <filesystem>
 
 #ifdef SHAPE_PLATFORM_WINDOWS
 #include <windows.h>
@@ -500,6 +501,18 @@ namespace iqrf {
 		os << m_cacheDir << '/' << taskId << ".json";
 		std::string fname = os.str();
 		std::remove(fname.c_str());
+
+		auto dirPath = std::filesystem::path(fname).parent_path();
+
+    int fd = open(dirPath.c_str(), O_DIRECTORY | O_RDONLY);
+    if (fd < 0) {
+      TRC_WARNING("Failed to open directory " << dirPath << ", " << errno << ": " << strerror(errno));
+    } else{
+      if (fsync(fd) < 0) {
+        TRC_WARNING("Failed to sync directory " << dirPath << " to filesystem, " << errno << ": " << strerror(errno));
+      }
+      close(fd);
+    }
 	}
 
 	void Scheduler::scheduleTask(std::shared_ptr<SchedulerRecord> &record) {
