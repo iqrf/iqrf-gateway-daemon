@@ -35,6 +35,9 @@ local buildPackageJob(distribution, stability) = {
 		'git submodule init',
 		'git submodule update',
 		stabilityEnvironmentVars(stability),
+		'curl -sSLo /usr/share/keyrings/iqrf.gpg https://repos.iqrf.org/apt.gpg',
+		'echo "deb [signed-by=/usr/share/keyrings/iqrf.gpg] https://repos.iqrf.org/debian $(lsb_release -cs) stable testing devel" | tee /etc/apt/sources.list.d/iqrf.list',
+		'apt update && apt install -y libiqrf-connector-dev',
 	] + if options.ccache then [
 		'export CCACHE_COMPILERCHECK="content"',
 		'export CCACHE_COMPRESS="true"',
