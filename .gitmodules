@@ -37,3 +37,6 @@
 [submodule "libraries/googletest"]
 	path = libraries/googletest
 	url = https://github.com/google/googletest.git
+[submodule "libraries/libiqrf"]
+	path = libraries/libiqrf
+	url = https://gitlab.iqrf.org/open-source/iqrf-sdk/libiqrf.git
