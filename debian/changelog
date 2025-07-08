@@ -1,10 +1,10 @@
-iqrf-gateway-daemon (2.6.5~alpha~1.gbp6f5708) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.6.5) stable; urgency=medium
 
-  ** SNAPSHOT build @6f5708fc96373eba18ecfe8da90d76390c9d9493 **
+  [ Karel Hanák ]
+  * Prepare for version 2.6.5-alpha
+  * Scheduler: sync directory metadata when task file is removed
 
-  * UNRELEASED
-
- -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 02 May 2025 14:51:23 +0200
+ -- Karel Hanák <karel.hanak@iqrf.org>  Tue, 08 Jul 2025 09:42:41 +0200
 
 iqrf-gateway-daemon (2.6.4) stable; urgency=medium
 
