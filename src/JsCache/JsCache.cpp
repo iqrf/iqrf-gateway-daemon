@@ -23,12 +23,10 @@
 #include "EmbedOS.h"
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/exception.hpp>
 #include "Trace.h"
 #include <chrono>
 #include <map>
+#include <filesystem>
 #include <fstream>
 #include <exception>
 #include <iostream>
@@ -536,7 +534,7 @@ namespace iqrf {
 
     ServerState serverState;
 
-    if (!boost::filesystem::exists(fileName)) {
+    if (!std::filesystem::exists(fileName)) {
       THROW_EXC_TRC_WAR(std::logic_error, "Server state file does not exist. " << PAR(fileName));
     }
 
@@ -591,7 +589,7 @@ namespace iqrf {
     TRC_FUNCTION_ENTER("");
 
     std::string fname = getCacheDataFilePath(SERVER_DIR);
-    if (!boost::filesystem::exists(fname)) {
+    if (!std::filesystem::exists(fname)) {
       THROW_EXC_TRC_WAR(std::logic_error, "Cache server data file does not exist. " << PAR(fname));
     }
     m_serverState = getCacheServer(fname);
@@ -603,7 +601,7 @@ namespace iqrf {
     TRC_FUNCTION_ENTER("");
 
     std::string fileName = getCacheDataFilePath(COMPANIES_DIR);
-    if (!boost::filesystem::exists(fileName)) {
+    if (!std::filesystem::exists(fileName)) {
       THROW_EXC_TRC_WAR(std::logic_error, "Companies information file does not exist. " << PAR(fileName));
     }
 
@@ -644,7 +642,7 @@ namespace iqrf {
     TRC_FUNCTION_ENTER("");
 
     std::string fileName = getCacheDataFilePath(MANUFACTURERS_DIR);
-    if (!boost::filesystem::exists(fileName)) {
+    if (!std::filesystem::exists(fileName)) {
       THROW_EXC_TRC_WAR(std::logic_error, "Manufacturers information file does not exist." << PAR(fileName));
     }
 
@@ -685,7 +683,7 @@ namespace iqrf {
     TRC_FUNCTION_ENTER("");
 
     std::string fileName = getCacheDataFilePath(PRODUCTS_DIR);
-    if (!boost::filesystem::exists(fileName)) {
+    if (!std::filesystem::exists(fileName)) {
       THROW_EXC_TRC_WAR(std::logic_error, "Products information file does not exist." << PAR(fileName));
     }
 
@@ -794,7 +792,7 @@ namespace iqrf {
     TRC_FUNCTION_ENTER("");
 
     std::string fileName = getCacheDataFilePath(OSDPA_DIR);
-    if (!boost::filesystem::exists(fileName)) {
+    if (!std::filesystem::exists(fileName)) {
       THROW_EXC_TRC_WAR(std::logic_error, "OsDpa information file does not exist." << PAR(fileName));
     }
 
@@ -837,7 +835,7 @@ namespace iqrf {
     TRC_FUNCTION_ENTER("");
 
     std::string fileName = getCacheDataFilePath(STANDARDS_DIR);
-    if (!boost::filesystem::exists(fileName)) {
+    if (!std::filesystem::exists(fileName)) {
       THROW_EXC_TRC_WAR(std::logic_error, "Standards information file does not exist. " << PAR(fileName));
     }
 
@@ -871,7 +869,7 @@ namespace iqrf {
       std::string url = os.str();
       fileName = getCacheDataFilePath(url);
 
-      if (!boost::filesystem::exists(fileName)) {
+      if (!std::filesystem::exists(fileName)) {
         THROW_EXC_TRC_WAR(std::logic_error, "Standard file does not exist: " << PAR(fileName));
       }
 
@@ -891,7 +889,7 @@ namespace iqrf {
           oss << STANDARDS_DIR << '/' << id << '/' << std::fixed << std::setprecision(2) << version;
           fileName = getCacheDataFilePath(oss.str());
 
-          if (!boost::filesystem::exists(fileName)) {
+          if (!std::filesystem::exists(fileName)) {
             THROW_EXC_TRC_WAR(std::logic_error, "Standard version file does not exist. " << PAR(fileName));
           }
 
@@ -927,19 +925,17 @@ namespace iqrf {
   void JsCache::updateCachePackages() {
     TRC_FUNCTION_ENTER("");
 
-    using namespace boost;
-
     std::string fname = getCachePath(PACKAGES_DIR);
 
-    filesystem::path p(fname);
-    std::vector<filesystem::directory_entry> v; // To save the file names in a vector.
+    std::filesystem::path p(fname);
+    std::vector<std::filesystem::directory_entry> v; // To save the file names in a vector.
 
     if (is_directory(p)) {
-      std::copy(filesystem::directory_iterator(p), filesystem::directory_iterator(), std::back_inserter(v));
+      std::copy(std::filesystem::directory_iterator(p), std::filesystem::directory_iterator(), std::back_inserter(v));
     }
 
     std::vector<std::string> vstr;
-    for (std::vector<filesystem::directory_entry>::const_iterator it = v.begin(); it != v.end(); ++it) {
+    for (std::vector<std::filesystem::directory_entry>::const_iterator it = v.begin(); it != v.end(); ++it) {
       vstr.push_back((*it).path().string() + "/data.json");
     }
 
@@ -1012,7 +1008,7 @@ namespace iqrf {
     TRC_FUNCTION_ENTER("");
 
     std::string fileName = getCacheDataFilePath(QUANTITIES_DIR);
-    if (!boost::filesystem::exists(fileName)) {
+    if (!std::filesystem::exists(fileName)) {
       TRC_WARNING("Quantities data file does not exist." << PAR(fileName));
       return;
       //THROW_EXC_TRC_WAR(std::logic_error, "Quantities data file does not exist." << PAR(fileName));
@@ -1079,12 +1075,12 @@ namespace iqrf {
   }
 
   void JsCache::createFile(const std::string &path) {
-    boost::filesystem::path createdFile(path);
-    boost::filesystem::path parent(createdFile.parent_path());
+    std::filesystem::path createdFile(path);
+    std::filesystem::path parent(createdFile.parent_path());
 
     try {
-      if (!(boost::filesystem::exists(parent))) {
-        if (boost::filesystem::create_directories(parent)) {
+      if (!(std::filesystem::exists(parent))) {
+        if (std::filesystem::create_directories(parent)) {
           TRC_DEBUG("Created: " << PAR(parent));
         } else {
           TRC_DEBUG("Cannot create: " << PAR(parent));
@@ -1104,16 +1100,16 @@ namespace iqrf {
     TRC_DEBUG("Getting: " << PAR(urlLoading));
 
     try {
-      boost::filesystem::path getFile(fileName);
-      boost::filesystem::path downloadFile(fileName);
+      std::filesystem::path getFile(fileName);
+      std::filesystem::path downloadFile(fileName);
       downloadFile += ".download";
-      boost::filesystem::remove(downloadFile);
+      std::filesystem::remove(downloadFile);
 
       m_iRestApiService->getFile(urlLoading, downloadFile.string());
 
-      boost::filesystem::copy_file(downloadFile, getFile, boost::filesystem::copy_option::overwrite_if_exists);
-    } catch (boost::filesystem::filesystem_error &e) {
-      CATCH_EXC_TRC_WAR(boost::filesystem::filesystem_error, e, "Error handling file " << PAR(fileName));
+      std::filesystem::copy_file(downloadFile, getFile, std::filesystem::copy_options::overwrite_existing);
+    } catch (std::filesystem::filesystem_error &e) {
+      CATCH_EXC_TRC_WAR(std::filesystem::filesystem_error, e, "Error handling file " << PAR(fileName));
       throw e;
     }
 
@@ -1130,16 +1126,16 @@ namespace iqrf {
     TRC_DEBUG("Getting: " << PAR(urlLoading));
 
     try {
-      boost::filesystem::path getFile(fileName);
-      boost::filesystem::path downloadFile(fileName);
+      std::filesystem::path getFile(fileName);
+      std::filesystem::path downloadFile(fileName);
       downloadFile += ".download";
-      boost::filesystem::remove(downloadFile);
+      std::filesystem::remove(downloadFile);
 
       m_iRestApiService->getFile(urlLoading, downloadFile.string());
 
-      boost::filesystem::copy_file(downloadFile, getFile, boost::filesystem::copy_option::overwrite_if_exists);
-    } catch (boost::filesystem::filesystem_error &e) {
-      CATCH_EXC_TRC_WAR(boost::filesystem::filesystem_error, e, "cannot get " << PAR(urlLoading));
+      std::filesystem::copy_file(downloadFile, getFile, std::filesystem::copy_options::overwrite_existing);
+    } catch (std::filesystem::filesystem_error &e) {
+      CATCH_EXC_TRC_WAR(std::filesystem::filesystem_error, e, "cannot get " << PAR(urlLoading));
       throw e;
     }
 
@@ -1148,7 +1144,7 @@ namespace iqrf {
 
   bool JsCache::cacheExists() {
     std::string filename = getCacheDataFilePath(SERVER_DIR);
-    return boost::filesystem::exists(filename);
+    return std::filesystem::exists(filename);
   }
 
   void JsCache::checkCache() {
@@ -1182,8 +1178,6 @@ namespace iqrf {
   void JsCache::downloadCache() {
     TRC_FUNCTION_ENTER("");
 
-    using namespace boost;
-
     // std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
     TRC_INFORMATION("[IQRF Repository cache] Downloading cache ...");
@@ -1193,7 +1187,7 @@ namespace iqrf {
     downloadFromRelativeUrl(ZIP_URL, zipArchFname);
     downloadFromRelativeUrl(SERVER_URL, m_serverStateFilePath);
 
-    if (!filesystem::exists(zipArchFname)) {
+    if (!std::filesystem::exists(zipArchFname)) {
       THROW_EXC_TRC_WAR(std::logic_error, "file not exist " << PAR(zipArchFname));
     }
 
@@ -1266,35 +1260,14 @@ namespace iqrf {
     // rename old cache dir to cache.bkp
     std::string cacheName = getCachePath("cache");
     std::string cacheNameBkp = getCachePath("cache.bkp");
-    if (filesystem::exists(cacheName)) {
-
-#ifdef SHAPE_PLATFORM_WINDOWS
-      {
-        boost::filesystem::recursive_directory_iterator rdi(cacheNameBkp);
-        boost::filesystem::recursive_directory_iterator end_rdi;
-
-        for (; rdi != end_rdi; rdi++)
-        {
-          try
-          {
-            if (boost::filesystem::is_regular_file(rdi->status()))
-            {
-              boost::filesystem::remove(rdi->path());
-            }
-          }
-          catch (const std::exception &e)
-          {
-            CATCH_EXC_TRC_WAR(std::exception, e, "Cannot delete file");
-          }
-        }
-      }
-#endif
-
-      filesystem::remove_all(cacheNameBkp);
-      filesystem::rename(cacheName, cacheNameBkp);
+    if (std::filesystem::exists(cacheName)) {
+      std::filesystem::remove_all(cacheNameBkp);
+      std::filesystem::copy(cacheName, cacheNameBkp, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
+      std::filesystem::remove_all(cacheName);
     }
     // rename inflate dir to cache
-    filesystem::rename(getCachePath("inflated"), cacheName);
+    std::filesystem::copy(getCachePath("inflated"), cacheName, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
+    std::filesystem::remove_all(getCachePath("inflated"));
 
     TRC_INFORMATION("[IQRF Repository cache] Cache successfully downloaded.");
     std::cout << "[IQRF Repository cache] Cache successfully downloaded." << std::endl;
@@ -1306,9 +1279,9 @@ namespace iqrf {
     TRC_FUNCTION_ENTER("");
 
     try {
-      boost::filesystem::remove_all(m_cacheDir);
-    } catch (const boost::filesystem::filesystem_error &e) {
-      CATCH_EXC_TRC_WAR(boost::filesystem::filesystem_error, e, "[IQRF Repository cache] Failed to delete cache: " << e.what());
+      std::filesystem::remove_all(m_cacheDir);
+    } catch (const std::filesystem::filesystem_error &e) {
+      CATCH_EXC_TRC_WAR(std::filesystem::filesystem_error, e, "[IQRF Repository cache] Failed to delete cache: " << e.what());
       std::cerr << "[IQRF Repository cache] Failed to delete cache: " << e.what() << std::endl;
     }
 

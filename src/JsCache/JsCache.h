@@ -417,7 +417,6 @@ namespace iqrf {
     std::map<std::string, CacheReloadedFunc> m_cacheReloadedHndlMap;
     /// Exclusive access
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
-
     /// Server state file
     std::string m_serverStateFilePath;
     /// Server state (repository)
