@@ -60,9 +60,10 @@ namespace iqrf {
 		}
 
 		void send(const std::basic_string<unsigned char>& message) {
-			TRC_INFORMATION("Sending to IQRF UART: " << std::endl << MEM_HEX(message.data(), message.size()));
+			m_sendBuffer.assign(message.begin(), message.end());
+			TRC_INFORMATION("Sending to IQRF UART: " << std::endl << MEM_HEX(m_sendBuffer.data(), m_sendBuffer.size()));
 			try {
-				m_connector->send(std::vector<uint8_t>(message.begin(), message.end()));
+				m_connector->send(m_sendBuffer);
 				m_accessControl.sniff(message);
 			} catch (const std::exception &e) {
 				TRC_WARNING("Failed to send data via connector: " << e.what());
@@ -144,7 +145,8 @@ namespace iqrf {
 				"IqrfUart instance activate" << std::endl <<
 				"******************************"
 			);
-
+			m_recvBuffer.reserve(64);
+			m_sendBuffer.reserve(64);
 			modify(props);
 		}
 
@@ -222,11 +224,12 @@ namespace iqrf {
 						THROW_EXC_TRC_WAR(std::logic_error, "UART interface not ready to listen.");
 					}
 
-					auto recvBuffer = m_connector->receive();
+					auto data = m_connector->receive();
 
-					if (!recvBuffer.empty()) {
-						TRC_INFORMATION("Received from IQRF UART: " << std::endl << MEM_HEX(recvBuffer.data(), recvBuffer.size()));
-						m_accessControl.messageHandler(recvBuffer.data());
+					if (!data.empty()) {
+						m_recvBuffer.assign(data.begin(), data.end());
+						TRC_INFORMATION("Received from IQRF UART: " << std::endl << MEM_HEX(m_recvBuffer.data(), m_recvBuffer.size()));
+						m_accessControl.messageHandler(m_recvBuffer);
 					}
 				}
 			}
@@ -253,6 +256,9 @@ namespace iqrf {
 		}
 
 		AccessControl<IqrfUart::Imp> m_accessControl;
+
+		std::basic_string<uint8_t> m_recvBuffer;
+		std::vector<uint8_t> m_sendBuffer;
 
 		IIqrfChannelService::State state = State::Ready;
 		std::atomic_bool m_runListenThread;

@@ -31,6 +31,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibuart_INCLUDE_DIRS})
 
+find_package(iqrf CONFIG REQUIRED)
 find_package(Threads REQUIRED)
 
 if(SHAPE_STATIC_LIBS)
@@ -40,11 +41,13 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
-	iqrf_connector_uart
-	iqrf_gpio
+	iqrf::iqrf_connector_uart
+	iqrf::iqrf_gpio
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	Threads::Threads
 )
+
+target_include_directories(${PROJECT_NAME} PUBLIC ${iqrf_INCLUDE_DIRS})
 
 DeployShapeComponent(${PROJECT_NAME})
