@@ -1,10 +1,15 @@
-iqrf-gateway-daemon (2.6.6~alpha~1.gbp3fbfa4) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.6.6) stable; urgency=medium
 
-  ** SNAPSHOT build @3fbfa4133ae103f2cbcb3aa114078454d8a1bb65 **
+  [ Karel Hanák ]
+  * Prepare for version 2.6.6-alpha
 
-  * UNRELEASED
+  [ Roman Ondráček ]
+  * GitLab CI: build packages for Debian 13 trixie
 
- -- Karel Hanák <karel.hanak@iqrf.org>  Tue, 08 Jul 2025 09:45:21 +0200
+  [ Karel Hanák ]
+  * JsCache: replaced filesystem rename with copy and remove for cross-device data manipulation
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Thu, 10 Jul 2025 15:19:07 +0200
 
 iqrf-gateway-daemon (2.6.5) stable; urgency=medium
 
