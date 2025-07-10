@@ -1290,7 +1290,8 @@ namespace iqrf {
     std::string cacheNameOld = getCachePath("cache.old");
     if (std::filesystem::exists(cacheName)) {
       std::filesystem::remove_all(cacheNameOld);
-      std::filesystem::rename(cacheName, cacheNameOld);
+      std::filesystem::copy(cacheName, cacheNameOld, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
+			std::filesystem::remove_all(cacheName);
     }
     // copy and overwrite existing cache, remove tmp
     std::string tmpCache = getTmpPath("cache");
