@@ -76,9 +76,14 @@ api-testing:
   stage: test
   image: docker:latest
   services:
-    - docker:dind
+    - name: docker:dind
+      command:
+        - "--dns=10.11.18.159"
+        - "--insecure-registry=docker-hub-proxy.nexus.iqrf.internal:80"
+        - "--registry-mirror=http://docker-hub-proxy.nexus.iqrf.internal:80"
   before_script:
     - apk add --no-cache docker-compose
+    - docker info
   script:
     - docker-compose -f apitesting.docker-compose.yml up --build --abort-on-container-exit --exit-code-from tests
   tags:
