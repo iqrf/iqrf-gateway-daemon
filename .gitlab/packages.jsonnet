@@ -56,7 +56,7 @@ local buildPackageJob(distribution, stability) = {
 		'rm -rf packageDeploy && mkdir packageDeploy',
 		'mv ../*.buildinfo ../*.changes ../*.deb packageDeploy',
 		'mv ../*.ddeb packageDeploy 2>/dev/null || :',
-		'sed -i "s/\.ddeb$/.deb/g" packageDeploy/*.changes',
+		'sed -i "s/\\.ddeb$/.deb/g" packageDeploy/*.changes',
 		'for file in $(ls packageDeploy/*.ddeb) ; do mv "${file}" "${file%.ddeb}.deb"; done',
 	],
 	artifacts: {
