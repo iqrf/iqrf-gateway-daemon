@@ -1,4 +1,5 @@
 local distributions = import 'packages/distributions.jsonnet';
+local extraDistributions = import 'packages/extra-components-distributions.jsonnet';
 local options = import 'packages/options.jsonnet';
 
 // Docker image suffix
@@ -28,7 +29,7 @@ local image(distribution) = {
 	tags: ['linux', machineArch(distribution.arch)],
 };
 
-local buildPackageJob(distribution, stability) = {
+local buildPackageJob(distribution, stability, extra) = {
 	stage: 'build',
 	before_script: [
 		'git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"',
@@ -52,7 +53,7 @@ local buildPackageJob(distribution, stability) = {
 	else []
 	) + [
 		'dch-add-distro -d "${DIST}" -D "${DATE}"',
-	] + options.packageBuildCommands(distribution, stability) + [
+	] + options.packageBuildCommands(distribution, stability, extra) + [
 		'rm -rf packageDeploy && mkdir packageDeploy',
 		'mv ../*.buildinfo ../*.changes ../*.deb packageDeploy',
 		'mv ../*.ddeb packageDeploy 2>/dev/null || :',
@@ -124,8 +125,12 @@ if stability == 'devel' then {
 );
 
 {
-	['build-package_' + stability + '/' + imageSuffix(distribution)]: buildPackageJob(distribution, stability)
+	['build-package_' + stability + '/' + imageSuffix(distribution)]: buildPackageJob(distribution, stability, false)
 	for distribution in distributions
+	for stability in ['devel', 'release']
+} + {
+	['build-package_' + stability + '/' + imageSuffix(distribution) + '-extra']: buildPackageJob(distribution, stability, true)
+	for distribution in extraDistributions
 	for stability in ['devel', 'release']
 } + {
 	['deploy-package_' + stability + '/' + imageSuffix(distribution)]: deployPackageJob(distribution, stability)

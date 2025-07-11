@@ -37,3 +37,6 @@
 [submodule "libraries/googletest"]
 	path = libraries/googletest
 	url = https://github.com/google/googletest.git
+[submodule "libraries/extra-components"]
+	path = libraries/extra-components
+	url = https://gitlab.iqrf.org/microrisc/iqrf-gateway-daemon.git

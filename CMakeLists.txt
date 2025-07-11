@@ -137,6 +137,16 @@ add_subdirectory(src/IqmeshServices/RestartService)
 add_subdirectory(src/IqmeshServices/Maintenance)
 add_subdirectory(src/IqmeshServices/DpaParams)
 
+# extra components
+if (${BUILD_EXTRA})
+	set(DAEMON_API_SCHEMA_DIR ${CMAKE_SOURCE_DIR}/api)
+	set(DAEMON_CFG_SCHEMA_DIR ${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/cfgSchemas)
+	set(DAEMON_CFG_DIR ${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/configuration)
+	set(DAEMON_DEPLOY_CFG ${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/configuration-LinDeploy/config.json)
+
+	add_subdirectory(libraries/extra-components)
+endif()
+
 if(${BUILD_TESTING})
   add_subdirectory(src/tests)
 endif()
