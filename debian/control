@@ -3,9 +3,9 @@ Section: comm
 Priority: optional
 Maintainer: Rostislav Spinar <rostislav.spinar@iqrf.com>
 Build-Depends: debhelper (>= 12), debhelper-compat (= 12), ccache, cmake,
- libboost-filesystem-dev, libc6, libcurl4-openssl-dev, linux-libc-dev,
- libpaho-mqtt-dev, libssl-dev, libstdc++6, libsqlite3-dev, libbz2-dev,
- libzip-dev, zlib1g-dev
+ libboost-filesystem-dev, libc6, libcurl4-openssl-dev, libiqrf-dev,
+ linux-libc-dev, libpaho-mqtt-dev, libssl-dev, libstdc++6,
+ libsqlite3-dev, libbz2-dev, libzip-dev, zlib1g-dev
 Standards-Version: 4.5.1
 Homepage: https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon
 Vcs-Git: https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon.git

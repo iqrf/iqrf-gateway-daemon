@@ -31,14 +31,23 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibuart_INCLUDE_DIRS})
 
+find_package(iqrf CONFIG REQUIRED)
+find_package(Threads REQUIRED)
+
 if(SHAPE_STATIC_LIBS)
     add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
 else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
-target_link_libraries(${PROJECT_NAME}
-	uart_iqrf
+target_link_libraries(${PROJECT_NAME} PUBLIC
+	iqrf::iqrf_connector_uart
+	iqrf::iqrf_gpio
 )
+target_link_libraries(${PROJECT_NAME} PRIVATE
+	Threads::Threads
+)
+
+target_include_directories(${PROJECT_NAME} PUBLIC ${iqrf_INCLUDE_DIRS})
 
 DeployShapeComponent(${PROJECT_NAME})
