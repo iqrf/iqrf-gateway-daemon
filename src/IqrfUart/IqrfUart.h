@@ -21,6 +21,22 @@
 #include "ITraceService.h"
 #include <string>
 
+
+/** PGM Switch GPIO. */
+#define PGM_SWITCH_GPIO_DEFAULT 22
+/** Bus enable GPIO. */
+#define BUS_ENABLE_GPIO_DEFAULT 7
+/** Power enable GPIO. */
+#define POWER_ENABLE_GPIO_DEFAULT 23
+/** I2C enable GPIO */
+#define I2C_ENABLE_GPIO_DEFAULT -1
+/** SPI enable GPIO */
+#define SPI_ENABLE_GPIO_DEFAULT -1
+/** UART enable GPIO */
+#define UART_ENABLE_GPIO_DEFAULT -1
+/** Baud rate */
+#define UART_BAUD_RATE_DEFAULT 57600
+
 namespace iqrf {
   class ITraceService;
 
