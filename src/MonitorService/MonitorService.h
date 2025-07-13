@@ -153,11 +153,11 @@ namespace iqrf {
 	private:
 		/**
 		 * Handles request from splitter
-		 * @param messagingId Messaging ID
+		 * @param messaging Messaging instance
 		 * @param msgType Message type
 		 * @param doc request document
 		 */
-		void handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc);
+		void handleMsg(const MessagingInstance& messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc);
 
 		/**
 		 * Generates rapidjson document containing monitoring notification message

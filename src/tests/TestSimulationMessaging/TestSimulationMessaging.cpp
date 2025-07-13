@@ -37,7 +37,8 @@ namespace iqrf {
 
   class TestSimulationMessaging::Imp {
   private:
-    std::string m_name;
+		bool m_acceptAsyncMsg = true;
+		MessagingInstance m_messagingInstance = MessagingInstance(MessagingType::TEST);
     MessageHandlerFunc m_hndl;
     std::queue<std::pair<std::string, std::string>> m_outgoingMsgQueue;
     std::mutex  m_queueMux;
@@ -69,30 +70,25 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    void sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
+    void sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg)
     {
       TRC_FUNCTION_ENTER("");
       {
         std::unique_lock<std::mutex> lck(m_queueMux);
-        m_outgoingMsgQueue.push(std::make_pair(messagingId, std::string((char*)msg.data(), msg.size())));
+        m_outgoingMsgQueue.push(std::make_pair(messaging.instance, std::string((char*)msg.data(), msg.size())));
       }
       m_cv.notify_one();
       TRC_FUNCTION_LEAVE("")
     }
 
-    const std::string & getName() const
-    {
-      TRC_FUNCTION_ENTER("");
-      TRC_FUNCTION_LEAVE(PAR(m_name));
-      return m_name;
-    }
-
     bool acceptAsyncMsg() const
     {
-      TRC_FUNCTION_ENTER("");
-      TRC_FUNCTION_LEAVE("");
-      return true;
+			return m_acceptAsyncMsg;
     }
+
+		const MessagingInstance& getMessagingInstance() const {
+			return m_messagingInstance;
+		}
 
     /////////////////////////////////////
     //from iqrf::ITestSimulationMessaging
@@ -100,7 +96,7 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER(PAR(msg));
       if (m_hndl) {
-        m_hndl(m_name, std::vector<uint8_t>((uint8_t*)msg.data(), (uint8_t*)msg.data() + msg.size()));
+        m_hndl(m_messagingInstance, std::vector<uint8_t>((uint8_t*)msg.data(), (uint8_t*)msg.data() + msg.size()));
       }
       else {
         TRC_WARNING("message handler is not registered");
@@ -137,7 +133,7 @@ namespace iqrf {
       );
 
       const rapidjson::Value* val = rapidjson::Pointer("/instance").Get(props->getAsJson());
-      m_name = val->GetString();
+      m_messagingInstance.instance = val->GetString();
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -177,20 +173,19 @@ namespace iqrf {
     m_imp->unregisterMessageHandler();
   }
 
-  void TestSimulationMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
+  void TestSimulationMessaging::sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg)
   {
-    m_imp->sendMessage(messagingId, msg);
-  }
-
-  const std::string & TestSimulationMessaging::getName() const
-  {
-    return m_imp->getName();
+    m_imp->sendMessage(messaging, msg);
   }
 
   bool TestSimulationMessaging::acceptAsyncMsg() const
   {
     return m_imp->acceptAsyncMsg();
   }
+
+	const MessagingInstance& TestSimulationMessaging::getMessagingInstance() const {
+		return m_imp->getMessagingInstance();
+	}
 
   void TestSimulationMessaging::pushIncomingMessage(const std::string& msg)
   {

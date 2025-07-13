@@ -32,6 +32,6 @@ indent_size = 2
 indent_style = space
 indent_size = 2
 
-[src/start-IqrfDaemon/configuration*/*.json]
+[src/start-IqrfDaemon/*/*.json]
 indent_style = space
 indent_size = 4

@@ -50,6 +50,7 @@ remove_old_dirs() {
 configure_gateway() {
 	bash /usr/bin/iqrfgd2-config-init "/etc/iqrf-gateway-daemon/"
 	sh /usr/bin/iqrfgd2-interface-init
+	python3 /usr/bin/iqrfgd2-messagings-migrate.py
 }
 
 if [ "$1" = "configure" ]; then

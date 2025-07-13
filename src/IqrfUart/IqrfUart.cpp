@@ -244,7 +244,6 @@ namespace iqrf {
 			}
 			try {
 				auto cfg = iqrf::gpio::GpioConfig(pin);
-				std::cout << "GPIO from pin " << std::to_string(pin) << ": chip - " << cfg.chip << ", line - " << std::to_string(cfg.line) << std::endl;
 				return iqrf::gpio::Gpio(cfg);
 			} catch (const std::exception &e) {
 				std::cerr << "Cannot initialize GPIO: " << e.what() << std::endl;

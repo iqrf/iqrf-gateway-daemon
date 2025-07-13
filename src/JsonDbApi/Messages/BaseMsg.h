@@ -18,6 +18,7 @@
 
 #include "ApiMsg.h"
 #include "IIqrfDb.h"
+#include "MessagingCommon.h"
 
 using namespace rapidjson;
 
@@ -56,16 +57,16 @@ namespace iqrf {
 		 * Returns messaging instance
 		 * @return Messaging instance
 		 */
-		const std::string& getMessagingId() const {
-			return messagingId;
+		const std::shared_ptr<MessagingInstance> getMessaging() const {
+			return messaging;
 		}
 
 		/**
 		 * Sets messaging instance
-		 * @param messagingId Messaging instance
+		 * @param messaging Messaging instance
 		 */
-		void setMessagingId(const std::string& messagingId) {
-			this->messagingId = messagingId;
+		void setMessaging(const MessagingInstance& messaging) {
+			this->messaging = std::make_shared<MessagingInstance>(messaging);
 		}
 
 		/**
@@ -74,6 +75,6 @@ namespace iqrf {
 		virtual void handleMsg(IIqrfDb *dbService) = 0;
 	private:
 		/// Messaging instance
-		std::string messagingId;
+		std::shared_ptr<MessagingInstance> messaging = nullptr;
 	};
 }

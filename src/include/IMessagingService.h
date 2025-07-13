@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "MessagingCommon.h"
 #include "ShapeDefines.h"
 #include <string>
 #include <vector>
@@ -38,7 +39,7 @@ namespace iqrf {
   {
   public:
     /// Incoming message handler functional type
-    typedef std::function<void(const std::string&, const std::vector<uint8_t>&)> MessageHandlerFunc;
+    typedef std::function<void(const MessagingInstance&, const std::vector<uint8_t>&)> MessageHandlerFunc;
 
     /// \brief Register message handler
     /// \param [in] hndl registering handler function
@@ -56,9 +57,9 @@ namespace iqrf {
     /// \param [in] msg message to be sent
     /// \details
     /// The message is send outside
-    virtual void sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg) = 0;
-    virtual const std::string & getName() const = 0;
+    virtual void sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg) = 0;
     virtual bool acceptAsyncMsg() const = 0;
+		virtual const MessagingInstance& getMessagingInstance() const = 0;
 
     inline virtual ~IMessagingService() {};
   };

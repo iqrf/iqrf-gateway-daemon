@@ -32,9 +32,9 @@ source_group("Header Files" FILES ${_HDRFILES})
 source_group("Source Files" FILES ${_SRCFILES})
 
 if (Boost_FOUND)
-	include_directories(${Boost_INCLUDE_DIRS})
+  include_directories(${Boost_INCLUDE_DIRS})
 else()
-	message(FATAL_ERROR "Boost libraries not found.")
+  message(FATAL_ERROR "Boost libraries not found.")
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -43,9 +43,9 @@ include_directories(${CMAKE_SOURCE_DIR}/libraries/croncpp/include)
 include_directories(${CMAKE_SOURCE_DIR}/libraries/date/include)
 
 if(SHAPE_STATIC_LIBS)
-    add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
 else()
-    add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})

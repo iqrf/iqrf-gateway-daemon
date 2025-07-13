@@ -232,7 +232,7 @@ namespace iqrf
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
-    const std::string* m_messagingId = nullptr;
+    const MessagingInstance* m_messaging = nullptr;
     const IMessagingSplitterService::MsgType* m_msgType = nullptr;
     const ComIqmeshNetworkOtaUpload* m_comOtaUpload = nullptr;
 
@@ -1636,7 +1636,7 @@ namespace iqrf
       Pointer("/data/statusStr").Set(docUploadResult, uploadResult.getStatusStr());
 
       // Send message
-      m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(docUploadResult));
+      m_iMessagingSplitterService->sendMessage(*m_messaging, std::move(docUploadResult));
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -1677,15 +1677,21 @@ namespace iqrf
       Pointer("/data/statusStr").Set(response, statusStr);
 
       // Send message
-      m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
+      m_iMessagingSplitterService->sendMessage(*m_messaging, std::move(response));
     }
 
     //---------------
     // Handle message
     //---------------
-    void handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc)
+    void handleMsg(const MessagingInstance& messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc)
     {
-      TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) << NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
+      TRC_FUNCTION_ENTER(
+				PAR(messaging.to_string()) <<
+				NAME_PAR(mType, msgType.m_type) <<
+				NAME_PAR(major, msgType.m_major) <<
+				NAME_PAR(minor, msgType.m_minor) <<
+				NAME_PAR(micro, msgType.m_micro)
+			);
 
       // Unsupported type of request
       if (msgType.m_type != m_mTypeName_iqmeshNetworkOtaUpload)
@@ -1694,7 +1700,7 @@ namespace iqrf
       // Creating representation object
       ComIqmeshNetworkOtaUpload comOtaUpload(doc);
       m_msgType = &msgType;
-      m_messagingId = &messagingId;
+      m_messaging = &messaging;
       m_comOtaUpload = &comOtaUpload;
 
       // If upload path (service's configuration parameter) is empty, return error message
@@ -1796,15 +1802,16 @@ namespace iqrf
       TRC_INFORMATION(PAR(m_uploadPath));
 
       // for the sake of register function parameters
-      std::vector<std::string> supportedMsgTypes =
-          {
-              m_mTypeName_iqmeshNetworkOtaUpload};
+      std::vector<std::string> supportedMsgTypes ={
+				m_mTypeName_iqmeshNetworkOtaUpload
+			};
 
       m_iMessagingSplitterService->registerFilteredMsgHandler(
-          supportedMsgTypes,
-          [&](const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
-            handleMsg(messagingId, msgType, std::move(doc));
-          });
+				supportedMsgTypes,
+				[&](const MessagingInstance& messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
+					handleMsg(messaging, msgType, std::move(doc));
+				}
+			);
 
       TRC_FUNCTION_LEAVE("");
     }
