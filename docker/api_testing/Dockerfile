@@ -36,6 +36,11 @@ WORKDIR /iqrf/deploy/Debug/iqrf-gateway-daemon/runcfg/iqrfgd2-LinCdc
 
 COPY ./docker/api_testing/configuration ./configuration/
 
-EXPOSE 1338 55000/udp 55300/udp
+COPY ./docker/api_testing/healthcheck /iqrf/deploy/Debug/iqrf-gateway-daemon/bin
+RUN chmod +x /iqrf/deploy/Debug/iqrf-gateway-daemon/bin/healthcheck
+RUN pip install websocket-client
+HEALTHCHECK --start-period=10s CMD healthcheck
+
+EXPOSE 1338 1438 55000/udp 55300/udp
 
 CMD ["iqrfgd2", "-c", "configuration/config.json"]
