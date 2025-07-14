@@ -152,17 +152,19 @@ namespace iqrf {
 
 		void deactivate() {
 			TRC_FUNCTION_ENTER("");
-
-			TRC_DEBUG("joining udp listening thread");
-			TRC_DEBUG("listening thread joined");
-
-			delete m_connector;
-
 			TRC_INFORMATION(std::endl <<
 				"******************************" << std::endl <<
 				"IqrfUart instance deactivate" << std::endl <<
 				"******************************"
 			);
+
+			TRC_DEBUG("joining udp listening thread");
+			m_runListenThread = false;
+			if (m_listenThread.joinable()) {
+				m_listenThread.join();
+			}
+			TRC_DEBUG("listening thread joined");
+
 			TRC_FUNCTION_LEAVE("")
 		}
 
@@ -210,7 +212,7 @@ namespace iqrf {
 				m_i2cEnableGpio,
 				m_trReset
 			);
-			m_connector = new connector::uart::UartConnector(cfg);
+			m_connector = std::make_unique<iqrf::connector::uart::UartConnector>(cfg);
 		}
 
 		void listen()
@@ -273,7 +275,7 @@ namespace iqrf {
 		std::optional<gpio::Gpio> m_spiEnableGpio = std::nullopt;
 		std::optional<gpio::Gpio> m_i2cEnableGpio = std::nullopt;
 		bool m_trReset = false;
-		iqrf::connector::uart::UartConnector *m_connector = nullptr;
+		std::unique_ptr<iqrf::connector::uart::UartConnector> m_connector = nullptr;
 	};
 
 	//////////////////////////////////////////////////
