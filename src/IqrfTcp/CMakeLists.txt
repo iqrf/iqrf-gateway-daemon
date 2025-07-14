@@ -29,7 +29,9 @@ source_group("Source Files" FILES ${_SRCFILES})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${clibtcp_INCLUDE_DIRS})
+
+find_package(iqrf CONFIG REQUIRED)
+find_package(Threads REQUIRED)
 
 if(SHAPE_STATIC_LIBS)
     add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
@@ -37,14 +39,13 @@ else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
-if (WIN32)
-	target_link_libraries(${PROJECT_NAME}
-		Ws2_32
-	)
-else()
-	target_link_libraries(${PROJECT_NAME}
-		rt
-	)
-endif()
+target_link_libraries(${PROJECT_NAME} PUBLIC
+      iqrf::iqrf_connector_tcp
+)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        Threads::Threads
+)
+
+target_include_directories(${PROJECT_NAME} PUBLIC ${iqrf_INCLUDE_DIRS})
 
 DeployShapeComponent(${PROJECT_NAME})
