@@ -20,16 +20,11 @@
 #include "IqrfUart.h"
 #include "AccessControl.h"
 #include "rapidjson/pointer.h"
-#include <mutex>
 #include <thread>
 #include <atomic>
 #include <cstring>
 
 #include "iqrf/connector/uart/UartConnector.h"
-
-#ifndef SHAPE_PLATFORM_WINDOWS
-#include <termios.h>
-#endif
 
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL

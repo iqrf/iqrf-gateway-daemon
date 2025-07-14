@@ -29,7 +29,6 @@ source_group("Source Files" FILES ${_SRCFILES})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${clibuart_INCLUDE_DIRS})
 
 find_package(iqrf CONFIG REQUIRED)
 find_package(Threads REQUIRED)
