@@ -18,15 +18,17 @@ version: "3.3"
 
 services:
 
-  deamon:
-    image: deamon_test
+  daemon:
+    image: daemon_test
     container_name: iqrfgd-api-tests
     build:
       context: .
       dockerfile: docker/api_testing/Dockerfile
     depends_on:
-      - mosquitto
-      - emulator
+      mosquitto:
+        condition: service_started
+      emulator:
+        condition: service_healthy
 
   mosquitto:
     image: eclipse-mosquitto:1.5
@@ -39,13 +41,13 @@ services:
     container_name: network_emulator
     expose:
       - 10000
-    depends_on:
-      - mosquitto
+    healthcheck:
+      test: ["CMD-SHELL", "netstat -ltn | grep -c 10000"]
+      start_period: 5s
 
   tests:
     image: iqrftech/iqrf-gateway-daemon-api-testing:latest
     container_name: tavern_test
     depends_on:
-      - mosquitto
-      - emulator
-      - deamon
+      daemon:
+        condition: service_healthy
