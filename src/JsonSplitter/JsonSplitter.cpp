@@ -29,15 +29,14 @@
 #include "rapidjson/schema.h"
 #include "Trace.h"
 
-#ifdef SHAPE_PLATFORM_WINDOWS
-#include <windows.h>
-#else
+#ifndef SHAPE_PLATFORM_WINDOWS
 #include <dirent.h>
 #include <sys/stat.h>
 #endif
 
 #include <mutex>
 #include <fstream>
+#include <filesystem>
 #include <algorithm>
 #include <vector>
 #include <map>
@@ -436,78 +435,38 @@ namespace iqrf {
       }
     }
 
-#ifdef SHAPE_PLATFORM_WINDOWS
-    std::vector<std::string> getSchemesFiles(const std::string& schemesDir, const std::string& filter)
-    {
-      WIN32_FIND_DATA fid;
-      HANDLE found = INVALID_HANDLE_VALUE;
-
+    std::vector<std::string> getSchemesFiles(const std::string& schemesDir, const std::string& filter) {
       std::vector<std::string> fileVect;
-      std::string sdirect(schemesDir);
-      sdirect.append("/*");
-      sdirect.append(filter);
-      sdirect.append("*");
+      std::filesystem::path dirPath(schemesDir);
 
-      found = FindFirstFile(sdirect.c_str(), &fid);
-
-      if (INVALID_HANDLE_VALUE == found) {
-        THROW_EXC_TRC_WAR(std::logic_error, "JsonSchemes directory does not exist: " << PAR(schemesDir));
+      if (!std::filesystem::exists(dirPath) || !std::filesystem::is_directory(dirPath)) {
+        throw std::logic_error("JsonSchemes directory does not exist or is not a directory: " + schemesDir);
       }
 
-      do {
-        if (fid.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-          continue; //skip a directory
-        std::string fil(schemesDir);
-        fil.append("/");
-        fil.append(fid.cFileName);
-        fileVect.push_back(fil);
-      } while (FindNextFile(found, &fid) != 0);
+      for (const auto& entry : std::filesystem::directory_iterator(dirPath)) {
+        const auto& path = entry.path();
+        const auto& filename = path.filename().string();
 
-      FindClose(found);
-      return fileVect;
-    }
+        // Skip dotfiles
+        if (!filename.empty() && filename[0] == '.') {
+          continue;
+        }
 
-#else
-    std::vector<std::string> getSchemesFiles(const std::string& schemesDir, const std::string& filter)
-    {
-      std::vector<std::string> fileVect;
+        // Check filter
+        if (filename.find(filter) == std::string::npos) {
+          continue;
+        }
 
-      DIR *dir;
-      class dirent *ent;
-      class stat st;
+        // Only regular files
+        if (!entry.is_regular_file()) {
+          continue;
+        }
 
-      dir = opendir(schemesDir.c_str());
-      if (dir == nullptr) {
-        THROW_EXC_TRC_WAR(std::logic_error, "JsonSchemes directory does not exist: " << PAR(schemesDir));
+        fileVect.push_back(path.string());
       }
-      //TODO exeption if dir doesn't exists
-      while ((ent = readdir(dir)) != NULL) {
-        const std::string file_name = ent->d_name;
-        const std::string full_file_name(schemesDir + "/" + file_name);
-
-        if (file_name[0] == '.')
-          continue;
-
-        if (std::string::npos == file_name.find(filter))
-          continue;
-
-        if (stat(full_file_name.c_str(), &st) == -1)
-          continue;
-
-        const bool is_directory = (st.st_mode & S_IFDIR) != 0;
-
-        if (is_directory)
-          continue;
-
-        fileVect.push_back(full_file_name);
-      }
-      closedir(dir);
-
 
       return fileVect;
     }
-
-#endif
 
     void loadJsonSchemesRequest(const std::string sdir)
     {

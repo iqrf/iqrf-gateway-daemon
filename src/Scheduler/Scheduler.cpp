@@ -22,16 +22,10 @@
 #include "rapidjson/ostreamwrapper.h"
 #include "Trace.h"
 #include "ShapeDefines.h"
-#include <algorithm>
-#include <set>
 #include <filesystem>
 
-#ifdef SHAPE_PLATFORM_WINDOWS
-#include <windows.h>
-#else
-#include <dirent.h>
+#ifndef SHAPE_PLATFORM_WINDOWS
 #include <fcntl.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #endif
 
@@ -507,7 +501,7 @@ namespace iqrf {
     int fd = open(dirPath.c_str(), O_DIRECTORY | O_RDONLY);
     if (fd < 0) {
       TRC_WARNING("Failed to open directory " << dirPath << ", " << errno << ": " << strerror(errno));
-    } else{
+    } else {
       if (fsync(fd) < 0) {
         TRC_WARNING("Failed to sync directory " << dirPath << " to filesystem, " << errno << ": " << strerror(errno));
       }
@@ -712,74 +706,36 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-#ifdef SHAPE_PLATFORM_WINDOWS
-	std::set<std::string> Scheduler::getTaskFiles(const std::string &dir) const {
-		WIN32_FIND_DATA fid;
-		HANDLE found = INVALID_HANDLE_VALUE;
+  std::set<std::string> Scheduler::getTaskFiles(const std::string& dirStr) const {
+    std::set<std::string> fileSet;
+    const std::filesystem::path dirPath(dirStr);
 
-		std::set<std::string> fileSet;
-		std::string sdirect(dir);
-		sdirect.append("/*.json");
+    if (!std::filesystem::exists(dirPath) || !std::filesystem::is_directory(dirPath)) {
+      TRC_INFORMATION("Directory does not exist or empty Scheduler cache: " << PAR(dirStr));
+      return fileSet;
+    }
 
-		found = FindFirstFile(sdirect.c_str(), &fid);
+    for (const auto& entry : std::filesystem::directory_iterator(dirPath)) {
+      const auto& path = entry.path();
 
-		if (INVALID_HANDLE_VALUE == found) {
-			TRC_INFORMATION("Directory does not exist or empty Scheduler cache: " << PAR(sdirect));
-		}
+      // Skip hidden files (dotfiles)
+      if (path.filename().string()[0] == '.')
+        continue;
 
-		do {
-			if (fid.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-				continue; // skip a directory
-			}
-			std::string fil(dir);
-			fil.append("/");
-			fil.append(fid.cFileName);
-			fileSet.insert(fil);
-		} while (FindNextFile(found, &fid) != 0);
+      // Skip non-regular files
+      if (!entry.is_regular_file()) {
+        continue;
+      }
 
-		FindClose(found);
-		return fileSet;
-	}
-#else
-	std::set<std::string> Scheduler::getTaskFiles(const std::string &dirStr) const {
-		std::set<std::string> fileSet;
-		std::string jsonExt = "json";
+      // Check extension
+      if (path.extension() == ".json") {
+        fileSet.insert(path.string());
+      }
+    }
 
-		DIR *dir;
-		class dirent *ent;
-		class stat st;
+    return fileSet;
+  }
 
-		dir = opendir(dirStr.c_str());
-		if (dir == nullptr) {
-			TRC_INFORMATION("Directory does not exist or empty Scheduler cache: " << PAR(dirStr));
-		} else {
-			while ((ent = readdir(dir)) != NULL) {
-				const std::string file_name = ent->d_name;
-				const std::string full_file_name(dirStr + "/" + file_name);
-
-				if (file_name[0] == '.') {
-					continue;
-				}
-				if (stat(full_file_name.c_str(), &st) == -1) {
-					continue;
-				}
-				const bool is_directory = (st.st_mode & S_IFDIR) != 0;
-				if (is_directory) {
-					continue;
-				}
-
-				size_t i = full_file_name.rfind('.', full_file_name.length());
-				if (i != std::string::npos && jsonExt == full_file_name.substr(i + 1, full_file_name.length() - i)) {
-					fileSet.insert(full_file_name);
-				} else {
-					continue;
-				}
-			}
-			closedir(dir);
-		}
-		return fileSet;
-	}
-#endif
 	///// auxiliary methods /////
 
 	std::string Scheduler::getTaskHandle(const std::string &taskId) {
