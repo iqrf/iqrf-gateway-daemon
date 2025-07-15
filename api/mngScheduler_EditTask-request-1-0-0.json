@@ -205,7 +205,6 @@
 							},
 							"additionalItems": false,
 							"example": [
-								"MqMessaging",
 								"MqttMessaging"
 							]
 						}

@@ -26,7 +26,6 @@ skinparam note {
 
 component [WebsocketMessaging] as C10
 component [MqttMessaging] as C11
-component [MqMessaging] as C12
 component [SchedulerMessaging] as C13
 
 component [JsonSplitter] as C20
@@ -43,7 +42,6 @@ component [WriteConfigService] as C38
 
 C10 -- I10
 C11 -- I10
-C12 -- I10
 C13 -- I10
 
 C20 .u.> I10

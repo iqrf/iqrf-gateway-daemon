@@ -21,8 +21,7 @@
 			"type": "string",
 			"enum": [
 				"WebsocketMessaging",
-				"MqttMessaging",
-				"MqMessaging"
+				"MqttMessaging"
 			]
 		},
 		"message": {

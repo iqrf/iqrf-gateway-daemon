@@ -47,15 +47,15 @@ Description of components processing messages received/sent via JSON API
 Is abstraction of specific messaging protocol
 - send message (address, message)
 - register/unregister message handler (handlerId, handleFunction)
-- get messaging ID name (string) 
+- get messaging ID name (string)
 - handleFunction(address, message)
 - get flag if accepts async DPA message
 
 #### IMessagingSplitterService
-Is abstraction of messaging splitter. Incoming message is preparsed and the message is routed to proper handler according registered message type filters. When a message (response) is sent an implementation has to assure that it is routed back to proper messaging according messagingId 
+Is abstraction of messaging splitter. Incoming message is preparsed and the message is routed to proper handler according registered message type filters. When a message (response) is sent an implementation has to assure that it is routed back to proper messaging according messagingId
 - send message (messagingId, message)
 - register/unregister message handler (vector< message filter>, handleFunction)
-- handleFunction(messagingId, address, message) 
+- handleFunction(messagingId, address, message)
 
 
 ### Components
@@ -65,14 +65,11 @@ Implements IMessagingService Interface via Websockets protocol
 #### MqttMessaging
 Implements IMessagingService Interface via MQTT protocol
 
-#### MqMessaging
-Implements IMessagingService Interface via inter-process communication
-
 #### SchedulerMessaging
 Implements IMessagingService Interface delivering messages from Scheduler
 
 #### JsonSplitter
-It uses Required Interface IMessagingService to register a handler processing incoming request messages. JsonSplitter preparses the request messages to get a message type controlling where to route the next processing. It implements IMessagingSplitterService. A users of the interface is selected by matching the type and registered filters. The filter match if it is substring of incoming message type. It the type fits registered handler of the user is called. When the processing is finished the user sends back a response message. The response message is send according messagingId parameter. 
+It uses Required Interface IMessagingService to register a handler processing incoming request messages. JsonSplitter preparses the request messages to get a message type controlling where to route the next processing. It implements IMessagingSplitterService. A users of the interface is selected by matching the type and registered filters. The filter match if it is substring of incoming message type. It the type fits registered handler of the user is called. When the processing is finished the user sends back a response message. The response message is send according messagingId parameter.
 
 #### BaseService
 This component is responsible for handling requests messages in format of daemon V1:
@@ -119,7 +116,7 @@ This component is responsible for handling requests messages filtered by:
 
 ## 3 Interfaces & Components with respect to DPA
 
-Description of components acting in processing of DPA messages 
+Description of components acting in processing of DPA messages
 
 ![ComponentDiagramWrtIqrfDpa.png](sw-design-resources/ComponentDiagramWrtIqrfDpa.png)
 
@@ -141,7 +138,7 @@ Is abstraction of device driver providing connection to IQRF Coordinator
 
 #### BaseService
 Processes legacy daemon V1 Raw and RawHdp messages, convert them to DPA messages and executes DPA transaction via IIqrfDpaService interface.
- 
+
 #### JsonDpaApiIqrfStandard
 Processes Standard and Embed devices handling JSON API messges, convert them to DPA messages and executes DPA transaction via IIqrfDpaService interface.
 
@@ -247,7 +244,7 @@ to load as code into modules on nodes)
 - loads code previously stored at external EEPROM memory to the MCU flash memory
 
 #### NativeUploadService
-- uploads data(configuration, Flash, internal and external EEPROM) to TR module 
+- uploads data(configuration, Flash, internal and external EEPROM) to TR module
   inside the USB device
 
 #### DataPreparer

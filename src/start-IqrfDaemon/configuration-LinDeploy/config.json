@@ -134,13 +134,6 @@
       "startlevel": 0
     },
     {
-      "name": "iqrf::MqMessaging",
-      "libraryPath": "",
-      "libraryName": "MqMessaging",
-      "enabled": true,
-      "startlevel": 10
-    },
-    {
       "name": "iqrf::MqttMessaging",
       "libraryPath": "",
       "libraryName": "MqttMessaging",

@@ -1,8 +1,0 @@
-{
-  "component": "iqrf::MqMessaging",
-  "instance": "MqMessaging",
-  "LocalMqName": "iqrf-daemon-110",
-  "RemoteMqName": "iqrf-daemon-100",
-  "timeout": 15,
-  "acceptAsyncMsg": true
-}
