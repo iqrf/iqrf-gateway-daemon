@@ -141,13 +141,6 @@
       "startlevel": 10
     },
     {
-      "name": "iqrf::BufferedMqttMessaging",
-      "libraryPath": "",
-      "libraryName": "BufferedMqttMessaging",
-      "enabled": false,
-      "startlevel": 10
-    },
-    {
       "name": "iqrf::WebsocketMessaging",
       "libraryPath": "",
       "libraryName": "WebsocketMessaging",

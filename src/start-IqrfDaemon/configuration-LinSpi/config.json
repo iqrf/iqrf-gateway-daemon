@@ -141,13 +141,6 @@
       "startlevel": 10
     },
     {
-      "name": "iqrf::BufferedMqttMessaging",
-      "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "BufferedMqttMessaging",
-      "enabled": false,
-      "startlevel": 10
-    },
-    {
       "name": "iqrf::WebsocketMessaging",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "WebsocketMessaging",

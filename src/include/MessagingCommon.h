@@ -25,9 +25,7 @@ namespace iqrf {
 
 	/// @brief Messaging type enum
 	enum class MessagingType {
-		MQ,
 		MQTT,
-		BUFFERED_MQTT,
 		WS,
 		UDP,
 		SCHEDULER,
@@ -44,12 +42,8 @@ namespace iqrf {
 		 */
 		static std::string messagingTypeToString(const MessagingType &type) {
 			switch (type) {
-				case MessagingType::MQ:
-					return "mq";
 				case MessagingType::MQTT:
 					return "mqtt";
-				case MessagingType::BUFFERED_MQTT:
-					return "bmqtt";
 				case MessagingType::WS:
 					return "ws";
 				case MessagingType::UDP:
@@ -69,14 +63,8 @@ namespace iqrf {
 		 * @return MessagingType Messaging type enum value
 		 */
 		static MessagingType messagingTypeFromString(const std::string &type) {
-			if (type == "mq") {
-				return MessagingType::MQ;
-			}
 			if (type == "mqtt") {
 				return MessagingType::MQTT;
-			}
-			if (type == "bmqtt") {
-				return MessagingType::BUFFERED_MQTT;
 			}
 			if (type == "ws") {
 				return MessagingType::WS;
