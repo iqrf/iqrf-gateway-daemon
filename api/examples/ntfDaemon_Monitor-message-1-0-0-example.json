@@ -1,12 +1,13 @@
 {
-    "mType":"ntfDaemon_Monitor",
-    "data":{
-      "num":24,
-      "timestamp":1562256558,
-      "dpaQueueLen":0,
-      "dpaChannelState":"Ready",
-      "msgQueueLen":0,
-      "operMode":"operational"
-    }
+  "mType": "ntfDaemon_Monitor",
+  "data": {
+    "num": 24,
+    "timestamp": 1562256558,
+    "dpaQueueLen": 0,
+    "dpaChannelState": "Ready",
+    "msgQueueLen": 0,
+    "operMode": "operational",
+    "enumInProgress": false,
+    "dataReadingInProgress": false
   }
-  
+}
