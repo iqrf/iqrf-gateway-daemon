@@ -43,7 +43,7 @@ namespace iqrf {
   class SchedulerMessaging::Imp
   {
   private:
-    std::string m_name;
+    MessagingInstance m_messagingInstance = MessagingInstance(MessagingType::SCHEDULER);
 
     //IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     ISchedulerService* m_iSchedulerService = nullptr;
@@ -54,35 +54,22 @@ namespace iqrf {
       using namespace rapidjson;
 
       const Value *messagingVal = Pointer("/messaging").Get(task);
-      // vector is now not needed since array is treated as a single messaging separated by &
-      // keep vector for time being
-      std::vector<std::string> messagingVector;
-
-      // just string
-      if (messagingVal && messagingVal->IsString()) {
-        messagingVector.push_back(messagingVal->GetString());
-      }
-      // array of strings
-      else if (messagingVal && messagingVal->IsArray()) {
-        // create messaging string messaging1&messaging2 out of input array...
-        std::stringstream ms;
-        for (const Value *val = messagingVal->Begin(); val != messagingVal->End(); val++) {
-          if (!val->IsString()) {
-            THROW_EXC_TRC_WAR(std::logic_error, "Expected: \"/message\" is array of strings");
-          }
-
-          if((++val) != messagingVal->End()) {
-            ms << (--val)->GetString() << '&';
-          }
-          else {
-            ms << (--val)->GetString();
-          }
-        }
-        messagingVector.push_back(ms.str());
-      }
-      // unknown type
-      else {
+			if (!messagingVal  || !messagingVal->IsArray()) {
         THROW_EXC_TRC_WAR(std::logic_error, "Unexpected: \"/messaging\" type");
+      }
+
+			std::list<MessagingInstance> messagingList;
+
+      const auto arr = messagingVal->GetArray();
+      for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
+        auto type = Pointer("/type").Get(*itr)->GetString();
+        auto instance = Pointer("/instance").Get(*itr)->GetString();
+        messagingList.push_back(
+          MessagingInstance(
+            type,
+            instance
+          )
+        );
       }
 
       const Value *messageVal = Pointer("/message").Get(task);
@@ -95,7 +82,7 @@ namespace iqrf {
         std::string msgStr = buffer.GetString();
         std::vector<uint8_t> msgVect((uint8_t*)msgStr.data(), (uint8_t*)msgStr.data() + msgStr.size());
         if (m_messageHandlerFunc) {
-          for (std::string & messaging : messagingVector) {
+          for (auto& messaging : messagingList) {
             m_messageHandlerFunc(messaging, msgVect);
           }
         }
@@ -153,10 +140,9 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    const std::string& getName() const
-    {
-      return m_name;
-    }
+		const MessagingInstance& getMessagingInstance() const {
+			return m_messagingInstance;
+		}
 
     void activate(const shape::Properties *props)
     {
@@ -167,11 +153,16 @@ namespace iqrf {
         "******************************"
       );
 
-      props->getMemberAsString("instance", m_name);
+			std::string instanceName;
+      props->getMemberAsString("instance", instanceName);
+			m_messagingInstance.instance = instanceName;
 
-      m_iSchedulerService->registerTaskHandler(m_name, [&](const rapidjson::Value & task) {
-        handleTaskFromScheduler(task);
-      });
+      m_iSchedulerService->registerTaskHandler(
+				m_messagingInstance.instance,
+				[&](const rapidjson::Value & task) {
+        	handleTaskFromScheduler(task);
+      	}
+			);
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -180,7 +171,7 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
-      m_iSchedulerService->unregisterTaskHandler(m_name);
+      m_iSchedulerService->unregisterTaskHandler(m_messagingInstance.instance);
 
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
@@ -232,22 +223,15 @@ namespace iqrf {
     m_imp->unregisterMessageHandler();
   }
 
-  void SchedulerMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
+  void SchedulerMessaging::sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg)
   {
-    (void)messagingId; //silence -Wunused-parameter
+    (void)messaging; //silence -Wunused-parameter
     m_imp->sendMessage(msg);
   }
 
-  const std::string& SchedulerMessaging::getName() const
-  {
-    return m_imp->getName();
-  }
-
-  bool SchedulerMessaging::acceptAsyncMsg() const
-  {
-    //Scheduler never accepts async
-    return false;
-  }
+	const MessagingInstance& SchedulerMessaging::getMessagingInstance() const {
+		return m_imp->getMessagingInstance();
+	}
 
   //////////////////////////////////////
   void SchedulerMessaging::activate(const shape::Properties *props)

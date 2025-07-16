@@ -24,40 +24,39 @@
 
 namespace iqrf {
 
-    class CurlUtils {
-    public:
+	class CurlUtils {
+	public:
+		static void downloadFile(const std::string &url, const std::string &filePath, std::map<std::string, std::string> headers = {}) {
+			cpr::Response rsp = cpr::Get(
+					cpr::Url(url),
+					headers);
+			if (rsp.status_code != 200) {
+				throw std::runtime_error("Unable to download file " + url + ":" + rsp.error.message);
+			}
 
-        static void downloadFile(const std::string& url, const std::string& filePath, std::map<std::string, std::string> headers = {}) {
-            cpr::Response rsp = cpr::Get(
-                cpr::Url(url),
-                headers
-            );
-            if (rsp.status_code != 200) {
-                throw std::runtime_error("Unable to download file " + url + ":" + rsp.error.message);
-            }
-            try {
-                createDirectory(filePath);
-            } catch (const std::filesystem::filesystem_error& e) {
-                throw std::runtime_error("Unable to create parent directory for file: " + std::string(e.what()));
-            }
-            std::ofstream file(filePath);
-            if (!file.is_open()) {
-                throw std::runtime_error("Unable to create file " + filePath + ":" + std::strerror(errno));
-            }
-            file << rsp.text;
-            file.close();
-        }
-    private:
+			try {
+				createDirectory(filePath);
+			} catch (const std::filesystem::filesystem_error &e) {
+				throw std::runtime_error("Unable to create parent directory for file: " + std::string(e.what()));
+			}
+			std::ofstream file(filePath);
+			if (!file.is_open()) {
+				throw std::runtime_error("Unable to create file " + filePath + ":" + std::strerror(errno));
+			}
+			file << rsp.text;
+			file.close();
+		}
 
-        static void createDirectory(const std::string& path) {
-            if (std::filesystem::exists(path)) {
-                return;
-            }
-            auto parentDir = std::filesystem::path(path).parent_path();
-            if (!std::filesystem::exists(parentDir)) {
-                std::filesystem::create_directories(parentDir);
-            }
-        }
-    };
+	private:
+		static void createDirectory(const std::string &path) {
+			if (std::filesystem::exists(path)) {
+				return;
+			}
+			auto parentDir = std::filesystem::path(path).parent_path();
+			if (!std::filesystem::exists(parentDir)) {
+				std::filesystem::create_directories(parentDir);
+			}
+		}
+	};
 
 } // iqrf namespace

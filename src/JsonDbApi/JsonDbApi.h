@@ -98,19 +98,19 @@ namespace iqrf {
 	private:
 		/**
 		 * IQRF DB API request message handler
-		 * @param messagingId Messaging ID
+		 * @param messaging Messaging instance
 		 * @param msgType Request message type
 		 * @param request Request message document
 		 */
-		void handleMsg(const std::string& messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document request);
+		void handleMsg(const MessagingInstance& messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document request);
 
 		/**
 		 * Sends enumeration error response
-		 * @param messagingId Messaging ID
+		 * @param messaging Messaging ID
 		 * @param error Enumeration error
 		 * @param request Request message
 		 */
-		void sendEnumerationErrorResponse(const std::string& messagingId, IIqrfDb::EnumerationError::Errors errCode, rapidjson::Document request);
+		void sendEnumerationErrorResponse(const MessagingInstance& messaging, IIqrfDb::EnumerationError::Errors errCode, rapidjson::Document request);
 
 		/**
 		 * Sends enumeration process response

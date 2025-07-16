@@ -50,7 +50,7 @@ namespace iqrf {
     const std::string m_mTypeName_Backup = "iqmeshNetwork_Backup";
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfBackup* m_iIqrfBackup = nullptr;
-    const std::string* m_messagingId = nullptr;
+    const MessagingInstance* m_messaging = nullptr;
     const IMessagingSplitterService::MsgType* m_msgType = nullptr;
     const ComBackup* m_comBackup = nullptr;
 
@@ -138,7 +138,7 @@ namespace iqrf {
       Pointer("/data/statusStr").Set(docBackupResult, statusStr);
 
       // Send message
-      m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(docBackupResult));
+      m_iMessagingSplitterService->sendMessage(*m_messaging, std::move(docBackupResult));
     }
 
     //-------------------
@@ -246,7 +246,7 @@ namespace iqrf {
       Pointer("/data/statusStr").Set(docBackupResult, statusStr);
 
       // Send message
-      m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(docBackupResult));
+      m_iMessagingSplitterService->sendMessage(*m_messaging, std::move(docBackupResult));
     }
 
     //-----------
@@ -296,9 +296,15 @@ namespace iqrf {
     }
 
     // Process request
-    void handleMsg(const std::string& messagingId, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc)
+    void handleMsg(const MessagingInstance& messaging, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc)
     {
-      TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) << NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
+      TRC_FUNCTION_ENTER(
+				PAR(messaging.to_string()) <<
+				NAME_PAR(mType, msgType.m_type) <<
+				NAME_PAR(major, msgType.m_major) <<
+				NAME_PAR(minor, msgType.m_minor) <<
+				NAME_PAR(micro, msgType.m_micro)
+			);
 
       // Unsupported type of request
       if (msgType.m_type != m_mTypeName_Backup)
@@ -307,7 +313,7 @@ namespace iqrf {
       // Create representation object
       ComBackup comBackup(doc);
       m_msgType = &msgType;
-      m_messagingId = &messagingId;
+      m_messaging = &messaging;
       m_comBackup = &comBackup;
 
       // Parsing and checking service parameters
@@ -355,10 +361,10 @@ namespace iqrf {
 
       m_iMessagingSplitterService->registerFilteredMsgHandler(
         supportedMsgTypes,
-        [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
-        {
-          handleMsg(messagingId, msgType, std::move(doc));
-        });
+        [&](const MessagingInstance& messaging, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc) {
+          handleMsg(messaging, msgType, std::move(doc));
+        }
+			);
 
       TRC_FUNCTION_LEAVE("")
     }

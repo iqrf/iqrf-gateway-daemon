@@ -69,9 +69,12 @@ namespace iqrf {
 			"******************************"
 		);
 		modify(props);
-		m_splitterService->registerFilteredMsgHandler(m_messageTypes, [&](const std::string& messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document request) {
-			handleMsg(messagingId, msgType, std::move(request));
-		});
+		m_splitterService->registerFilteredMsgHandler(
+			m_messageTypes,
+			[&](const MessagingInstance& messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document request) {
+				handleMsg(messaging, msgType, std::move(request));
+			}
+		);
 		m_dbService->registerEnumerationHandler(m_instance, [&](IIqrfDb::EnumerationProgress progress) {
 			sendEnumerationResponse(progress);
 		});
@@ -99,7 +102,7 @@ namespace iqrf {
 
 	///// Message handlers
 
-	void JsonDbApi::handleMsg(const std::string& messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document request) {
+	void JsonDbApi::handleMsg(const MessagingInstance& messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document request) {
 		rapidjson::Document response;
 		std::unique_ptr<BaseMsg> msg;
 
@@ -107,13 +110,13 @@ namespace iqrf {
 			std::unique_lock<std::mutex> lock(m_enumerateMutex);
 			if (m_enumerateMsg) {
 				sendEnumerationErrorResponse(
-					messagingId,
+					messaging,
 					IIqrfDb::EnumerationError::Errors::AlreadyRunning,
 					std::move(request)
 				);
 			} else {
 				m_enumerateMsg = std::make_unique<EnumerateMsg>(EnumerateMsg(request));
-				m_enumerateMsg->setMessagingId(messagingId);
+				m_enumerateMsg->setMessaging(messaging);
 				m_enumerateMsg->handleMsg(m_dbService);
 			}
 			return;
@@ -158,26 +161,26 @@ namespace iqrf {
 		}
 
 		try {
-			msg->setMessagingId(messagingId);
+			msg->setMessaging(messaging);
 			msg->handleMsg(m_dbService);
 			msg->setStatus("ok", 0);
 			msg->createResponse(response);
-			m_splitterService->sendMessage(messagingId, std::move(response));
+			m_splitterService->sendMessage(messaging, std::move(response));
 		} catch (const std::exception &e) {
 			msg->setStatus(e.what(), -1);
 			rapidjson::Document errorResponse;
 			msg->createResponse(errorResponse);
-			m_splitterService->sendMessage(messagingId, std::move(errorResponse));
+			m_splitterService->sendMessage(messaging, std::move(errorResponse));
 		}
 	}
 
-	void JsonDbApi::sendEnumerationErrorResponse(const std::string &messagingId, IIqrfDb::EnumerationError::Errors errCode, rapidjson::Document request) {
+	void JsonDbApi::sendEnumerationErrorResponse(const MessagingInstance& messaging, IIqrfDb::EnumerationError::Errors errCode, rapidjson::Document request) {
 		IIqrfDb::EnumerationError error(errCode);
 		Document response;
 		EnumerateMsg msg(request);
 		msg.setStatus(error.getErrorMessage(), error.getError());
 		msg.createErrorResponsePayload(response);
-		m_splitterService->sendMessage(messagingId, std::move(response));
+		m_splitterService->sendMessage(messaging, std::move(response));
 	}
 
 	void JsonDbApi::sendEnumerationResponse(IIqrfDb::EnumerationProgress progress) {
@@ -190,8 +193,8 @@ namespace iqrf {
 			}
 			return;
 		}
-		auto messagingId = m_enumerateMsg->getMessagingId();
-		if (messagingId.length() == 0) {
+		auto messaging = m_enumerateMsg->getMessaging();
+		if (messaging == nullptr) {
 			TRC_WARNING("No valid messaging instance for synchronous enumeration response.");
 			return;
 		}
@@ -203,7 +206,7 @@ namespace iqrf {
 			m_enumerateMsg->setFinished();
 		}
 		m_enumerateMsg->createResponse(response);
-		m_splitterService->sendMessage(messagingId, std::move(response));
+		m_splitterService->sendMessage(*messaging, std::move(response));
 		if (progress.getStep() == IIqrfDb::EnumerationProgress::Steps::Finish) {
 			m_enumerateMsg.reset();
 		}
@@ -223,7 +226,7 @@ namespace iqrf {
 		msg.setStatus("ok", 0);
 		msg.setFinished();
 		msg.createResponse(response);
-		m_splitterService->sendMessage(std::list<std::string>(), std::move(response));
+		m_splitterService->sendMessage(std::list<MessagingInstance>(), std::move(response));
 	}
 
 	///// Service interfaces /////

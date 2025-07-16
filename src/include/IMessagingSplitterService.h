@@ -19,6 +19,7 @@
 #include "ShapeDefines.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
+#include "MessagingCommon.h"
 
 #include <functional>
 #include <list>
@@ -42,9 +43,7 @@ namespace iqrf {
   public:
     class MsgType;
 
-    /// Incoming message handler functional type
-    /// 1st parameter is messagingId, 2nd parameter is message
-    typedef std::function<void(const std::string & messagingId, const MsgType & msgType, rapidjson::Document doc)> FilteredMessageHandlerFunc;
+    typedef std::function<void(const MessagingInstance& messaging, const MsgType& msgType, rapidjson::Document doc)> FilteredMessageHandlerFunc;
 
     class MsgType {
     public:
@@ -62,8 +61,8 @@ namespace iqrf {
       FilteredMessageHandlerFunc m_handlerFunc;
     };
 
-    virtual void sendMessage(const std::string& messagingId, rapidjson::Document doc) const = 0;
-    virtual void sendMessage(const std::list<std::string> &messagingList, rapidjson::Document doc) const = 0;
+    virtual void sendMessage(const MessagingInstance& messaging, rapidjson::Document doc) const = 0;
+    virtual void sendMessage(const std::list<MessagingInstance>& messagings, rapidjson::Document doc) const = 0;
     virtual void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc) = 0;
     virtual void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters) = 0;
     virtual int getMsgQueueLen() const = 0;

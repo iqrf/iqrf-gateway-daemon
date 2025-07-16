@@ -356,6 +356,13 @@
       "libraryName": "DpaValueService",
       "enabled": true,
       "startlevel": 3
+    },
+    {
+      "name": "iqrf::IqrfSensorData",
+      "libraryPath": "",
+      "libraryName": "IqrfSensorData",
+      "enabled": true,
+      "startlevel": 3
     }
   ]
 }

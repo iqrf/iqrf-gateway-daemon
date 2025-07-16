@@ -221,10 +221,15 @@ namespace iqrf {
       return rawHdpResponse;
     }
 
-    void handleMsg(const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
+    void handleMsg(const MessagingInstance& messaging, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
     {
-      TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) <<
-        NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
+      TRC_FUNCTION_ENTER(
+				PAR(messaging.to_string()) <<
+				NAME_PAR(mType, msgType.m_type) <<
+        NAME_PAR(major, msgType.m_major) <<
+				NAME_PAR(minor, msgType.m_minor) <<
+				NAME_PAR(micro, msgType.m_micro)
+			);
 
       using namespace rapidjson;
 
@@ -404,7 +409,7 @@ namespace iqrf {
       }
       TRC_DEBUG("response object: " << std::endl << JsonToStr(&allResponseDoc));
 
-      m_iMessagingSplitterService->sendMessage(messagingId, std::move(allResponseDoc));
+      m_iMessagingSplitterService->sendMessage(messaging, std::move(allResponseDoc));
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -544,7 +549,7 @@ namespace iqrf {
         TRC_DEBUG("response object: " << std::endl << JsonToStr(&allResponseDoc));
 
         //empty messagingId => send to all messaging returning iface->acceptAsyncMsg() == true
-        m_iMessagingSplitterService->sendMessage("", std::move(allResponseDoc));
+        m_iMessagingSplitterService->sendMessage(std::list<MessagingInstance>(), std::move(allResponseDoc));
 
       }
       catch (std::invalid_argument & e) {
@@ -570,11 +575,12 @@ namespace iqrf {
 
       modify(props);
 
-      m_iMessagingSplitterService->registerFilteredMsgHandler(m_filters,
-        [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
-      {
-        handleMsg(messagingId, msgType, std::move(doc));
-      });
+      m_iMessagingSplitterService->registerFilteredMsgHandler(
+				m_filters,
+        [&](const MessagingInstance& messaging, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc) {
+        	handleMsg(messaging, msgType, std::move(doc));
+      	}
+			);
 
       m_iIqrfDpaService->registerAsyncMessageHandler(m_instanceName, [&](const DpaMessage& dpaMessage) {
         asyncMsgHandler(dpaMessage);
