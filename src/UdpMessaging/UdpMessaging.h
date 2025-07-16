@@ -50,16 +50,10 @@ namespace iqrf {
 
 		/**
 		 * Sends response via UDP channel
-		 * @param messagingId Messaging ID
+		 * @param messaging Messaging instance
 		 * @param msg Message to send
 		 */
-		void sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg) override;
-
-		/**
-		 * Returns instance name
-		 * @return Instance name
-		 */
-		const std::string& getName() const override;
+		void sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg) override;
 
 		/**
 		 * Returns IP address of receiving interface
@@ -84,6 +78,12 @@ namespace iqrf {
 		 * @return false, dummpy impl
 		 */
 		bool acceptAsyncMsg() const override { return false; }
+
+		/**
+		 * Return messaging instance
+		 * @return Messaging instance
+		 */
+		const MessagingInstance& getMessagingInstance() const override { return m_messagingInstance; }
 
 		/**
 		 * Initializes component instance
@@ -121,14 +121,14 @@ namespace iqrf {
 		 */
 		int handleMessageFromUdp(const std::basic_string<uint8_t> & message);
 
-		/// Instance name
-		std::string m_name;
 		/// Port to send to
 		int m_remotePort = 55000;
 		/// Port to listen on
 		int m_localPort = 55300;
 		/// Network device expiration
 		int m_expiration;
+		/// Messaging instance
+		MessagingInstance m_messagingInstance = MessagingInstance(MessagingType::UDP);
 		/// UDP channel
 		UdpChannel* m_udpChannel = nullptr;
 		/// UDP message queue

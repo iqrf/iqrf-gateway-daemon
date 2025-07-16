@@ -44,8 +44,8 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void UdpMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg) {
-		TRC_FUNCTION_ENTER(PAR(messagingId));
+	void UdpMessaging::sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg) {
+		TRC_FUNCTION_ENTER(PAR(messaging.instance));
 
 		TRC_DEBUG(MEM_HEX_CHAR(msg.data(), msg.size()));
 		m_toUdpMessageQueue->pushToQueue(msg);
@@ -58,7 +58,7 @@ namespace iqrf {
 		"Received from UDP: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
 
 		if (m_messageHandler) {
-			m_messageHandler(m_name, std::vector<uint8_t>(message.data(), message.data() + message.size()));
+			m_messageHandler(m_messagingInstance, std::vector<uint8_t>(message.data(), message.data() + message.size()));
 		}
 
 		return 0;
@@ -74,10 +74,6 @@ namespace iqrf {
 		TRC_FUNCTION_ENTER("");
 		m_messageHandler = IMessagingService::MessageHandlerFunc();
 		TRC_FUNCTION_LEAVE("");
-	}
-
-	const std::string& UdpMessaging::getName() const {
-		return m_name;
 	}
 
 	const std::string& UdpMessaging::getListeningIpAddress() const {
@@ -101,10 +97,14 @@ namespace iqrf {
 		"******************************"
 		);
 
-		props->getMemberAsString("instance", m_name);
+		std::string instanceName;
+
+		props->getMemberAsString("instance", instanceName);
 		props->getMemberAsInt("RemotePort", m_remotePort);
 		props->getMemberAsInt("LocalPort", m_localPort);
 		props->getMemberAsInt("deviceRecordExpiration", m_expiration);
+
+		m_messagingInstance.instance = instanceName;
 
 		m_udpChannel = shape_new UdpChannel(m_remotePort, m_localPort, m_expiration, IQRF_MQ_BUFFER_SIZE);
 

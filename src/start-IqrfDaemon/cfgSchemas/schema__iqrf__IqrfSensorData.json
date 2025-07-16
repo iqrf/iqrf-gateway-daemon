@@ -1,0 +1,101 @@
+{
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "schema__iqrf__SensorData",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "required": [
+    "component",
+    "instance",
+    "autoRun",
+    "period",
+    "retryPeriod",
+    "asyncReports",
+    "messagingList"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "component": {
+      "type": "string",
+      "description": "Name of component.",
+      "enum": ["iqrf::IqrfSensorData"]
+    },
+    "instance": {
+      "type": "string",
+      "description": "Recomended iqrf::IqrfSensorData-(id)",
+      "default": "iqrf::IqrfSensorData-1"
+    },
+    "autoRun": {
+      "description": "Run worker on component startup.",
+      "type": "boolean"
+    },
+    "period": {
+      "description": "Time between data reads in minutes.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "retryPeriod": {
+      "description": "Time between retry following a failure.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "asyncReports": {
+      "description": "Send asynchronous messages when sensor data read concludes.",
+      "type": "boolean"
+    },
+    "messagingList": {
+      "title": "Messaging instance list",
+      "description": "List of messaging instances to use for asynchronous reporting.",
+      "type": "array",
+      "uniqueItems": true,
+      "additionalItems": false,
+      "items": {
+        "title": "Messaging instance",
+        "description": "Messaging service instance.",
+        "type": "object",
+        "required": [
+          "type",
+          "instance"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "title": "Messaging type",
+            "type": "string",
+            "enum": ["mqtt", "ws"],
+            "example": "mqtt"
+          },
+          "instance": {
+            "title": "Messaging instance name",
+            "type": "string",
+            "example": "default"
+          }
+        }
+      }
+    },
+    "RequiredInterfaces": {
+      "type": "array",
+      "description": "Array of required interfaces.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "default": "iqrf::IMessagingService",
+            "description": "..."
+          },
+          "target": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "name",
+          "target"
+        ]
+      }
+    }
+  }
+}

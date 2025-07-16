@@ -141,7 +141,7 @@ namespace iqrf {
 
 		try {
 			handler->buildResponse();
-			m_messaging->sendMessage("", handler->getResponse());
+			m_messaging->sendMessage(m_messaging->getMessagingInstance(), handler->getResponse());
 			if (handler->isTrWriteRequired() && m_exclusiveAcessor) {
 				m_exclusiveAcessor->send(data);
 			}
@@ -182,7 +182,7 @@ namespace iqrf {
 	int IdeCounterpart::sendMessageToIde(const std::basic_string<unsigned char>& message) {
 		SendTrData dataToSend(m_params.mode, message);
 		dataToSend.buildResponse();
-		m_messaging->sendMessage("", dataToSend.getResponse());
+		m_messaging->sendMessage(m_messaging->getMessagingInstance(), dataToSend.getResponse());
 		return 0;
 	}
 
@@ -196,8 +196,8 @@ namespace iqrf {
 			<< "******************************"
 		);
 		modify(props);
-		m_messaging->registerMessageHandler([&](const std::string& messagingId, const std::vector<uint8_t>& msg) {
-			(void)messagingId;  //silence -Wunused-parameter
+		m_messaging->registerMessageHandler([&](const MessagingInstance& messaging, const std::vector<uint8_t>& msg) {
+			(void)messaging;  //silence -Wunused-parameter
 			return handleMsg(msg);
 		});
 		TRC_FUNCTION_LEAVE("")

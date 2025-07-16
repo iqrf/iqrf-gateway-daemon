@@ -1,18 +1,19 @@
 /**
- * Copyright 2015-2025 IQRF Tech s.r.o.
- * Copyright 2019-2025 MICRORISC s.r.o.
+ * IQRF Gateway Daemon
+ * Copyright (C) 2015-2025 IQRF Tech s.r.o., 2019-2025 MICRORISC s.r.o.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
 
@@ -34,7 +35,7 @@ namespace iqrf
         //params
         uint8_t m_frcCommand;
         std::vector<uint8_t> m_userData;
-        std::set<int> m_selectedNodes;
+        std::set<uint8_t> m_selectedNodes;
 
         //response
         int m_status;
@@ -46,7 +47,7 @@ namespace iqrf
           , m_status(0)
         {}
 
-        Send(uint8_t frcCommand, const std::set<int> & selectedNodes, const std::vector<uint8_t> & userData)
+        Send(uint8_t frcCommand, const std::set<uint8_t> &selectedNodes, const std::vector<uint8_t> &userData)
           :m_frcCommand(frcCommand)
           , m_userData(userData)
           , m_selectedNodes(selectedNodes)
@@ -58,7 +59,7 @@ namespace iqrf
           , m_status(0)
         {}
 
-        Send(const std::set<int> & selectedNodes)
+        Send(const std::set<uint8_t> &selectedNodes)
           :m_frcCommand(0xFF)
           , m_selectedNodes(selectedNodes)
           , m_status(0)
@@ -76,10 +77,10 @@ namespace iqrf
         const std::vector<uint8_t> & getFrcData() const { return m_frcData; }
 
         // get selected nodes
-        const std::set<int> & getSelectedNodes() const { return m_selectedNodes; }
+        const std::set<uint8_t> & getSelectedNodes() const { return m_selectedNodes; }
 
         // makes selected cmd
-        void setSelectedNodes(const std::set<int> & val)
+        void setSelectedNodes(const std::set<uint8_t> &val)
         {
           m_selectedNodes = val;
         }
