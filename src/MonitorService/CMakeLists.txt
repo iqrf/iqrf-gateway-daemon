@@ -20,7 +20,9 @@ FIND_PACKAGE(shapeware REQUIRED)
 set(COMPONENT iqrf::MonitorService)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IMonitorService)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDb UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService UNREQUIRED SINGLE)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfSensorData UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IUdpConnectorService UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::IWebsocketService MANDATORY SINGLE)
@@ -37,18 +39,20 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibdpa_INCLUDE_DIRS})
 include_directories(${cutils_INCLUDE_DIRS})
-
+include_directories(${CMAKE_SOURCE_DIR}/src/DpaParser)
 
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 
 if(SHAPE_STATIC_LIBS)
-    add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
 else()
-    add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
 target_link_libraries(${PROJECT_NAME}
-	Dpa
+  nlohmann_json::nlohmann_json
+  Dpa
+  DbEntities
 )
 
 DeployShapeComponent(${PROJECT_NAME})

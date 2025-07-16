@@ -49,7 +49,9 @@
                 "dpaQueueLen",
                 "dpaChannelState",
                 "msgQueueLen",
-                "operMode"
+                "operMode",
+                "enumInProgress",
+                "dataReadingInProgress"
             ]
         }
     },
