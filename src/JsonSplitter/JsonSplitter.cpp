@@ -29,11 +29,8 @@
 #include "rapidjson/schema.h"
 #include "Trace.h"
 
-#ifndef SHAPE_PLATFORM_WINDOWS
 #include <dirent.h>
 #include <sys/stat.h>
-#endif
-
 #include <mutex>
 #include <fstream>
 #include <filesystem>

@@ -19,11 +19,9 @@
 #include <string>
 #include <functional>
 
-class IChannel
-{
+class IChannel {
 public:
-  enum class State
-  {
+  enum class State {
     Ready,
     NotReady
   };
@@ -35,25 +33,24 @@ public:
   virtual ~IChannel() {};
 
   /**
-  Sends a request.
-
-  @param [in]	      message	Data to be sent.
-
-  @return	Result of the data send operation. 0 - Data was sent successfully, negative value means some error
-  occurred.
-  */
+   * Sends a request.
+   *
+   * @param [in] message	Data to be sent.
+   *
+   * @return	Result of the data send operation. 0 - Data was sent successfully, negative value means some error occurred.
+   */
   virtual void sendTo(const std::basic_string<unsigned char>& message) = 0;
 
   /**
-  Registers the receive data handler, a functional that is called when a message is received.
-
-  @param [in]	receiveFromFunc	The functional.
-  */
+   * Registers the receive data handler, a functional that is called when a message is received.
+   *
+   * @param [in]	receiveFromFunc	The functional.
+   */
   virtual void registerReceiveFromHandler(ReceiveFromFunc receiveFromFunc) = 0;
 
   /**
-  Unregisters data handler. The handler remains empty. All icoming data are silently discarded
-  */
+   * Unregisters data handler. The handler remains empty. All icoming data are silently discarded
+   */
   virtual void unregisterReceiveFromHandler() = 0;
 
   virtual State getState() = 0;

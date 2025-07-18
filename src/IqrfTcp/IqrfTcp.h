@@ -2,7 +2,7 @@
 * filename: IqrfTcp.h
 * author: Karel Hanák <xhanak34@stud.fit.vutbr.cz>
 * school: Brno University of Technology, Faculty of Information Technology
-* bachelor's thesis: Automatic Testing of Software 
+* bachelor's thesis: Automatic Testing of Software
 *
 * Header file for the IqrfTcp component.
 *
@@ -31,8 +31,7 @@
 namespace iqrf {
   class ITraceService;
 
-  class IqrfTcp : public IIqrfChannelService
-  {
+  class IqrfTcp : public IIqrfChannelService {
   public:
     class Imp;
 

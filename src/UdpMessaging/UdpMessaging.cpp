@@ -34,117 +34,119 @@ TRC_INIT_MODULE(iqrf::UdpMessaging)
 const unsigned IQRF_MQ_BUFFER_SIZE = 64 * 1024;
 
 namespace iqrf {
-	UdpMessaging::UdpMessaging() {
-		TRC_FUNCTION_ENTER("");
-		TRC_FUNCTION_LEAVE("");
-	}
+  UdpMessaging::UdpMessaging() {
+    TRC_FUNCTION_ENTER("");
+    TRC_FUNCTION_LEAVE("");
+  }
 
-	UdpMessaging::~UdpMessaging() {
-		TRC_FUNCTION_ENTER("");
-		TRC_FUNCTION_LEAVE("");
-	}
+  UdpMessaging::~UdpMessaging() {
+    TRC_FUNCTION_ENTER("");
+    TRC_FUNCTION_LEAVE("");
+  }
 
-	void UdpMessaging::sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg) {
-		TRC_FUNCTION_ENTER(PAR(messaging.instance));
+  void UdpMessaging::sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg) {
+    TRC_FUNCTION_ENTER(PAR(messaging.instance));
 
-		TRC_DEBUG(MEM_HEX_CHAR(msg.data(), msg.size()));
-		m_toUdpMessageQueue->pushToQueue(msg);
+    TRC_DEBUG(MEM_HEX_CHAR(msg.data(), msg.size()));
+    m_toUdpMessageQueue->pushToQueue(msg);
 
-		TRC_FUNCTION_LEAVE("")
-	}
+    TRC_FUNCTION_LEAVE("")
+  }
 
-	int UdpMessaging::handleMessageFromUdp(const std::basic_string<uint8_t> & message) {
-		TRC_DEBUG("==================================" << std::endl <<
-		"Received from UDP: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
+  int UdpMessaging::handleMessageFromUdp(const std::basic_string<uint8_t> & message) {
+    TRC_DEBUG(
+      "==================================" << std::endl
+      << "Received from UDP: " << std::endl
+      << MEM_HEX_CHAR(message.data(), message.size())
+    );
 
-		if (m_messageHandler) {
-			m_messageHandler(m_messagingInstance, std::vector<uint8_t>(message.data(), message.data() + message.size()));
-		}
+    if (m_messageHandler) {
+      m_messageHandler(m_messagingInstance, std::vector<uint8_t>(message.data(), message.data() + message.size()));
+    }
+    return 0;
+  }
 
-		return 0;
-	}
+  void UdpMessaging::registerMessageHandler(MessageHandlerFunc messageHandler) {
+    TRC_FUNCTION_ENTER("");
+    m_messageHandler = messageHandler;
+    TRC_FUNCTION_LEAVE("");
+  }
 
-	void UdpMessaging::registerMessageHandler(MessageHandlerFunc messageHandler) {
-		TRC_FUNCTION_ENTER("");
-		m_messageHandler = messageHandler;
-		TRC_FUNCTION_LEAVE("");
-	}
+  void UdpMessaging::unregisterMessageHandler() {
+    TRC_FUNCTION_ENTER("");
+    m_messageHandler = IMessagingService::MessageHandlerFunc();
+    TRC_FUNCTION_LEAVE("");
+  }
 
-	void UdpMessaging::unregisterMessageHandler() {
-		TRC_FUNCTION_ENTER("");
-		m_messageHandler = IMessagingService::MessageHandlerFunc();
-		TRC_FUNCTION_LEAVE("");
-	}
+  const std::string& UdpMessaging::getListeningIpAddress() const {
+    return m_udpChannel->getListeningIpAddress();
+  }
 
-	const std::string& UdpMessaging::getListeningIpAddress() const {
-		return m_udpChannel->getListeningIpAddress();
-	}
+  unsigned short UdpMessaging::getListeningIpPort() const {
+    return m_udpChannel->getListeningIpPort();
+  }
 
-	unsigned short UdpMessaging::getListeningIpPort() const {
-		return m_udpChannel->getListeningIpPort();
-	}
+  const std::string& UdpMessaging::getListeningMacAddress() const {
+    return m_udpChannel->getListeningMacAddress();
+  }
 
-	const std::string& UdpMessaging::getListeningMacAddress() const {
-		return m_udpChannel->getListeningMacAddress();
-	}
+  void UdpMessaging::activate(const shape::Properties *props) {
+    TRC_FUNCTION_ENTER("");
 
-	void UdpMessaging::activate(const shape::Properties *props) {
-		TRC_FUNCTION_ENTER("");
+    TRC_INFORMATION(std::endl <<
+    "******************************" << std::endl <<
+    "UdpMessaging instance activate" << std::endl <<
+    "******************************"
+    );
 
-		TRC_INFORMATION(std::endl <<
-		"******************************" << std::endl <<
-		"UdpMessaging instance activate" << std::endl <<
-		"******************************"
-		);
+    std::string instanceName;
 
-		std::string instanceName;
+    props->getMemberAsString("instance", instanceName);
+    props->getMemberAsInt("RemotePort", m_remotePort);
+    props->getMemberAsInt("LocalPort", m_localPort);
+    props->getMemberAsInt("deviceRecordExpiration", m_expiration);
 
-		props->getMemberAsString("instance", instanceName);
-		props->getMemberAsInt("RemotePort", m_remotePort);
-		props->getMemberAsInt("LocalPort", m_localPort);
-		props->getMemberAsInt("deviceRecordExpiration", m_expiration);
+    m_messagingInstance.instance = instanceName;
 
-		m_messagingInstance.instance = instanceName;
+    m_udpChannel = shape_new UdpChannel(m_remotePort, m_localPort, m_expiration, IQRF_MQ_BUFFER_SIZE);
 
-		m_udpChannel = shape_new UdpChannel(m_remotePort, m_localPort, m_expiration, IQRF_MQ_BUFFER_SIZE);
+    m_toUdpMessageQueue = shape_new TaskQueue<std::basic_string<uint8_t>>([&](const std::basic_string<uint8_t>& msg) {
+      m_udpChannel->sendTo(msg);
+    });
 
-		m_toUdpMessageQueue = shape_new TaskQueue<std::basic_string<uint8_t>>([&](const std::basic_string<uint8_t>& msg) {
-			m_udpChannel->sendTo(msg);
-		});
+    m_udpChannel->registerReceiveFromHandler([&](const std::basic_string<unsigned char>& msg) -> int {
+      return handleMessageFromUdp(msg);
+    });
 
-		m_udpChannel->registerReceiveFromHandler([&](const std::basic_string<unsigned char>& msg) -> int {
-			return handleMessageFromUdp(msg);
-		});
+    TRC_FUNCTION_LEAVE("")
+  }
 
-		TRC_FUNCTION_LEAVE("")
-	}
+  void UdpMessaging::modify(const shape::Properties *props) {
+    (void)props;
+  }
 
-	void UdpMessaging::modify(const shape::Properties *props) {
-		(void)props;
-	}
+  void UdpMessaging::deactivate() {
+    TRC_FUNCTION_ENTER("");
 
-	void UdpMessaging::deactivate() {
-		TRC_FUNCTION_ENTER("");
+    m_udpChannel->unregisterReceiveFromHandler();
 
-		m_udpChannel->unregisterReceiveFromHandler();
+    delete m_udpChannel;
+    delete m_toUdpMessageQueue;
 
-		delete m_udpChannel;
-		delete m_toUdpMessageQueue;
+    TRC_INFORMATION(std::endl <<
+    "******************************" << std::endl <<
+    "UdpMessaging instance deactivate" << std::endl <<
+    "******************************"
+    );
+    TRC_FUNCTION_LEAVE("")
+  }
 
-		TRC_INFORMATION(std::endl <<
-		"******************************" << std::endl <<
-		"UdpMessaging instance deactivate" << std::endl <<
-		"******************************"
-		);
-		TRC_FUNCTION_LEAVE("")
-	}
+  void UdpMessaging::attachInterface(shape::ITraceService* iface) {
+    shape::Tracer::get().addTracerService(iface);
+  }
 
-	void UdpMessaging::attachInterface(shape::ITraceService* iface) {
-		shape::Tracer::get().addTracerService(iface);
-	}
-
-	void UdpMessaging::detachInterface(shape::ITraceService* iface) {
-		shape::Tracer::get().removeTracerService(iface);
-	}
+  void UdpMessaging::detachInterface(shape::ITraceService* iface) {
+    shape::Tracer::get().removeTracerService(iface);
+  }
 
 }

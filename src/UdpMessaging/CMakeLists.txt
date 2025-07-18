@@ -30,25 +30,14 @@ source_group("Source Files" FILES ${_SRCFILES})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_definitions(
-  -D_WINSOCK_DEPRECATED_NO_WARNINGS
-)
-
 if(SHAPE_STATIC_LIBS)
-    add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
 else()
-    add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
-if (WIN32)
-	target_link_libraries(${PROJECT_NAME}
-		Ws2_32
-		iphlpapi
-	)
-else()
-	target_link_libraries(${PROJECT_NAME}
-		rt
-	)
-endif()
+target_link_libraries(${PROJECT_NAME}
+  rt
+)
 
 DeployShapeComponent(${PROJECT_NAME})

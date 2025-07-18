@@ -32,19 +32,13 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibtcp_INCLUDE_DIRS})
 
 if(SHAPE_STATIC_LIBS)
-    add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
 else()
-    add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
-if (WIN32)
-	target_link_libraries(${PROJECT_NAME}
-		Ws2_32
-	)
-else()
-	target_link_libraries(${PROJECT_NAME}
-		rt
-	)
-endif()
+target_link_libraries(${PROJECT_NAME}
+  rt
+)
 
 DeployShapeComponent(${PROJECT_NAME})

@@ -45,9 +45,9 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibdpa_INCLUDE_DIRS})
 
 if(SHAPE_STATIC_LIBS)
-    add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
 else()
-    add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
 target_link_libraries(${PROJECT_NAME}
@@ -58,41 +58,3 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 DeployShapeComponent(${PROJECT_NAME})
-
-if(WIN32)
-  if(${VCPKG_VER} STREQUAL "2021-01-13-unknownhash")
-	  install(
-		  FILES
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc141-mt-gd-x64-1_75.dll"
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/zip.dll"
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/bz2d.dll"
-		  CONFIGURATIONS Debug
-		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
-	  )
-
-	  install(
-		  FILES
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc141-mt-x64-1_75.dll"
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/zip.dll"
-		  CONFIGURATIONS Release
-		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
-	  )
-  else()
-	  install(
-		  FILES
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc141-mt-gd-x64-1_73.dll"
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/zip.dll"
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/bz2d.dll"
-		  CONFIGURATIONS Debug
-		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
-	  )
-
-	  install(
-		  FILES
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc141-mt-x64-1_73.dll"
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/zip.dll"
-		  CONFIGURATIONS Release
-		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
-	  )
-  endif()
-endif()
