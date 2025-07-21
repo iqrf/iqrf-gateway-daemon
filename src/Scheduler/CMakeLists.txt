@@ -15,7 +15,6 @@
 
 project(Scheduler)
 
-set(CMAKE_CXX_STANDARD 17)
 set(COMPONENT iqrf::Scheduler)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::ISchedulerService)

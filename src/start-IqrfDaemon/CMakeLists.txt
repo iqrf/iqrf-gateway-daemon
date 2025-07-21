@@ -50,6 +50,34 @@ target_link_libraries(${PROJECT_NAME}
 
 DeployShapeComponent(${PROJECT_NAME})
 
+#set(CERT_DIR ${CMAKE_BINARY_DIR}/certs)
+#message(FATAL "CERT DIR: ${CERT_DIR}")
+#file(MAKE_DIRECTORY ${CERT_DIR})
+#set(CERT_FILE ${CERT_DIR}/cert.pem)
+#set(KEY_FILE ${CERT_DIR}/privkey.pem)
+#
+#execute_process(
+#  COMMAND openssl ecparam -name secp384r1 -genkey -param_enc named_curve -out ${KEY_FILE}
+#  RESULT_VARIABLE proc_res
+#  OUTPUT_VARIABLE proc_out
+#  ERROR_VARIABLE proc_err
+#)
+#
+#if(NOT proc_res EQUAL 0)
+#  message(FATAL_ERROR "Failed to generate private key: ${proc_err}")
+#endif()
+#
+#execute_process(
+#  COMMAND openssl req -new -x509 -sha256 -nodes -days 3650 -subj "/CN=IQRF Gateway/C=CZ/ST=Hradec Kralove Region/L=Jicin/O=IQRF Tech s.r.o." -key ${KEY_FILE} -out ${CERT_FILE}
+#  RESULT_VARIABLE proc_res
+#  OUTPUT_VARIABLE proc_out
+#  ERROR_VARIABLE proc_err
+#)
+#
+#if(NOT proc_res EQUAL 0)
+#  message(FATAL_ERROR "Failed to generate certificate: ${proc_err}")
+#endif()
+
 list(APPEND CfgList "LinCdc" "LinSpi" "LinUart" "LinDeploy")
 
 foreach(cfg ${CfgList})
@@ -63,6 +91,7 @@ foreach(cfg ${CfgList})
     ${CMAKE_CURRENT_SOURCE_DIR}/javaScript              configuration/javaScript
     ${CMAKE_CURRENT_SOURCE_DIR}/cfgSchemas              configuration/cfgSchemas
     ${CMAKE_CURRENT_SOURCE_DIR}/systemd                 configuration/systemd
+    #${CERT_DIR}                                         configuration/certs
   )
   DeployShapeConfigurationStartUp("${PROJECT_INSTALL_PREFIX}/bin/${PROJECT_NAME}" "${PROJECT_NAME}-${cfg}")
 endforeach()

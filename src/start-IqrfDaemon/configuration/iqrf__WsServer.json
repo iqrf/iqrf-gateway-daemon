@@ -1,0 +1,8 @@
+{
+    "component": "iqrf::WsServer",
+    "instance": "iqrf::WsServer-default",
+    "port": 1338,
+    "cert": "cert.pem",
+    "privKey": "privkey.pem",
+    "acceptOnlyLocalhost": true
+}

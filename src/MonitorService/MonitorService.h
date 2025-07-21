@@ -23,7 +23,7 @@
 #include "IIqrfSensorData.h"
 #include "IMessagingSplitterService.h"
 #include "IUdpConnectorService.h"
-#include "IWebsocketService.h"
+#include "IWsServer.h"
 #include "ITraceService.h"
 #include "Trace.h"
 
@@ -153,16 +153,16 @@ namespace iqrf {
     void detachInterface(iqrf::IUdpConnectorService* iface);
 
     /**
-     * Attaches Shape websocket service interface
-     * @param iface Shape websocket service interface
+     * Attaches websocket server interface
+     * @param iface Websocket server interface
      */
-    void attachInterface(shape::IWebsocketService* iface);
+    void attachInterface(iqrf::IWsServer* iface);
 
     /**
-     * Detaches Shape websocket service interface
-     * @param iface Shape websocket service interface
+     * Detaches websocket server interface
+     * @param iface Websocket server interface
      */
-    void detachInterface(shape::IWebsocketService* iface);
+    void detachInterface(iqrf::IWsServer* iface);
 
     /**
      * Attaches tracing service interface
@@ -208,8 +208,8 @@ namespace iqrf {
     IMessagingSplitterService *m_splitterService = nullptr;
     /// UDP connector service
     IUdpConnectorService *m_udpConnectorService = nullptr;
-    /// Shape websocket service
-    shape::IWebsocketService *m_websocketService = nullptr;
+    /// WebSocket server interface
+    IWsServer *m_wsServer = nullptr;
     /// Monitoring notification worker thread
     std::thread m_workerThread;
     /// Thread running condition

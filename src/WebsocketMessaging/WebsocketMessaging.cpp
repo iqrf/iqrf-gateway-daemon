@@ -31,220 +31,135 @@
 
 TRC_INIT_MODULE(iqrf::WebsocketMessaging)
 
-const unsigned IQRF_MQ_BUFFER_SIZE = 64 * 1024;
-
 namespace iqrf {
 
-	////////////////////////////////////
-	// class WebsocketMessaging::Imp
-	////////////////////////////////////
-	class WebsocketMessaging::Imp
-	{
-	private:
-		shape::IWebsocketService* m_iWebsocketService = nullptr;
-		typedef std::pair<MessagingInstance, std::vector<uint8_t>> ConnMsg;
-		TaskQueue<ConnMsg>* m_toMqMessageQueue = nullptr;
-		bool m_acceptAsyncMsg = false;
-		MessagingInstance m_messagingInstance = MessagingInstance(MessagingType::WS);
-		IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
+  WebsocketMessaging::WebsocketMessaging() {
+    TRC_FUNCTION_ENTER("");
+    TRC_FUNCTION_LEAVE("");
+  }
 
-		int handleMessageFromWebsocket(const std::vector<uint8_t>& message, const std::string& connId)
-		{
-			TRC_DEBUG("==================================" << std::endl <<
-				"Received from Websocket: " << PAR(connId) << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
+  WebsocketMessaging::~WebsocketMessaging() {
+    TRC_FUNCTION_ENTER("");
+    TRC_FUNCTION_LEAVE("");
+  }
 
-			if (m_messageHandlerFunc) {
-				auto auxMessaging = m_messagingInstance;
-				auxMessaging.instance += '/' + connId;
-				m_messageHandlerFunc(auxMessaging, message);
-			}
+  ///// Component lifecycle /////
 
-			return 0;
-		}
+  void WebsocketMessaging::activate(const shape::Properties *props) {
+    TRC_FUNCTION_ENTER("");
+    TRC_INFORMATION(std::endl <<
+      "******************************" << std::endl <<
+      "WebsocketMessaging instance activate" << std::endl <<
+      "******************************"
+    );
 
-	public:
-		Imp()
-		{
-		}
+    modify(props);
 
-		~Imp()
-		{
-		}
+    m_wsServer->registerMessageHandler(
+      [&](const std::size_t sessionId, const std::string& msg) -> int {
+        return handleMessageFromWebsocket(sessionId, msg);
+      }
+    );
 
-		void registerMessageHandler(MessageHandlerFunc hndl)
-		{
-			TRC_FUNCTION_ENTER("");
-			m_messageHandlerFunc = hndl;
-			TRC_FUNCTION_LEAVE("")
-		}
+    TRC_FUNCTION_LEAVE("")
+  }
 
-		void unregisterMessageHandler()
-		{
-			TRC_FUNCTION_ENTER("");
-			m_messageHandlerFunc = IMessagingService::MessageHandlerFunc();
-			TRC_FUNCTION_LEAVE("")
-		}
+  void WebsocketMessaging::modify(const shape::Properties *props) {
+    std::string instanceName;
 
-		void sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg)
-		{
-			TRC_FUNCTION_ENTER("");
-			TRC_DEBUG(MEM_HEX_CHAR(msg.data(), msg.size()));
-			m_toMqMessageQueue->pushToQueue(std::make_pair(messaging, std::vector<uint8_t>(msg.data(), msg.data() + msg.size())));
-			TRC_FUNCTION_LEAVE("")
-		}
+    props->getMemberAsString("instance", instanceName);
+    props->getMemberAsBool("acceptAsyncMsg", m_acceptAsyncMsg);
 
-		bool acceptAsyncMsg() const
-		{
-			return m_acceptAsyncMsg;
-		}
+    m_messagingInstance.instance = instanceName;
+  }
 
-		const MessagingInstance& getMessagingInstance() const {
-			return m_messagingInstance;
-		}
+  void WebsocketMessaging::deactivate() {
+    TRC_FUNCTION_ENTER("");
 
-		void activate(const shape::Properties *props)
-		{
-			TRC_FUNCTION_ENTER("");
-			TRC_INFORMATION(std::endl <<
-				"******************************" << std::endl <<
-				"WebsocketMessaging instance activate" << std::endl <<
-				"******************************"
-			);
+    m_wsServer->unregisterMessageHandler();
+    TRC_INFORMATION(std::endl <<
+      "******************************" << std::endl <<
+      "WebsocketMessaging instance deactivate" << std::endl <<
+      "******************************"
+    );
+    TRC_FUNCTION_LEAVE("")
+  }
 
-			std::string instanceName;
+  ///// Public API /////
 
-			props->getMemberAsString("instance", instanceName);
-			props->getMemberAsBool("acceptAsyncMsg", m_acceptAsyncMsg);
+  void WebsocketMessaging::registerMessageHandler(MessageHandlerFunc handler) {
+    TRC_FUNCTION_ENTER("");
+    m_messageHandlerFunc = handler;
+    TRC_FUNCTION_LEAVE("")
+  }
 
-			m_messagingInstance.instance = instanceName;
+  void WebsocketMessaging::unregisterMessageHandler() {
+    TRC_FUNCTION_ENTER("");
+    m_messageHandlerFunc = IMessagingService::MessageHandlerFunc();
+    TRC_FUNCTION_LEAVE("")
+  }
 
-			m_toMqMessageQueue = shape_new TaskQueue<ConnMsg>([&](ConnMsg conMsg) {
-				std::string messagingId2(conMsg.first.instance);
-				std::string connId;
-				if (std::string::npos != messagingId2.find_first_of('/')) {
-					//preparse messageId to remove possible optional appended topic
-					//we need just clean massaging name to find in map
-					std::string buf(messagingId2);
-					std::replace(buf.begin(), buf.end(), '/', ' ');
-					std::istringstream is(buf);
-					is >> messagingId2 >> connId;
-				}
+  void WebsocketMessaging::sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t>& msg) {
+    TRC_FUNCTION_ENTER("");
 
-				m_iWebsocketService->sendMessage(conMsg.second, connId);
-			});
+    std::string message(msg.begin(), msg.end());
 
-			TRC_DEBUG("Assigned port: " << PAR(m_iWebsocketService->getPort()));
-			m_iWebsocketService->registerMessageHandler([&](const std::vector<uint8_t>& msg, const std::string& connId ) -> int {
-				return handleMessageFromWebsocket(msg, connId); });
+    if (!messaging.hasClientSession<std::size_t>()) {
+      TRC_WARNING("Cannot send message via [" << messaging.to_string() << "]: Client session ID missing.");
+      return;
+    }
 
-			TRC_FUNCTION_LEAVE("")
-		}
+    m_wsServer->send(messaging.getClientSession<std::size_t>(), message);
+    TRC_FUNCTION_LEAVE("")
+  }
 
-		void deactivate()
-		{
-			TRC_FUNCTION_ENTER("");
+  bool WebsocketMessaging::acceptAsyncMsg() const {
+    return m_acceptAsyncMsg;
+  }
 
-			m_iWebsocketService->unregisterMessageHandler();
-			delete m_toMqMessageQueue;
+  const MessagingInstance& WebsocketMessaging::getMessagingInstance() const {
+    return m_messagingInstance;
+  }
 
-			TRC_INFORMATION(std::endl <<
-				"******************************" << std::endl <<
-				"WebsocketMessaging instance deactivate" << std::endl <<
-				"******************************"
-			);
-			TRC_FUNCTION_LEAVE("")
-		}
+  ///// Private methods /////
 
-		void modify(const shape::Properties *props)
-		{
-			(void)props; //silence -Wunused-parameter
-		}
+  int WebsocketMessaging::handleMessageFromWebsocket(const std::size_t sessionId, const std::string& msg) {
+    TRC_DEBUG(
+      "==================================" << std::endl
+      << "Received from Websocket: " << PAR(sessionId) << std::endl
+      << MEM_HEX_CHAR(msg.data(), msg.size())
+    );
 
-		void attachInterface(shape::IWebsocketService* iface)
-		{
-			m_iWebsocketService = iface;
-		}
+    std::vector<uint8_t> message(msg.begin(), msg.end());
 
-		void detachInterface(shape::IWebsocketService* iface)
-		{
-			if (m_iWebsocketService == iface) {
-				m_iWebsocketService = nullptr;
-			}
-		}
+    if (m_messageHandlerFunc) {
+      auto auxMessaging = m_messagingInstance;
+      auxMessaging.setClientSession<std::size_t>(sessionId);
+      m_messageHandlerFunc(auxMessaging, message);
+    }
 
-	};
+    return 0;
+  }
 
-	////////////////////////////////////
-	// class WebsocketMessaging
-	////////////////////////////////////
-	WebsocketMessaging::WebsocketMessaging()
-	{
-		m_imp = shape_new Imp();
-	}
+  ///// Interface management /////
 
-	WebsocketMessaging::~WebsocketMessaging()
-	{
-		delete m_imp;
-	}
+  void WebsocketMessaging::attachInterface(iqrf::IWsServer* iface) {
+    m_wsServer = iface;
+  }
 
-	void WebsocketMessaging::registerMessageHandler(MessageHandlerFunc hndl)
-	{
-		m_imp->registerMessageHandler(hndl);
-	}
+  void WebsocketMessaging::detachInterface(iqrf::IWsServer* iface) {
+    if (m_wsServer == iface) {
+      m_wsServer = nullptr;
+    }
+  }
 
-	void WebsocketMessaging::unregisterMessageHandler()
-	{
-		m_imp->unregisterMessageHandler();
-	}
+  void WebsocketMessaging::attachInterface(shape::ITraceService* iface)
+  {
+    shape::Tracer::get().addTracerService(iface);
+  }
 
-	void WebsocketMessaging::sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg)
-	{
-		m_imp->sendMessage(messaging, msg);
-	}
-
-	bool WebsocketMessaging::acceptAsyncMsg() const
-	{
-		return m_imp->acceptAsyncMsg();
-	}
-
-	const MessagingInstance& WebsocketMessaging::getMessagingInstance() const {
-		return m_imp->getMessagingInstance();
-	}
-
-	//////////////////////////////////////
-	void WebsocketMessaging::activate(const shape::Properties *props)
-	{
-		m_imp->activate(props);
-	}
-
-	void WebsocketMessaging::deactivate()
-	{
-		m_imp->deactivate();
-	}
-
-	void WebsocketMessaging::modify(const shape::Properties *props)
-	{
-		m_imp->modify(props);
-	}
-
-	void WebsocketMessaging::attachInterface(shape::IWebsocketService* iface)
-	{
-		m_imp->attachInterface(iface);
-	}
-
-	void WebsocketMessaging::detachInterface(shape::IWebsocketService* iface)
-	{
-		m_imp->detachInterface(iface);
-	}
-
-	void WebsocketMessaging::attachInterface(shape::ITraceService* iface)
-	{
-		shape::Tracer::get().addTracerService(iface);
-	}
-
-	void WebsocketMessaging::detachInterface(shape::ITraceService* iface)
-	{
-		shape::Tracer::get().removeTracerService(iface);
-	}
-
+  void WebsocketMessaging::detachInterface(shape::ITraceService* iface)
+  {
+    shape::Tracer::get().removeTracerService(iface);
+  }
 }

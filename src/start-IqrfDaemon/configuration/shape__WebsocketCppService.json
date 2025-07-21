@@ -1,9 +1,0 @@
-{
-  "component": "shape::WebsocketCppService",
-  "instance": "WebsocketCppService",
-  "WebsocketPort": 1338,
-  "tlsEnabled": false,
-  "tlsMode": "intermediate",
-  "certificate": "",
-  "privateKey": ""
-}

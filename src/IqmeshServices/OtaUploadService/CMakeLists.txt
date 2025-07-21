@@ -15,7 +15,6 @@
 
 project(OtaUploadService)
 
-set(CMAKE_CXX_STANDARD 14)
 set(COMPONENT iqrf::OtaUploadService)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IOtaUploadService)

@@ -46,6 +46,13 @@
       "name": "shape::WebsocketCppService",
       "libraryPath": "",
       "libraryName": "WebsocketCppService",
+      "enabled": false,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::WsServer",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "WsServer",
       "enabled": true,
       "startlevel": 0
     },
