@@ -16,7 +16,6 @@
 
 project(IqrfDb)
 
-set(CMAKE_CXX_STANDARD 17)
 set(COMPONENT iqrf::IqrfDb)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IIqrfDb)

@@ -25,7 +25,7 @@ AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfSensorData UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IUdpConnectorService UNREQUIRED SINGLE)
-AddShapeRequiredInterface(${COMPONENT} shape::IWebsocketService MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IWsServer MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 

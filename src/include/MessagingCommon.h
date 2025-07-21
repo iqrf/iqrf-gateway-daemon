@@ -20,6 +20,8 @@
 #include <stdexcept>
 #include <string>
 #include <tuple>
+#include <type_traits>
+#include <variant>
 
 namespace iqrf {
 
@@ -125,9 +127,32 @@ namespace iqrf {
 			return MessagingConversion::messagingTypeToString(this->type) + '-' + this->instance;
 		}
 
+    /**
+     * Check if messaging instance has client session information
+     */
+    template<typename T>
+    typename std::enable_if<std::is_same<T, std::size_t>::value || std::is_same<T, std::string>::value, bool>::type
+    hasClientSession() const {
+      return std::holds_alternative<T>(this->clientSession);
+    }
+
+    template<typename T>
+    typename std::enable_if<std::is_same<T, std::size_t>::value || std::is_same<T, std::string>::value, T>::type
+    getClientSession() const {
+      return std::get<T>(this->clientSession);
+    }
+
+    template<typename T>
+    typename std::enable_if<std::is_same<T, std::size_t>::value || std::is_same<T, std::string>::value, void>::type
+    setClientSession(const T& val) {
+      this->clientSession = val;
+    }
+
 		/// Messaging type
 		MessagingType type;
 		/// Instance name
 		std::string instance;
+    /// Session ID or topic
+    std::variant<std::monostate, std::size_t, std::string> clientSession;
 	};
 }
