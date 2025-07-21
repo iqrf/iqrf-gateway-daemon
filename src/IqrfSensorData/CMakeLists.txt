@@ -15,7 +15,6 @@
 
 project(IqrfSensorData)
 
-set(CMAKE_CXX_STANDARD 17)
 set(COMPONENT iqrf::IqrfSensorData)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IIqrfSensorData)
