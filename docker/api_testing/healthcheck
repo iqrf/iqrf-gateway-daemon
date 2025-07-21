@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 
 import json
+import ssl
 import websocket
 
-ws = websocket.create_connection("ws://localhost:1438")
+ws = websocket.create_connection(
+  'wss://localhost:1438',
+  sslopt={'cert_reqs': ssl.CERT_NONE}
+)
 response = ws.recv()
 ws.close()
 
