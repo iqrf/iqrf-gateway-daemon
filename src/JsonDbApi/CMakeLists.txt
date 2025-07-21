@@ -16,7 +16,6 @@
 
 project(JsonDbApi)
 
-set(CMAKE_CXX_STANDARD 17)
 set(COMPONENT iqrf::JsonDbApi)
 DeclareShapeComponent(${COMPONENT})
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDb MANDATORY SINGLE)
