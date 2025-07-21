@@ -207,7 +207,9 @@ namespace iqrf {
       doc.Accept(writer);
       gwMonitorRecord = buffer.GetString();
 
-      m_websocketService->sendMessage(gwMonitorRecord, ""); //send to all connected clients
+      if (m_wsServer) {
+        m_wsServer->send(gwMonitorRecord); //send to all clients
+      }
     }
 
     TRC_FUNCTION_LEAVE("");
@@ -294,13 +296,13 @@ namespace iqrf {
     }
   }
 
-  void MonitorService::attachInterface(shape::IWebsocketService* iface) {
-    m_websocketService = iface;
+  void MonitorService::attachInterface(IWsServer* iface) {
+    m_wsServer = iface;
   }
 
-  void MonitorService::detachInterface(shape::IWebsocketService* iface) {
-    if (m_websocketService == iface) {
-      m_websocketService = nullptr;
+  void MonitorService::detachInterface(IWsServer* iface) {
+    if (m_wsServer == iface) {
+      m_wsServer = nullptr;
     }
   }
 

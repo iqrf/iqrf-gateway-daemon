@@ -13,14 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-project(WebsocketMessaging)
+project(WsServer)
 
-FIND_PACKAGE(shapeware REQUIRED)
-
-set(COMPONENT iqrf::WebsocketMessaging)
+set(COMPONENT iqrf::WsServer)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrf::IMessagingService)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IWsServer MANDATORY SINGLE)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IWsServer)
+AddShapeRequiredInterface(${COMPONENT} shape::ILaunchService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
@@ -30,13 +28,23 @@ file(GLOB_RECURSE _SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 source_group("Header Files" FILES ${_HDRFILES})
 source_group("Source Files" FILES ${_SRCFILES})
 
+find_package(Boost REQUIRED COMPONENTS system)
+find_package(OpenSSL REQUIRED)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${Boost_INCLUDE_DIRS})
 
 if(SHAPE_STATIC_LIBS)
   add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
 else()
   add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  ${Boost_LIBRARIES}
+  OpenSSL::SSL
+  OpenSSL::Crypto
+)
 
 DeployShapeComponent(${PROJECT_NAME})

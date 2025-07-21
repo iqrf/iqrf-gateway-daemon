@@ -1,0 +1,52 @@
+{
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "schema__iqrf__WsServer",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "required": [
+        "component",
+        "instance",
+        "port",
+        "cert",
+        "privKey",
+        "acceptOnlyLocalhost"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "Component name.",
+            "enum": [
+                "iqrf::WsServer"
+            ]
+        },
+        "instance": {
+            "type": "string",
+            "description": "Instance name.",
+            "default": "iqrf::WsServer-default"
+        },
+        "port":  {
+            "type": "integer",
+            "description": "Server port number",
+            "default": 1338,
+            "minimum": 1024,
+            "maximum": 65535
+        },
+        "cert": {
+            "type": "string",
+            "description": "Certificate file"
+        },
+        "privKey": {
+            "type": "string",
+            "description": "Private key file"
+        },
+        "acceptOnlyLocalhost": {
+            "type": "boolean",
+            "description": "Only accept localhost connections"
+        }
+    }
+}
