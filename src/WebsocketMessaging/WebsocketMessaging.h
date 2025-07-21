@@ -19,34 +19,108 @@
 #include "IMessagingService.h"
 #include "TaskQueue.h"
 #include "ShapeProperties.h"
-#include "IWebsocketService.h"
 #include "ITraceService.h"
+#include "IWsServer.h"
 #include <string>
 
+/// iqrf namespace
 namespace iqrf {
-	class WebsocketMessaging : public IMessagingService
-	{
-	public:
-		WebsocketMessaging();
-		virtual ~WebsocketMessaging();
+  class WebsocketMessaging : public IMessagingService {
+  public:
+    /**
+     * Constructor
+     */
+    WebsocketMessaging();
 
-		void registerMessageHandler(MessageHandlerFunc hndl) override;
-		void unregisterMessageHandler() override;
-		void sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg) override;
-		bool acceptAsyncMsg() const override;
-		const MessagingInstance& getMessagingInstance() const override;
+    /**
+     * Destructor
+     */
+    virtual ~WebsocketMessaging();
 
-		void activate(const shape::Properties *props = 0);
-		void deactivate();
-		void modify(const shape::Properties *props);
+    /**
+     * Register message handler
+     * @param handler Message handler
+     */
+    void registerMessageHandler(MessageHandlerFunc handler) override;
 
-		void attachInterface(shape::IWebsocketService* iface);
-		void detachInterface(shape::IWebsocketService* iface);
-		void attachInterface(shape::ITraceService* iface);
-		void detachInterface(shape::ITraceService* iface);
+    /***
+     * Unregister message handler
+     */
+    void unregisterMessageHandler() override;
 
-	private:
-		class Imp;
-		Imp* m_imp = nullptr;
-	};
+    /**
+     * Send message via websocket
+     * @param messaging Messaging instance
+     * @param msg Message to send
+     */
+    void sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t>& msg) override;
+
+    /**
+     * Returns asynchronous message accepting policy
+     */
+    bool acceptAsyncMsg() const override;
+
+    /**
+     * Returns messaging instance
+     */
+    const MessagingInstance& getMessagingInstance() const override;
+
+    /**
+     * Initializes component
+     * @param props Component properties
+     */
+    void activate(const shape::Properties *props = 0);
+
+    /**
+     * Modifies component properties
+     * @param props Component properties
+     */
+    void modify(const shape::Properties *props);
+
+    /**
+     * Deactivates component
+     */
+    void deactivate();
+
+    /**
+     * Attaches websocket server interface
+     * @param iface Websocket server interface
+     */
+    void attachInterface(iqrf::IWsServer* iface);
+
+    /**
+     * Detaches websocket server interface
+     * @param iface Websocket server interface
+     */
+    void detachInterface(iqrf::IWsServer* iface);
+
+    /**
+     * Attaches tracing service interface
+     * @param iface Tracing service interface
+     */
+    void attachInterface(shape::ITraceService* iface);
+
+    /**
+     * Detaches tracing service interface
+     * @param iface Tracing service interface
+     */
+    void detachInterface(shape::ITraceService* iface);
+
+  private:
+    /**
+     * Handle incoming message from clients
+     * @param sessionId Session ID
+     * @param msg Received message
+     */
+    int handleMessageFromWebsocket(const std::size_t sessionId, const std::string& msg);
+
+    /// Websocket server interfaceeue type definition
+    iqrf::IWsServer* m_wsServer = nullptr;
+    /// Handler for incoming messages
+    IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
+    /// Accept asynchronous messages
+    bool m_acceptAsyncMsg = false;
+    /// Messaging instance
+    MessagingInstance m_messagingInstance = MessagingInstance(MessagingType::WS);
+  };
 }

@@ -1,5 +1,0 @@
-{
-  "component": "iqrf::IqrfCdc",
-  "instance": "iqrf::IqrfCdc-Instance1",
-  "IqrfInterface": "COM6"
-}
