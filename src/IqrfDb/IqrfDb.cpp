@@ -517,9 +517,8 @@ namespace iqrf {
 
 	void IqrfDb::migrateDatabase() {
 		// find all migrations
-		std::string migrationDir = m_dbDirPath + "migrations/";
 		std::vector<std::string> migrations;
-		for (const auto &file : std::filesystem::directory_iterator(migrationDir)) {
+		for (const auto &file : std::filesystem::directory_iterator(m_migrationDir)) {
 			if (file.is_regular_file()) {
 				migrations.push_back(file.path().stem());
 			}
@@ -540,7 +539,7 @@ namespace iqrf {
 		try {
 			// execute missing migrations
 			for (const auto &migration : migrationsToExecute) {
-				executeMigration(migrationDir + migration + ".sql");
+				executeMigration(m_migrationDir + migration + ".sql");
 			}
 		} catch (const std::exception &e) {
 			THROW_EXC_TRC_WAR(std::logic_error, e.what());
@@ -1956,7 +1955,7 @@ namespace iqrf {
 	}
 
 	std::string IqrfDb::loadWrapper() {
-		std::string path = m_launchService->getDataDir() + "/javaScript/DaemonWrapper.js";
+		std::string path = m_launchService->getResourceDir() + "/javaScript/DaemonWrapper.js";
 		std::ifstream file(path);
 		if (!file.is_open()) {
 			THROW_EXC_TRC_WAR(std::logic_error, "Failed to open file wrapper file: " << path);
@@ -2035,10 +2034,10 @@ namespace iqrf {
 	void IqrfDb::modify(const shape::Properties *props) {
 		TRC_FUNCTION_ENTER("");
 		using namespace rapidjson;
-		//
-		m_dbDirPath = m_launchService->getDataDir() + "/DB/";
+		// Path to migration dir
+		m_migrationDir = m_launchService->getResourceDir() + "/DB/migrations/";
 		// path to db file
-		m_dbPath = m_dbDirPath + "IqrfDb.db";
+		m_dbPath = m_launchService->getDataDir() + "/IqrfDb.db";
 		// read configuration parameters
 		const Document &doc = props->getAsJson();
 		m_instance = Pointer("/instance").Get(doc)->GetString();

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env python3
 
 # Copyright 2015-2025 IQRF Tech s.r.o.
 # Copyright 2019-2025 MICRORISC s.r.o.
@@ -15,31 +15,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if [ -f /etc/iqrf-gateway.json ]
-then
-	propertyExists=$(jq 'has("gwInterface")' /etc/iqrf-gateway.json)
-	(($propertyExists)) && interface=$(jq -r '.gwInterface' /etc/iqrf-gateway.json) || interface='spi'
-	case $interface in
-		cdc)
-			sed -i '0,/"{cdc}"/ s//true/' /etc/iqrf-gateway-daemon/config.json
-			sed -i '0,/"{spi}"/ s//false/' /etc/iqrf-gateway-daemon/config.json
-			sed -i '0,/"{uart}"/ s//false/' /etc/iqrf-gateway-daemon/config.json
-			break;;
-		spi)
-			sed -i '0,/"{cdc}"/ s//false/' /etc/iqrf-gateway-daemon/config.json
-			sed -i '0,/"{spi}"/ s//true/' /etc/iqrf-gateway-daemon/config.json
-			sed -i '0,/"{uart}"/ s//false/' /etc/iqrf-gateway-daemon/config.json
-			break;;
-		uart)
-			sed -i '0,/"{cdc}"/ s//false/' /etc/iqrf-gateway-daemon/config.json
-			sed -i '0,/"{spi}"/ s//false/' /etc/iqrf-gateway-daemon/config.json
-			sed -i '0,/"{uart}"/ s//true/' /etc/iqrf-gateway-daemon/config.json
-			break;;
-		*)
-			;;
-	esac
-else
-	sed -i '0,/"{cdc}"/ s//false/' /etc/iqrf-gateway-daemon/config.json
-	sed -i '0,/"{spi}"/ s//true/' /etc/iqrf-gateway-daemon/config.json
-	sed -i '0,/"{uart}"/ s//false/' /etc/iqrf-gateway-daemon/config.json
-fi
+from pathlib import Path
+import json
+
+cdc = 'iqrf::IqrfCdc'
+spi = 'iqrf::IqrfSpi'
+uart = 'iqrf::IqrfUart'
+gw_file = Path('/etc/iqrf-gateway.json')
+cfg_file = Path('/etc/iqrf-gateway-daemon/config.json')
+
+def get_component_name(interface: str) -> None:
+  match interface:
+    case 'cdc':
+      return cdc
+    case 'spi':
+      return spi
+    case 'uart':
+      return uart
+
+def set_interfaces(iface_component: str) -> None:
+  with cfg_file.open(mode='r', encoding='utf-8') as f:
+    cfg = json.load(f)
+  components = cfg.get('components', [])
+  for component in components:
+    if component.get('name') in [cdc, spi, uart]:
+      component['enabled'] = (component.get('name') == iface_component)
+  with cfg_file.open(mode='w', encoding='utf-8') as f:
+    json.dump(cfg, f, indent=4)
+
+if not gw_file.exists():
+  set_interfaces(spi)
+else:
+  with gw_file.open(mode='r', encoding='utf-8') as f:
+    gw_data = json.load(f)
+  component_name = get_component_name(gw_data['gwInterface'])
+  set_interfaces(component_name)
+

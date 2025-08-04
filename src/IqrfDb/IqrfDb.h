@@ -764,8 +764,8 @@ namespace iqrf {
 
 		/// Component instance name
 		std::string m_instance;
-		/// Path to directory containing db file
-		std::string m_dbDirPath;
+		/// Path to directory containing migration files
+		std::string m_migrationDir;
 		/// Path to database file
 		std::string m_dbPath;
 		/// Path to daemon js wrapper

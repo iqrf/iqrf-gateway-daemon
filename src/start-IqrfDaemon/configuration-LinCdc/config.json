@@ -1,6 +1,6 @@
 {
   "applicationName": "IqrfGatewayDaemon",
-  "resourceDir": "",
+  "resourceDir": "configuration",
   "dataDir": "configuration",
   "cacheDir": "configuration",
   "userDir": "",

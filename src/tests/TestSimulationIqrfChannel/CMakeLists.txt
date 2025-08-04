@@ -1,7 +1,5 @@
 project(TestSimulationIqrfChannel)
 
-find_package(GoogleTest REQUIRED)
-
 set(COMPONENT iqrf::TestSimulationIqrfChannel)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IIqrfChannelService)

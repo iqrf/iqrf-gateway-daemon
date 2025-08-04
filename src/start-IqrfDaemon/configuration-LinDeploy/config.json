@@ -1,7 +1,7 @@
 {
   "applicationName": "IqrfGatewayDaemon",
-  "resourceDir": "",
-  "dataDir": "/usr/share/iqrf-gateway-daemon",
+  "resourceDir": "/usr/share/iqrf-gateway-daemon",
+  "dataDir": "/var/lib/iqrf-gateway-daemon",
   "cacheDir": "/var/cache/iqrf-gateway-daemon",
   "userDir": "",
   "configurationDir": "/etc/iqrf-gateway-daemon",
@@ -74,21 +74,21 @@
       "name": "iqrf::IqrfCdc",
       "libraryPath": "",
       "libraryName": "IqrfCdc",
-      "enabled": "{cdc}",
+      "enabled": false,
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfSpi",
       "libraryPath": "",
       "libraryName": "IqrfSpi",
-      "enabled": "{spi}",
+      "enabled": false,
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfUart",
       "libraryPath": "",
       "libraryName": "IqrfUart",
-      "enabled": "{uart}",
+      "enabled": false,
       "startlevel": 0
     },
     {

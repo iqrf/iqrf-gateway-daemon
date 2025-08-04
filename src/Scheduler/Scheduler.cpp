@@ -58,15 +58,15 @@ namespace iqrf {
       << "******************************"
     );
 
-    std::string cacheDir = m_iLaunchService->getCacheDir();
-    m_cacheDir = cacheDir.empty() ? "." : cacheDir;
-    m_cacheDir += "/scheduler";
+    std::string dataDir = m_iLaunchService->getDataDir();
+    m_dataDir = dataDir.empty() ? "." : dataDir;
+    m_dataDir += "/scheduler";
 
-    std::string schemaDir = m_iLaunchService->getDataDir();
+    std::string schemaDir = m_iLaunchService->getResourceDir();
     m_schemaFile = schemaDir.empty() ? "." : schemaDir;
     m_schemaFile += "/schedulerSchemas/schema_cache_record.json";
 
-    TRC_INFORMATION("Using cache dir: " << PAR(m_cacheDir));
+    TRC_INFORMATION("Using data dir: " << PAR(m_dataDir));
     TRC_INFORMATION("Using record schema file: " << PAR(m_schemaFile));
 
     Document sd;
@@ -462,12 +462,12 @@ namespace iqrf {
 
   void Scheduler::writeTaskFile(std::shared_ptr<SchedulerRecord> &record) {
     using namespace rapidjson;
-    if (!std::filesystem::exists(m_cacheDir)) {
-      std::filesystem::create_directory(m_cacheDir);
-      std::filesystem::permissions(m_cacheDir, std::filesystem::perms::all);
+    if (!std::filesystem::exists(m_dataDir)) {
+      std::filesystem::create_directory(m_dataDir);
+      std::filesystem::permissions(m_dataDir, std::filesystem::perms::all);
     }
     std::ostringstream os;
-    os << m_cacheDir << '/' << record->getTaskId() << ".json";
+    os << m_dataDir << '/' << record->getTaskId() << ".json";
     std::string fname = os.str();
     std::ifstream ifs(fname);
 
@@ -492,7 +492,7 @@ namespace iqrf {
 
   void Scheduler::deleteTaskFile(const TaskHandle &taskId) {
     std::ostringstream os;
-    os << m_cacheDir << '/' << taskId << ".json";
+    os << m_dataDir << '/' << taskId << ".json";
     std::string fname = os.str();
     std::remove(fname.c_str());
 
@@ -615,7 +615,7 @@ namespace iqrf {
     using namespace rapidjson;
 
     try {
-      auto tfiles = getTaskFiles(m_cacheDir);
+      auto tfiles = getTaskFiles(m_dataDir);
 
       std::set<std::string>::iterator itr = tfiles.begin();
       for (; itr != tfiles.end(); ++itr) {

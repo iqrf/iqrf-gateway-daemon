@@ -17,46 +17,115 @@
 
 # After install script for iqrf-gateway-daemon
 
-set -e
+set -xe
+
+HOME_DIR="/var/lib/iqrf-gateway"
+CACHE_DIR="/var/cache/iqrf-gateway-daemon"
+CONF_DIR="/etc/iqrf-gateway-daemon"
+DATA_DIR="/var/lib/iqrf-gateway-daemon"
+RESOURCE_DIR="/usr/share/iqrf-gateway-daemon"
+LOG_DIR="/var/log/iqrf-gateway-daemon"
+USER="iqrf-gateway"
 
 openssl_create_ca() {
-	CA_DIR="/etc/iqrf-gateway-daemon/certs/core"
-	if [ ! -d ${CA_DIR} ]; then
-		mkdir -p ${CA_DIR}
-	fi
+  CA_DIR="/etc/iqrf-gateway-daemon/certs/core"
+  if [ ! -d ${CA_DIR} ]; then
+    mkdir -p ${CA_DIR}
+  fi
 
-	if ! find /etc/iqrf-gateway-daemon/certs/core/ -type f -not -newermt "2020-04-12T00:00:00" -exec false {} +; then
-		rm -rf "${CA_DIR}/cert.pem" "${CA_DIR}/privkey.pem"
-	fi
+  if ! find /etc/iqrf-gateway-daemon/certs/core/ -type f -not -newermt "2020-04-12T00:00:00" -exec false {} +; then
+    rm -rf "${CA_DIR}/cert.pem" "${CA_DIR}/privkey.pem"
+  fi
 
-	if [ ! -f ${CA_DIR}/cert.pem ] || [ ! -f ${CA_DIR}/privkey.pem ]; then
-		openssl ecparam -name secp384r1 -genkey -param_enc named_curve \
-			-out ${CA_DIR}/privkey.pem
-		openssl req -new -x509 -sha256 -nodes -days 3650 \
-			-subj "/CN=IQRF Gateway/C=CZ/ST=Hradec Kralove Region/L=Jicin/O=IQRF Tech s.r.o." \
-			-key ${CA_DIR}/privkey.pem -out ${CA_DIR}/cert.pem
-		chmod 600 ${CA_DIR}/*.pem
-	fi
+  if [ ! -f ${CA_DIR}/cert.pem ] || [ ! -f ${CA_DIR}/privkey.pem ]; then
+    openssl ecparam -name secp384r1 -genkey -param_enc named_curve \
+      -out ${CA_DIR}/privkey.pem
+    openssl req -new -x509 -sha256 -nodes -days 3650 \
+      -subj "/CN=IQRF Gateway/C=CZ/ST=Hradec Kralove Region/L=Jicin/O=IQRF Tech s.r.o." \
+      -key ${CA_DIR}/privkey.pem -out ${CA_DIR}/cert.pem
+    chmod 600 ${CA_DIR}/*.pem
+  fi
 }
 
 remove_old_dirs() {
-	rm -rf /etc/iqrfgd2
-	rm -rf /var/cache/iqrfgd2
-	rm -rf /usr/lib/iqrfgd2
-	rm -rf /usr/share/iqrfgd2
-	rm -f /lib/systemd/system/iqrfgd2.service
+  rm -rf /etc/iqrfgd2
+  rm -rf /var/cache/iqrfgd2
+  rm -rf /usr/lib/iqrfgd2
+  rm -rf /usr/share/iqrfgd2
+  rm -f /lib/systemd/system/iqrfgd2.service
+  OLD_TASK_DIR="${CACHE_DIR}/scheduler"
+  if [ -d "${OLD_TASK_DIR}" ]; then
+    NEW_TASK_DIR="${DATA_DIR}/scheduler"
+    mkdir -p "${NEW_TASK_DIR}"
+    find "${OLD_TASK_DIR}" -type f -exec cp {} "${NEW_TASK_DIR}" \;
+    rm -rf "${OLD_TASK_DIR}"
+  fi
 }
 
+setup_iqrf_user() {
+  # create group
+  if ! getent group "${USER}" > /dev/null; then
+    addgroup --quiet --system "${USER}"
+  fi
+  # create user
+  if ! getent passwd "${USER}" > /dev/null; then
+    adduser --quiet --system --no-create-home --ingroup "${USER}" --home "${HOME_DIR}" --shell /usr/sbin/nologin "${USER}"
+  fi
+  # add user to dialout group
+  if ! id -ng "${USER}" | grep -qw dialout; then
+    usermod -aG dialout "${USER}"
+  fi
+  # add user to gpio group
+  if ! id -nG "${USER}" | grep -qw gpio; then
+    usermod -aG gpio "${USER}"
+  fi
+  # add user to spi group
+  if ! id -ng "${USER}" | grep -qw spi; then
+    usermod -aG spi "${USER}"
+  fi
+}
+
+setup_log_dir() {
+  mkdir -p "${LOG_DIR}"
+}
+
+set_ownership_and_permission() {
+  # cache files
+  chown -R "${USER}:${USER}" "${CACHE_DIR}"
+  find "${CACHE_DIR}" -type d -exec chmod 750 {} +
+  find "${CACHE_DIR}" -type f -exec chmod 640 {} +
+  # conf files
+  chown -R "${USER}:${USER}" "${CONF_DIR}"
+  find "${CONF_DIR}" -type f -exec chmod 770 {} +
+  find "${CONF_DIR}" -type f -exec chmod 660 {} +
+  # data files
+  chown -R "${USER}:${USER}" "${DATA_DIR}"
+  find "${DATA_DIR}" -type d -exec chmod 750 {} +
+  find "${DATA_DIR}" -type f -exec chmod 640 {} +
+  # static resources
+  chown -R "root:${USER}" "${RESOURCE_DIR}"
+  find "${RESOURCE_DIR}" -type d -exec chmod 750 {} +
+  find "${RESOURCE_DIR}" -type f -exec chmod 640 {} +
+  # log files
+  chown -R "${USER}:${USER}" "${LOG_DIR}"
+  chmod 750 "${LOG_DIR}"
+  find "${LOG_DIR}" -type f -exec chmod 640 {} +
+}
+
+
 configure_gateway() {
-	bash /usr/bin/iqrfgd2-config-init "/etc/iqrf-gateway-daemon/"
-	sh /usr/bin/iqrfgd2-interface-init
-	python3 /usr/bin/iqrfgd2-messagings-migrate.py
+  python3 /usr/bin/iqrfgd2-config-init
+  python3 /usr/bin/iqrfgd2-interface-init
+  python3 /usr/bin/iqrfgd2-messagings-migrate
 }
 
 if [ "$1" = "configure" ]; then
-	openssl_create_ca
-	remove_old_dirs
-	configure_gateway
+  openssl_create_ca
+  remove_old_dirs
+  setup_iqrf_user
+  setup_log_dir
+  configure_gateway
+  set_ownership_and_permission
 fi
 
 #DEBHELPER#

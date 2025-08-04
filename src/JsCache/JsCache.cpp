@@ -227,7 +227,7 @@ namespace iqrf {
 			std::filesystem::create_directories(m_cacheDir);
 		}
 		TRC_DEBUG("Using cache directory: " << PAR(m_cacheDir));
-		m_schemaDir = m_iLaunchService->getDataDir() + "/cacheSchemas";
+		m_schemaDir = m_iLaunchService->getResourceDir() + "/cacheSchemas";
 		TRC_DEBUG("Using cache schema directory: " << PAR(m_schemaDir));
 
 		m_serverStateFilePath = getCacheDataFilePath(SERVER_DIR);

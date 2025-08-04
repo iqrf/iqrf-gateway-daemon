@@ -1,7 +1,5 @@
 project(TestJsonDpaApiIqrfStandard)
 
-find_package(GoogleTest REQUIRED)
-
 set(COMPONENT iqrf::TestJsonDpaApiIqrfStandard)
 DeclareShapeComponent(${COMPONENT})
 AddShapeRequiredInterface(${COMPONENT} iqrf::ITestSimulationIqrfChannel MANDATORY SINGLE)

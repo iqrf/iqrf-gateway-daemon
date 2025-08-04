@@ -5,8 +5,16 @@ After=network.target
 
 [Service]
 Type=simple
-User=root
-Group=root
+User=iqrf-gateway
+Group=iqrf-gateway
+RuntimeDirectory=iqrf-gateway
+RuntimeDirectoryMode=750
+StateDirectory=iqrf-gateway-daemon
+StateDirectoryMode=750
+CacheDirectory=iqrf-gateway-daemon
+CacheDirectoryMode=750
+LogsDirectory=iqrf-gateway-daemon
+LogsDirectoryMode=0750
 WorkingDirectory=/usr/bin
 ExecStart=/usr/bin/iqrfgd2 -c /etc/iqrf-gateway-daemon/config.json
 StandardOutput=journal

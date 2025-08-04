@@ -20,7 +20,7 @@
 set -e
 
 if [ "$1" = "configure" ]; then
-	bash /usr/bin/iqrfgd2-config-init "/usr/share/iqrf-gateway/default/daemon/"
+  python3 /usr/bin/iqrfgd2-config-init "/usr/share/iqrf-gateway/default/daemon/"
 fi
 
 #DEBHELPER#

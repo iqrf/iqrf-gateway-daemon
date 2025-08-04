@@ -562,7 +562,7 @@ namespace iqrf {
 
       modify(props);
 
-      m_schemesDir = m_iLaunchService->getDataDir() + "/apiSchemas";
+      m_schemesDir = m_iLaunchService->getResourceDir() + "/apiSchemas";
       TRC_INFORMATION("loading schemes from: " << PAR(m_schemesDir));
       loadJsonSchemesRequest(m_schemesDir);
 

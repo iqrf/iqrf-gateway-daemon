@@ -1,7 +1,5 @@
 project(TestJsRender)
 
-find_package(GoogleTest REQUIRED)
-
 set(COMPONENT iqrf::TestJsRender)
 DeclareShapeComponent(${COMPONENT})
 AddShapeRequiredInterface(${COMPONENT} iqrf::IJsRenderService MANDATORY SINGLE)
@@ -21,15 +19,20 @@ source_group("Java Script" FILES ${_SRCTJS})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${GoogleTest_INCLUDE_DIR})
 
 if(SHAPE_STATIC_LIBS)
-    add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES} ${_SRCCONFIG} ${_SRCTJS})
+  add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES} ${_SRCCONFIG} ${_SRCTJS})
 else()
-    add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES} ${_SRCCONFIG} ${_SRCTJS})
+  add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES} ${_SRCCONFIG} ${_SRCTJS})
 endif()
 
-target_link_libraries(${PROJECT_NAME} GTestStaticRunner ${GoogleTest_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}
+  GTestStaticRunner
+  gtest
+  gtest_main
+  gmock
+  gmock_main
+)
 
 set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${TESTS_FOLDER})
 

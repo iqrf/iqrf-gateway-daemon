@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
 # Copyright 2015-2025 IQRF Tech s.r.o.
 # Copyright 2019-2025 MICRORISC s.r.o.
@@ -15,48 +15,162 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-confDir=$1
+from pathlib import Path
+import json
+import os
+import sys
 
-if [ -f /etc/iqrf-gateway.json ]; then
-	gwProduct=$(jq -r '.gwProduct' /etc/iqrf-gateway.json)
-	if [[ $gwProduct =~ ^IQD-GW-0[12].?$ ]]; then
-		gwId=$(jq -r '.gwId' /etc/iqrf-gateway.json | awk '{print tolower($0)}')
-		if [[ $gwProduct =~ ^IQD-GW-01.?$ ]]; then
-			gwId="iqdgw01-${gwId}"
-			if [ -f "${confDir}iqrf__IqrfSpi.json" ]; then
-				jq --unbuffered '.instance = "iqrf::IqrfSpi-/dev/spidev1.0" | .IqrfInterface = "/dev/spidev1.0" | .powerEnableGpioPin = 19 | .busEnableGpioPin = 10 | .pgmSwitchGpioPin = 3' "${confDir}iqrf__IqrfSpi.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfSpi.json"
-			fi
-			if [ -f "${confDir}iqrf__IqrfUart.json" ]; then
-				jq --unbuffered '.instance = "iqrf::IqrfUart-/dev/ttyS1" | .IqrfInterface = "/dev/ttyS1" | .powerEnableGpioPin = 19 | .busEnableGpioPin = 10 | .pgmSwitchGpioPin = -1 | .+ {uartReset: true}' "${confDir}iqrf__IqrfUart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfUart.json"
-			fi
-		elif [[ $gwProduct =~ ^IQD-GW-02.?$ ]]; then
-			gwId="iqdgw02-${gwId}"
-			if [ -f "${confDir}iqrf__IqrfSpi.json" ]; then
-				jq --unbuffered '.instance = "iqrf::IqrfSpi-/dev/spidev1.0" | .IqrfInterface = "/dev/spidev1.0" | .powerEnableGpioPin = 19 | .busEnableGpioPin = -1 | .pgmSwitchGpioPin = 3 | .+ {spiEnableGpioPin: 10, uartEnableGpioPin: 6, i2cEnableGpioPin: 7}' "${confDir}iqrf__IqrfSpi.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfSpi.json"
-			fi
-			if [ -f "${confDir}iqrf__IqrfUart.json" ]; then
-				jq --unbuffered '.instance = "iqrf::IqrfUart-/dev/ttyS1" | .IqrfInterface = "/dev/ttyS1" | .powerEnableGpioPin = 19 | .busEnableGpioPin = -1 | .pgmSwitchGpioPin = -1 | .+ {i2cEnableGpioPin: 7, uartEnableGpioPin: 6, spiEnableGpioPin: 10, uartReset: true}' "${confDir}iqrf__IqrfUart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfUart.json"
-			fi
-		fi
-		if [ -f "${confDir}iqrf__JsonSplitter.json" ]; then
-				jq --unbuffered --arg gwId "$gwId" '.insId = $gwId' "${confDir}iqrf__JsonSplitter.json" > tmp.json && mv tmp.json "${confDir}iqrf__JsonSplitter.json"
-			fi
-		if [ -f "${confDir}iqrf__MqttMessaging.json" ]; then
-			rqTopic=$(jq -r '.TopicRequest' "${confDir}iqrf__MqttMessaging.json")
-			rspTopic=$(jq -r '.TopicResponse' "${confDir}iqrf__MqttMessaging.json")
-			if [ "$rqTopic" == "Iqrf/DpaRequest" ] && [ "$rspTopic" = "Iqrf/DpaResponse" ]; then
-				jq --unbuffered --arg gwId "$gwId" '.ClientId = $gwId | .TopicRequest = "gateway/" + $gwId + "/iqrf/requests" | .TopicResponse = "gateway/" + $gwId + "/iqrf/responses"' "${confDir}iqrf__MqttMessaging.json" > tmp.json && mv tmp.json "${confDir}iqrf__MqttMessaging.json"
-			fi
-		fi
-		if [ -f "${confDir}iqrf__IdeCounterpart.json" ]; then
-			jq --unbuffered --arg gwProduct "$gwProduct" '.gwIdentModeByte = 34 | .gwIdentName = $gwProduct' "${confDir}iqrf__IdeCounterpart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IdeCounterpart.json"
-		fi
-	elif [[ $gwProduct = "Unipi Iris Zulu" ]]; then
-		if [ -f "${confDir}iqrf__IqrfSpi.json" ]; then
-			jq --unbuffered '.instance = "iqrf::IqrfSpi-/dev/spidev1.0" | .IqrfInterface = "/dev/spidev1.0" | .powerEnableGpioPin = 511 | .busEnableGpioPin = -1 | .pgmSwitchGpioPin = 510 | .+ {i2cEnableGpioPin: 509, spiEnableGpioPin: 508, uartEnableGpioPin: 505}' "${confDir}iqrf__IqrfSpi.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfSpi.json"
-		fi
-		if [ -f "${confDir}iqrf__IqrfUart.json" ]; then
-			jq --unbuffered '.instance = "iqrf::IqrfUart-/dev/ttymxc3" | .IqrfInterface = "/dev/ttymxc3" | .powerEnableGpioPin = 511 | .busEnableGpioPin = -1 | .pgmSwitchGpioPin = 510 | .+ {i2cEnableGpioPin: 509, spiEnableGpioPin: 508, uartEnableGpioPin: 505, uartReset: true}' "${confDir}iqrf__IqrfUart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfUart.json"
-		fi
-	fi
-fi
+gw_file = Path('/etc/iqrf-gateway.json')
+conf_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path('/etc/iqrf-gateway-daemon')
+spi_cfg_file = conf_dir / 'iqrf__IqrfSpi.json'
+uart_cfg_file = conf_dir / 'iqrf__IqrfUart.json'
+splitter_cfg_file = conf_dir / 'iqrf__JsonSplitter.json'
+mqtt_cfg_file = conf_dir / 'iqrf__MqttMessaging.json'
+ide_cfg_file = conf_dir / 'iqrf__IdeCounterpart.json'
+
+def read_json_file(path: Path) -> dict:
+  with path.open(mode='r', encoding='utf-8') as f:
+    return json.load(f)
+
+def write_json_file(path: Path, data: dict) -> None:
+  with path.open(mode='w', encoding='utf-8') as f:
+    json.dump(data, f, indent=4)
+
+if not gw_file.exists():
+  sys.exit()
+
+with gw_file.open(mode='r', encoding='utf-8') as f:
+  gw_data = json.load(f)
+
+product: str = gw_data['gwProduct']
+gwid: str = str(gw_data['gwId']).lower()
+kernel_version = os.uname().release
+major_kernel_version = int(kernel_version.split('.')[0])
+
+if product.startswith('IQD-GW') or product.startswith('IQD-GW'):
+  # spi
+  if spi_cfg_file.exists():
+    cfg = read_json_file(spi_cfg_file)
+    if product.startswith('IQD-GW-01'):
+      cfg.update({
+        'instance': 'iqrf::IqrfSpi-/dev/spidev1.0',
+        'IqrfInterface': '/dev/spidev1.0',
+        'powerEnableGpioPin': 19,
+        'busEnableGpioPin': 10,
+        'pgmSwitchGpioPin': 3,
+        'spiReset': True,
+      })
+    elif product.startswith('IQD-GW-02'):
+      cfg.update({
+        'instance': 'iqrf::IqrfSpi-/dev/spidev1.0',
+        'IqrfInterface': '/dev/spidev1.0',
+        'powerEnableGpioPin': 19,
+        'busEnableGpioPin': -1,
+        'pgmSwitchGpioPin': 3,
+        'i2cEnableGpioPin': 7,
+        'spiEnableGpioPin': 10,
+        'uartEnableGpioPin': 6,
+        'spiReset': True
+      })
+    elif product.startswith('IQD-GW04'):
+      cfg.update({
+        'instance': 'iqrf::IqrfSpi-/dev/spidev1.0',
+        'IqrfInterface': '/dev/spidev1.0',
+        'powerEnableGpioPin': 23,
+        'busEnableGpioPin': -1,
+        'pgmSwitchGpioPin': 22,
+        'i2cEnableGpioPin': 18,
+        'spiEnableGpioPin': 7,
+        'uartEnableGpioPin': 6,
+        'spiReset': True
+      })
+    write_json_file(spi_cfg_file, cfg)
+  # uart
+  if uart_cfg_file.exists():
+    cfg = read_json_file(uart_cfg_file)
+    if product.startswith('IQD-GW-01'):
+      cfg.update({
+        'instance': 'iqrf::IqrfSpi-/dev/ttyS1',
+        'IqrfInterface': '/dev/ttyS1',
+        'powerEnableGpioPin': 19,
+        'busEnableGpioPin': 10,
+        'pgmSwitchGpioPin': -1,
+        'baudRate': 57600,
+        'uartReset': True,
+      })
+    elif product.startswith('IQD-GW-02'):
+      cfg.update({
+        'instance': 'iqrf::IqrfUart-/dev/ttyS1',
+        'IqrfInterface': '/dev/ttyS1',
+        'powerEnableGpioPin': 19,
+        'busEnableGpioPin': -1,
+        'pgmSwitchGpioPin': 3,
+        'i2cEnableGpioPin': 7,
+        'spiEnableGpioPin': 10,
+        'uartEnableGpioPin': 6,
+        'baudRate': 57600,
+        'uartReset': True,
+      })
+    elif product.startswith('IQD-GW04'):
+      cfg.update({
+        'instance': f'iqrf::IqrfUart-/dev/ttyAMA{3 if major_kernel_version >= 6 else 1}',
+        'IqrfInterface': f'/dev/ttyAMA{3 if major_kernel_version >= 6 else 1}',
+        'powerEnableGpioPin': 23,
+        'busEnableGpioPin': -1,
+        'pgmSwitchGpioPin': -1,
+        'i2cEnableGpioPin': 18,
+        'spiEnableGpioPin': 7,
+        'uartEnableGpioPin': 6,
+        'baudRate': 57600,
+        'uartReset': True,
+      })
+  # splitter
+  if splitter_cfg_file.exists():
+    cfg = read_json_file(splitter_cfg_file)
+    cfg.update({
+      'insId': gwid,
+    })
+    write_json_file(splitter_cfg_file, cfg)
+  # mqtt
+  if mqtt_cfg_file.exists():
+    cfg = read_json_file(mqtt_cfg_file)
+    # update default topics to GWID
+    if cfg['TopicRequest'] == 'Iqrf/DpaRequest' and cfg['TopicResponse'] == 'Iqrf/DpaResponse':
+      cfg.update({
+        'ClientId': gwid,
+        'TopicRequest': f'gateway/{gwid}/iqrf/requests',
+        'TopicResponse': f'gateway/{gwid}/iqrf/responses'
+      })
+      write_json_file(mqtt_cfg_file, cfg)
+elif product.startswith('Unipi Iris Zulu'):
+  # spi
+  if spi_cfg_file.exists():
+    cfg = read_json_file(spi_cfg_file)
+    cfg.update({
+      'instance': 'iqrf::IqrfSpi-/dev/spidev1.0',
+      'IqrfInterface': '/dev/spidev1.0',
+      'powerEnableGpioPin': 511,
+      'busEnableGpioPin': -1,
+      'pgmSwitchGpioPin': 510,
+      'i2cEnableGpioPin': 509,
+      'spiEnableGpioPin': 508,
+      'uartEnableGpioPin': 505,
+      'spiReset': True,
+    })
+    write_json_file(spi_cfg_file, cfg)
+  # uart
+  if uart_cfg_file.exists():
+    cfg = read_json_file(spi_cfg_file)
+    cfg.update({
+      'instance': 'iqrf::IqrfUart-/dev/ttymxc3',
+      'IqrfInterface': '/dev/ttymxc3',
+      'powerEnableGpioPin': 511,
+      'busEnableGpioPin': -1,
+      'pgmSwitchGpioPin': 510,
+      'i2cEnableGpioPin': 509,
+      'spiEnableGpioPin': 508,
+      'uartEnableGpioPin': 505,
+      'baudRate': 57600,
+      'uartReset': True,
+    })
+    write_json_file(uart_cfg_file, cfg)

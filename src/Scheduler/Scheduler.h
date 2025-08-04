@@ -346,8 +346,8 @@ namespace iqrf {
 
     /// Launch service
     shape::ILaunchService *m_iLaunchService = nullptr;
-    /// Cache dir
-    std::string m_cacheDir;
+    /// Data dir
+    std::string m_dataDir;
     /// Path to schema file
     std::string m_schemaFile;
     /// Schema document

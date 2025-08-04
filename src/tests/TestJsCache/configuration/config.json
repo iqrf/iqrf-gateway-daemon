@@ -1,6 +1,6 @@
 {
   "applicationName": "iqrfgd2",
-  "resourceDir": "",
+  "resourceDir": "configuration",
   "dataDir": "configuration",
   "cacheDir": "configuration",
   "userDir": "",

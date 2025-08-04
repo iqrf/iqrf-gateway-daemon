@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
 			 bpo::value<std::string>()->default_value("/etc/iqrf-gateway-daemon.json"),
 			 "Path to configuration file, required to start")
 			("pidfile,p",
-			 bpo::value<std::string>()->default_value("/var/run/iqrf-gateway-daemon.pid"),
+			 bpo::value<std::string>()->default_value("/var/run/iqrf-gateway/iqrf-gateway-daemon.pid"),
 			 "Path to PID file");
 		bpo::variables_map vm;
 		bpo::store(bpo::parse_command_line(argc, argv, description), vm);

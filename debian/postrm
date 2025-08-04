@@ -21,16 +21,10 @@ set -e
 
 #DEBHELPER#
 
-daemon_remove_config() {
+if [ "$1" = "purge" ]; then
   rm -rf /etc/iqrf-gateway-daemon/
-}
-
-daemon_remove_data() {
   rm -rf /usr/share/iqrf-gateway-daemon/
   rm -rf /var/cache/iqrf-gateway-daemon/
-}
-
-if [ "$1" = "purge" ]; then
-  daemon_remove_data
-  daemon_remove_config
+  rm -rf /var/lib/iqrf-gateway-daemon/
+  rm -rf /var/log/iqrf-gateway-daemon/
 fi
