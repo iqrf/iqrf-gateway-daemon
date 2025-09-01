@@ -2,6 +2,10 @@
 [Bb]uild/
 .vscode
 
+# cppcheck
+cppcheck-report.xml
+cppcheck-html-report
+
 # ci build
 shape
 shape-source/

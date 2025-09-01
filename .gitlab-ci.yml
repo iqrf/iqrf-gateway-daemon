@@ -90,6 +90,16 @@ api-testing:
     - docker
     - daemon-api-testing
 
+cppcheck:
+  stage: test
+  script:
+    - cppcheck --enable=all --inconclusive --std=c++17 --xml --xml-version=2 src/ 2>&1 | tee cppcheck-report.xml
+  artifacts:
+    paths:
+      - cppcheck-report.xml
+    expire_in: 2 weeks
+  <<: *debian-bullseye-amd64-template
+
 # Jsonnet
 jsonnet-build:
   image: alpine:latest
