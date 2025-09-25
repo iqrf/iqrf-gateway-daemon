@@ -26,6 +26,9 @@
 #define BLOCK_SIZE_PREP 64
 #define CRC_INIT_VAL_HEX 1
 #define CRC_INIT_VAL_IQRF 3
+#define CLRWDT_ADDR 0x3A20
+#define CLRWDT0 0x64
+#define CLRWDT1 0x00
 
 namespace iqrf {
 	/// \class PreparedData
@@ -53,20 +56,47 @@ namespace iqrf {
 		 * @return PreparedData Data suitable for upload to network
 		 */
 		static PreparedData fromHex(const std::list<CodeBlock> &codeBlocks) {
-			const CodeBlock *block = nullptr;
+			bool clrwdt = false;
+			std::unique_ptr<CodeBlock> dataBlock;
 			for (auto &item : codeBlocks) {
-				if (item.getStartAddr() == (0x3A20 * 2)) {
-					block = &item;
-					break;
+				if (item.getStartAddr() < (CLRWDT_ADDR * 2) || item.getEndAddr() > (IOtaUploadService::MemoryRanges::IQRF_MAIN_MEM_MAX_ADR_G * 2)) {
+					continue;
 				}
-			}
-			if (block == nullptr) {
-				throw std::invalid_argument("Selected hex file does not include Custom DPA handler section or the code does not start with clrwdt() marker.");
+				if (item.getStartAddr() == (CLRWDT_ADDR * 2)) {
+					const auto& data = item.getCode();
+					if (data[0] == CLRWDT0 && data[1] == CLRWDT1) {
+						clrwdt = true;
+					}
+				}
+				if (dataBlock == nullptr) {
+					dataBlock = std::make_unique<CodeBlock>(item);
+					continue;
+				}
+				if (dataBlock->getEndAddr() + 1 != item.getStartAddr()) {
+					// not adjacent, fill empty space
+					size_t fillLen = item.getStartAddr() - dataBlock->getEndAddr() - 1;
+					std::basic_string<uint8_t> fill;
+					fill.reserve(fillLen);
+					for (size_t i = 0; i < fillLen; ++i) {
+						fill.push_back(i & 0x01 ? 0x34 : 0xff);
+					}
+					dataBlock = std::make_unique<CodeBlock>(
+						CodeBlock(dataBlock->getCode() + fill, dataBlock->getStartAddr(), dataBlock->getEndAddr() + fillLen)
+					);
+				}
+				// merge blocks
+				dataBlock = std::make_unique<CodeBlock>(
+					CodeBlock(dataBlock->getCode() + item.getCode(), dataBlock->getStartAddr(), item.getEndAddr())
+				);
 			}
 
-			uint16_t len = (block->getLength() + (64 - 1)) & ~(64 - 1);
-			uint16_t chksum = checksum(*block, len, CRC_INIT_VAL_HEX);
-			Data data = prepareAsMostEffective(*block);
+			if (dataBlock == nullptr || !clrwdt) {
+				throw std::invalid_argument("Selected hex file does not include Custom DPA handler section or the code does not start with clrwdt marker.");
+			}
+
+			uint16_t len = (dataBlock->getLength() + (64 - 1)) & ~(64 - 1);
+			uint16_t chksum = checksum(*dataBlock, len, CRC_INIT_VAL_HEX);
+			Data data = prepareAsMostEffective(*dataBlock);
 			return PreparedData(data, len, chksum);
 		}
 

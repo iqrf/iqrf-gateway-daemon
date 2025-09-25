@@ -18,6 +18,7 @@
 
 #include <cstring>
 #include <fstream>
+#include <optional>
 #include <list>
 #include <memory>
 
@@ -129,6 +130,7 @@ namespace iqrf {
 		std::list<CodeBlock> parse(IOtaUploadService::MemoryType type) {
 			m_codeBlocks.clear();
 			uint32_t offset = 0;
+			std::optional<uint32_t> prevAddr = std::nullopt;
 
 			for (auto &record : m_contents) {
 				uint8_t byteCount = ihp::utils::hexStringToByte(record, 1);
@@ -141,6 +143,11 @@ namespace iqrf {
 
 				if (recordType == 0) {
 					startAddr = (offset + ((addrHi & 0xFF) << 8) + (addrLo & 0xFF));
+					if (prevAddr && startAddr < prevAddr) {
+						throw std::invalid_argument("Addresses and instructions in selected hex file are out of order.");
+					}
+					prevAddr = startAddr;
+
 					if (startAddr == ihp::hex::IDENTIFICATION_HEADER_ADDRESS) {
 						continue;
 					}
@@ -189,6 +196,9 @@ namespace iqrf {
 					addCodeBlock(*block);
 				}
 			}
+			m_codeBlocks.sort([](CodeBlock& a, CodeBlock& b) {
+				return a.getStartAddr() < b.getStartAddr();
+			});
 			return m_codeBlocks;
 		}
 
