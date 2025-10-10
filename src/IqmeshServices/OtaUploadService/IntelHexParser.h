@@ -163,6 +163,12 @@ namespace iqrf {
 					uint32_t realEndAddr = endAddr >> 1;
 
 					if (type == IOtaUploadService::MemoryType::flash) {
+						/*for (size_t i = 0; i < data.length(); i+=2) {
+							uint16_t opCode = data[i+1] << 8 + data[i];
+							if (!validOpCode(opCode, hasCompatibilityHeader() ? m_mcu : ihp::device::MCU::PIC16LF1938)) {
+								throw std::invalid_argument("Selected hex file contains restricted instructions.");
+							}
+						}*/
 						const uint16_t mainAddrMax = (m_mcu == ihp::device::MCU::PIC16LF18877) ? IOtaUploadService::MemoryRanges::IQRF_MAIN_MEM_MAX_ADR_G : IOtaUploadService::MemoryRanges::IQRF_MAIN_MEM_MAX_ADR_D;
 						if (realEndAddr <= mainAddrMax) {
 							block = std::unique_ptr<CodeBlock>(new CodeBlock(data, (uint16_t)startAddr, (uint16_t)endAddr));
@@ -244,6 +250,41 @@ namespace iqrf {
 			} else {
 				return CodeBlock(b2.getCode() + b1.getCode(), b2.getStartAddr(), b1.getEndAddr());
 			}
+		}
+
+		/**
+		 * Validates instruction code
+		 * @param opCode Instruction code
+		 * @param mcu MCU type
+		 * @return Instruction is valid
+		 */
+		bool validOpCode(const uint16_t opCode, const uint8_t mcu) {
+			auto maskedBits06 = opCode & 0b1111111;
+			if (
+				maskedBits06 == 0x00 ||
+				maskedBits06 == 0x01 ||
+				((maskedBits06 == 0x15 || maskedBits06 == 0x16) && mcu == ihp::device::MCU::PIC16LF1938) ||
+				((maskedBits06 == 0x1E || maskedBits06 == 0x1F) && mcu == ihp::device::MCU::PIC16LF18877)
+			) {
+				auto maskedBit7 = opCode & 0b10000000;
+				if (maskedBit7 != 0) {
+					if ((opCode & 0b11000000000000) == 0) {
+						return false;
+					}
+					switch (opCode >> 8) {
+						case 0b110101:
+						case 0b110110:
+						case 0b110111:
+						case 0b111011:
+						case 0b111101:
+							return false;
+					}
+				}
+				if ((opCode & 0b11100000000000) == 0b01000000000000) {
+					return (opCode & 0b1111111) == 0x16;
+				}
+			}
+			return (opCode & 0b11111111111000) != 0b00000000011000 && (opCode & 0b11111110000000) != 0b11111110000000;
 		}
 
 		/// List of code records
