@@ -62,6 +62,7 @@ namespace iqrf {
     );
 
     modify(props);
+    m_wsServer->start();
 
     m_runThread = true;
     m_workerThread = std::thread([&]() {
