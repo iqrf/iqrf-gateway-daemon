@@ -1,7 +1,0 @@
-{
-    "component": "iqrf::WsServer",
-    "instance": "iqrf::WsServer-Monitor",
-    "port": 1438,
-    "cert": "/etc/iqrf-gateway-daemon/certs/core/cert.pem",
-    "privKey": "/etc/iqrf-gateway-daemon/certs/core/privkey.pem"
-}

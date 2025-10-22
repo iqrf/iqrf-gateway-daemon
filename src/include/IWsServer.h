@@ -39,6 +39,21 @@ namespace iqrf {
     virtual void unregisterMessageHandler() = 0;
 
     /**
+     * Start server listening loop
+     */
+    virtual void start() = 0;
+
+    /**
+     * Checks if server is listening and accepting connections
+     */
+    virtual bool isListening() = 0;
+
+    /**
+     * Stop listening loop, clear sessions
+     */
+    virtual void stop() = 0;
+
+    /**
      * Send message to all connected clients
      * @param message Message to send
      */
