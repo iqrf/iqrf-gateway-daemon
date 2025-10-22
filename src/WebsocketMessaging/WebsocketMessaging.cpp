@@ -60,6 +60,7 @@ namespace iqrf {
         return handleMessageFromWebsocket(sessionId, msg);
       }
     );
+    m_wsServer->start();
 
     TRC_FUNCTION_LEAVE("")
   }

@@ -51,7 +51,7 @@
     },
     {
       "name": "iqrf::WsServer",
-      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryPath": "",
       "libraryName": "WsServer",
       "enabled": true,
       "startlevel": 0
