@@ -11,9 +11,10 @@
         "component",
         "instance",
         "port",
+        "acceptOnlyLocalhost",
         "cert",
         "privKey",
-        "acceptOnlyLocalhost"
+        "tlsMode"
     ],
     "additionalProperties": false,
     "properties": {
@@ -36,6 +37,10 @@
             "minimum": 1024,
             "maximum": 65535
         },
+        "acceptOnlyLocalhost": {
+            "type": "boolean",
+            "description": "Only accept localhost connections"
+        },
         "cert": {
             "type": "string",
             "description": "Certificate file"
@@ -44,9 +49,10 @@
             "type": "string",
             "description": "Private key file"
         },
-        "acceptOnlyLocalhost": {
-            "type": "boolean",
-            "description": "Only accept localhost connections"
+        "tlsMode": {
+            "type": "integer",
+            "description": "TLS configuration (0 - modern, 1 - intermediate, 2 - old)",
+            "enum": [0, 1, 2]
         }
     }
 }
