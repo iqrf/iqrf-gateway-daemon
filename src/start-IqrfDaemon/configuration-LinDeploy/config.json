@@ -50,13 +50,6 @@
       "startlevel": 0
     },
     {
-      "name": "iqrf::WsServer",
-      "libraryPath": "",
-      "libraryName": "WsServer",
-      "enabled": true,
-      "startlevel": 0
-    },
-    {
       "name": "shape::MqttService",
       "libraryPath": "",
       "libraryName": "MqttService",

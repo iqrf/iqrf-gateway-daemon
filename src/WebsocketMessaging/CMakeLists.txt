@@ -20,7 +20,7 @@ FIND_PACKAGE(shapeware REQUIRED)
 set(COMPONENT iqrf::WebsocketMessaging)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IMessagingService)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IWsServer MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} shape::ILaunchService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
@@ -34,9 +34,21 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 if(SHAPE_STATIC_LIBS)
-  add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} STATIC
+    ${_HDRFILES}
+    ${_SRCFILES}
+    $<TARGET_OBJECTS:WebsocketServer>
+  )
 else()
-  add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} SHARED
+    ${_HDRFILES}
+    ${_SRCFILES}
+    $<TARGET_OBJECTS:WebsocketServer>
+  )
 endif()
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  WebsocketServer
+)
 
 DeployShapeComponent(${PROJECT_NAME})

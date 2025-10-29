@@ -16,8 +16,8 @@
  */
 
 #include "Trace.h"
-#include "WsServer.h"
-#include "WsSession.h"
+#include "WebsocketServer.h"
+#include "WebsocketSession.h"
 
 #include <atomic>
 #include <cstdint>
@@ -32,66 +32,26 @@
 #include <rapidjson/pointer.h>
 #include <openssl/ssl.h>
 
-#include "iqrf__WsServer.hxx"
-
 #define SERVER_LOG(instance, port) "[" << instance << ":" << port << "] "
-
-TRC_INIT_MODULE(iqrf::WsServer)
 
 namespace iqrf {
 
-  class WsServer::Impl {
+  class WebsocketServer::Impl {
   public:
-    Impl() {}
-
-    ~Impl() {}
-
-    ///// Component lifecycle /////
-
-    void activate(const shape::Properties *props) {
+    Impl(const WebsocketServerParams& params): m_params(params) {
       TRC_FUNCTION_ENTER("");
-      TRC_INFORMATION(std::endl <<
-        "******************************" << std::endl <<
-        "WsServer instance activate" << std::endl <<
-        "******************************"
-      );
-      modify(props);
-      initializeIoc();
-      initializeSsl();
+      initialize();
       TRC_FUNCTION_LEAVE("");
     }
 
-    void modify(const shape::Properties *props) {
+    Impl(const WebsocketServerParams& params, WsServerOnMessage onMessage): m_params(params), m_onMessage(onMessage) {
       TRC_FUNCTION_ENTER("");
-
-      m_certDir = m_launchService->getConfigurationDir() + "/certs/";
-
-      const rapidjson::Document& doc = props->getAsJson();
-      m_instance = rapidjson::Pointer("/instance").Get(doc)->GetString();
-      m_port = static_cast<uint16_t>(rapidjson::Pointer("/port").Get(doc)->GetUint());
-      m_acceptOnlyLocalhost = rapidjson::Pointer("/acceptOnlyLocalhost").Get(doc)->GetBool();
-      if (m_acceptOnlyLocalhost) {
-        m_address = boost::asio::ip::address_v6::loopback();
-      } else {
-        m_address = boost::asio::ip::address_v6::any();
-      }
-      std::string certPath = rapidjson::Pointer("/cert").Get(doc)->GetString();
-      m_certPath = getCertPath(certPath);
-      std::string keyPath = rapidjson::Pointer("/privKey").Get(doc)->GetString();
-      m_keyPath = getCertPath(keyPath);
-      auto tlsMode = rapidjson::Pointer("/tlsMode").Get(doc)->GetUint();
-      m_tlsMode = parseTlsModeValue(tlsMode);
-
+      initialize();
       TRC_FUNCTION_LEAVE("");
     }
 
-    void deactivate() {
+    ~Impl() {
       TRC_FUNCTION_ENTER("");
-      TRC_INFORMATION(std::endl <<
-        "******************************" << std::endl <<
-        "WsServer instance deactivate" << std::endl <<
-        "******************************"
-      );
       stop();
       m_workGuard.reset();
       m_ioc->stop();
@@ -100,6 +60,7 @@ namespace iqrf {
       }
       m_ctx.reset();
       m_ioc.reset();
+      m_onMessage = nullptr;
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -120,7 +81,7 @@ namespace iqrf {
         return;
       }
 
-      boost::asio::ip::tcp::endpoint endpoint(m_address, m_port);
+      boost::asio::ip::tcp::endpoint endpoint(m_address, m_params.port);
       m_acceptor.emplace(boost::asio::make_strand(*m_ioc));
 
       boost::beast::error_code ec;
@@ -128,7 +89,7 @@ namespace iqrf {
       if (ec) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_instance, m_port) << "Failed to open acceptor: " << BEAST_ERR_LOG(ec)
+          SERVER_LOG(m_params.instance, m_params.port) << "Failed to open acceptor: " << BEAST_ERR_LOG(ec)
         );
       }
 
@@ -136,7 +97,7 @@ namespace iqrf {
       if (ec) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_instance, m_port) << "Failed to disable IPv6 only connections." << BEAST_ERR_LOG(ec)
+          SERVER_LOG(m_params.instance, m_params.port) << "Failed to disable IPv6 only connections." << BEAST_ERR_LOG(ec)
         )
       }
 
@@ -144,7 +105,7 @@ namespace iqrf {
       if (ec) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_instance, m_port) << "Failed to set address reuse: " << BEAST_ERR_LOG(ec)
+          SERVER_LOG(m_params.instance, m_params.port) << "Failed to set address reuse: " << BEAST_ERR_LOG(ec)
         );
       }
 
@@ -152,7 +113,7 @@ namespace iqrf {
       if (ec) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_instance, m_port) << "Failed to bind acceptor to the server address: " << BEAST_ERR_LOG(ec)
+          SERVER_LOG(m_params.instance, m_params.port) << "Failed to bind acceptor to the server address: " << BEAST_ERR_LOG(ec)
         );
       }
 
@@ -160,7 +121,7 @@ namespace iqrf {
       if (ec) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_instance, m_port) << "Failed to start listening for connections: " << BEAST_ERR_LOG(ec)
+          SERVER_LOG(m_params.instance, m_params.port) << "Failed to start listening for connections: " << BEAST_ERR_LOG(ec)
         );
       }
 
@@ -195,52 +156,18 @@ namespace iqrf {
       if (record != m_sessionRegistry.end()) {
         record->second->send(message);
       } else {
-        TRC_WARNING(SERVER_LOG(m_instance, m_port) << "Cannot send message, session ID " << sessionId << " not found");
-      }
-    }
-
-    ///// Interface management /////
-
-    void attachInterface(shape::ILaunchService *iface) {
-      m_launchService = iface;
-    }
-
-    void detachInterface(shape::ILaunchService *iface) {
-      if (m_launchService == iface) {
-        m_launchService = nullptr;
+        TRC_WARNING(SERVER_LOG(m_params.instance, m_params.port) << "Cannot send message, session ID " << sessionId << " not found");
       }
     }
 
   private:
-    enum class TlsModes {
-      MODERN = 0,
-      INTERMEDIATE = 1,
-      OLD = 2,
-    };
-
-    TlsModes parseTlsModeValue(unsigned int value) {
-      switch (value) {
-        case 0:
-          return TlsModes::MODERN;
-        case 1:
-          return TlsModes::INTERMEDIATE;
-        case 2:
-          return TlsModes::OLD;
-        default:
-          THROW_EXC_TRC_WAR(
-            std::runtime_error,
-            SERVER_LOG(m_instance, m_port) << "Unknown or unsupported TLS mode value."
-          );
-      }
-    }
-
     boost::asio::ssl::context::options getSslContextOptions() {
       boost::asio::ssl::context::options options =
         boost::asio::ssl::context::default_workarounds |
         boost::asio::ssl::context::no_sslv2 |
         boost::asio::ssl::context::no_sslv3 |
         boost::asio::ssl::context::single_dh_use;
-      switch (m_tlsMode) {
+      switch (m_params.tlsMode) {
         case TlsModes::MODERN:
           options |=
             boost::asio::ssl::context::no_tlsv1 |
@@ -260,7 +187,7 @@ namespace iqrf {
 
     std::string getSslCiphers() {
       std::string ciphers;
-      switch (m_tlsMode) {
+      switch (m_params.tlsMode) {
         case TlsModes::MODERN:
           break;
         case TlsModes::INTERMEDIATE:
@@ -320,14 +247,14 @@ namespace iqrf {
     void on_accept(boost::beast::error_code ec, boost::asio::ip::tcp::socket socket) {
       if (ec) {
         TRC_WARNING(
-          SERVER_LOG(m_instance, m_port)
+          SERVER_LOG(m_params.instance, m_params.port)
           << "Failed to accept incoming connection: "
           << BEAST_ERR_LOG(ec)
         );
       } else {
-        auto session = std::make_shared<WsSession>(m_sessionCounter++, std::move(socket), *m_ctx);
+        auto session = std::make_shared<WebsocketSession>(m_sessionCounter++, std::move(socket), *m_ctx);
         TRC_INFORMATION(
-          SERVER_LOG(m_instance, m_port)
+          SERVER_LOG(m_params.instance, m_params.port)
           << "Incoming connection from " << session->getAddress() << ':' << session->getPort()
           << ", session ID " << session->getId()
         );
@@ -346,6 +273,18 @@ namespace iqrf {
       accept();
     }
 
+    void initialize() {
+      if (m_params.localhostOnly) {
+        m_address = boost::asio::ip::address_v6::loopback();
+      } else {
+        m_address = boost::asio::ip::address_v6::any();
+      }
+      initializeIoc();
+      if (m_params.tls) {
+        initializeSsl();
+      }
+    }
+
     void initializeIoc() {
       m_ioc.emplace(1);
       m_workGuard.emplace(boost::asio::make_work_guard(*m_ioc));
@@ -354,47 +293,47 @@ namespace iqrf {
     void initializeSsl() {
       m_ctx.emplace(boost::asio::ssl::context::tls_server);
       m_ctx->set_options(getSslContextOptions());
-      if (!m_certPath.has_value()) {
+      if (m_params.certPath.size() == 0) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_instance, m_port) << "Certificate file not specified."
+          SERVER_LOG(m_params.instance, m_params.port) << "Certificate file not specified."
         );
       }
-      if (!std::filesystem::exists(m_certPath.value())) {
+      if (!std::filesystem::exists(m_params.certPath)) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_instance, m_port) << "Certificate file does not exist."
+          SERVER_LOG(m_params.instance, m_params.port) << "Certificate file does not exist."
         )
       }
-      m_ctx->use_certificate_chain_file(m_certPath.value());
-      if (!m_keyPath.has_value()) {
+      m_ctx->use_certificate_chain_file(m_params.certPath);
+      if (m_params.keyPath.size() == 0) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_instance, m_port) << "Private key file not specified."
+          SERVER_LOG(m_params.instance, m_params.port) << "Private key file not specified."
         );
       }
-      if (!std::filesystem::exists(m_keyPath.value())) {
+      if (!std::filesystem::exists(m_params.keyPath)) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_instance, m_port) << "Private key file does not exist."
+          SERVER_LOG(m_params.instance, m_params.port) << "Private key file does not exist."
         )
       }
-      m_ctx->use_private_key_file(*m_keyPath, boost::asio::ssl::context_base::file_format::pem);
+      m_ctx->use_private_key_file(m_params.keyPath, boost::asio::ssl::context_base::file_format::pem);
       m_ctx->set_verify_mode(boost::asio::ssl::verify_none);
       auto ciphers = getSslCiphers();
       if (!ciphers.empty() && SSL_CTX_set_cipher_list(m_ctx->native_handle(), ciphers.c_str()) != 1) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_instance, m_port) << "Failed to configure SSL cipher suites."
+          SERVER_LOG(m_params.instance, m_params.port) << "Failed to configure SSL cipher suites."
         );
       }
     }
 
-    void registerSession(std::shared_ptr<WsSession> session) {
+    void registerSession(std::shared_ptr<WebsocketSession> session) {
       std::lock_guard<std::mutex> lock(m_sessionMutex);
       m_sessionRegistry[session->getId()] = session;
       TRC_INFORMATION(
-        SERVER_LOG(m_instance, m_port)
+        SERVER_LOG(m_params.instance, m_params.port)
         << "New client session registered with ID " << session->getId()
       );
     }
@@ -405,12 +344,12 @@ namespace iqrf {
       if (record != m_sessionRegistry.end()) {
         m_sessionRegistry.erase(sessionId);
         TRC_INFORMATION(
-          SERVER_LOG(m_instance, m_port)
+          SERVER_LOG(m_params.instance, m_params.port)
           << "Client session ID " << sessionId << " unregistered"
         );
       } else {
         TRC_WARNING(
-          SERVER_LOG(m_instance, m_port)
+          SERVER_LOG(m_params.instance, m_params.port)
           << "Cannot remove non-existent session with ID "
           << sessionId
         );
@@ -425,31 +364,9 @@ namespace iqrf {
       m_sessionRegistry.clear();
     }
 
-    std::string getCertPath(const std::string& path) {
-      if (path.size() == 0 || path.at(0) == '/') {
-        return path;
-      }
-      m_launchService->getConfigurationDir() + "/certs/" + path;
-    }
-
-    /// Launcher service
-    shape::ILaunchService *m_launchService = nullptr;
-    /// Instance name
-    std::string m_instance;
-    /// Path to directory with certificates
-    std::string m_certDir;
+    WebsocketServerParams m_params;
     /// Server address
     boost::asio::ip::address m_address;
-    /// Server port
-    uint16_t m_port;
-    /// Accept only localhost connections
-    bool m_acceptOnlyLocalhost;
-    /// Path to certificate file
-    std::optional<std::string> m_certPath;
-    /// Path to private key file
-    std::optional<std::string> m_keyPath;
-    /// TLS mode (modern, intermediate, old)
-    TlsModes m_tlsMode;
     /// Thread
     std::thread m_thread;
     /// IO context
@@ -467,74 +384,44 @@ namespace iqrf {
     /// Session registry mutex
     std::mutex m_sessionMutex;
     /// Session registry
-    std::unordered_map<size_t, std::shared_ptr<WsSession>> m_sessionRegistry;
+    std::unordered_map<size_t, std::shared_ptr<WebsocketSession>> m_sessionRegistry;
     /// On message handler
     WsServerOnMessage m_onMessage;
   };
 
-  WsServer::WsServer(): impl_(std::make_unique<Impl>()) {}
+  WebsocketServer::WebsocketServer(const WebsocketServerParams& params): impl_(std::make_unique<Impl>(params)) {}
 
-  WsServer::~WsServer() = default;
+  WebsocketServer::WebsocketServer(const WebsocketServerParams& params, WsServerOnMessage onMessage): impl_(std::make_unique<Impl>(params, onMessage)) {}
 
-  ///// Component lifecycle /////
-
-  void WsServer::activate(const shape::Properties *props) {
-    impl_->activate(props);
-  }
-
-  void WsServer::modify(const shape::Properties *props) {
-    impl_->modify(props);
-  }
-
-  void WsServer::deactivate() {
-    impl_->deactivate();
-  }
+  WebsocketServer::~WebsocketServer() = default;
 
   ///// Public API /////
 
-  void WsServer::registerMessageHandler(WsServerOnMessage handler) {
+  void WebsocketServer::registerMessageHandler(WsServerOnMessage handler) {
     impl_->registerMessageHandler(handler);
   }
 
-  void WsServer::unregisterMessageHandler() {
+  void WebsocketServer::unregisterMessageHandler() {
     impl_->unregisterMessageHandler();
   }
 
-  void WsServer::start() {
+  void WebsocketServer::start() {
     impl_->start();
   }
 
-  bool WsServer::isListening() {
+  bool WebsocketServer::isListening() {
     return impl_->isListening();
   }
 
-  void WsServer::stop() {
+  void WebsocketServer::stop() {
     impl_->stop();
   }
 
-  void WsServer::send(const std::string& message) {
+  void WebsocketServer::send(const std::string& message) {
     impl_->send(message);
   }
 
-  void WsServer::send(const std::size_t sessionId, const std::string& message) {
+  void WebsocketServer::send(const std::size_t sessionId, const std::string& message) {
     impl_->send(sessionId, message);
-  }
-
-  ///// Interface management /////
-
-  void WsServer::attachInterface(shape::ILaunchService *iface) {
-    impl_->attachInterface(iface);
-  }
-
-  void WsServer::detachInterface(shape::ILaunchService *iface) {
-    impl_->detachInterface(iface);
-  }
-
-  void WsServer::attachInterface(shape::ITraceService *iface) {
-    shape::Tracer::get().addTracerService(iface);
-  }
-
-  void WsServer::detachInterface(shape::ITraceService *iface) {
-    shape::Tracer::get().removeTracerService(iface);
   }
 }

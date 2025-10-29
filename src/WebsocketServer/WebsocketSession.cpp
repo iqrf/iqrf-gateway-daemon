@@ -15,32 +15,32 @@
  * limitations under the License.
  */
 
-#include "WsSession.h"
+#include "WebsocketSession.h"
 #include "Trace.h"
 
 #include <iostream>
 
 #define SESSION_LOG(session, addr, port) "[" << session << "|" << addr << ":" << port << "] "
 
-WsSession::WsSession(std::size_t id, boost::asio::ip::tcp::socket&& socket, boost::asio::ssl::context& ctx): m_id(id), m_stream(std::move(socket), ctx) {
+WebsocketSession::WebsocketSession(std::size_t id, boost::asio::ip::tcp::socket&& socket, boost::asio::ssl::context& ctx): m_id(id), m_stream(std::move(socket), ctx) {
   auto endpoint = m_stream.next_layer().lowest_layer().remote_endpoint();
   m_address = endpoint.address().to_string();
   m_port = endpoint.port();
 }
 
-std::size_t WsSession::getId() const {
+std::size_t WebsocketSession::getId() const {
   return m_id;
 }
 
-const std::string& WsSession::getAddress() const {
+const std::string& WebsocketSession::getAddress() const {
   return m_address;
 }
 
-uint16_t WsSession::getPort() const {
+uint16_t WebsocketSession::getPort() const {
   return m_port;
 }
 
-void WsSession::send(const std::string& message) {
+void WebsocketSession::send(const std::string& message) {
   boost::asio::post(
     m_stream.get_executor(),
     [self = shared_from_this(), message]() mutable {
@@ -52,18 +52,18 @@ void WsSession::send(const std::string& message) {
   );
 }
 
-void WsSession::write() {
+void WebsocketSession::write() {
   m_writing = true;
   m_stream.async_write(
     boost::asio::buffer(m_writeQueue.front()),
     boost::beast::bind_front_handler(
-      &WsSession::on_write,
+      &WebsocketSession::on_write,
       shared_from_this()
     )
   );
 }
 
-void WsSession::on_write(boost::beast::error_code ec, std::size_t bytesWritten) {
+void WebsocketSession::on_write(boost::beast::error_code ec, std::size_t bytesWritten) {
   if (ec) {
     TRC_WARNING(
       SESSION_LOG(m_id, m_address, m_port)
@@ -80,29 +80,31 @@ void WsSession::on_write(boost::beast::error_code ec, std::size_t bytesWritten) 
   }
 }
 
-void WsSession::run() {
+void WebsocketSession::run() {
   boost::asio::dispatch(
     m_stream.get_executor(),
     boost::beast::bind_front_handler(
-      &WsSession::on_run,
+      &WebsocketSession::on_run,
       shared_from_this()
     )
   );
 }
 
-void WsSession::on_run() {
+void WebsocketSession::on_run() {
+
+  // IF TLS DO THIS, ELSE CALL ACCEPT
   boost::beast::get_lowest_layer(m_stream).expires_after(std::chrono::seconds(30));
 
   m_stream.next_layer().async_handshake(
     boost::asio::ssl::stream_base::server,
     boost::beast::bind_front_handler(
-      &WsSession::on_handshake,
+      &WebsocketSession::on_handshake,
       shared_from_this()
     )
   );
 }
 
-void WsSession::on_handshake(boost::beast::error_code ec) {
+void WebsocketSession::on_handshake(boost::beast::error_code ec) {
   if (ec) {
     TRC_WARNING(
       SESSION_LOG(m_id, m_address, m_port)
@@ -111,6 +113,10 @@ void WsSession::on_handshake(boost::beast::error_code ec) {
     );
     return;
   }
+  this->accept();
+}
+
+void WebsocketSession::accept() {
   boost::beast::get_lowest_layer(m_stream).expires_never();
 
   m_stream.set_option(
@@ -130,13 +136,13 @@ void WsSession::on_handshake(boost::beast::error_code ec) {
 
   m_stream.async_accept(
     boost::beast::bind_front_handler(
-      &WsSession::on_accept,
+      &WebsocketSession::on_accept,
       shared_from_this()
     )
   );
 }
 
-void WsSession::on_accept(boost::beast::error_code ec) {
+void WebsocketSession::on_accept(boost::beast::error_code ec) {
   if (ec) {
     TRC_WARNING(
       SESSION_LOG(m_id, m_address, m_port)
@@ -151,17 +157,17 @@ void WsSession::on_accept(boost::beast::error_code ec) {
   }
 }
 
-void WsSession::read() {
+void WebsocketSession::read() {
   m_stream.async_read(
     m_buffer,
     boost::beast::bind_front_handler(
-      &WsSession::on_read,
+      &WebsocketSession::on_read,
       shared_from_this()
     )
   );
 }
 
-void WsSession::on_read(boost::beast::error_code ec, std::size_t bytesRead) {
+void WebsocketSession::on_read(boost::beast::error_code ec, std::size_t bytesRead) {
   boost::ignore_unused(bytesRead);
 
   if (ec == boost::beast::websocket::error::closed ||
@@ -200,7 +206,7 @@ void WsSession::on_read(boost::beast::error_code ec, std::size_t bytesRead) {
   this->read();
 }
 
-void WsSession::close() {
+void WebsocketSession::close() {
   boost::asio::post(
     m_stream.get_executor(),
     [self = shared_from_this()]() {
