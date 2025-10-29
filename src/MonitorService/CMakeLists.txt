@@ -25,7 +25,7 @@ AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfSensorData UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IUdpConnectorService UNREQUIRED SINGLE)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IWsServer MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} shape::ILaunchService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
@@ -44,15 +44,24 @@ include_directories(${CMAKE_SOURCE_DIR}/src/DpaParser)
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 
 if(SHAPE_STATIC_LIBS)
-  add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} STATIC
+    ${_HDRFILES}
+    ${_SRCFILES}
+    $<TARGET_OBJECTS:WebsocketServer>
+  )
 else()
-  add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} SHARED
+    ${_HDRFILES}
+    ${_SRCFILES}
+    $<TARGET_OBJECTS:WebsocketServer>
+  )
 endif()
 
 target_link_libraries(${PROJECT_NAME}
   nlohmann_json::nlohmann_json
   Dpa
   DbEntities
+  WebsocketServer
 )
 
 DeployShapeComponent(${PROJECT_NAME})
