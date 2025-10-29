@@ -30,11 +30,11 @@
 
 #define BEAST_ERR_LOG(ec) ec.message() << "(" << ec.category().name() << "|" << ec.value() << ")"
 
-class WsSession : public std::enable_shared_from_this<WsSession> {
+class WebsocketSession : public std::enable_shared_from_this<WebsocketSession> {
 public:
-  WsSession() = delete;
+  WebsocketSession() = delete;
 
-  WsSession(std::size_t id, boost::asio::ip::tcp::socket&& socket, boost::asio::ssl::context& ctx);
+  WebsocketSession(std::size_t id, boost::asio::ip::tcp::socket&& socket, boost::asio::ssl::context& ctx);
 
   std::size_t getId() const;
 
@@ -57,6 +57,8 @@ private:
   void on_run();
 
   void on_handshake(boost::beast::error_code ec);
+
+  void accept();
 
   void on_accept(boost::beast::error_code ec);
 

@@ -7,6 +7,18 @@
         "version": "1-0-0"
     },
     "type": "object",
+    "required": [
+        "component",
+        "instance",
+        "reportPeriod",
+        "port",
+        "acceptOnlyLocalhost",
+        "tlsEnabled",
+        "tlsMode",
+        "cert",
+        "privKey"
+    ],
+    "additionalProperties": false,
     "properties": {
         "component": {
             "type": "string",
@@ -25,30 +37,33 @@
             "description": "report period in seconds",
             "default": 10
         },
-        "RequiredInterfaces": {
-            "type": "array",
-            "description": "Array of required interfaces.",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "default": "shape::IWebsocketService",
-                        "description": "selected ws instance"
-                    },
-                    "target": {
-                        "type": "object"
-                    }
-                },
-                "required": [
-                    "name",
-                    "target"
-                ]
-            }
+        "port":  {
+            "type": "integer",
+            "description": "Server port number",
+            "default": 1438,
+            "minimum": 1024,
+            "maximum": 65535
+        },
+        "acceptOnlyLocalhost": {
+            "type": "boolean",
+            "description": "Only accept localhost connections"
+        },
+        "tlsEnabled": {
+            "type": "boolean",
+            "description": "Enable TLS"
+        },
+        "tlsMode": {
+            "type": "integer",
+            "description": "TLS configuration (0 - modern, 1 - intermediate, 2 - old)",
+            "enum": [0, 1, 2]
+        },
+        "cert": {
+            "type": "string",
+            "description": "Certificate file"
+        },
+        "privKey": {
+            "type": "string",
+            "description": "Private key file"
         }
-    },
-    "required": [
-        "component",
-        "instance"
-    ]
+    }
 }

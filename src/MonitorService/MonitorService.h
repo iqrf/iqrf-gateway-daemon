@@ -23,9 +23,10 @@
 #include "IIqrfSensorData.h"
 #include "IMessagingSplitterService.h"
 #include "IUdpConnectorService.h"
-#include "IWsServer.h"
+#include "ILaunchService.h"
 #include "ITraceService.h"
 #include "Trace.h"
+#include "WebsocketServer.h"
 
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
@@ -153,16 +154,16 @@ namespace iqrf {
     void detachInterface(iqrf::IUdpConnectorService* iface);
 
     /**
-     * Attaches websocket server interface
-     * @param iface Websocket server interface
+     * Attaches launch service interface
+     * @param iface Launch service interface
      */
-    void attachInterface(iqrf::IWsServer* iface);
+    void attachInterface(shape::ILaunchService* iface);
 
     /**
-     * Detaches websocket server interface
-     * @param iface Websocket server interface
+     * Detaches launch service interface
+     * @param iface Launch service interface
      */
-    void detachInterface(iqrf::IWsServer* iface);
+    void detachInterface(shape::ILaunchService* iface);
 
     /**
      * Attaches tracing service interface
@@ -177,6 +178,8 @@ namespace iqrf {
     void detachInterface(shape::ITraceService* iface);
 
   private:
+
+    std::string getCertPath(const std::string& path);
     /**
      * Handles request from splitter
      * @param messaging Messaging instance
@@ -198,6 +201,10 @@ namespace iqrf {
 
     /// Instance ID
     std::string m_instanceId;
+    // Launch service interface
+    shape::ILaunchService *m_launchService = nullptr;
+    /// Websocket server parameters
+    WebsocketServerParams m_params;
     // DB service interface
     IIqrfDb *m_dbService = nullptr;
     /// DPA service interface
@@ -209,7 +216,7 @@ namespace iqrf {
     /// UDP connector service
     IUdpConnectorService *m_udpConnectorService = nullptr;
     /// WebSocket server interface
-    IWsServer *m_wsServer = nullptr;
+    std::unique_ptr<WebsocketServer> m_server = nullptr;
     /// Monitoring notification worker thread
     std::thread m_workerThread;
     /// Thread running condition
