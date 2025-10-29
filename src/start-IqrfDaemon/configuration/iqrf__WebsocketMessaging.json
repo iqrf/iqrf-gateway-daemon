@@ -2,12 +2,10 @@
     "component": "iqrf::WebsocketMessaging",
     "instance": "WebsocketMessaging",
     "acceptAsyncMsg": true,
-    "RequiredInterfaces": [
-        {
-            "name": "iqrf::IWsServer",
-            "target": {
-                "instance": "iqrf::WsServer-default"
-            }
-        }
-    ]
+    "port": 1338,
+    "acceptOnlyLocalhost": false,
+    "tlsEnabled": false,
+    "tlsMode": 1,
+    "cert": "",
+    "privKey": ""
 }

@@ -17,11 +17,9 @@
 #pragma once
 
 #include "IMessagingService.h"
-#include "TaskQueue.h"
-#include "ShapeProperties.h"
+#include "ILaunchService.h"
 #include "ITraceService.h"
-#include "IWsServer.h"
-#include <string>
+#include "ShapeProperties.h"
 
 /// iqrf namespace
 namespace iqrf {
@@ -83,16 +81,16 @@ namespace iqrf {
     void deactivate();
 
     /**
-     * Attaches websocket server interface
-     * @param iface Websocket server interface
+     * Attaches launcher service interface
+     * @param iface Launcher service interface
      */
-    void attachInterface(iqrf::IWsServer* iface);
+    void attachInterface(shape::ILaunchService *iface);
 
     /**
-     * Detaches websocket server interface
-     * @param iface Websocket server interface
+     * Detaches launcher service interface
+     * @param iface Launcher service interface
      */
-    void detachInterface(iqrf::IWsServer* iface);
+    void detachInterface(shape::ILaunchService *iface);
 
     /**
      * Attaches tracing service interface
@@ -107,20 +105,7 @@ namespace iqrf {
     void detachInterface(shape::ITraceService* iface);
 
   private:
-    /**
-     * Handle incoming message from clients
-     * @param sessionId Session ID
-     * @param msg Received message
-     */
-    int handleMessageFromWebsocket(const std::size_t sessionId, const std::string& msg);
-
-    /// Websocket server interfaceeue type definition
-    iqrf::IWsServer* m_wsServer = nullptr;
-    /// Handler for incoming messages
-    IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
-    /// Accept asynchronous messages
-    bool m_acceptAsyncMsg = false;
-    /// Messaging instance
-    MessagingInstance m_messagingInstance = MessagingInstance(MessagingType::WS);
+    class Impl;
+    std::unique_ptr<Impl> impl_;
   };
 }

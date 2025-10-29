@@ -62,7 +62,8 @@ namespace iqrf {
     );
 
     modify(props);
-    m_wsServer->start();
+    m_server = std::make_unique<WebsocketServer>(m_params);
+    m_server->start();
 
     m_runThread = true;
     m_workerThread = std::thread([&]() {
@@ -85,6 +86,22 @@ namespace iqrf {
       }
       m_instanceId = Pointer("/instance").Get(doc)->GetString();
     }
+    std::string instance = rapidjson::Pointer("/instance").Get(doc)->GetString();
+    uint16_t port = static_cast<uint16_t>(rapidjson::Pointer("/port").Get(doc)->GetUint());
+    bool acceptOnlyLocalhost = rapidjson::Pointer("/acceptOnlyLocalhost").Get(doc)->GetBool();
+    bool tlsEnabled = rapidjson::Pointer("/tlsEnabled").Get(doc)->GetBool();
+    TlsModes tlsMode = tlsModeFromValue(rapidjson::Pointer("/tlsMode").Get(doc)->GetUint());
+    std::string certPath = getCertPath(rapidjson::Pointer("/cert").Get(doc)->GetString());
+    std::string keyPath = getCertPath(rapidjson::Pointer("/privKey").Get(doc)->GetString());
+    m_params = WebsocketServerParams(
+      instance,
+      port,
+      acceptOnlyLocalhost,
+      tlsEnabled,
+      tlsMode,
+      certPath,
+      keyPath
+    );
 
     TRC_FUNCTION_LEAVE("");
   }
@@ -107,6 +124,13 @@ namespace iqrf {
   }
 
   ///// Private methods
+
+  std::string MonitorService::getCertPath(const std::string& path) {
+    if (path.size() == 0 || path.at(0) == '/') {
+      return path;
+    }
+    return m_launchService->getConfigurationDir() + "/certs/" + path;
+  }
 
   void MonitorService::handleMsg(const MessagingInstance& messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
     TRC_FUNCTION_ENTER("");
@@ -206,8 +230,8 @@ namespace iqrf {
       doc.Accept(writer);
       gwMonitorRecord = buffer.GetString();
 
-      if (m_wsServer) {
-        m_wsServer->send(gwMonitorRecord); //send to all clients
+      if (m_server) {
+        m_server->send(gwMonitorRecord); //send to all clients
       }
     }
 
@@ -295,13 +319,13 @@ namespace iqrf {
     }
   }
 
-  void MonitorService::attachInterface(IWsServer* iface) {
-    m_wsServer = iface;
+  void MonitorService::attachInterface(shape::ILaunchService* iface) {
+    m_launchService = iface;
   }
 
-  void MonitorService::detachInterface(IWsServer* iface) {
-    if (m_wsServer == iface) {
-      m_wsServer = nullptr;
+  void MonitorService::detachInterface(shape::ILaunchService* iface) {
+    if (m_launchService == iface) {
+      m_launchService = nullptr;
     }
   }
 
