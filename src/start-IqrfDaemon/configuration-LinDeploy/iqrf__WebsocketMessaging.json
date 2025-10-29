@@ -1,0 +1,11 @@
+{
+    "component": "iqrf::WebsocketMessaging",
+    "instance": "WebsocketMessaging",
+    "acceptAsyncMsg": false,
+    "port": 1338,
+    "acceptOnlyLocalhost": true,
+    "tlsEnabled": false,
+    "tlsMode": 1,
+    "cert": "/etc/iqrf-gateway-daemon/certs/core/cert.pem",
+    "privKey": "/etc/iqrf-gateway-daemon/certs/core/privkey.pem"
+}
