@@ -16,104 +16,70 @@
  */
 #pragma once
 
-#include "IWsServer.h"
+#include "WebsocketServerParams.h"
 #include "ILaunchService.h"
 #include "ShapeProperties.h"
 #include "ITraceService.h"
 
 namespace iqrf {
 
-  class WsServer : public IWsServer {
+  class WebsocketServer {
   public:
+    /// on message callback
+
     /**
-     * Constructor
+     * Default constructor
      */
-    WsServer();
+    explicit WebsocketServer(const WebsocketServerParams& params);
+
+    /**
+     * Constructor with onMessage callback
+     */
+    WebsocketServer(const WebsocketServerParams& params, WsServerOnMessage onMessage);
 
     /**
      * Destructor
      */
-    virtual ~WsServer();
+    virtual ~WebsocketServer();
 
     /**
      * Register message handler
      * @param handler Message handler
      */
-    void registerMessageHandler(WsServerOnMessage handler) override;
+    void registerMessageHandler(WsServerOnMessage handler);
 
     /**
      * Unregister message handler
      */
-    void unregisterMessageHandler() override;
+    void unregisterMessageHandler();
 
     /**
      * Start server listening loop
      */
-    void start() override;
+    void start();
 
     /**
      * Checks if server is listening and accepting connections
      */
-    bool isListening() override;
+    bool isListening();
 
     /**
      * Stop listening loop, clear sessions
      */
-    void stop() override;
+    void stop();
 
     /**
      * Send message to all connected clients
      * @param message Message to send
      */
-    void send(const std::string& message) override;
+    void send(const std::string& message);
 
     /**
      * Send message to a client identified by session ID
      * @param sessionId Client session
      * @param message Message to send
      */
-    void send(const std::size_t sessionId, const std::string& message) override;
-
-    /**
-     * Initializes component
-     * @param props Component configuration
-     */
-    void activate(const shape::Properties *props = 0);
-
-    /**
-     * Modifies component properties
-     * @param props Component configuration
-     */
-    void modify(const shape::Properties *props);
-
-    /**
-     * Deactivates component
-     */
-    void deactivate();
-
-    /**
-     * Attaches launcher service interface
-     * @param iface Launcher service interface
-     */
-    void attachInterface(shape::ILaunchService *iface);
-
-    /**
-     * Detaches launcher service interface
-     * @param iface Launcher service interface
-     */
-    void detachInterface(shape::ILaunchService *iface);
-
-    /**
-     * Attaches tracing service interface
-     * @param iface Tracing service interface
-     */
-    void attachInterface(shape::ITraceService *iface);
-
-    /**
-     * Detaches tracing service interface
-     * @param iface Tracing service interface
-     */
-    void detachInterface(shape::ITraceService *iface);
+    void send(const std::size_t sessionId, const std::string& message);
 
   private:
     class Impl;
