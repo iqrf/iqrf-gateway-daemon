@@ -18,6 +18,7 @@
 #include "Trace.h"
 #include "WebsocketServer.h"
 #include "WebsocketSession.h"
+#include "WebsocketSessionTls.h"
 
 #include <atomic>
 #include <cstdint>
@@ -252,22 +253,31 @@ namespace iqrf {
           << BEAST_ERR_LOG(ec)
         );
       } else {
-        auto session = std::make_shared<WebsocketSession>(m_sessionCounter++, std::move(socket), *m_ctx);
+        std::shared_ptr<IWebsocketSession> session = nullptr;
+        if (m_params.tls) {
+          session = std::make_shared<WebsocketSessionTls>(m_sessionCounter++, std::move(socket), *m_ctx);
+        } else {
+          session = std::make_shared<WebsocketSession>(m_sessionCounter++, std::move(socket));
+        }
         TRC_INFORMATION(
           SERVER_LOG(m_params.instance, m_params.port)
           << "Incoming connection from " << session->getAddress() << ':' << session->getPort()
           << ", session ID " << session->getId()
         );
-        session->onOpen = [this, session](std::size_t sessionId, boost::beast::error_code ec) {
-          (void) sessionId;
-          boost::ignore_unused(ec);
-          registerSession(session);
-        };
-        session->onClose = [this](std::size_t sessionId, boost::beast::error_code ec) {
-          boost::ignore_unused(ec);
-          unregisterSession(sessionId);
-        };
-        session->onMessage = m_onMessage;
+        session->setOnOpen(
+          [this, session](std::size_t sessionId, boost::beast::error_code ec) {
+            (void) sessionId;
+            boost::ignore_unused(ec);
+            registerSession(session);
+          }
+        );
+        session->setOnClose(
+          [this](std::size_t sessionId, boost::beast::error_code ec) {
+            boost::ignore_unused(ec);
+            unregisterSession(sessionId);
+          }
+        );
+        session->setOnMessage(m_onMessage);
         session->run();
       }
       accept();
@@ -329,7 +339,7 @@ namespace iqrf {
       }
     }
 
-    void registerSession(std::shared_ptr<WebsocketSession> session) {
+    void registerSession(std::shared_ptr<IWebsocketSession> session) {
       std::lock_guard<std::mutex> lock(m_sessionMutex);
       m_sessionRegistry[session->getId()] = session;
       TRC_INFORMATION(
@@ -384,7 +394,7 @@ namespace iqrf {
     /// Session registry mutex
     std::mutex m_sessionMutex;
     /// Session registry
-    std::unordered_map<size_t, std::shared_ptr<WebsocketSession>> m_sessionRegistry;
+    std::unordered_map<size_t, std::shared_ptr<IWebsocketSession>> m_sessionRegistry;
     /// On message handler
     WsServerOnMessage m_onMessage;
   };
