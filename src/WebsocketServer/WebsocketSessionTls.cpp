@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "WebsocketSession.h"
+#include "WebsocketSessionTls.h"
 #include "Trace.h"
 
 #include <iostream>
@@ -24,25 +24,25 @@
 
 namespace iqrf {
 
-  WebsocketSession::WebsocketSession(std::size_t id, boost::asio::ip::tcp::socket&& socket): m_id(id), m_stream(std::move(socket)) {
-    auto endpoint = m_stream.next_layer().socket().remote_endpoint();
+  WebsocketSessionTls::WebsocketSessionTls(std::size_t id, boost::asio::ip::tcp::socket&& socket, boost::asio::ssl::context& ctx): m_id(id), m_stream(std::move(socket), ctx) {
+    auto endpoint = m_stream.next_layer().lowest_layer().remote_endpoint();
     m_address = endpoint.address().to_string();
     m_port = endpoint.port();
   }
 
-  std::size_t WebsocketSession::getId() const {
+  std::size_t WebsocketSessionTls::getId() const {
     return m_id;
   }
 
-  const std::string& WebsocketSession::getAddress() const {
+  const std::string& WebsocketSessionTls::getAddress() const {
     return m_address;
   }
 
-  uint16_t WebsocketSession::getPort() const {
+  uint16_t WebsocketSessionTls::getPort() const {
     return m_port;
   }
 
-  void WebsocketSession::send(const std::string& message) {
+  void WebsocketSessionTls::send(const std::string& message) {
     boost::asio::post(
       m_stream.get_executor(),
       [self = shared_from_this(), message]() mutable {
@@ -54,17 +54,17 @@ namespace iqrf {
     );
   }
 
-  void WebsocketSession::run() {
+  void WebsocketSessionTls::run() {
     boost::asio::dispatch(
       m_stream.get_executor(),
       boost::beast::bind_front_handler(
-        &WebsocketSession::on_run,
+        &WebsocketSessionTls::on_run,
         shared_from_this()
       )
     );
   }
 
-  void WebsocketSession::close() {
+  void WebsocketSessionTls::close() {
     boost::asio::post(
       m_stream.get_executor(),
       [self = shared_from_this()]() {
@@ -89,30 +89,30 @@ namespace iqrf {
     );
   }
 
-  void WebsocketSession::setOnOpen(std::function<void(std::size_t, boost::beast::error_code)> onOpen) {
+  void WebsocketSessionTls::setOnOpen(std::function<void(std::size_t, boost::beast::error_code)> onOpen) {
     this->onOpen = onOpen;
   }
 
-  void WebsocketSession::setOnClose(std::function<void(std::size_t, boost::beast::error_code)> onClose) {
+  void WebsocketSessionTls::setOnClose(std::function<void(std::size_t, boost::beast::error_code)> onClose) {
     this->onClose = onClose;
   }
 
-  void WebsocketSession::setOnMessage(std::function<void(const std::size_t, const std::string&)> onMessage) {
+  void WebsocketSessionTls::setOnMessage(std::function<void(const std::size_t, const std::string&)> onMessage) {
     this->onMessage = onMessage;
   }
 
-  void WebsocketSession::write() {
+  void WebsocketSessionTls::write() {
     m_writing = true;
     m_stream.async_write(
       boost::asio::buffer(m_writeQueue.front()),
       boost::beast::bind_front_handler(
-        &WebsocketSession::on_write,
+        &WebsocketSessionTls::on_write,
         shared_from_this()
       )
     );
   }
 
-  void WebsocketSession::on_write(boost::beast::error_code ec, std::size_t bytesWritten) {
+  void WebsocketSessionTls::on_write(boost::beast::error_code ec, std::size_t bytesWritten) {
     if (ec) {
       TRC_WARNING(
         SESSION_LOG(m_id, m_address, m_port)
@@ -129,12 +129,33 @@ namespace iqrf {
     }
   }
 
-  void WebsocketSession::on_run() {
+  void WebsocketSessionTls::on_run() {
+
+    // IF TLS DO THIS, ELSE CALL ACCEPT
     boost::beast::get_lowest_layer(m_stream).expires_after(std::chrono::seconds(30));
+
+    m_stream.next_layer().async_handshake(
+      boost::asio::ssl::stream_base::server,
+      boost::beast::bind_front_handler(
+        &WebsocketSessionTls::on_handshake,
+        shared_from_this()
+      )
+    );
+  }
+
+  void WebsocketSessionTls::on_handshake(boost::beast::error_code ec) {
+    if (ec) {
+      TRC_WARNING(
+        SESSION_LOG(m_id, m_address, m_port)
+        << "Failed to complete handshake: "
+        << BEAST_ERR_LOG(ec)
+      );
+      return;
+    }
     this->accept();
   }
 
-  void WebsocketSession::accept() {
+  void WebsocketSessionTls::accept() {
     boost::beast::get_lowest_layer(m_stream).expires_never();
 
     m_stream.set_option(
@@ -154,13 +175,13 @@ namespace iqrf {
 
     m_stream.async_accept(
       boost::beast::bind_front_handler(
-        &WebsocketSession::on_accept,
+        &WebsocketSessionTls::on_accept,
         shared_from_this()
       )
     );
   }
 
-  void WebsocketSession::on_accept(boost::beast::error_code ec) {
+  void WebsocketSessionTls::on_accept(boost::beast::error_code ec) {
     if (ec) {
       TRC_WARNING(
         SESSION_LOG(m_id, m_address, m_port)
@@ -175,17 +196,17 @@ namespace iqrf {
     }
   }
 
-  void WebsocketSession::read() {
+  void WebsocketSessionTls::read() {
     m_stream.async_read(
       m_buffer,
       boost::beast::bind_front_handler(
-        &WebsocketSession::on_read,
+        &WebsocketSessionTls::on_read,
         shared_from_this()
       )
     );
   }
 
-  void WebsocketSession::on_read(boost::beast::error_code ec, std::size_t bytesRead) {
+  void WebsocketSessionTls::on_read(boost::beast::error_code ec, std::size_t bytesRead) {
     boost::ignore_unused(bytesRead);
 
     if (ec == boost::beast::websocket::error::closed ||
