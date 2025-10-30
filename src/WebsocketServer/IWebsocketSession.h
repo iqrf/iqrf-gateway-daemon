@@ -9,7 +9,8 @@
 namespace iqrf {
 
   class IWebsocketSession {
-    virtual ~IWebsocketSession() = default;
+  public:
+    virtual ~IWebsocketSession() {};
 
     virtual std::size_t getId() const = 0;
 
