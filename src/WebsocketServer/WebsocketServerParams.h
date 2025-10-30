@@ -1,3 +1,5 @@
+#pragma once
+
 #include <functional>
 #include <optional>
 #include <string>
@@ -13,7 +15,7 @@ namespace iqrf {
     OLD = 2,
   };
 
-  static TlsModes tlsModeFromValue(unsigned int value) {
+  inline TlsModes tlsModeFromValue(unsigned int value) {
     switch (value) {
       case 0:
         return TlsModes::MODERN;

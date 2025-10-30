@@ -33,13 +33,13 @@
 #define BEAST_ERR_LOG(ec) ec.message() << "(" << ec.category().name() << "|" << ec.value() << ")"
 
 namespace iqrf {
-  class WebsocketSession : public IWebsocketSession, public std::enable_shared_from_this<WebsocketSession> {
+  class WebsocketSessionTls : public IWebsocketSession, public std::enable_shared_from_this<WebsocketSessionTls> {
   public:
-    WebsocketSession() = delete;
+    WebsocketSessionTls() = delete;
 
-    WebsocketSession(std::size_t id, boost::asio::ip::tcp::socket&& socket);
+    WebsocketSessionTls(std::size_t id, boost::asio::ip::tcp::socket&& socket, boost::asio::ssl::context& ctx);
 
-    virtual ~WebsocketSession() = default;
+    virtual ~WebsocketSessionTls() = default;
 
     std::size_t getId() const override;
 
@@ -62,6 +62,8 @@ namespace iqrf {
   private:
     void on_run();
 
+    void on_handshake(boost::beast::error_code ec);
+
     void accept();
 
     void on_accept(boost::beast::error_code ec);
@@ -81,7 +83,7 @@ namespace iqrf {
     /// Port number
     uint16_t m_port;
     /// Socket/stream
-    boost::beast::websocket::stream<boost::beast::tcp_stream> m_stream;
+    boost::beast::websocket::stream<boost::asio::ssl::stream<boost::beast::tcp_stream>> m_stream;
     /// Receive buffer
     boost::beast::flat_buffer m_buffer;
     /// Writing queue

@@ -5,7 +5,7 @@ import ssl
 import websocket
 
 ws = websocket.create_connection(
-  'wss://localhost:1438',
+  'ws://localhost:1438',
   sslopt={'cert_reqs': ssl.CERT_NONE}
 )
 response = ws.recv()
