@@ -1,10 +1,6 @@
 #pragma once
 
-#include "boost/beast/core/error.hpp"
-
-#include <cstdint>
-#include <functional>
-#include <string>
+#include "WebsocketCallbackTypes.h"
 
 namespace iqrf {
 
@@ -24,11 +20,15 @@ namespace iqrf {
 
     virtual void close() = 0;
 
-    virtual void setOnOpen(std::function<void(std::size_t, boost::beast::error_code)>) = 0;
+    virtual void setOnOpen(WsServerOnOpen) = 0;
 
-    virtual void setOnClose(std::function<void(std::size_t, boost::beast::error_code)>) = 0;
+    virtual void setOnClose(WsServerOnClose) = 0;
 
-    virtual void setOnMessage(std::function<void(const std::size_t, const std::string&)>) = 0;
+    virtual void setOnMessage(WsServerOnMessage) = 0;
+
+    virtual void setOnAuth(WsServerOnAuth) = 0;
+
+    virtual bool isAuthenticated() = 0;
 
   };
 }

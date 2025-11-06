@@ -45,7 +45,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    Impl(const WebsocketServerParams& params, WsServerOnMessage onMessage): m_params(params), m_onMessage(onMessage) {
+    Impl(const WebsocketServerParams& params, WsServerOnMessage onMessage, WsServerOnAuth onAuth): m_params(params), m_onMessage(onMessage), m_onAuth(onAuth) {
       TRC_FUNCTION_ENTER("");
       initialize();
       TRC_FUNCTION_LEAVE("");
@@ -62,6 +62,7 @@ namespace iqrf {
       m_ctx.reset();
       m_ioc.reset();
       m_onMessage = nullptr;
+      m_onAuth = nullptr;
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -265,19 +266,20 @@ namespace iqrf {
           << ", session ID " << session->getId()
         );
         session->setOnOpen(
-          [this, session](std::size_t sessionId, boost::beast::error_code ec) {
+          [this, session](const std::size_t sessionId, boost::beast::error_code ec) {
             (void) sessionId;
             boost::ignore_unused(ec);
             registerSession(session);
           }
         );
         session->setOnClose(
-          [this](std::size_t sessionId, boost::beast::error_code ec) {
+          [this](const std::size_t sessionId, boost::beast::error_code ec) {
             boost::ignore_unused(ec);
             unregisterSession(sessionId);
           }
         );
         session->setOnMessage(m_onMessage);
+        session->setOnAuth(m_onAuth);
         session->run();
       }
       accept();
@@ -374,6 +376,7 @@ namespace iqrf {
       m_sessionRegistry.clear();
     }
 
+    /// Websocket server parameters
     WebsocketServerParams m_params;
     /// Server address
     boost::asio::ip::address m_address;
@@ -397,23 +400,17 @@ namespace iqrf {
     std::unordered_map<size_t, std::shared_ptr<IWebsocketSession>> m_sessionRegistry;
     /// On message handler
     WsServerOnMessage m_onMessage;
+    /// On auth handler
+    WsServerOnAuth m_onAuth;
   };
 
   WebsocketServer::WebsocketServer(const WebsocketServerParams& params): impl_(std::make_unique<Impl>(params)) {}
 
-  WebsocketServer::WebsocketServer(const WebsocketServerParams& params, WsServerOnMessage onMessage): impl_(std::make_unique<Impl>(params, onMessage)) {}
+  WebsocketServer::WebsocketServer(const WebsocketServerParams& params, WsServerOnMessage onMessage, WsServerOnAuth onAuth): impl_(std::make_unique<Impl>(params, onMessage, onAuth)) {}
 
   WebsocketServer::~WebsocketServer() = default;
 
   ///// Public API /////
-
-  void WebsocketServer::registerMessageHandler(WsServerOnMessage handler) {
-    impl_->registerMessageHandler(handler);
-  }
-
-  void WebsocketServer::unregisterMessageHandler() {
-    impl_->unregisterMessageHandler();
-  }
 
   void WebsocketServer::start() {
     impl_->start();

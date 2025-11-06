@@ -108,6 +108,15 @@ namespace iqrf {
 		 */
 		void reloadCoordinatorDrivers() override;
 
+    ///// API TOKEN API
+
+    /**
+     * Return API token entity by ID
+     * @param id API token ID
+     * @return API token entity
+     */
+    std::unique_ptr<ApiToken> getApiToken(const uint32_t id) override;
+
 		///// BINARY OUTPUT API
 
 		/**

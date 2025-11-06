@@ -53,11 +53,25 @@ namespace iqrf {
 
     void close() override;
 
-    void setOnOpen(std::function<void(std::size_t, boost::beast::error_code)> onOpen) override;
+    void setOnOpen(WsServerOnOpen onOpen) override {
+      this->onOpen = onOpen;
+    }
 
-    void setOnClose(std::function<void(std::size_t, boost::beast::error_code)> onClose) override;
+    void setOnClose(WsServerOnClose onClose) override {
+      this->onClose = onClose;
+    }
 
-    void setOnMessage(std::function<void(const std::size_t, const std::string&)> onMessage) override;
+    void setOnMessage(WsServerOnMessage onMessage) override {
+      this->onMessage = onMessage;
+    };
+
+    void setOnAuth(WsServerOnAuth onAuth) override {
+      this->onAuth = onAuth;
+    };
+
+    bool isAuthenticated() override {
+      return m_authenticated;
+    }
 
   private:
     void on_run();
@@ -91,11 +105,15 @@ namespace iqrf {
     /// Writing in progress
     bool m_writing;
     /// On open callback
-    std::function<void(std::size_t, boost::beast::error_code)> onOpen;
+    WsServerOnOpen onOpen;
     /// On close callback
-    std::function<void(std::size_t, boost::beast::error_code)> onClose;
+    WsServerOnClose onClose;
     /// On message callback
-    std::function<void(const std::size_t, const std::string&)> onMessage;
+    WsServerOnMessage onMessage;
+    /// On auth callback
+    WsServerOnAuth onAuth;
+    /// Session is authenticated
+    bool m_authenticated;
   };
 
 }

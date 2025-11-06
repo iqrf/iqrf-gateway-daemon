@@ -16,19 +16,20 @@
  */
 #pragma once
 
+#include "IWebsocketSession.h"
+
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/beast/websocket/ssl.hpp>
 #include <boost/asio/dispatch.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/strand.hpp>
+#include <nlohmann/json.hpp>
 
 #include <cstdint>
 #include <deque>
 #include <memory>
 #include <string>
-
-#include "IWebsocketSession.h"
 
 #define BEAST_ERR_LOG(ec) ec.message() << "(" << ec.category().name() << "|" << ec.value() << ")"
 
@@ -53,11 +54,25 @@ namespace iqrf {
 
     void close() override;
 
-    void setOnOpen(std::function<void(std::size_t, boost::beast::error_code)> onOpen) override;
+    void setOnOpen(WsServerOnOpen onOpen) override {
+      this->onOpen = onOpen;
+    }
 
-    void setOnClose(std::function<void(std::size_t, boost::beast::error_code)> onClose) override;
+    void setOnClose(WsServerOnClose onClose) override {
+      this->onClose = onClose;
+    }
 
-    void setOnMessage(std::function<void(const std::size_t, const std::string&)> onMessage) override;
+    void setOnMessage(WsServerOnMessage onMessage) override {
+      this->onMessage = onMessage;
+    };
+
+    void setOnAuth(WsServerOnAuth onAuth) override {
+      this->onAuth = onAuth;
+    };
+
+    bool isAuthenticated() override {
+      return m_authenticated;
+    }
 
   private:
     void on_run();
@@ -70,9 +85,13 @@ namespace iqrf {
 
     void on_read(boost::beast::error_code ec, std::size_t bytesRead);
 
+    boost::beast::error_code auth(const std::string& message);
+
     void write();
 
     void on_write(boost::beast::error_code ec, std::size_t bytesWritten);
+
+    void close_auth_failed();
 
     /// Session ID
     std::size_t m_id;
@@ -89,11 +108,17 @@ namespace iqrf {
     /// Writing in progress
     bool m_writing;
     /// On open callback
-    std::function<void(std::size_t, boost::beast::error_code)> onOpen;
+    WsServerOnOpen onOpen;
     /// On close callback
-    std::function<void(std::size_t, boost::beast::error_code)> onClose;
+    WsServerOnClose onClose;
     /// On message callback
-    std::function<void(const std::size_t, const std::string&)> onMessage;
+    WsServerOnMessage onMessage;
+    /// On auth callback
+    WsServerOnAuth onAuth;
+    /// Session is authenticated
+    bool m_authenticated = false;
+    /// Token expiration
+    int64_t m_expiration = -1;
   };
 
 }

@@ -17,6 +17,9 @@
 
 #include "WebsocketSession.h"
 #include "Trace.h"
+#include "CryptoUtils.h"
+#include "DateTimeUtils.h"
+#include "WebsocketServerUtils.h"
 
 #include <iostream>
 
@@ -89,16 +92,29 @@ namespace iqrf {
     );
   }
 
-  void WebsocketSession::setOnOpen(std::function<void(std::size_t, boost::beast::error_code)> onOpen) {
-    this->onOpen = onOpen;
-  }
-
-  void WebsocketSession::setOnClose(std::function<void(std::size_t, boost::beast::error_code)> onClose) {
-    this->onClose = onClose;
-  }
-
-  void WebsocketSession::setOnMessage(std::function<void(const std::size_t, const std::string&)> onMessage) {
-    this->onMessage = onMessage;
+  void WebsocketSession::close_auth_failed() {
+    boost::asio::post(
+      m_stream.get_executor(),
+      [self = shared_from_this()]() {
+        self->m_stream.async_close(
+          boost::beast::websocket::close_code::policy_error,
+          [self](boost::beast::error_code ec) {
+            if (ec) {
+              TRC_WARNING(
+                SESSION_LOG(self->m_id, self->m_address, self->m_port)
+                  << "Failed to close WebSocket session with auth failed: "
+                  << BEAST_ERR_LOG(ec)
+              );
+            } else {
+              TRC_INFORMATION(
+                SESSION_LOG(self->m_id, self->m_address, self->m_port)
+                  << "WebSocket session closed due to auth failure."
+              );
+            }
+          }
+        );
+      }
+    );
   }
 
   void WebsocketSession::write() {
@@ -215,14 +231,83 @@ namespace iqrf {
       return;
     }
 
-    if (this->onMessage) {
-      std::string message = boost::beast::buffers_to_string(m_buffer.data());
-      this->onMessage(m_id, message);
+    auto now = DateTimeUtils::get_current_timestamp();
+    std::string message = boost::beast::buffers_to_string(m_buffer.data());
+
+    if (!m_authenticated && this->onAuth) {
+      auto ec = this->auth(message);
+      if (ec) {
+        this->send(create_error_message(ec.message()));
+        this->close_auth_failed();
+        if (this->onClose) {
+          this->onClose(m_id, ec);
+        }
+        return;
+      }
+    } else {
+      if (m_expiration < now) {
+        auto ec = make_error_code(auth_error::expired_token);
+        m_authenticated = false;
+        m_expiration = -1;
+        this->send(create_error_message(ec.message()));
+        this->close_auth_failed();
+        if (this->onClose) {
+          this->onClose(m_id, ec);
+        }
+        return;
+      } else {
+        if (this->onMessage) {
+          this->onMessage(m_id, message);
+        }
+      }
     }
 
     m_buffer.consume(m_buffer.size());
     this->read();
   }
 
-}
+  boost::beast::error_code WebsocketSession::auth(const std::string& message) {
+    nlohmann::json doc;
+    try {
+      doc = nlohmann::json::parse(message);
+    } catch (const std::exception &e) {
+      TRC_WARNING("Invalid JSON messsage received.")
+      return make_error_code(auth_error::auth_failed);
+    }
+    auto valid = doc.is_object() && doc.size() == 1 && doc.count("auth") && doc["auth"].is_string();
+    if (!valid) {
+      return make_error_code(auth_error::no_auth);
+    }
 
+    auto token = doc["auth"].get<std::string>();
+    uint32_t id;
+    std::string key;
+    try {
+      CryptoUtils::parse_token(token, id, key);
+    } catch (const std::exception &e) {
+      TRC_WARNING(
+        SESSION_LOG(m_id, m_address, m_port)
+        << "Failed to parse API token: "
+        << e.what()
+      );
+      return make_error_code(auth_error::invalid_token);
+    }
+    int64_t expiration = 0;
+    auto ec = this->onAuth(m_id, id, key, expiration);
+    if (ec) {
+      TRC_WARNING(
+        SESSION_LOG(m_id, m_address, m_port)
+        << "Session authentication failed"
+      );
+    } else {
+      TRC_INFORMATION(
+        SESSION_LOG(m_id, m_address, m_port)
+        << "Session successfully authenticated."
+      );
+      m_authenticated = true;
+      m_expiration = expiration;
+    }
+    return ec;
+  }
+
+}

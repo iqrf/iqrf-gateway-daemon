@@ -89,18 +89,6 @@ namespace iqrf {
     );
   }
 
-  void WebsocketSessionTls::setOnOpen(std::function<void(std::size_t, boost::beast::error_code)> onOpen) {
-    this->onOpen = onOpen;
-  }
-
-  void WebsocketSessionTls::setOnClose(std::function<void(std::size_t, boost::beast::error_code)> onClose) {
-    this->onClose = onClose;
-  }
-
-  void WebsocketSessionTls::setOnMessage(std::function<void(const std::size_t, const std::string&)> onMessage) {
-    this->onMessage = onMessage;
-  }
-
   void WebsocketSessionTls::write() {
     m_writing = true;
     m_stream.async_write(
