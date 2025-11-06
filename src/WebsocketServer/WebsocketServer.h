@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "WebsocketCallbackTypes.h"
 #include "WebsocketServerParams.h"
 #include "ILaunchService.h"
 #include "ShapeProperties.h"
@@ -35,23 +36,12 @@ namespace iqrf {
     /**
      * Constructor with onMessage callback
      */
-    WebsocketServer(const WebsocketServerParams& params, WsServerOnMessage onMessage);
+    WebsocketServer(const WebsocketServerParams& params, WsServerOnMessage onMessage, WsServerOnAuth onAuth);
 
     /**
      * Destructor
      */
     virtual ~WebsocketServer();
-
-    /**
-     * Register message handler
-     * @param handler Message handler
-     */
-    void registerMessageHandler(WsServerOnMessage handler);
-
-    /**
-     * Unregister message handler
-     */
-    void unregisterMessageHandler();
 
     /**
      * Start server listening loop

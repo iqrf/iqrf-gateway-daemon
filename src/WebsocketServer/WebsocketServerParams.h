@@ -7,8 +7,6 @@
 
 namespace iqrf {
 
-  typedef std::function<void(const std::size_t, const std::string&)> WsServerOnMessage;
-
   enum class TlsModes {
     MODERN = 0,
     INTERMEDIATE = 1,

@@ -22,6 +22,10 @@
 #include <vector>
 #include <algorithm>
 #include "WebsocketServer.h"
+#include "WebsocketServerUtils.h"
+
+#include "CryptoUtils.h"
+#include "DateTimeUtils.h"
 
 #include <rapidjson/pointer.h>
 
@@ -54,10 +58,13 @@ namespace iqrf {
 
       modify(props);
 
-      m_server = std::make_unique<WebsocketServer>(m_params);
-      m_server->registerMessageHandler(
+      m_server = std::make_unique<WebsocketServer>(
+        m_params,
         [&](const std::size_t sessionId, const std::string& msg) -> int {
           return handleMessageFromWebsocket(sessionId, msg);
+        },
+        [&](const std::size_t sessionId, const uint32_t id, const std::string& key, int64_t& expiration) {
+          return handleWebsocketSessionAuth(sessionId, id, key, expiration);
         }
       );
       m_server->start();
@@ -99,8 +106,6 @@ namespace iqrf {
         "WebsocketMessaging instance deactivate" << std::endl <<
         "******************************"
       );
-
-      m_server->unregisterMessageHandler();
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -152,6 +157,16 @@ namespace iqrf {
       }
     }
 
+    void attachInterface(IIqrfDb *iface) {
+      m_dbService = iface;
+    }
+
+    void detachInterface(IIqrfDb *iface) {
+      if (m_dbService == iface) {
+        m_dbService = nullptr;
+      }
+    }
+
   private:
     std::string getCertPath(const std::string& path) {
       if (path.size() == 0 || path.at(0) == '/') {
@@ -178,8 +193,36 @@ namespace iqrf {
       return 0;
     }
 
+    boost::system::error_code handleWebsocketSessionAuth(const std::size_t sessionId, const uint32_t id, const std::string& secret, int64_t& expiration) {
+      auto token = m_dbService->getApiToken(id);
+      if (!token) {
+        return make_error_code(auth_error::invalid_token);
+      }
+
+      auto salt = CryptoUtils::base64_decode_data(token->getSalt());
+      auto hash = CryptoUtils::base64_decode_data(token->getHash());
+      auto key = CryptoUtils::base64_decode_data(secret);
+
+      auto candidate = CryptoUtils::sha256_hash_data(salt, key);
+      if (hash != candidate) {
+        return make_error_code(auth_error::invalid_token);
+      }
+
+      if (token->isRevoked()) {
+        return make_error_code(auth_error::revoked_token);
+      }
+      if (token->getExpiresAt() < DateTimeUtils::get_current_timestamp()) {
+        return make_error_code(auth_error::expired_token);
+      }
+
+      expiration = token->getExpiresAt();
+      return make_error_code(auth_error::success);
+    }
+
     /// Launcher service
     shape::ILaunchService *m_launchService = nullptr;
+    /// Database service interface
+    IIqrfDb *m_dbService = nullptr;
     /// Websocket server parameters
     WebsocketServerParams m_params;
     /// Websocket server
@@ -245,6 +288,14 @@ namespace iqrf {
   }
 
   void WebsocketMessaging::detachInterface(shape::ILaunchService *iface) {
+    impl_->detachInterface(iface);
+  }
+
+  void WebsocketMessaging::attachInterface(IIqrfDb *iface) {
+    impl_->attachInterface(iface);
+  }
+
+  void WebsocketMessaging::detachInterface(IIqrfDb *iface) {
     impl_->detachInterface(iface);
   }
 

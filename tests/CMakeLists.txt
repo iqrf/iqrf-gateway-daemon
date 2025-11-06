@@ -5,6 +5,7 @@ enable_testing()
 include_directories(${CMAKE_SOURCE_DIR}/src/include)
 
 find_package(GTest CONFIG REQUIRED COMPONENTS GTest GMock)
+find_package(OpenSSL REQUIRED)
 
 file(GLOB TEST_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
@@ -14,6 +15,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   GTest::gmock
   GTest::gtest_main
   GTest::gmock_main
+  nlohmann_json::nlohmann_json
+  OpenSSL::SSL
+  OpenSSL::Crypto
 )
 
 include(GoogleTest)

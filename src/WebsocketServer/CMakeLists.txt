@@ -28,8 +28,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(${PROJECT_NAME} PUBLIC
   ${Boost_LIBRARIES}
   OpenSSL::SSL
   OpenSSL::Crypto
+  nlohmann_json::nlohmann_json
+  ValiJSON::valijson
 )

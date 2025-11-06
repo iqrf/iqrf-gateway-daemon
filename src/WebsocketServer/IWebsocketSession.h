@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <functional>
 #include <string>
+#include "WebsocketCallbackTypes.h"
 
 namespace iqrf {
 
@@ -60,17 +61,28 @@ namespace iqrf {
     /**
      * @brief Sets onOpen callback
      */
-    virtual void setOnOpen(std::function<void(std::size_t)>) = 0;
+    virtual void setOnOpen(WsServerOnOpen) = 0;
 
     /**
      * @brief Sets onClose callback
      */
-    virtual void setOnClose(std::function<void(std::size_t)>) = 0;
+    virtual void setOnClose(WsServerOnClose) = 0;
 
     /**
      * @brief Sets onMessage callback
      */
-    virtual void setOnMessage(std::function<void(const std::size_t, const std::string&)>) = 0;
+    virtual void setOnMessage(WsServerOnMessage) = 0;
+
+    /**
+     * @brief Sets onAuth callback
+     */
+    virtual void setOnAuth(WsServerOnAuth) = 0;
+
+    /**
+     * Checks if session is authenticated
+     * @return `bool` true if session is authenticated, false otherwise
+     */
+    virtual bool isAuthenticated() = 0;
 
   };
 }
