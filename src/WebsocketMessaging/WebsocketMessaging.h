@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "IIqrfDb.h"
 #include "IMessagingService.h"
 #include "ILaunchService.h"
 #include "ITraceService.h"
@@ -91,6 +92,18 @@ namespace iqrf {
      * @param iface Launcher service interface
      */
     void detachInterface(shape::ILaunchService *iface);
+
+    /**
+     * Attaches DB service interface
+     * @param iface DB service interface
+     */
+    void attachInterface(IIqrfDb *iface);
+
+    /**
+     * Detaches DB service interface
+     * @param iface DB service interface
+     */
+    void detachInterface(IIqrfDb *iface);
 
     /**
      * Attaches tracing service interface

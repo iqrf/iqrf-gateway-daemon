@@ -16,12 +16,15 @@
  */
 #pragma once
 
+#include "IWebsocketSession.h"
+
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/beast/websocket/ssl.hpp>
 #include <boost/asio/dispatch.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/strand.hpp>
+#include <nlohmann/json.hpp>
 
 #include <cstdint>
 #include <deque>
@@ -30,6 +33,9 @@
 #include <string>
 
 #include "IWebsocketSession.h"
+#include "CryptoUtils.h"
+#include "DateTimeUtils.h"
+#include "WebsocketServerUtils.h"
 #include "Trace.h"
 
 #define SESSION_LOG(session, addr, port) "[" << session << "|" << addr << ":" << port << "] "
@@ -117,16 +123,24 @@ namespace iqrf {
       );
     }
 
-    void setOnOpen(std::function<void(std::size_t)> onOpen) override {
+    void setOnOpen(WsServerOnOpen onOpen) override {
       this->onOpen = onOpen;
     }
 
-    void setOnClose(std::function<void(std::size_t)> onClose) override {
+    void setOnClose(WsServerOnClose onClose) override {
       this->onClose = onClose;
     }
 
-    void setOnMessage(std::function<void(const std::size_t, const std::string&)> onMessage) override {
+    void setOnMessage(WsServerOnMessage onMessage) override {
       this->onMessage = onMessage;
+    };
+
+    void setOnAuth(WsServerOnAuth onAuth) override {
+      this->onAuth = onAuth;
+    };
+
+    bool isAuthenticated() override {
+      return m_authenticated;
     }
 
   private:
@@ -232,13 +246,83 @@ namespace iqrf {
         return;
       }
 
-      if (this->onMessage) {
-        std::string message = boost::beast::buffers_to_string(m_buffer.data());
-        this->onMessage(m_id, message);
+      auto now = DateTimeUtils::get_current_timestamp();
+      std::string message = boost::beast::buffers_to_string(m_buffer.data());
+
+      if (!m_authenticated && this->onAuth) {
+        auto ec = this->auth(message);
+        if (ec) {
+          this->send(create_error_message(ec.message()));
+          this->close_auth_failed();
+          if (this->onClose) {
+            this->onClose(m_id, ec);
+          }
+          return;
+        }
+      } else {
+        if (m_expiration < now) {
+          auto ec = make_error_code(auth_error::expired_token);
+          m_authenticated = false;
+          m_expiration = -1;
+          this->send(create_error_message(ec.message()));
+          this->close_auth_failed();
+          if (this->onClose) {
+            this->onClose(m_id, ec);
+          }
+          return;
+        } else {
+          if (this->onMessage) {
+            this->onMessage(m_id, message);
+          }
+        }
       }
 
       m_buffer.consume(m_buffer.size());
       this->read();
+    }
+
+    boost::beast::error_code WebsocketSession::auth(const std::string& message) {
+      nlohmann::json doc;
+      try {
+        doc = nlohmann::json::parse(message);
+      } catch (const std::exception &e) {
+        TRC_WARNING("Invalid JSON messsage received.")
+        return make_error_code(auth_error::auth_failed);
+      }
+      auto valid = doc.is_object() && doc.size() == 1 && doc.count("auth") && doc["auth"].is_string();
+      if (!valid) {
+        return make_error_code(auth_error::no_auth);
+      }
+
+      auto token = doc["auth"].get<std::string>();
+      uint32_t id;
+      std::string key;
+      try {
+        CryptoUtils::parse_token(token, id, key);
+      } catch (const std::exception &e) {
+        TRC_WARNING(
+          SESSION_LOG(m_id, m_address, m_port)
+          << "Failed to parse API token: "
+          << e.what()
+        );
+        return make_error_code(auth_error::invalid_token);
+      }
+      int64_t expiration = 0;
+      auto ec = this->onAuth(m_id, id, key, expiration);
+      if (ec) {
+        TRC_WARNING(
+          SESSION_LOG(m_id, m_address, m_port)
+          << "Session authentication failed"
+        );
+      } else {
+        TRC_INFORMATION(
+          SESSION_LOG(m_id, m_address, m_port)
+          << "Session successfully authenticated."
+        );
+        m_authenticated = true;
+        m_expiration = expiration;
+      }
+      return ec;
     }
 
     void write() {
@@ -298,6 +382,8 @@ namespace iqrf {
       }
     }
 
+    void close_auth_failed();
+
     /// Session ID
     std::size_t m_id;
     /// IP address
@@ -315,11 +401,17 @@ namespace iqrf {
     /// Writing in progress
     bool m_writing;
     /// On open callback
-    std::function<void(std::size_t)> onOpen;
+    WsServerOnOpen onOpen;
     /// On close callback
-    std::function<void(std::size_t)> onClose;
+    WsServerOnClose onClose;
     /// On message callback
-    std::function<void(const std::size_t, const std::string&)> onMessage;
+    WsServerOnMessage onMessage;
+    /// On auth callback
+    WsServerOnAuth onAuth;
+    /// Session is authenticated
+    bool m_authenticated = false;
+    /// Token expiration
+    int64_t m_expiration = -1;
   };
 
 }
