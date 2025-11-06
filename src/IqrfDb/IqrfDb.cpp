@@ -97,6 +97,13 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
+  ///// API TOKEN API
+
+  std::unique_ptr<ApiToken> IqrfDb::getApiToken(const uint32_t id) {
+    db::repos::ApiTokenRepository apiTokenRepo(m_db);
+    return apiTokenRepo.get(id);
+  }
+
 	///// BINARY OUTPUT API
 
 	std::unique_ptr<BinaryOutput> IqrfDb::getBinaryOutput(const uint32_t id) {
