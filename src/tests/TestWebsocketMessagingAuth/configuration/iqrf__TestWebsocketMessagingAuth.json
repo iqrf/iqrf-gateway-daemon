@@ -1,0 +1,4 @@
+{
+  "component": "iqrf::TestWebsocketMessagingAuth",
+  "instance": "TestWebsocketMessagingAuth"
+}
