@@ -1,0 +1,18 @@
+{
+  "component": "shape::TraceFileService",
+  "instance": "shape::TraceFileService-daemon1",
+
+  "path": "",
+  "filename": "IqrfDaemon.txt",
+  "maxSize": 2097152,
+  "timestampFiles": false,
+  "maxAgeMinutes": 480,
+  "maxNumber": 20,
+
+  "VerbosityLevels": [
+    {
+      "channel": 0,
+      "level": "DBG"
+    }
+  ]
+}
