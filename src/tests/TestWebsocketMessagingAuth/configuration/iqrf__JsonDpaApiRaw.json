@@ -1,0 +1,5 @@
+{
+  "component": "iqrf::JsonDpaApiRaw",
+  "instance": "JsonDpaApiRaw",
+  "asyncDpaMessage": true
+}
