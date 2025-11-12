@@ -1,0 +1,11 @@
+{
+  "component": "iqrf::WebsocketMessaging",
+  "instance": "WebsocketMessaging",
+  "acceptAsyncMsg": true,
+  "port": 1338,
+  "acceptOnlyLocalhost": false,
+  "tlsEnabled": false,
+  "tlsMode": 1,
+  "cert": "",
+  "privKey": ""
+}

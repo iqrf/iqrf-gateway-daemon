@@ -1,8 +1,8 @@
 #include "cli_utils.h"
 #include "commands.h"
-#include "db_utils.h"
 
 #include "CryptoUtils.h"
+#include "DatabaseUtils.h"
 #include "DateTimeUtils.h"
 
 #include <api_token_repo.hpp>
