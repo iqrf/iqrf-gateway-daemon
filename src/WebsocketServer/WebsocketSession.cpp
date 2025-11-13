@@ -24,28 +24,39 @@
 
 namespace iqrf {
 
-  WebsocketSession::WebsocketSession(std::size_t id, boost::asio::ip::tcp::socket&& socket): m_id(id), m_stream(std::move(socket)) {
-    auto endpoint = m_stream.next_layer().socket().remote_endpoint();
-    m_address = endpoint.address().to_string();
-    m_port = endpoint.port();
+  template <typename StreamType>
+  WebsocketSession<StreamType>::WebsocketSession(std::size_t id, StreamType&& stream, bool useTls): m_id(id), m_stream(std::move(stream)), m_tls(useTls) {
+    if constexpr (std::is_same_v<StreamType, WsStreamTls>) {
+      auto endpoint = m_stream.next_layer().lowest_layer().remote_endpoint();
+      m_address = endpoint.address().to_string();
+      m_port = endpoint.port();
+    } else {
+      auto endpoint = m_stream.next_layer().socket().remote_endpoint();
+      m_address = endpoint.address().to_string();
+      m_port = endpoint.port();
+    }
   }
 
-  std::size_t WebsocketSession::getId() const {
+  template <typename StreamType>
+  std::size_t WebsocketSession<StreamType>::getId() const {
     return m_id;
   }
 
-  const std::string& WebsocketSession::getAddress() const {
+  template <typename StreamType>
+  const std::string& WebsocketSession<StreamType>::getAddress() const {
     return m_address;
   }
 
-  uint16_t WebsocketSession::getPort() const {
+  template <typename StreamType>
+  uint16_t WebsocketSession<StreamType>::getPort() const {
     return m_port;
   }
 
-  void WebsocketSession::send(const std::string& message) {
+  template <typename StreamType>
+  void WebsocketSession<StreamType>::send(const std::string& message) {
     boost::asio::post(
       m_stream.get_executor(),
-      [self = shared_from_this(), message]() mutable {
+      [self = this->shared_from_this(), message]() mutable {
         self->m_writeQueue.push_back(std::move(message));
         if (!self->m_writing) {
           self->write();
@@ -54,20 +65,22 @@ namespace iqrf {
     );
   }
 
-  void WebsocketSession::run() {
+  template <typename StreamType>
+  void WebsocketSession<StreamType>::run() {
     boost::asio::dispatch(
       m_stream.get_executor(),
       boost::beast::bind_front_handler(
         &WebsocketSession::on_run,
-        shared_from_this()
+        this->shared_from_this()
       )
     );
   }
 
-  void WebsocketSession::close() {
+  template <typename StreamType>
+  void WebsocketSession<StreamType>::close() {
     boost::asio::post(
       m_stream.get_executor(),
-      [self = shared_from_this()]() {
+      [self = this->shared_from_this()]() {
         self->m_stream.async_close(
           boost::beast::websocket::close_code::normal,
           [self](boost::beast::error_code ec) {
@@ -83,42 +96,51 @@ namespace iqrf {
                   << "WebSocket session closed gracefully."
               );
             }
+            self->shutdown_transport();
           }
         );
       }
     );
   }
 
-  void WebsocketSession::setOnOpen(std::function<void(std::size_t, boost::beast::error_code)> onOpen) {
+  template <typename StreamType>
+  void WebsocketSession<StreamType>::setOnOpen(std::function<void(std::size_t)> onOpen) {
     this->onOpen = onOpen;
   }
 
-  void WebsocketSession::setOnClose(std::function<void(std::size_t, boost::beast::error_code)> onClose) {
+  template <typename StreamType>
+  void WebsocketSession<StreamType>::setOnClose(std::function<void(std::size_t)> onClose) {
     this->onClose = onClose;
   }
 
-  void WebsocketSession::setOnMessage(std::function<void(const std::size_t, const std::string&)> onMessage) {
+  template <typename StreamType>
+  void WebsocketSession<StreamType>::setOnMessage(std::function<void(const std::size_t, const std::string&)> onMessage) {
     this->onMessage = onMessage;
   }
 
-  void WebsocketSession::write() {
+  template <typename StreamType>
+  void WebsocketSession<StreamType>::write() {
     m_writing = true;
     m_stream.async_write(
       boost::asio::buffer(m_writeQueue.front()),
       boost::beast::bind_front_handler(
         &WebsocketSession::on_write,
-        shared_from_this()
+        this->shared_from_this()
       )
     );
   }
 
-  void WebsocketSession::on_write(boost::beast::error_code ec, std::size_t bytesWritten) {
+  template <typename StreamType>
+  void WebsocketSession<StreamType>::on_write(boost::beast::error_code ec, std::size_t /*bytesWritten*/) {
     if (ec) {
       TRC_WARNING(
         SESSION_LOG(m_id, m_address, m_port)
         << "Failed to write message to stream: "
         << BEAST_ERR_LOG(ec)
       );
+      m_writeQueue.clear();
+      m_writing = false;
+      this->close();
     } else {
       m_writeQueue.pop_front();
       if (!m_writeQueue.empty()) {
@@ -129,12 +151,39 @@ namespace iqrf {
     }
   }
 
-  void WebsocketSession::on_run() {
+  template <typename StreamType>
+  void WebsocketSession<StreamType>::on_run() {
     boost::beast::get_lowest_layer(m_stream).expires_after(std::chrono::seconds(30));
+
+    if constexpr (std::is_same_v<StreamType, WsStreamTls>) {
+      m_stream.next_layer().async_handshake(
+        boost::asio::ssl::stream_base::server,
+        boost::beast::bind_front_handler(
+          &WebsocketSession::on_handshake,
+          this->shared_from_this()
+        )
+      );
+    } else {
+      this->accept();
+    }
+  }
+
+  template <typename StreamType>
+  void WebsocketSession<StreamType>::on_handshake(boost::beast::error_code ec) {
+    if (ec) {
+      TRC_WARNING(
+        SESSION_LOG(m_id, m_address, m_port)
+        << "Failed to complete handshake: "
+        << BEAST_ERR_LOG(ec)
+      );
+      this->close();
+      return;
+    }
     this->accept();
   }
 
-  void WebsocketSession::accept() {
+  template <typename StreamType>
+  void WebsocketSession<StreamType>::accept() {
     boost::beast::get_lowest_layer(m_stream).expires_never();
 
     m_stream.set_option(
@@ -155,51 +204,50 @@ namespace iqrf {
     m_stream.async_accept(
       boost::beast::bind_front_handler(
         &WebsocketSession::on_accept,
-        shared_from_this()
+        this->shared_from_this()
       )
     );
   }
 
-  void WebsocketSession::on_accept(boost::beast::error_code ec) {
+  template <typename StreamType>
+  void WebsocketSession<StreamType>::on_accept(boost::beast::error_code ec) {
     if (ec) {
       TRC_WARNING(
         SESSION_LOG(m_id, m_address, m_port)
         << "Failed to accept client connection: "
         << BEAST_ERR_LOG(ec)
       );
+      this->close();
     } else {
       if (this->onOpen) {
-        this->onOpen(m_id, ec);
+        this->onOpen(m_id);
       }
       this->read();
     }
   }
 
-  void WebsocketSession::read() {
+  template <typename StreamType>
+  void WebsocketSession<StreamType>::read() {
     m_stream.async_read(
       m_buffer,
       boost::beast::bind_front_handler(
         &WebsocketSession::on_read,
-        shared_from_this()
+        this->shared_from_this()
       )
     );
   }
 
-  void WebsocketSession::on_read(boost::beast::error_code ec, std::size_t bytesRead) {
+  template <typename StreamType>
+  void WebsocketSession<StreamType>::on_read(boost::beast::error_code ec, std::size_t bytesRead) {
     boost::ignore_unused(bytesRead);
 
-    if (ec == boost::beast::websocket::error::closed ||
-        ec == boost::asio::error::eof ||
-        ec.category() == boost::asio::ssl::error::stream_category
-    ) {
+    if (ec == boost::beast::websocket::error::closed) {
       TRC_INFORMATION(
         SESSION_LOG(m_id, m_address, m_port)
         << "Connection closed: "
         << BEAST_ERR_LOG(ec)
       );
-      if (this->onClose) {
-        this->onClose(m_id, ec);
-      }
+      this->notify_server_close();
       return;
     }
 
@@ -209,9 +257,7 @@ namespace iqrf {
         << "Failed to read incoming message from stream: "
         << BEAST_ERR_LOG(ec)
       );
-      if (this->onClose) {
-        this->onClose(m_id, ec);
-      }
+      this->close();
       return;
     }
 
@@ -223,6 +269,37 @@ namespace iqrf {
     m_buffer.consume(m_buffer.size());
     this->read();
   }
+
+  template <typename StreamType>
+  void WebsocketSession<StreamType>::shutdown_transport() {
+    if constexpr (std::is_same_v<StreamType, WsStreamTls>) {
+      m_stream.next_layer().async_shutdown(
+        [self = this->shared_from_this()](boost::system::error_code tls_ec) {
+          boost::beast::error_code ec;
+          self->m_stream.next_layer().lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+          self->m_stream.next_layer().lowest_layer().close(ec);
+          self->notify_server_close();
+        }
+      );
+    } else {
+      boost::beast::error_code ec;
+      m_stream.next_layer().socket().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+      m_stream.next_layer().socket().close(ec);
+      notify_server_close();
+    }
+  }
+
+  template <typename StreamType>
+  void WebsocketSession<StreamType>::notify_server_close() {
+    if (this->onClose) {
+      this->onClose(m_id);
+    }
+  }
+
+  // Plain stream instantiation
+  template class WebsocketSession<WsStreamPlain>;
+  // TLS stream instantiation
+  template class WebsocketSession<WsStreamTls>;
 
 }
 

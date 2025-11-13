@@ -18,7 +18,6 @@
 #include "Trace.h"
 #include "WebsocketServer.h"
 #include "WebsocketSession.h"
-#include "WebsocketSessionTls.h"
 
 #include <atomic>
 #include <cstdint>
@@ -255,9 +254,11 @@ namespace iqrf {
       } else {
         std::shared_ptr<IWebsocketSession> session = nullptr;
         if (m_params.tls) {
-          session = std::make_shared<WebsocketSessionTls>(m_sessionCounter++, std::move(socket), *m_ctx);
+          auto stream = WsStreamTls(std::move(socket), *m_ctx);
+          session = std::make_shared<WebsocketSession<WsStreamTls>>(m_sessionCounter++, std::move(stream), m_params.tls);
         } else {
-          session = std::make_shared<WebsocketSession>(m_sessionCounter++, std::move(socket));
+          auto stream = WsStreamPlain(std::move(socket));
+          session = std::make_shared<WebsocketSession<WsStreamPlain>>(m_sessionCounter++, std::move(stream), m_params.tls);
         }
         TRC_INFORMATION(
           SERVER_LOG(m_params.instance, m_params.port)
@@ -265,15 +266,13 @@ namespace iqrf {
           << ", session ID " << session->getId()
         );
         session->setOnOpen(
-          [this, session](std::size_t sessionId, boost::beast::error_code ec) {
+          [this, session](std::size_t sessionId) {
             (void) sessionId;
-            boost::ignore_unused(ec);
             registerSession(session);
           }
         );
         session->setOnClose(
-          [this](std::size_t sessionId, boost::beast::error_code ec) {
-            boost::ignore_unused(ec);
+          [this](std::size_t sessionId) {
             unregisterSession(sessionId);
           }
         );

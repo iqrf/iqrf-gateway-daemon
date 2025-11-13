@@ -23,7 +23,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 add_library(${PROJECT_NAME} OBJECT
   WebsocketServer.cpp
   WebsocketSession.cpp
-  WebsocketSessionTls.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
