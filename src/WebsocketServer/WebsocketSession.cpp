@@ -234,33 +234,44 @@ namespace iqrf {
     auto now = DateTimeUtils::get_current_timestamp();
     std::string message = boost::beast::buffers_to_string(m_buffer.data());
 
-    if (!m_authenticated && this->onAuth) {
-      auto ec = this->auth(message);
-      if (ec) {
-        this->send(create_error_message(ec.message()));
-        this->close_auth_failed();
-        if (this->onClose) {
-          this->onClose(m_id, ec);
+    bool acceptMessage = false;
+
+    if (this->onAuth) {
+      // auth possible
+      if (!m_authenticated) {
+        // not authenticated, check for auth
+        auto ec = this->auth(message);
+        if (ec) {
+          // not auth message or auth failed, close
+          this->send(create_error_message(ec.message()));
+          this->close_auth_failed();
+          if (this->onClose) {
+            this->onClose(m_id, ec);
+          }
+          return;
         }
-        return;
+      } else {
+        // authenticated
+        if (m_expiration < now) {
+          // token expired, message dropped
+          auto ec = make_error_code(auth_error::expired_token);
+          m_authenticated = false;
+          m_expiration = -1;
+          this->send(create_error_message(ec.message()));
+        } else {
+          // not expired, message accepted
+          acceptMessage = true;
+        }
       }
     } else {
-      if (m_expiration < now) {
-        auto ec = make_error_code(auth_error::expired_token);
-        m_authenticated = false;
-        m_expiration = -1;
-        this->send(create_error_message(ec.message()));
-        this->close_auth_failed();
-        if (this->onClose) {
-          this->onClose(m_id, ec);
-        }
-        return;
-      } else {
-        if (this->onMessage) {
-          this->onMessage(m_id, message);
-        }
-      }
+      acceptMessage = true;
     }
+
+    if (acceptMessage && this->onMessage) {
+      this->onMessage(m_id, message);
+    }
+
+    //iqrfgd2;1;cPHqH+rtByPFhJCZ5nJ1uAx0FoSQfZA5ArSEpjHdPg4=
 
     m_buffer.consume(m_buffer.size());
     this->read();
