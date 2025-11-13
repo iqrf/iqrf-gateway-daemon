@@ -553,10 +553,8 @@ namespace iqrf {
     json doc({
       {"auth", valid_token_string}
     });
-
     ws.write(net::buffer(doc.dump()), ec);
     ASSERT_FALSE(ec);
-
     // attempt to communicate after websocket auth successful
     std::string test_request = R"({
       "mType": "iqrfRaw",
