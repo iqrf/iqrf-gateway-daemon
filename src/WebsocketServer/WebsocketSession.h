@@ -33,11 +33,13 @@
 #define BEAST_ERR_LOG(ec) ec.message() << "(" << ec.category().name() << "|" << ec.value() << ")"
 
 namespace iqrf {
-  class WebsocketSession : public IWebsocketSession, public std::enable_shared_from_this<WebsocketSession> {
+
+  template <typename StreamType>
+  class WebsocketSession : public IWebsocketSession, public std::enable_shared_from_this<WebsocketSession<StreamType>> {
   public:
     WebsocketSession() = delete;
 
-    WebsocketSession(std::size_t id, boost::asio::ip::tcp::socket&& socket);
+    WebsocketSession(std::size_t id, StreamType&& stream, bool useTls);
 
     virtual ~WebsocketSession() = default;
 
@@ -53,14 +55,16 @@ namespace iqrf {
 
     void close() override;
 
-    void setOnOpen(std::function<void(std::size_t, boost::beast::error_code)> onOpen) override;
+    void setOnOpen(std::function<void(std::size_t)> onOpen) override;
 
-    void setOnClose(std::function<void(std::size_t, boost::beast::error_code)> onClose) override;
+    void setOnClose(std::function<void(std::size_t)> onClose) override;
 
     void setOnMessage(std::function<void(const std::size_t, const std::string&)> onMessage) override;
 
   private:
     void on_run();
+
+    void on_handshake(boost::beast::error_code ec);
 
     void accept();
 
@@ -74,6 +78,10 @@ namespace iqrf {
 
     void on_write(boost::beast::error_code ec, std::size_t bytesWritten);
 
+    void shutdown_transport();
+
+    void notify_server_close();
+
     /// Session ID
     std::size_t m_id;
     /// IP address
@@ -81,7 +89,9 @@ namespace iqrf {
     /// Port number
     uint16_t m_port;
     /// Socket/stream
-    boost::beast::websocket::stream<boost::beast::tcp_stream> m_stream;
+    StreamType m_stream;
+    /// TLS connection
+    bool m_tls;
     /// Receive buffer
     boost::beast::flat_buffer m_buffer;
     /// Writing queue
@@ -89,9 +99,9 @@ namespace iqrf {
     /// Writing in progress
     bool m_writing;
     /// On open callback
-    std::function<void(std::size_t, boost::beast::error_code)> onOpen;
+    std::function<void(std::size_t)> onOpen;
     /// On close callback
-    std::function<void(std::size_t, boost::beast::error_code)> onClose;
+    std::function<void(std::size_t)> onClose;
     /// On message callback
     std::function<void(const std::size_t, const std::string&)> onMessage;
   };
