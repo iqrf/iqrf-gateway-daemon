@@ -9,29 +9,67 @@
 
 namespace iqrf {
 
+  /// @brief TLS stream type
   using WsStreamTls = boost::beast::websocket::stream<boost::asio::ssl::stream<boost::beast::tcp_stream>>;
+  /// @brief Plain stream type
   using WsStreamPlain = boost::beast::websocket::stream<boost::beast::tcp_stream>;
 
+  /**
+   * @interface IWebsocketSession
+   * @brief Interface for WebSocket sessions
+   */
   class IWebsocketSession {
   public:
     virtual ~IWebsocketSession() {};
 
+    /**
+     * @brief Get session ID
+     * @return `std::size_t` Session ID
+     */
     virtual std::size_t getId() const = 0;
 
+    /**
+     * @brief Get server host
+     * @return `std::string&` Server host
+     */
     virtual const std::string& getAddress() const = 0;
 
+    /**
+     * @brief Get server port
+     * @return `uint16_t` Server port
+     */
     virtual uint16_t getPort() const = 0;
 
+    /**
+     * @brief Send message to client(s)
+     *
+     * @param message Message to send
+     */
     virtual void send(const std::string& message) = 0;
 
+    /**
+     * @brief Starts the session
+     */
     virtual void run() = 0;
 
+    /**
+     * @brief Closes the session
+     */
     virtual void close() = 0;
 
+    /**
+     * @brief Sets onOpen callback
+     */
     virtual void setOnOpen(std::function<void(std::size_t)>) = 0;
 
+    /**
+     * @brief Sets onClose callback
+     */
     virtual void setOnClose(std::function<void(std::size_t)>) = 0;
 
+    /**
+     * @brief Sets onMessage callback
+     */
     virtual void setOnMessage(std::function<void(const std::size_t, const std::string&)>) = 0;
 
   };
