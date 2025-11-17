@@ -370,7 +370,7 @@ namespace iqrf {
     void clearSessions() {
       std::lock_guard<std::mutex> lock(m_sessionMutex);
       for (auto [_, session] : m_sessionRegistry) {
-        session->close();
+        session->close(boost::beast::websocket::close_code::normal);
       }
       m_sessionRegistry.clear();
     }

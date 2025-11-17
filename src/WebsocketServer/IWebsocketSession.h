@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/asio/ssl.hpp>
+#include <boost/beast/core.hpp>
 #include "boost/beast/core/error.hpp"
 #include "boost/beast/websocket/stream.hpp"
 
@@ -56,7 +58,7 @@ namespace iqrf {
     /**
      * @brief Closes the session
      */
-    virtual void close() = 0;
+    virtual void close(boost::beast::websocket::close_code cc) = 0;
 
     /**
      * @brief Sets onOpen callback

@@ -18,11 +18,9 @@
 
 #include "IWebsocketSession.h"
 
-#include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/beast/websocket/ssl.hpp>
 #include <boost/asio/dispatch.hpp>
-#include <boost/asio/ssl.hpp>
 #include <boost/asio/strand.hpp>
 #include <nlohmann/json.hpp>
 
@@ -79,6 +77,25 @@ namespace iqrf {
       boost::asio::post(
         m_stream.get_executor(),
         [self = this->shared_from_this(), message]() mutable {
+          if (!self->m_authenticated) {
+            return;
+          }
+
+          auto now = DateTimeUtils::get_current_timestamp();
+          if (now >= self->m_expiration) {
+            self->m_authenticated = false;
+            self->m_expiration = -1;
+            self->m_writeQueue.clear();
+            self->m_writing = false;
+            self->m_writeQueue.push_back(
+              create_error_message(
+                make_error_code(auth_error::expired_token).message()
+              )
+            );
+            self->write();
+            return;
+          }
+
           self->m_writeQueue.push_back(std::move(message));
           if (!self->m_writing) {
             self->write();
@@ -97,12 +114,12 @@ namespace iqrf {
       );
     }
 
-    void close() override {
+    void close(boost::beast::websocket::close_code cc) override {
       boost::asio::post(
         m_stream.get_executor(),
-        [self = this->shared_from_this()]() {
+        [self = this->shared_from_this(), cc]() {
           self->m_stream.async_close(
-            boost::beast::websocket::close_code::normal,
+            cc,
             [self](boost::beast::error_code ec) {
               if (ec) {
                 TRC_WARNING(
@@ -167,7 +184,7 @@ namespace iqrf {
           << "Failed to complete handshake: "
           << BEAST_ERR_LOG(ec)
         );
-        this->close();
+        this->close(boost::beast::websocket::close_code::protocol_error);
         return;
       }
       this->accept();
@@ -204,7 +221,7 @@ namespace iqrf {
           << "Failed to accept client connection: "
           << BEAST_ERR_LOG(ec)
         );
-        this->close();
+        this->close(boost::beast::websocket::close_code::protocol_error);
       } else {
         if (this->onOpen) {
           this->onOpen(m_id);
@@ -242,7 +259,7 @@ namespace iqrf {
           << "Failed to read incoming message from stream: "
           << BEAST_ERR_LOG(ec)
         );
-        this->close();
+        this->close(boost::beast::websocket::close_code::internal_error);
         return;
       }
 
@@ -258,8 +275,8 @@ namespace iqrf {
           auto ec = this->auth(message);
           if (ec) {
             // not auth message or auth failed, close
-            this->send(create_error_message(ec.message()));
-            this->close()
+            this->send_system(create_error_message(ec.message()));
+            this->close(boost::beast::websocket::close_code::policy_error);
             return;
           }
         } else {
@@ -269,7 +286,7 @@ namespace iqrf {
             auto ec = make_error_code(auth_error::expired_token);
             m_authenticated = false;
             m_expiration = -1;
-            this->send(create_error_message(ec.message()));
+            this->send_system(create_error_message(ec.message()));
           } else {
             // not expired, message accepted
             acceptMessage = true;
@@ -287,7 +304,7 @@ namespace iqrf {
       this->read();
     }
 
-    boost::beast::error_code WebsocketSession::auth(const std::string& message) {
+    boost::beast::error_code auth(const std::string& message) {
       nlohmann::json doc;
       try {
         doc = nlohmann::json::parse(message);
@@ -331,6 +348,22 @@ namespace iqrf {
       return ec;
     }
 
+    void send_system(const std::string& message) {
+      boost::asio::post(
+        m_stream.get_executor(),
+        [self = this->shared_from_this(), message]() mutable {
+          // clear queue of stale messages
+          self->m_writeQueue.clear();
+          self->m_writing = false;
+          // write system message
+          self->m_writeQueue.push_back(std::move(message));
+          if (!self->m_writing) {
+            self->write();
+          }
+        }
+      );
+    }
+
     void write() {
       m_writing = true;
       m_stream.async_write(
@@ -352,7 +385,7 @@ namespace iqrf {
         );
         m_writeQueue.clear();
         m_writing = false;
-        this->close();
+        this->close(boost::beast::websocket::close_code::internal_error);
       } else {
         m_writeQueue.pop_front();
         if (!m_writeQueue.empty()) {
