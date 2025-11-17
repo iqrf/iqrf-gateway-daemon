@@ -170,8 +170,7 @@ namespace iqrf {
 
 		/**
 		 * Runs enumeration
-		 * @param reenumerate Executes full enumeration regardless of the database contents
-		 * @param standards Enumerates standards
+		 * @param parameters Enumeration parameters
 		 */
 		virtual void enumerate(IIqrfDb::EnumParams &parameters) = 0;
 
@@ -190,19 +189,7 @@ namespace iqrf {
 		 */
 		virtual void reloadDrivers() = 0;
 
-		/**
-		 * Reloads coordinator drivers on demand
-		 */
-		virtual void reloadCoordinatorDrivers() = 0;
-
 		///// BINARY OUTPUT API
-
-		/**
-		 * Return binary output entity by ID
-		 * @param id Binary output ID
-		 * @return Binary output entity
-		 */
-		virtual std::unique_ptr<BinaryOutput> getBinaryOutput(const uint32_t id) = 0;
 
 		/**
 		 * Return binary output entity by device ID
@@ -210,37 +197,6 @@ namespace iqrf {
 		 * @return Binary output entity
 		 */
 		virtual std::unique_ptr<BinaryOutput> getBinaryOutputByDeviceId(const uint32_t deviceId) = 0;
-
-		/**
-		 * Insert binary output record
-		 * @param binaryOutput Binary output entity
-		 * @return Binary output ID
-		 */
-		virtual uint32_t insertBinaryOutput(BinaryOutput &binaryOutput) = 0;
-
-		/**
-		 * Update binary output record
-		 * @param binaryOutput Binary output entity
-		 */
-		virtual void updateBinaryOutput(BinaryOutput &binaryOutput) = 0;
-
-		/**
-		 * Remove binary output record by ID
-		 * @param id Binary output ID
-		 */
-		virtual void removeBinaryOutput(const uint32_t id) = 0;
-
-		/**
-		 * Remove binary output record by device ID
-		 * @param deviceId Device ID
-		 */
-		virtual void removeBinaryOutputByDeviceId(const uint32_t deviceId) = 0;
-
-		/**
-		 * Get addresses of devices implementing binary output
-		 * @return Set of device addresses
-		 */
-		virtual std::set<uint8_t> getBinaryOutputAddresses() = 0;
 
 		/**
 		 * Get map of device addresses and number of implemented binary outputs
@@ -334,13 +290,6 @@ namespace iqrf {
 		///// DEVICE SENSOR API
 
 		/**
-		 * Checks if device implements sensors
-		 * @param address Device address
-		 * @return true if device implements sensors, false otherwise
-		 */
-		virtual bool deviceHasSensors(const uint8_t address) = 0;
-
-		/**
 		 * Retrieves map of device addresses and vector of sensor index and data
 		 * @return Map of device addresses and vector of sensor index and data
 		 */
@@ -374,57 +323,7 @@ namespace iqrf {
 		 */
 		virtual std::map<uint16_t, std::set<uint8_t>> getSensorDeviceHwpidAddressMap(const uint8_t type) = 0;
 
-		/**
-		 * Stores value of sensor
-		 * @param address Device address
-		 * @param type Sensor type
-		 * @param index Sensor index
-		 * @param value Last measured value
-		 * @param updated Last updated
-		 */
-		virtual void setDeviceSensorValue(const uint8_t address, const uint8_t type, const uint8_t index, const double value,
-			std::shared_ptr<std::string> updated, bool frc) = 0;
-
 		///// LIGHT API
-
-		/**
-		 * Return light entity by ID
-		 * @param id Light ID
-		 * @return Light entity
-		 */
-		virtual std::unique_ptr<Light> getLight(const uint32_t id) = 0;
-
-		/**
-		 * Return light entity by device ID
-		 * @param deviceId Device ID
-		 * @return Light entity
-		 */
-		virtual std::unique_ptr<Light> getLightByDeviceId(const uint32_t deviceId) = 0;
-
-		/**
-		 * Insert light record
-		 * @param binaryOutput Light entity
-		 * @return Light ID
-		 */
-		virtual uint32_t insertLight(Light &light) = 0;
-
-		/**
-		 * Update light record
-		 * @param binaryOutput Light entity
-		 */
-		virtual void updateLight(Light &light) = 0;
-
-		/**
-		 * Remove light record by ID
-		 * @param id Light ID
-		 */
-		virtual void removeLight(const uint32_t id) = 0;
-
-		/**
-		 * Remove light record by device ID
-		 * @param deviceId Device ID
-		 */
-		virtual void removeLightByDeviceId(const uint32_t deviceId) = 0;
 
 		/**
 		 * Get addresses of devices implementing light
@@ -434,6 +333,11 @@ namespace iqrf {
 
 		///// PRODUCT API
 
+    /**
+     * Returns product entity by ID
+     * @param productId Product ID
+     * @return Product
+     */
 		virtual std::unique_ptr<Product> getProduct(const uint32_t productId) = 0;
 
 		///// SENSOR API
@@ -454,13 +358,6 @@ namespace iqrf {
 		 * @return Map of device sensor indexes and sensor entities
 		 */
 		virtual std::map<uint8_t, Sensor> getDeviceSensorsMapByAddress(const uint8_t address) = 0;
-
-		/**
-		 * Returns map of device sensor indexes and sensor IDs
-		 * @param address Device address
-		 * @return Map of device sensor indexes and sensor IDs
-		 */
-		virtual std::map<uint8_t, uint32_t> getDeviceSensorsIdMapByAddress(const uint8_t address) = 0;
 
 		//// OTHER API
 

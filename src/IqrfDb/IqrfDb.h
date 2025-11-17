@@ -106,7 +106,7 @@ namespace iqrf {
 		/**
 		 * Reloads coordinator drivers on-demand
 		 */
-		void reloadCoordinatorDrivers() override;
+		void reloadCoordinatorDrivers();
 
 		///// BINARY OUTPUT API
 
@@ -115,7 +115,7 @@ namespace iqrf {
 		 * @param id Binary output ID
 		 * @return Binary output entity
 		 */
-		std::unique_ptr<BinaryOutput> getBinaryOutput(const uint32_t id) override;
+		std::unique_ptr<BinaryOutput> getBinaryOutput(const uint32_t id);
 
 		/**
 		 * Return binary output entity by device ID
@@ -129,31 +129,31 @@ namespace iqrf {
 		 * @param binaryOutput Binary output entity
 		 * @return Binary output ID
 		 */
-		uint32_t insertBinaryOutput(BinaryOutput &binaryOutput) override;
+		uint32_t insertBinaryOutput(BinaryOutput &binaryOutput);
 
 		/**
 		 * Update binary output record
 		 * @param binaryOutput Binary output entity
 		 */
-		void updateBinaryOutput(BinaryOutput &binaryOutput) override;
+		void updateBinaryOutput(BinaryOutput &binaryOutput);
 
 		/**
 		 * Remove binary output record by ID
 		 * @param id Binary output ID
 		 */
-		void removeBinaryOutput(const uint32_t id) override;
+		void removeBinaryOutput(const uint32_t id);
 
 		/**
 		 * Remove binary output record by device ID
 		 * @param deviceId Device ID
 		 */
-		void removeBinaryOutputByDeviceId(const uint32_t deviceId) override;
+		void removeBinaryOutputByDeviceId(const uint32_t deviceId);
 
 		/**
 		 * Get addresses of devices implementing binary output
 		 * @return Set of device addresses
 		 */
-		std::set<uint8_t> getBinaryOutputAddresses() override;
+		std::set<uint8_t> getBinaryOutputAddresses();
 
 		/**
 		 * Get map of device addresses and number of implemented binary outputs
@@ -251,7 +251,7 @@ namespace iqrf {
 		 * @param address Device address
 		 * @return `true` if device has sensors, `false` otherwise
 		 */
-		bool deviceHasSensors(const uint8_t address) override;
+		bool deviceHasSensors(const uint8_t address);
 
 		/**
 		 * Retrieves map of device addresses and vector of sensor index and data
@@ -297,7 +297,7 @@ namespace iqrf {
 		 * @param frc Data from FRC response
 		 */
 		void setDeviceSensorValue(const uint8_t address, const uint8_t type, const uint8_t index, const double value,
-			std::shared_ptr<std::string> updated, bool frc) override;
+			std::shared_ptr<std::string> updated, bool frc);
 
 		/**
 		 * Stores value of sensor as metadata (for non-atomic values)
@@ -318,39 +318,39 @@ namespace iqrf {
 		 * @param id Light ID
 		 * @return Light entity
 		 */
-		std::unique_ptr<Light> getLight(const uint32_t id) override;
+		std::unique_ptr<Light> getLight(const uint32_t id);
 
 		/**
 		 * Return light entity by device ID
 		 * @param deviceId Device ID
 		 * @return Light entity
 		 */
-		std::unique_ptr<Light> getLightByDeviceId(const uint32_t deviceId) override;
+		std::unique_ptr<Light> getLightByDeviceId(const uint32_t deviceId);
 
 		/**
 		 * Insert light record
 		 * @param binaryOutput Light entity
 		 * @return Light ID
 		 */
-		uint32_t insertLight(Light &light) override;
+		uint32_t insertLight(Light &light);
 
 		/**
 		 * Update light record
 		 * @param binaryOutput Light entity
 		 */
-		void updateLight(Light &light) override;
+		void updateLight(Light &light);
 
 		/**
 		 * Remove light record by ID
 		 * @param id Light ID
 		 */
-		void removeLight(const uint32_t id) override;
+		void removeLight(const uint32_t id);
 
 		/**
 		 * Remove light record by device ID
 		 * @param deviceId Device ID
 		 */
-		void removeLightByDeviceId(const uint32_t deviceId) override;
+		void removeLightByDeviceId(const uint32_t deviceId);
 
 		/**
 		 * Get addresses of devices implementing light
@@ -389,7 +389,7 @@ namespace iqrf {
 		 * Returns map of device sensor indexes and sensor IDs
 		 * @param address Device address
 		 */
-		std::map<uint8_t, uint32_t> getDeviceSensorsIdMapByAddress(const uint8_t address) override;
+		std::map<uint8_t, uint32_t> getDeviceSensorsIdMapByAddress(const uint8_t address);
 
 		///// OTHER API
 
