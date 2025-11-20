@@ -7,6 +7,7 @@
 enum class auth_error {
   success = 0,
   no_auth,
+  auth_timeout,
   auth_failed,
   invalid_token,
   expired_token,
@@ -25,6 +26,8 @@ public:
         return "Success";
       case auth_error::no_auth:
         return "Unauthenticated";
+      case auth_error::auth_timeout:
+        return "Authentication timeout";
       case auth_error::auth_failed:
         return "Authentication failed";
       case auth_error::invalid_token:
@@ -47,8 +50,10 @@ inline boost::system::error_code make_error_code(auth_error err) {
   return {static_cast<int>(err), auth_category()};
 }
 
-inline std::string create_error_message(const std::string& error) {
+inline std::string create_error_message(const boost::system::error_code& ec) {
   return nlohmann::json({
-    {"error", error}
+    {"type", "auth_error"},
+    {"code", ec.value()},
+    {"error", ec.message()},
   }).dump();
 }
