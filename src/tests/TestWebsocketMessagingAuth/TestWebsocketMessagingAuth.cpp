@@ -20,6 +20,7 @@
 #include "TestWebsocketMessagingAuth.h"
 #include "Trace.h"
 #include "GTestStaticRunner.h"
+#include "CryptoUtils.h"
 #include "DatabaseUtils.h"
 #include "DateTimeUtils.h"
 #include "api_token_repo.hpp"
@@ -200,6 +201,7 @@ namespace iqrf {
     net::io_context io_context;
     tcp::resolver resolver{io_context};
     websocket::stream<tcp::socket> ws{io_context};
+    std::shared_ptr<SQLite::Database> db;
     db::models::ApiToken valid_token{
       1,
       "valid_test",
@@ -230,9 +232,20 @@ namespace iqrf {
       false,
       false
     };
+    db::models::ApiToken revoked_later_token{
+      4,
+      "revoked_later_token",
+      "60qpNwDAGdCuuWcutV4gtg==",
+      "uohKt+Eg2DYDZfAMYp2ic9bJKDoyibMZqhBisrNH+bI=",
+      0,
+      0,
+      false,
+      false,
+    };
     const std::string valid_token_string = "iqrfgd2;1;zDrcvQaXWopzJ+DbfkpGq3Tn00wkt3n6fExj8iUsYio=";
     const std::string revoked_token_string = "iqrfgd2;2;E75vLfBqxutkVuHl16nqLHPplttSly2nmZ82YRrvd0E=";
     const std::string expired_token_string = "iqrfgd2;3;xK2LnzYTqVLNNUGYEGWU9VU8LC6xQpuKEQtRav7dcUo=";
+    const std::string revoked_later_token_string = "iqrfgd2;4;HzYtNdilRD1XCIX0mIu3Og49buDlvlAvFVmZEowT2HI=";
 
     void SetUp() override {
       ASSERT_NE(nullptr, &Imp::get().m_iLaunchService);
@@ -244,12 +257,11 @@ namespace iqrf {
       ASSERT_FALSE(ec);
       ws.handshake("localhost", "/", ec);
       ASSERT_FALSE(ec);
+      auto path = Imp::get().m_iLaunchService->getConfigurationDir() + "/DB/IqrfDb.db";
+      db = create_database_connetion(path);
     }
 
     void insertToken(db::models::ApiToken& token, int64_t created_at, int64_t expiration) {
-      auto path = Imp::get().m_iLaunchService->getConfigurationDir() + "/DB/IqrfDb.db";
-      auto db = create_database_connetion(path);
-
       SQLite::Statement stmt(*db,
         R"(
         INSERT OR IGNORE INTO api_tokens (id, owner, salt, hash, createdAt, expiresAt, revoked, service)
@@ -270,6 +282,30 @@ namespace iqrf {
         FAIL() << "Failed to insert API key to database." << e.what();
       }
     }
+
+    void revokeToken(uint32_t id) {
+      db::repos::ApiTokenRepository repo(db);
+      try {
+        repo.revoke(id);
+      } catch (const std::exception &e) {
+        FAIL() << "Failed to revoke API key." << e.what();
+      }
+    }
+
+    void removeToken(uint32_t id) {
+      SQLite::Statement stmt(*db,
+        R"(
+        DELETE FROM api_tokens
+        WHERE id = ?
+        )"
+      );
+      stmt.bind(1, id);
+      try {
+        stmt.exec();
+      } catch (const std::exception &e) {
+        FAIL() << "Failed to remove token." << e.what();
+      }
+    }
   };
 
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messsaging_invalid_message_type) {
@@ -284,7 +320,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"error":"Authentication failed"})");
+    EXPECT_EQ(received, R"({"code":3,"error":"Authentication failed","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -311,7 +347,27 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"error":"Unauthenticated"})");
+    EXPECT_EQ(received, R"({"code":1,"error":"Unauthenticated","type":"auth_error"})");
+
+    // clear buffer
+    buffer.consume(buffer.size());
+
+    // Read close frame and check close reason
+    ws.read(buffer, ec);
+    EXPECT_EQ(ec, websocket::error::closed);
+    EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
+  }
+
+  TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_timeout) {
+    beast::error_code ec;
+
+    beast::flat_buffer buffer;
+
+    // Read unauthorized error message
+    ws.read(buffer, ec);
+    ASSERT_FALSE(ec);
+    std::string received = beast::buffers_to_string(buffer.data());
+    EXPECT_EQ(received, R"({"code":2,"error":"Authentication timeout","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -338,7 +394,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"error":"Invalid token"})");
+    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -365,7 +421,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"error":"Invalid token"})");
+    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -392,7 +448,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"error":"Invalid token"})");
+    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -419,7 +475,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"error":"Invalid token"})");
+    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -446,7 +502,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"error":"Invalid token"})");
+    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -473,7 +529,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"error":"Invalid token"})");
+    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -503,7 +559,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"error":"Revoked token"})");
+    EXPECT_EQ(received, R"({"code":6,"error":"Revoked token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -533,7 +589,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"error":"Expired token"})");
+    EXPECT_EQ(received, R"({"code":5,"error":"Expired token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -589,6 +645,70 @@ R"({
     }
 })";
     EXPECT_EQ(expected, received);
+  }
+
+  TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_success_revoked_after) {
+    beast::error_code ec;
+
+    removeToken(revoked_later_token.getId());
+    auto timestamp = DateTimeUtils::get_current_timestamp();
+    insertToken(revoked_later_token, timestamp, timestamp + 31536000);
+    // do successful auth
+    json doc({
+      {"auth", revoked_later_token_string}
+    });
+    ws.write(net::buffer(doc.dump()), ec);
+    ASSERT_FALSE(ec);
+    // attempt to communicate after websocket auth successful
+    std::string test_request = R"({
+      "mType": "iqrfRaw",
+      "data": {
+        "msgId": "auth_success_test",
+        "timeout": 1000,
+        "req": {
+          "rData": "00.00.06.03.ff.ff"
+        }
+      }
+    })";
+
+    ws.write(net::buffer(test_request), ec);
+    ASSERT_FALSE(ec);
+
+    // simulate response from network
+    Imp::get().m_iTestSimulationIqrfChannel->pushOutgoingMessage("00.00.06.83.00.00.00.44", 100);
+    beast::flat_buffer buffer;
+    ws.read(buffer, ec);
+    ASSERT_FALSE(ec);
+    auto received = beast::buffers_to_string(buffer.data());
+    std::string expected =
+R"({
+    "mType": "iqrfRaw",
+    "data": {
+        "msgId": "auth_success_test",
+        "rsp": {
+            "rData": "00.00.06.83.00.00.00.44"
+        },
+        "status": 0,
+        "insId": "iqrfgd2-default"
+    }
+})";
+    EXPECT_EQ(expected, received);
+    // clear buffer
+    buffer.consume(buffer.size());
+
+    // revoke token
+    revokeToken(revoked_later_token.getId());
+    // Read revoked token message message
+    ws.read(buffer, ec);
+    ASSERT_FALSE(ec);
+    received = beast::buffers_to_string(buffer.data());
+    EXPECT_EQ(received, R"({"code":6,"error":"Revoked token","type":"auth_error"})");
+    // clear buffer
+    buffer.consume(buffer.size());
+    // Read close frame and check close reason
+    ws.read(buffer, ec);
+    EXPECT_EQ(ec, websocket::error::closed);
+    EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
   }
 
 }
