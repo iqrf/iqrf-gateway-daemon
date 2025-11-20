@@ -17,17 +17,20 @@
 
 #define IMessagingService_EXPORTS
 
-#include "WebsocketMessaging.h"
-#include "Trace.h"
-#include <vector>
-#include <algorithm>
-#include "WebsocketServer.h"
-#include "WebsocketServerUtils.h"
-
 #include "CryptoUtils.h"
 #include "DateTimeUtils.h"
+#include "WebsocketMessaging.h"
+#include "WebsocketServer.h"
+#include "WebsocketServerUtils.h"
+#include "Trace.h"
 
 #include <rapidjson/pointer.h>
+
+#include <algorithm>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+#include <vector>
 
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
@@ -41,6 +44,31 @@ TRC_INIT_MODULE(iqrf::WebsocketMessaging)
 namespace iqrf {
 
   class WebsocketMessaging::Impl {
+  private:
+    /// Launcher service
+    shape::ILaunchService *m_launchService = nullptr;
+    /// Database service interface
+    IIqrfDb *m_dbService = nullptr;
+    /// Atomic variable for worker run
+    bool m_tokenCheckRun;
+    /// Token checking thread
+    std::thread m_tokenCheckThread;
+    /// Token check mutex
+    std::mutex m_tokenMtx;
+    /// Condition variable
+    std::condition_variable m_tokenCv;
+    /// Websocket server parameters
+    WebsocketServerParams m_params;
+    /// Websocket server
+    std::unique_ptr<WebsocketServer> m_server = nullptr;
+    /// Handler for incoming messages
+    IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
+    /// Accept asynchronous messages
+    bool m_acceptAsyncMsg = false;
+    /// Messaging instance
+    MessagingInstance m_messagingInstance = MessagingInstance(MessagingType::WS);
+    /// Map of session IDs and IDs of authentication tokens
+    std::unordered_map<std::size_t, uint32_t> m_sessionTokenMap;
   public:
     Impl() {}
 
@@ -60,14 +88,21 @@ namespace iqrf {
 
       m_server = std::make_unique<WebsocketServer>(
         m_params,
-        [&](const std::size_t sessionId, const std::string& msg) -> int {
+        [&](const std::size_t sessionId, const std::string& msg) {
           return handleMessageFromWebsocket(sessionId, msg);
         },
         [&](const std::size_t sessionId, const uint32_t id, const std::string& key, int64_t& expiration) {
           return handleWebsocketSessionAuth(sessionId, id, key, expiration);
+        },
+        [&](const std::size_t sessionId) {
+          return handleSessionClosed(sessionId);
         }
       );
       m_server->start();
+      m_tokenCheckRun = true;
+      m_tokenCheckThread = std::thread([&]() {
+        tokenCheckWorker();
+      });
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -75,15 +110,17 @@ namespace iqrf {
     void modify(const shape::Properties *props) {
       TRC_FUNCTION_ENTER("");
 
-      const rapidjson::Document& doc = props->getAsJson();
-      std::string instance = rapidjson::Pointer("/instance").Get(doc)->GetString();
-      uint16_t port = static_cast<uint16_t>(rapidjson::Pointer("/port").Get(doc)->GetUint());
-      m_acceptAsyncMsg = rapidjson::Pointer("/acceptAsyncMsg").Get(doc)->GetBool();
-      bool acceptOnlyLocalhost = rapidjson::Pointer("/acceptOnlyLocalhost").Get(doc)->GetBool();
-      bool tlsEnabled = rapidjson::Pointer("/tlsEnabled").Get(doc)->GetBool();
-      TlsModes tlsMode = tlsModeFromValue(rapidjson::Pointer("/tlsMode").Get(doc)->GetUint());
-      std::string certPath = getCertPath(rapidjson::Pointer("/cert").Get(doc)->GetString());
-      std::string keyPath = getCertPath(rapidjson::Pointer("/privKey").Get(doc)->GetString());
+      using namespace rapidjson;
+
+      const Document& doc = props->getAsJson();
+      std::string instance = Pointer("/instance").Get(doc)->GetString();
+      uint16_t port = static_cast<uint16_t>(Pointer("/port").Get(doc)->GetUint());
+      m_acceptAsyncMsg = Pointer("/acceptAsyncMsg").Get(doc)->GetBool();
+      bool acceptOnlyLocalhost = Pointer("/acceptOnlyLocalhost").Get(doc)->GetBool();
+      bool tlsEnabled = Pointer("/tlsEnabled").Get(doc)->GetBool();
+      TlsModes tlsMode = tlsModeFromValue(Pointer("/tlsMode").Get(doc)->GetUint());
+      std::string certPath = getCertPath(Pointer("/cert").Get(doc)->GetString());
+      std::string keyPath = getCertPath(Pointer("/privKey").Get(doc)->GetString());
       m_params = WebsocketServerParams(
         instance,
         port,
@@ -106,6 +143,16 @@ namespace iqrf {
         "WebsocketMessaging instance deactivate" << std::endl <<
         "******************************"
       );
+
+      {
+        std::lock_guard<std::mutex> lock(m_tokenMtx);
+        m_tokenCheckRun = false;
+      }
+      m_tokenCv.notify_all();
+      if (m_tokenCheckThread.joinable()) {
+        m_tokenCheckThread.join();
+      }
+
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -216,23 +263,42 @@ namespace iqrf {
       }
 
       expiration = token->getExpiresAt();
+      std::lock_guard<std::mutex> lock(m_tokenMtx);
+      m_sessionTokenMap[sessionId] = token->getId();
       return make_error_code(auth_error::success);
     }
 
-    /// Launcher service
-    shape::ILaunchService *m_launchService = nullptr;
-    /// Database service interface
-    IIqrfDb *m_dbService = nullptr;
-    /// Websocket server parameters
-    WebsocketServerParams m_params;
-    /// Websocket server
-    std::unique_ptr<WebsocketServer> m_server = nullptr;
-    /// Handler for incoming messages
-    IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
-    /// Accept asynchronous messages
-    bool m_acceptAsyncMsg = false;
-    /// Messaging instance
-    MessagingInstance m_messagingInstance = MessagingInstance(MessagingType::WS);
+    void handleSessionClosed(const std::size_t sessionId) {
+      std::lock_guard<std::mutex> lock(m_tokenMtx);
+      m_sessionTokenMap.erase(sessionId);
+    }
+
+    void tokenCheckWorker() {
+      std::unique_lock<std::mutex> lock(m_tokenMtx);
+      while (m_tokenCheckRun) {
+        m_tokenCv.wait_for(lock, std::chrono::seconds(60));
+
+        if (!m_tokenCheckRun) {
+          break;
+        }
+
+        for (auto itr = m_sessionTokenMap.begin(); itr != m_sessionTokenMap.end(); ) {
+          auto token = m_dbService->getApiToken(itr->second);
+          if (!token) {
+            // TOKEN DOESN'T EXIST, FIGURE OUT WHAT HAPPENED HERE!
+            return;
+          }
+          if (token->isRevoked()) {
+            auto sessionId = itr->first;
+            m_server->send(sessionId, create_error_message(make_error_code(auth_error::revoked_token)));
+            m_server->closeSession(sessionId, boost::beast::websocket::close_code::policy_error);
+            itr = m_sessionTokenMap.erase(itr);
+          } else {
+            ++itr;
+          }
+        }
+      }
+    }
   };
 
   WebsocketMessaging::WebsocketMessaging(): impl_(std::make_unique<Impl>()) {

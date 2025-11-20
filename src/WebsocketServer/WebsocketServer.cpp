@@ -37,6 +37,35 @@
 namespace iqrf {
 
   class WebsocketServer::Impl {
+  private:
+        /// Websocket server parameters
+    WebsocketServerParams m_params;
+    /// Server address
+    boost::asio::ip::address m_address;
+    /// Thread
+    std::thread m_thread;
+    /// IO context
+    std::optional<boost::asio::io_context> m_ioc = std::nullopt;
+    /// SSL context
+    std::optional<boost::asio::ssl::context> m_ctx = std::nullopt;
+    /// TCP acceptor mutex
+    std::mutex m_acceptorMutex;
+    /// TCP acceptor
+    std::optional<boost::asio::ip::tcp::acceptor> m_acceptor;
+    /// IO context work guard
+    std::optional<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>> m_workGuard;
+    /// Session ID
+    std::atomic<std::size_t> m_sessionCounter{0};
+    /// Session registry mutex
+    std::mutex m_sessionMutex;
+    /// Session registry
+    std::unordered_map<size_t, std::shared_ptr<IWebsocketSession>> m_sessionRegistry;
+    /// On message handler
+    WsServerOnMessage m_onMessage;
+    /// On auth handler
+    WsServerOnAuth m_onAuth;
+    /// On close handler
+    WsServerOnClose m_onClose;
   public:
     Impl(const WebsocketServerParams& params): m_params(params) {
       TRC_FUNCTION_ENTER("");
@@ -44,7 +73,12 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    Impl(const WebsocketServerParams& params, WsServerOnMessage onMessage, WsServerOnAuth onAuth): m_params(params), m_onMessage(onMessage), m_onAuth(onAuth) {
+    Impl(
+      const WebsocketServerParams& params,
+      WsServerOnMessage onMessage,
+      WsServerOnAuth onAuth,
+      WsServerOnClose onClose
+    ): m_params(params), m_onMessage(onMessage), m_onAuth(onAuth), m_onClose(onClose) {
       TRC_FUNCTION_ENTER("");
       initialize();
       TRC_FUNCTION_LEAVE("");
@@ -136,6 +170,14 @@ namespace iqrf {
     bool isListening() {
       std::lock_guard<std::mutex> lock(m_acceptorMutex);
       return m_acceptor.has_value() && m_acceptor->is_open();
+    }
+
+    void closeSession(const std::size_t sessionId, const boost::beast::websocket::close_code ec) {
+      std::lock_guard<std::mutex> lock(m_acceptorMutex);
+      auto record = m_sessionRegistry.find(sessionId);
+      if (record != m_sessionRegistry.end()) {
+        record->second->close(ec);
+      }
     }
 
     void stop() {
@@ -256,10 +298,16 @@ namespace iqrf {
         std::shared_ptr<IWebsocketSession> session = nullptr;
         if (m_params.tls) {
           auto stream = WsStreamTls(std::move(socket), *m_ctx);
-          session = std::make_shared<WebsocketSession<WsStreamTls>>(m_sessionCounter++, std::move(stream), m_params.tls);
+          session = std::make_shared<WebsocketSession<WsStreamTls>>(
+            m_sessionCounter++,
+            std::move(stream)
+          );
         } else {
           auto stream = WsStreamPlain(std::move(socket));
-          session = std::make_shared<WebsocketSession<WsStreamPlain>>(m_sessionCounter++, std::move(stream), m_params.tls);
+          session = std::make_shared<WebsocketSession<WsStreamPlain>>(
+            m_sessionCounter++,
+            std::move(stream)
+          );
         }
         TRC_INFORMATION(
           SERVER_LOG(m_params.instance, m_params.port)
@@ -353,6 +401,9 @@ namespace iqrf {
       std::lock_guard<std::mutex> lock(m_sessionMutex);
       auto record = m_sessionRegistry.find(sessionId);
       if (record != m_sessionRegistry.end()) {
+        if (m_onClose) {
+          m_onClose(sessionId);
+        }
         m_sessionRegistry.erase(sessionId);
         TRC_INFORMATION(
           SERVER_LOG(m_params.instance, m_params.port)
@@ -374,38 +425,16 @@ namespace iqrf {
       }
       m_sessionRegistry.clear();
     }
-
-    /// Websocket server parameters
-    WebsocketServerParams m_params;
-    /// Server address
-    boost::asio::ip::address m_address;
-    /// Thread
-    std::thread m_thread;
-    /// IO context
-    std::optional<boost::asio::io_context> m_ioc = std::nullopt;
-    /// SSL context
-    std::optional<boost::asio::ssl::context> m_ctx = std::nullopt;
-    /// TCP acceptor mutex
-    std::mutex m_acceptorMutex;
-    /// TCP acceptor
-    std::optional<boost::asio::ip::tcp::acceptor> m_acceptor;
-    /// IO context work guard
-    std::optional<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>> m_workGuard;
-    /// Session ID
-    std::atomic<std::size_t> m_sessionCounter{0};
-    /// Session registry mutex
-    std::mutex m_sessionMutex;
-    /// Session registry
-    std::unordered_map<size_t, std::shared_ptr<IWebsocketSession>> m_sessionRegistry;
-    /// On message handler
-    WsServerOnMessage m_onMessage;
-    /// On auth handler
-    WsServerOnAuth m_onAuth;
   };
 
   WebsocketServer::WebsocketServer(const WebsocketServerParams& params): impl_(std::make_unique<Impl>(params)) {}
 
-  WebsocketServer::WebsocketServer(const WebsocketServerParams& params, WsServerOnMessage onMessage, WsServerOnAuth onAuth): impl_(std::make_unique<Impl>(params, onMessage, onAuth)) {}
+  WebsocketServer::WebsocketServer(
+    const WebsocketServerParams& params,
+    WsServerOnMessage onMessage,
+    WsServerOnAuth onAuth,
+    WsServerOnClose onClose
+  ): impl_(std::make_unique<Impl>(params, onMessage, onAuth, onClose)) {}
 
   WebsocketServer::~WebsocketServer() = default;
 
@@ -417,6 +446,10 @@ namespace iqrf {
 
   bool WebsocketServer::isListening() {
     return impl_->isListening();
+  }
+
+  void WebsocketServer::closeSession(const std::size_t sessionId, const boost::beast::websocket::close_code ec) {
+    impl_->closeSession(sessionId, ec);
   }
 
   void WebsocketServer::stop() {
