@@ -22,6 +22,8 @@
 #include "ShapeProperties.h"
 #include "ITraceService.h"
 
+#include <boost/beast/websocket.hpp>
+
 namespace iqrf {
 
   class WebsocketServer {
@@ -36,7 +38,7 @@ namespace iqrf {
     /**
      * Constructor with onMessage callback
      */
-    WebsocketServer(const WebsocketServerParams& params, WsServerOnMessage onMessage, WsServerOnAuth onAuth);
+    WebsocketServer(const WebsocketServerParams& params, WsServerOnMessage onMessage, WsServerOnAuth onAuth, WsServerOnClose onClose);
 
     /**
      * Destructor
@@ -52,6 +54,13 @@ namespace iqrf {
      * Checks if server is listening and accepting connections
      */
     bool isListening();
+
+    /**
+     * Closes session with specified ID
+     * @param sessionId Session ID
+     * @param ec Error code
+     */
+    void closeSession(const std::size_t sessionId, const boost::beast::websocket::close_code ec);
 
     /**
      * Stop listening loop, clear sessions

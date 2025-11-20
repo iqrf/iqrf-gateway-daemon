@@ -57,32 +57,34 @@ namespace iqrf {
 
     /**
      * @brief Closes the session
+     *
+     * @param cc Close code
      */
     virtual void close(boost::beast::websocket::close_code cc) = 0;
 
     /**
      * @brief Sets onOpen callback
      */
-    virtual void setOnOpen(WsServerOnOpen) = 0;
+    virtual void setOnOpen(WsServerOnOpen onOpen) = 0;
 
     /**
      * @brief Sets onClose callback
      */
-    virtual void setOnClose(WsServerOnClose) = 0;
+    virtual void setOnClose(WsServerOnClose onClose) = 0;
 
     /**
      * @brief Sets onMessage callback
      */
-    virtual void setOnMessage(WsServerOnMessage) = 0;
+    virtual void setOnMessage(WsServerOnMessage onMessage) = 0;
 
     /**
      * @brief Sets onAuth callback
      */
-    virtual void setOnAuth(WsServerOnAuth) = 0;
+    virtual void setOnAuth(WsServerOnAuth onAuth) = 0;
 
     /**
      * Checks if session is authenticated
-     * @return `bool` true if session is authenticated, false otherwise
+     * @return `true` if session is authenticated, `false` otherwise
      */
     virtual bool isAuthenticated() = 0;
 
