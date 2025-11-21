@@ -53,6 +53,37 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
+  void IqrfDb::resetDatabasePreserveTokens() {
+    TRC_FUNCTION_ENTER("");
+    std::vector<db::models::ApiToken> tokens;
+    {
+      db::repos::ApiTokenRepository repo(m_db);
+      auto tokens = repo.list();
+    }
+    std::ifstream dbFile(m_dbPath);
+		if (dbFile.is_open()) { // db file exists
+			if (std::remove(m_dbPath.c_str()) != 0) {
+				THROW_EXC_TRC_WAR(std::logic_error, "Failed to remove db file: " << strerror(errno));
+			};
+		}
+    initializeDatabase();
+		if (m_renderService != nullptr) {
+			m_renderService->clearContexts();
+		}
+    SQLite::Transaction transaction(*m_db);
+    try {
+      db::repos::ApiTokenRepository repo(m_db);
+      for (auto token : tokens) {
+        repo.insertWithId(token);
+      }
+      transaction.commit();
+    } catch (const std::exception &e) {
+      transaction.rollback();
+    }
+    reloadCoordinatorDrivers();
+    TRC_FUNCTION_LEAVE("");
+  }
+
 	bool IqrfDb::isRunning() {
 		return m_exclusiveAccess != nullptr && m_enumRun;
 	}
