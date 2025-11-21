@@ -770,6 +770,8 @@ namespace iqrf {
 		std::string m_dbPath;
 		/// Path to daemon js wrapper
 		std::string m_wrapperPath;
+    /// Database access mutex
+    std::mutex m_dbMtx;
 		/// Database accessor
 		std::shared_ptr<SQLite::Database> m_db = nullptr;
 		/// DPA service
