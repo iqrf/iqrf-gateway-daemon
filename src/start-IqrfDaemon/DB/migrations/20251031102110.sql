@@ -16,3 +16,5 @@ CREATE TABLE IF NOT EXISTS 'api_tokens' (
 INSERT INTO 'migrations' ('version', 'executedAt') VALUES ('20251031102110', datetime('now'));
 
 COMMIT;
+
+PRAGMA foreign_keys=on;
