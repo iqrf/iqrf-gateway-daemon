@@ -98,6 +98,8 @@ namespace iqrf {
 		 */
 		void resetDatabase() override;
 
+    void resetDatabasePreserveTokens();
+
 		/**
 		 * Reloads all drivers
 		 */
