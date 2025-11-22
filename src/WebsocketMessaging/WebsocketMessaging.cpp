@@ -282,11 +282,15 @@ namespace iqrf {
           break;
         }
 
+        // TODO STORE SEEN TOKENS TO AVOID REDUNDANT DB CALLS
         for (auto itr = m_sessionTokenMap.begin(); itr != m_sessionTokenMap.end(); ) {
           auto token = m_dbService->getApiToken(itr->second);
           if (!token) {
-            // TOKEN DOESN'T EXIST, FIGURE OUT WHAT HAPPENED HERE!
-            return;
+            auto sessionId = itr->first;
+            m_server->send(sessionId, create_error_message(make_error_code(auth_error::invalid_token)));
+            m_server->closeSession(sessionId, boost::beast::websocket::close_code::internal_error);
+            itr = m_sessionTokenMap.erase(itr);
+            continue;
           }
           if (token->isRevoked()) {
             auto sessionId = itr->first;
