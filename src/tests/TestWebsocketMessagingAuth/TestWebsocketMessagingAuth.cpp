@@ -53,7 +53,6 @@ namespace iqrf {
   public:
     shape::ILaunchService* m_iLaunchService = nullptr;
     iqrf::ITestSimulationIqrfChannel* m_iTestSimulationIqrfChannel = nullptr;
-    iqrf::IIqrfDb* m_dbService = nullptr;
 
     shape::GTestStaticRunner m_gtest;
 
@@ -105,18 +104,6 @@ namespace iqrf {
       }
     }
 
-    void attachInterface(iqrf::IIqrfDb* iface)
-    {
-      m_dbService = iface;
-    }
-
-    void detachInterface(iqrf::IIqrfDb* iface)
-    {
-      if (m_dbService == iface) {
-        m_dbService = nullptr;
-      }
-    }
-
     void attachInterface(shape::ILaunchService* iface)
     {
       m_iLaunchService = iface;
@@ -161,16 +148,6 @@ namespace iqrf {
   }
 
   void TestWebsocketMessagingAuth::detachInterface(iqrf::ITestSimulationIqrfChannel* iface)
-  {
-    Imp::get().detachInterface(iface);
-  }
-
-  void TestWebsocketMessagingAuth::attachInterface(iqrf::IIqrfDb* iface)
-  {
-    Imp::get().attachInterface(iface);
-  }
-
-  void TestWebsocketMessagingAuth::detachInterface(iqrf::IIqrfDb* iface)
   {
     Imp::get().detachInterface(iface);
   }
@@ -249,7 +226,6 @@ namespace iqrf {
 
     void SetUp() override {
       ASSERT_NE(nullptr, &Imp::get().m_iLaunchService);
-      ASSERT_NE(nullptr, &Imp::get().m_dbService);
       beast::error_code ec;
       auto const resolved = resolver.resolve("localhost", "1338", ec);
       ASSERT_FALSE(ec);
@@ -257,8 +233,9 @@ namespace iqrf {
       ASSERT_FALSE(ec);
       ws.handshake("localhost", "/", ec);
       ASSERT_FALSE(ec);
-      auto path = Imp::get().m_iLaunchService->getConfigurationDir() + "/DB/IqrfDb.db";
+      auto path = Imp::get().m_iLaunchService->getConfigurationDir() + "/DB/IqrfAuthDb.db";
       db = create_database_connetion(path);
+      ASSERT_TRUE(db->tableExists("api_tokens"));
     }
 
     void insertToken(db::models::ApiToken& token, int64_t created_at, int64_t expiration) {
@@ -394,7 +371,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":5,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -421,7 +398,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":5,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -448,7 +425,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":5,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -475,7 +452,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":5,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -502,7 +479,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":5,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -529,7 +506,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":4,"error":"Token not found","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -559,7 +536,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":6,"error":"Revoked token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":7,"error":"Revoked token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -589,7 +566,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":5,"error":"Expired token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":6,"error":"Expired token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -702,13 +679,74 @@ R"({
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":6,"error":"Revoked token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":7,"error":"Revoked token","type":"auth_error"})");
     // clear buffer
     buffer.consume(buffer.size());
     // Read close frame and check close reason
     ws.read(buffer, ec);
     EXPECT_EQ(ec, websocket::error::closed);
     EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
+  }
+
+  TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_success_deleted_after) {
+    beast::error_code ec;
+
+    // do successful auth
+    json doc({
+      {"auth", valid_token_string}
+    });
+    ws.write(net::buffer(doc.dump()), ec);
+    ASSERT_FALSE(ec);
+    // attempt to communicate after websocket auth successful
+    std::string test_request = R"({
+      "mType": "iqrfRaw",
+      "data": {
+        "msgId": "auth_success_test",
+        "timeout": 1000,
+        "req": {
+          "rData": "00.00.06.03.ff.ff"
+        }
+      }
+    })";
+
+    ws.write(net::buffer(test_request), ec);
+    ASSERT_FALSE(ec);
+
+    // simulate response from network
+    Imp::get().m_iTestSimulationIqrfChannel->pushOutgoingMessage("00.00.06.83.00.00.00.44", 100);
+    beast::flat_buffer buffer;
+    ws.read(buffer, ec);
+    ASSERT_FALSE(ec);
+    auto received = beast::buffers_to_string(buffer.data());
+    std::string expected =
+R"({
+    "mType": "iqrfRaw",
+    "data": {
+        "msgId": "auth_success_test",
+        "rsp": {
+            "rData": "00.00.06.83.00.00.00.44"
+        },
+        "status": 0,
+        "insId": "iqrfgd2-default"
+    }
+})";
+    EXPECT_EQ(expected, received);
+    // clear buffer
+    buffer.consume(buffer.size());
+
+    // revoke token
+    removeToken(valid_token.getId());
+    // Read revoked token message message
+    ws.read(buffer, ec);
+    ASSERT_FALSE(ec);
+    received = beast::buffers_to_string(buffer.data());
+    EXPECT_EQ(received, R"({"code":4,"error":"Token not found","type":"auth_error"})");
+    // clear buffer
+    buffer.consume(buffer.size());
+    // Read close frame and check close reason
+    ws.read(buffer, ec);
+    EXPECT_EQ(ec, websocket::error::closed);
+    EXPECT_EQ(ws.reason().code, websocket::close_code::internal_error);
   }
 
 }

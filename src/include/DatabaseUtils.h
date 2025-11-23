@@ -25,9 +25,6 @@ std::shared_ptr<SQLite::Database> create_database_connetion(const std::string& p
   try {
     auto db = std::make_shared<SQLite::Database>(path, SQLite::OPEN_READWRITE);
     db->setBusyTimeout(3000);
-    if (!db->tableExists("api_tokens")) {
-      throw std::runtime_error("Table api_tokens does not exist in database.");
-    }
     return db;
   } catch (const SQLite::Exception &e) {
     throw std::runtime_error("SQLite error: " + std::string(e.what()));

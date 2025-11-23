@@ -45,10 +45,10 @@ namespace iqrf {
 
   class WebsocketMessaging::Impl {
   private:
-    /// Launcher service
+    /// Launch service
     shape::ILaunchService *m_launchService = nullptr;
-    /// Database service interface
-    IIqrfDb *m_dbService = nullptr;
+    /// API token service
+    IApiTokenService *m_tokenService = nullptr;
     /// Atomic variable for worker run
     bool m_tokenCheckRun;
     /// Token checking thread
@@ -204,13 +204,13 @@ namespace iqrf {
       }
     }
 
-    void attachInterface(IIqrfDb *iface) {
-      m_dbService = iface;
+    void attachInterface(IApiTokenService *iface) {
+      m_tokenService = iface;
     }
 
-    void detachInterface(IIqrfDb *iface) {
-      if (m_dbService == iface) {
-        m_dbService = nullptr;
+    void detachInterface(IApiTokenService *iface) {
+      if (m_tokenService == iface) {
+        m_tokenService = nullptr;
       }
     }
 
@@ -241,9 +241,9 @@ namespace iqrf {
     }
 
     boost::system::error_code handleWebsocketSessionAuth(const std::size_t sessionId, const uint32_t id, const std::string& secret, int64_t& expiration) {
-      auto token = m_dbService->getApiToken(id);
+      auto token = m_tokenService->getApiToken(id);
       if (!token) {
-        return make_error_code(auth_error::invalid_token);
+        return make_error_code(auth_error::token_not_found);
       }
 
       auto salt = CryptoUtils::base64_decode_data(token->getSalt());
@@ -282,17 +282,25 @@ namespace iqrf {
           break;
         }
 
-        // TODO STORE SEEN TOKENS TO AVOID REDUNDANT DB CALLS
+        std::unordered_map<uint32_t, bool> tokenMap;
         for (auto itr = m_sessionTokenMap.begin(); itr != m_sessionTokenMap.end(); ) {
-          auto token = m_dbService->getApiToken(itr->second);
-          if (!token) {
-            auto sessionId = itr->first;
-            m_server->send(sessionId, create_error_message(make_error_code(auth_error::invalid_token)));
-            m_server->closeSession(sessionId, boost::beast::websocket::close_code::internal_error);
-            itr = m_sessionTokenMap.erase(itr);
-            continue;
+          bool revoked = false;
+          auto tokenId = itr->second;
+          if (tokenMap.count(tokenId)) {
+            revoked = tokenMap[tokenId];
+          } else {
+            auto token = m_tokenService->getApiToken(itr->second);
+            if (!token) {
+              auto sessionId = itr->first;
+              m_server->send(sessionId, create_error_message(make_error_code(auth_error::token_not_found)));
+              m_server->closeSession(sessionId, boost::beast::websocket::close_code::internal_error);
+              itr = m_sessionTokenMap.erase(itr);
+              continue;
+            }
+            revoked = token->isRevoked();
+            tokenMap[tokenId] = revoked;
           }
-          if (token->isRevoked()) {
+          if (revoked) {
             auto sessionId = itr->first;
             m_server->send(sessionId, create_error_message(make_error_code(auth_error::revoked_token)));
             m_server->closeSession(sessionId, boost::beast::websocket::close_code::policy_error);
@@ -361,11 +369,11 @@ namespace iqrf {
     impl_->detachInterface(iface);
   }
 
-  void WebsocketMessaging::attachInterface(IIqrfDb *iface) {
+  void WebsocketMessaging::attachInterface(IApiTokenService *iface) {
     impl_->attachInterface(iface);
   }
 
-  void WebsocketMessaging::detachInterface(IIqrfDb *iface) {
+  void WebsocketMessaging::detachInterface(IApiTokenService *iface) {
     impl_->detachInterface(iface);
   }
 
