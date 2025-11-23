@@ -113,6 +113,13 @@
       "startlevel": 0
     },
     {
+      "name": "iqrf::ApiTokenService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "ApiTokenService",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
       "name": "iqrf::IqrfBackup",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "IqrfBackup",
