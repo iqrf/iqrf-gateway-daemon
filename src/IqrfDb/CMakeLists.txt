@@ -45,16 +45,25 @@ if (NOT OPENSSL_FOUND)
 endif()
 
 if(SHAPE_STATIC_LIBS)
-	add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
+	add_library(${PROJECT_NAME} STATIC
+    ${_HDRFILES}
+    ${_SRCFILES}
+    $<TARGET_OBJECTS:MigrationManager>
+  )
 else()
-	add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
+	add_library(${PROJECT_NAME} SHARED
+    ${_HDRFILES}
+    ${_SRCFILES}
+    $<TARGET_OBJECTS:MigrationManager>
+  )
 endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+  SQLiteCpp
+  DbEntities
+  MigrationManager
 	nlohmann_json::nlohmann_json
-	SQLiteCpp
 	OpenSSL::Crypto
-	DbEntities
 )
 
 DeployShapeComponent(${PROJECT_NAME})

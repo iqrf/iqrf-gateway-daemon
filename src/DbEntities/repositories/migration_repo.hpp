@@ -16,10 +16,11 @@
  */
 #pragma once
 
-#include <set>
-
 #include <models/migration.hpp>
 #include <repositories/base_repo.hpp>
+
+#include <set>
+#include <vector>
 
 using iqrf::db::models::Migration;
 
