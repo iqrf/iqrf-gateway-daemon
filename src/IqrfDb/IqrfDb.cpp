@@ -16,6 +16,7 @@
  */
 
 #include "IqrfDb.h"
+#include "MigrationManager.h"
 
 #include "iqrf__IqrfDb.hxx"
 
@@ -96,13 +97,6 @@ namespace iqrf {
 		loadCoordinatorDrivers();
 		TRC_FUNCTION_LEAVE("");
 	}
-
-  ///// API TOKEN API
-
-  std::unique_ptr<ApiToken> IqrfDb::getApiToken(const uint32_t id) {
-    db::repos::ApiTokenRepository apiTokenRepo(m_db);
-    return apiTokenRepo.get(id);
-  }
 
 	///// BINARY OUTPUT API
 
@@ -554,76 +548,11 @@ namespace iqrf {
 			)
 		);
 		try {
-			migrateDatabase();
+      MigrationManager manager(m_migrationDir);
+			manager.migrate(m_db);
       m_db->exec("PRAGMA foreign_keys = ON;");
 		} catch (const std::exception &e) {
 			THROW_EXC_TRC_WAR(std::logic_error, "[IqrfDb] Failed to migrate database to latest version: " << e.what());
-		}
-	}
-
-	void IqrfDb::migrateDatabase() {
-		// find all migrations
-		std::string migrationDir = m_dbDirPath + "migrations/";
-		std::vector<std::string> migrations;
-		for (const auto &file : std::filesystem::directory_iterator(migrationDir)) {
-			if (file.is_regular_file()) {
-				migrations.push_back(file.path().stem());
-			}
-		}
-		std::sort(migrations.begin(), migrations.end());
-		std::vector<std::string> migrationsToExecute;
-		std::set<std::string> executedMigrations;
-		if (m_db->tableExists("migrations")) {
-			db::repos::MigrationRepository migrationRepo(m_db);
-			executedMigrations = migrationRepo.getExecutedVersions();
-		}
-		// determine executed migrations and migrations to execute
-		for (auto &migration : migrations) {
-			if (executedMigrations.count(migration) == 0) {
-				migrationsToExecute.push_back(migration);
-			}
-		}
-		try {
-			// execute missing migrations
-			for (const auto &migration : migrationsToExecute) {
-				executeMigration(migrationDir + migration + ".sql");
-			}
-		} catch (const std::exception &e) {
-			THROW_EXC_TRC_WAR(std::logic_error, e.what());
-		}
-	}
-
-	void IqrfDb::executeMigration(const std::string &migration) {
-		std::vector<std::string> statements;
-		// try to access migration file
-		std::ifstream migrationFile(migration);
-		if (!migrationFile.is_open()) {
-			THROW_EXC_TRC_WAR(std::logic_error, "Unable to read migration file: " << migration);
-		}
-		std::string line;
-		std::stringstream statementStream;
-		// remove comments and empty lines
-		while (std::getline(migrationFile, line)) {
-			if (line.empty() || line.rfind("--", 0) == 0) {
-				continue;
-			}
-			statementStream << line;
-		}
-		// split into separate statements
-		while (std::getline(statementStream, line, ';')) {
-			statements.push_back(line);
-		}
-		// check for empty file
-		if (statements.size() == 0) {
-			THROW_EXC_TRC_WAR(std::logic_error, "Empty migration file: " << migration);
-		}
-		try {
-			// execute migration statements
-			for (auto &statement : statements) {
-				m_db->exec(statement);
-			}
-		} catch (const std::exception &e) {
-			THROW_EXC_TRC_WAR(std::logic_error, e.what());
 		}
 	}
 
@@ -2085,10 +2014,10 @@ namespace iqrf {
 	void IqrfDb::modify(const shape::Properties *props) {
 		TRC_FUNCTION_ENTER("");
 		using namespace rapidjson;
-		//
-		m_dbDirPath = m_launchService->getDataDir() + "/DB/";
-		// path to db file
-		m_dbPath = m_dbDirPath + "IqrfDb.db";
+		// database directory
+		auto dbDir = m_launchService->getDataDir() + "/DB/";
+		m_migrationDir = dbDir + "migrations/iqrfdb/";
+		m_dbPath = dbDir + "IqrfDb.db";
 		// read configuration parameters
 		const Document &doc = props->getAsJson();
 		m_instance = Pointer("/instance").Get(doc)->GetString();
