@@ -66,7 +66,7 @@ bpo::options_description make_base_options() {
     )
     (
       "path,p",
-      bpo::value<std::string>()->required()->default_value("/usr/share/iqrf-gateway-daemon/DB/IqrfDb.db"),
+      bpo::value<std::string>()->required()->default_value("/usr/share/iqrf-gateway-daemon/DB/IqrfAuthDb.db"),
       "path to sqlite database file"
     );
   return base_opts;
