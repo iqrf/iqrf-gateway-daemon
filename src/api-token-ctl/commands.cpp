@@ -11,6 +11,9 @@ using json = nlohmann::json;
 
 void create_token(const std::string& owner, const std::string& expiration, bool service, const SharedParams& params) {
   auto db = create_database_connetion(params.db_path);
+  if (!db->tableExists("api_tokens")) {
+    throw std::runtime_error("Table api_tokens does not exist in database.");
+  }
 
   std::size_t created_at = DateTimeUtils::get_current_timestamp();
   auto parsed_expiration = DateTimeUtils::parse_expiration(expiration, created_at);
@@ -42,6 +45,9 @@ void create_token(const std::string& owner, const std::string& expiration, bool 
 
 void get_token(uint32_t id, const SharedParams& params) {
   auto db = create_database_connetion(params.db_path);
+  if (!db->tableExists("api_tokens")) {
+    throw std::runtime_error("Table api_tokens does not exist in database.");
+  }
 
   iqrf::db::repos::ApiTokenRepository repo(db);
   auto token = repo.get(id);
@@ -63,6 +69,9 @@ void get_token(uint32_t id, const SharedParams& params) {
 
 void list_tokens(const SharedParams& params) {
   auto db = create_database_connetion(params.db_path);
+  if (!db->tableExists("api_tokens")) {
+    throw std::runtime_error("Table api_tokens does not exist in database.");
+  }
 
   iqrf::db::repos::ApiTokenRepository repo(db);
   auto tokens = repo.list();
@@ -81,6 +90,9 @@ void list_tokens(const SharedParams& params) {
 
 void revoke_token(uint32_t id, const SharedParams& params) {
   auto db = create_database_connetion(params.db_path);
+  if (!db->tableExists("api_tokens")) {
+    throw std::runtime_error("Table api_tokens does not exist in database.");
+  }
 
   iqrf::db::repos::ApiTokenRepository repo(db);
   auto token = repo.get(id);
@@ -100,6 +112,9 @@ void revoke_token(uint32_t id, const SharedParams& params) {
 
 void verify_token(const std::string& token, const SharedParams& params) {
   auto db = create_database_connetion(params.db_path);
+  if (!db->tableExists("api_tokens")) {
+    throw std::runtime_error("Table api_tokens does not exist in database.");
+  }
 
   uint32_t id = 0;
   std::string secret;

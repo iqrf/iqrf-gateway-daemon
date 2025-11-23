@@ -16,53 +16,24 @@
  */
 #pragma once
 
-#include "IApiTokenService.h"
-#include "IMessagingService.h"
 #include "ILaunchService.h"
+#include "IApiTokenService.h"
 #include "ITraceService.h"
 #include "ShapeProperties.h"
 
-/// iqrf namespace
 namespace iqrf {
-  class WebsocketMessaging : public IMessagingService {
+
+  class ApiTokenService : public IApiTokenService {
   public:
     /**
      * Constructor
      */
-    WebsocketMessaging();
+    ApiTokenService();
 
     /**
      * Destructor
      */
-    virtual ~WebsocketMessaging();
-
-    /**
-     * Register message handler
-     * @param handler Message handler
-     */
-    void registerMessageHandler(MessageHandlerFunc handler) override;
-
-    /***
-     * Unregister message handler
-     */
-    void unregisterMessageHandler() override;
-
-    /**
-     * Send message via websocket
-     * @param messaging Messaging instance
-     * @param msg Message to send
-     */
-    void sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t>& msg) override;
-
-    /**
-     * Returns asynchronous message accepting policy
-     */
-    bool acceptAsyncMsg() const override;
-
-    /**
-     * Returns messaging instance
-     */
-    const MessagingInstance& getMessagingInstance() const override;
+    virtual ~ApiTokenService();
 
     /**
      * Initializes component
@@ -82,6 +53,13 @@ namespace iqrf {
     void deactivate();
 
     /**
+     * Return API token entity by ID
+     * @param id API token ID
+     * @return API token entity
+     */
+    std::unique_ptr<ApiToken> getApiToken(const uint32_t id) override;
+
+    /**
      * Attaches launcher service interface
      * @param iface Launcher service interface
      */
@@ -94,18 +72,6 @@ namespace iqrf {
     void detachInterface(shape::ILaunchService *iface);
 
     /**
-     * Attaches API token service interface
-     * @param iface API token service interface
-     */
-    void attachInterface(IApiTokenService *iface);
-
-    /**
-     * Detaches API token service interface
-     * @param iface API token service interface
-     */
-    void detachInterface(IApiTokenService *iface);
-
-    /**
      * Attaches tracing service interface
      * @param iface Tracing service interface
      */
@@ -116,7 +82,6 @@ namespace iqrf {
      * @param iface Tracing service interface
      */
     void detachInterface(shape::ITraceService* iface);
-
   private:
     class Impl;
     std::unique_ptr<Impl> impl_;

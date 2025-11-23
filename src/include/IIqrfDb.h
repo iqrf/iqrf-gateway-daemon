@@ -26,7 +26,6 @@
 #include <set>
 #include <vector>
 
-#include "repositories/api_token_repo.hpp"
 #include "repositories/binary_output_repo.hpp"
 #include "repositories/device_repo.hpp"
 #include "repositories/device_sensor_repo.hpp"
@@ -194,15 +193,6 @@ namespace iqrf {
 		 * Reloads coordinator drivers on demand
 		 */
 		virtual void reloadCoordinatorDrivers() = 0;
-
-    ///// API TOKEN API
-
-    /**
-     * Return API token entity by ID
-     * @param id API token ID
-     * @return API token entity
-     */
-    virtual std::unique_ptr<ApiToken> getApiToken(const uint32_t id) = 0;
 
 		///// BINARY OUTPUT API
 

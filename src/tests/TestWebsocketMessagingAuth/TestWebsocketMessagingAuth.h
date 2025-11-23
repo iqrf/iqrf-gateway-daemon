@@ -1,6 +1,5 @@
 #pragma once
 
-#include "IIqrfDb.h"
 #include "ITestSimulationIqrfChannel.h"
 #include "IMessagingSplitterService.h"
 #include "ShapeProperties.h"
@@ -21,9 +20,6 @@ namespace iqrf {
 
     void attachInterface(iqrf::ITestSimulationIqrfChannel* iface);
     void detachInterface(iqrf::ITestSimulationIqrfChannel* iface);
-
-    void attachInterface(iqrf::IIqrfDb* iface);
-    void detachInterface(iqrf::IIqrfDb* iface);
 
     void attachInterface(shape::ILaunchService* iface);
     void detachInterface(shape::ILaunchService* iface);
