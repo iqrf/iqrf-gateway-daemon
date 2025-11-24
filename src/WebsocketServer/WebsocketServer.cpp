@@ -300,13 +300,15 @@ namespace iqrf {
           auto stream = WsStreamTls(std::move(socket), *m_ctx);
           session = std::make_shared<WebsocketSession<WsStreamTls>>(
             m_sessionCounter++,
-            std::move(stream)
+            std::move(stream),
+            m_params.authTimeout
           );
         } else {
           auto stream = WsStreamPlain(std::move(socket));
           session = std::make_shared<WebsocketSession<WsStreamPlain>>(
             m_sessionCounter++,
-            std::move(stream)
+            std::move(stream),
+            m_params.authTimeout
           );
         }
         TRC_INFORMATION(

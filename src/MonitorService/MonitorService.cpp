@@ -100,7 +100,8 @@ namespace iqrf {
       tlsEnabled,
       tlsMode,
       certPath,
-      keyPath
+      keyPath,
+      DEFAULT_AUTH_TIMEOUT
     );
 
     TRC_FUNCTION_LEAVE("");

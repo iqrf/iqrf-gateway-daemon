@@ -86,9 +86,9 @@ namespace iqrf {
      * @param id Session ID
      * @param stream Session stream
      */
-    WebsocketSession(std::size_t id, StreamType&& stream)
+    WebsocketSession(std::size_t id, StreamType&& stream, uint16_t authTimeout)
     : m_id(id), m_stream(std::move(stream)),
-      m_authTimeout(30), m_authTimer(m_stream.get_executor())
+      m_authTimeout(authTimeout), m_authTimer(m_stream.get_executor())
     {
       if constexpr (std::is_same_v<StreamType, WsStreamTls>) {
         auto endpoint = m_stream.next_layer().lowest_layer().remote_endpoint();
