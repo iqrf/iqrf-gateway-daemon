@@ -1,5 +1,7 @@
 #include "cli_utils.h"
 
+#define LINE_LENGTH (OUTPUT_ID_LEN + MAX_OWNER_LEN + (OUTPUT_DT_LEN * 2) + OUTPUT_REVOKED_LEN + OUTPUT_SERVICE_LEN + 5 /*spacing*/ + 2 /*borders*/)
+
 namespace bpo = boost::program_options;
 using json = nlohmann::json;
 
@@ -43,6 +45,22 @@ void print_revoke_help() {
     << "Command options:\n"
     << "  -h, --help: Show command help\n"
     << "  -i, --id: API token ID\n";
+}
+
+void print_table_horizontal_line() {
+  std::cout << std::string(LINE_LENGTH, '-') << '\n';
+}
+
+void print_list_header() {
+  print_table_horizontal_line();
+  std::cout
+    << '|' << pad_end("ID", OUTPUT_ID_LEN) << ' '
+    << pad_end("Owner", MAX_OWNER_LEN) << ' '
+    << pad_end("Created at", OUTPUT_DT_LEN) << ' '
+    << pad_end("Expires at", OUTPUT_DT_LEN) << ' '
+    << pad_end("Revoked", OUTPUT_REVOKED_LEN) << ' '
+    << pad_end("Service", OUTPUT_SERVICE_LEN) << "|\n";
+  print_table_horizontal_line();
 }
 
 SharedParams make_shared_params(const bpo::variables_map& vm) {
@@ -100,4 +118,17 @@ std::string token_to_json_string(const iqrf::db::models::ApiToken& token) {
       {"revoked", token.isRevoked()},
       {"service", token.canUseServiceMode()}
   }).dump();
+}
+
+std::string pad_end(const std::string& text, std::size_t max_width, char pad_character) {
+  auto len = text.length();
+  if (len == max_width) {
+    return text;
+  }
+
+  if (len > max_width) {
+    return text.substr(0, max_width);
+  }
+
+  return text + std::string(max_width - len, pad_character);
 }
