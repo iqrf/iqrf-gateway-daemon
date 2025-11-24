@@ -1,9 +1,13 @@
 #pragma once
 
+#include <cstdint>
 #include <functional>
 #include <optional>
 #include <string>
 #include <stdexcept>
+
+#define DEFAULT_PORT 80
+#define DEFAULT_AUTH_TIMEOUT 30
 
 namespace iqrf {
 
@@ -80,16 +84,20 @@ namespace iqrf {
      * Required to not be empty when TLS is enabled.
      */
     std::string keyPath;
+    /**
+     * @brief Client session authentication timeout
+     */
+    uint16_t authTimeout;
 
     /**
      * @brief Default constructor
      *
      * Initializes the websocket server params with: instance default, port 80, localhostOnly false, tls false,
-     * tlsMode intermediate, empty certificate and key path
+     * tlsMode intermediate, empty certificate and key path and authentication timeout of 30 seconds
      */
     WebsocketServerParams()
-      : instance("default"), port(80), localhostOnly(false), tls(false),
-        tlsMode(TlsModes::INTERMEDIATE), certPath(""), keyPath("") {}
+      : instance("default"), port(DEFAULT_PORT), localhostOnly(false), tls(false),
+        tlsMode(TlsModes::INTERMEDIATE), certPath(""), keyPath(""), authTimeout(DEFAULT_AUTH_TIMEOUT) {}
 
     /**
      * @brief Parameterized constructor
@@ -103,11 +111,12 @@ namespace iqrf {
      * @param tlsMode TLS configuration
      * @param certPath Path to certificate file
      * @param keyPath Path to private key file
+     * @param authTimeout Authentication timeout in seconds
      */
     WebsocketServerParams(const std::string& instance, uint16_t port, bool localhostOnly, bool tls,
-      TlsModes tlsMode, const std::string& cert, const std::string& key)
+      TlsModes tlsMode, const std::string& cert, const std::string& key, uint16_t authTimeout)
       : instance(instance), port(port), localhostOnly(localhostOnly), tls(tls),
-        tlsMode(tlsMode), certPath(cert), keyPath(key) {}
+        tlsMode(tlsMode), certPath(cert), keyPath(key), authTimeout(authTimeout) {}
   };
 }
 
