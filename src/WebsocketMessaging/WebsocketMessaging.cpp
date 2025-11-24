@@ -36,6 +36,7 @@
 #undef TRC_CHANNEL
 #endif
 #define TRC_CHANNEL 0
+#define TOKEN_CHECK_PERIOD 60
 
 #include "iqrf__WebsocketMessaging.hxx"
 
@@ -121,6 +122,7 @@ namespace iqrf {
       TlsModes tlsMode = tlsModeFromValue(Pointer("/tlsMode").Get(doc)->GetUint());
       std::string certPath = getCertPath(Pointer("/cert").Get(doc)->GetString());
       std::string keyPath = getCertPath(Pointer("/privKey").Get(doc)->GetString());
+      uint16_t authTimeout = static_cast<uint16_t>(Pointer("/authTimeout").Get(doc)->GetUint());
       m_params = WebsocketServerParams(
         instance,
         port,
@@ -128,7 +130,8 @@ namespace iqrf {
         tlsEnabled,
         tlsMode,
         certPath,
-        keyPath
+        keyPath,
+        authTimeout
       );
 
       m_messagingInstance.instance = instance;
@@ -276,7 +279,7 @@ namespace iqrf {
     void tokenCheckWorker() {
       std::unique_lock<std::mutex> lock(m_tokenMtx);
       while (m_tokenCheckRun) {
-        m_tokenCv.wait_for(lock, std::chrono::seconds(60));
+        m_tokenCv.wait_for(lock, std::chrono::seconds(TOKEN_CHECK_PERIOD));
 
         if (!m_tokenCheckRun) {
           break;
