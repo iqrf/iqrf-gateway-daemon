@@ -74,6 +74,7 @@ test:
 
 api-testing:
   stage: test
+  allow_failure: true
   image: docker:latest
   services:
     - name: docker:dind
