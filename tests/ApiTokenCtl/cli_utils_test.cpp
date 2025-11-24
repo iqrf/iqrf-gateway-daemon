@@ -44,6 +44,31 @@ TEST(cli_utils, make_shared_params_valid) {
   EXPECT_EQ(true, params.json_output);
 }
 
+TEST(cli_utils, get_token_id_valid) {
+  bpo::variables_map vm;
+  vm.insert(std::make_pair("id", bpo::variable_value(boost::int64_t(1), false)));
+
+  EXPECT_EQ(1, get_token_id(vm));
+}
+
+TEST(cli_utils, get_token_id_invalid_range) {
+  std::vector<int64_t> cases = {0, -10, 4294967300};
+  std::string expected_error = "Token ID should be between 1 and 4294967295.";
+  bpo::variables_map vm;
+
+  for (auto &value : cases) {
+    vm.insert(std::make_pair("id", bpo::variable_value(boost::int64_t(value), false)));
+    try {
+      get_token_id(vm);
+      FAIL() << "Expected std::invalid_argument, but no exception was thrown.";
+    } catch (const std::invalid_argument &e) {
+      EXPECT_EQ(expected_error, e.what());
+    } catch (...) {
+      FAIL() << "Expected std::invalid_argument, but another exception was thrown instead.";
+    }
+  }
+}
+
 TEST_F(CliUtilsTest, token_to_json_value) {
   auto doc = token_to_json(token);
   EXPECT_TRUE(doc.count("id"));
@@ -63,4 +88,20 @@ TEST_F(CliUtilsTest, token_to_json_value) {
 TEST_F(CliUtilsTest, token_to_json_string_value) {
   std::string expected = "{\"created_at\":1730726400,\"expires_at\":1731590400,\"id\":1,\"owner\":\"test\",\"revoked\":false,\"service\":false}";
   EXPECT_EQ(expected, token_to_json_string(token));
+}
+
+TEST(cli_utils, pad_end_shorter) {
+  EXPECT_EQ("test    ", pad_end("test", 8));
+  EXPECT_EQ("test----", pad_end("test", 8, '-'));
+  EXPECT_EQ("  test  ", pad_end("  test", 8));
+}
+
+TEST(cli_utils, pad_end_same_length) {
+  EXPECT_EQ("test", pad_end("test", 4));
+  EXPECT_EQ("test", pad_end("test", 4, '-'));
+}
+
+TEST(cli_utils, pad_end_longer) {
+  EXPECT_EQ("teststri", pad_end("teststring", 8));
+  EXPECT_EQ("testst", pad_end("teststring", 6, '-'));
 }
