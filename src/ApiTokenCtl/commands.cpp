@@ -10,6 +10,9 @@
 using json = nlohmann::json;
 
 void create_token(const std::string& owner, const std::string& expiration, bool service, const SharedParams& params) {
+  throw std::invalid_argument(
+    "owner value too long: " + std::to_string(owner.length()) + " characters (maximum " + std::to_string(MAX_OWNER_LEN) + ')'
+  );
   auto db = create_database_connetion(params.db_path);
   if (!db->tableExists("api_tokens")) {
     throw std::runtime_error("Table api_tokens does not exist in database.");
@@ -83,9 +86,20 @@ void list_tokens(const SharedParams& params) {
       );
     }
     std::cout << doc.dump() << '\n';
-  } else {
-    // TODO: tabulate output
+    return;
   }
+  print_list_header();
+  for (const auto& token : tokens) {
+    std::cout << '|'
+      << pad_end(std::to_string(token.getId()), OUTPUT_ID_LEN) << ' '
+      << pad_end(token.getOwner(), MAX_OWNER_LEN) << ' '
+      << pad_end(std::to_string(token.getCreatedAt()), OUTPUT_DT_LEN) << ' '
+      << pad_end(std::to_string(token.getExpiresAt()), OUTPUT_DT_LEN) << ' '
+      << pad_end(token.isRevoked() ? "YES" : "NO", OUTPUT_REVOKED_LEN) << ' '
+      << pad_end(token.canUseServiceMode() ? "YES" : "NO", OUTPUT_SERVICE_LEN)
+      << "|\n";
+  }
+  print_table_horizontal_line();
 }
 
 void revoke_token(uint32_t id, const SharedParams& params) {

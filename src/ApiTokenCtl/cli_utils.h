@@ -7,6 +7,12 @@
 #include <boost/program_options.hpp>
 #include <nlohmann/json.hpp>
 
+#define OUTPUT_ID_LEN 5
+#define MAX_OWNER_LEN 64
+#define OUTPUT_DT_LEN 10
+#define OUTPUT_REVOKED_LEN 7
+#define OUTPUT_SERVICE_LEN 7
+
 /**
  * @file cli_utils.h
  * @brief Command-line interface helpers for printing usage, parsing options,
@@ -14,17 +20,17 @@
  */
 
 /**
- * @brief Print general usage help message.
+ * @brief Prints general usage help message.
  */
 void print_generic_help();
 
 /**
- * @brief Print create command usage help message.
+ * @brief Prints create command usage help message.
  */
 void print_create_help();
 
 /**
- * @brief Print list command usage help message.
+ * @brief Prints list command usage help message.
  */
 void print_list_help();
 
@@ -34,9 +40,19 @@ void print_list_help();
 void print_get_help();
 
 /**
- * @brief Print revoke command usage help message.
+ * @brief Prints revoke command usage help message.
  */
 void print_revoke_help();
+
+/**
+ * @brief Prints table horizontal line
+ */
+void print_table_horizontal_line();
+
+/**
+ * @brief Prints table header
+ */
+void print_list_header();
 
 /**
  * @struct SharedParams
@@ -88,3 +104,16 @@ nlohmann::json token_to_json(const iqrf::db::models::ApiToken& token);
  * @return JSON-serialized token string
  */
 std::string token_to_json_string(const iqrf::db::models::ApiToken& token);
+
+/**
+ * @brief Pad string end with specified character up to maximum width
+ *
+ * If the input text is longer than maximum width, it will be truncated.
+ *
+ * @param text Text to pad
+ * @param max_width Maximum output width
+ * @param pad_character Character to pad string with
+ *
+ * @return `std::string` Padded string
+ */
+std::string pad_end(const std::string& text, std::size_t max_width, char pad_character = ' ');
