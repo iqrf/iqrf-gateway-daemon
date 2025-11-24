@@ -16,7 +16,8 @@
         "tlsEnabled",
         "tlsMode",
         "cert",
-        "privKey"
+        "privKey",
+        "authTimeout"
     ],
     "additionalProperties": false,
     "properties": {
@@ -64,6 +65,12 @@
         "privKey": {
             "type": "string",
             "description": "Private key file"
+        },
+        "authTimeout": {
+            "type": "integer",
+            "description": "Authentication timeout for clients",
+            "minimum": 10,
+            "maximum": 60
         }
     }
 }
