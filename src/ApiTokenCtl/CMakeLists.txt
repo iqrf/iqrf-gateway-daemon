@@ -20,7 +20,7 @@ SET(DB_HEADERS
 )
 add_library(${LIB_NAME} ${LIB_SOURCES} ${DB_HEADERS})
 target_include_directories(${LIB_NAME} PUBLIC
-  ${CMAKE_SOURCE_DIR}/src/api-token-ctl
+  ${CMAKE_SOURCE_DIR}/src/ApiTokenCtl
   ${CMAKE_SOURCE_DIR}/src/DbEntities/models
   ${CMAKE_SOURCE_DIR}/src/DbEntities/repositories
 )
