@@ -70,14 +70,15 @@ namespace iqrf {
       );
 
       modify(props);
-      m_db = std::make_shared<SQLite::Database>(
-        SQLite::Database(
-          m_dbPath,
-          SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE,
-          500
-        )
-      );
       try {
+        m_db = std::make_shared<SQLite::Database>(
+          SQLite::Database(
+            m_dbPath,
+            SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE,
+            500
+          )
+        );
+        m_db->exec("PRAGMA journal_mode=WAL;");
         MigrationManager manager(m_migrationDir);
         manager.migrate(m_db);
       } catch (const std::exception &e) {

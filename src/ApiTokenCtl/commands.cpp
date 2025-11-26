@@ -15,10 +15,6 @@ void create_token(const std::string& owner, const std::string& expiration, bool 
       "owner value too long: " + std::to_string(owner.length()) + " characters (maximum " + std::to_string(MAX_OWNER_LEN) + ')'
     );
   }
-  auto db = create_database_connetion(params.db_path);
-  if (!db->tableExists("api_tokens")) {
-    throw std::runtime_error("Table api_tokens does not exist in database.");
-  }
 
   std::size_t created_at = DateTimeUtils::get_current_timestamp();
   auto parsed_expiration = DateTimeUtils::parse_expiration(expiration, created_at);
@@ -37,6 +33,11 @@ void create_token(const std::string& owner, const std::string& expiration, bool 
     false,
     service
   );
+
+  auto db = create_database_connetion(params.db_path);
+  if (!db->tableExists("api_tokens")) {
+    throw std::runtime_error("Table api_tokens does not exist in database.");
+  }
 
   iqrf::db::repos::ApiTokenRepository repo(db);
   repo.insert(token);
