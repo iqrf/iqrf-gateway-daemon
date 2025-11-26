@@ -7,5 +7,6 @@
     "tlsEnabled": false,
     "tlsMode": 1,
     "cert": "/etc/iqrf-gateway-daemon/certs/core/cert.pem",
-    "privKey": "/etc/iqrf-gateway-daemon/certs/core/privkey.pem"
+    "privKey": "/etc/iqrf-gateway-daemon/certs/core/privkey.pem",
+    "authTimeout": 30
 }
