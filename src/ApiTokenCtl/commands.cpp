@@ -10,9 +10,11 @@
 using json = nlohmann::json;
 
 void create_token(const std::string& owner, const std::string& expiration, bool service, const SharedParams& params) {
-  throw std::invalid_argument(
-    "owner value too long: " + std::to_string(owner.length()) + " characters (maximum " + std::to_string(MAX_OWNER_LEN) + ')'
-  );
+  if (owner.length() > MAX_OWNER_LEN) {
+    throw std::invalid_argument(
+      "owner value too long: " + std::to_string(owner.length()) + " characters (maximum " + std::to_string(MAX_OWNER_LEN) + ')'
+    );
+  }
   auto db = create_database_connetion(params.db_path);
   if (!db->tableExists("api_tokens")) {
     throw std::runtime_error("Table api_tokens does not exist in database.");
