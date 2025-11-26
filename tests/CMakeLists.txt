@@ -22,7 +22,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   nlohmann_json::nlohmann_json
   OpenSSL::SSL
   OpenSSL::Crypto
+  SQLiteCpp
 )
 
 include(GoogleTest)
-gtest_discover_tests(${PROJECT_NAME})
+gtest_discover_tests(${PROJECT_NAME} PROPERTIES
+  ENVIRONMENT "TESTS_DATA_DIR=${CMAKE_CURRENT_SOURCE_DIR}/"
+)
