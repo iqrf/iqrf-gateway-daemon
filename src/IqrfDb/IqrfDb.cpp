@@ -80,16 +80,16 @@ namespace iqrf {
 	}
 
 	void IqrfDb::reloadDrivers() {
-      TRC_FUNCTION_ENTER("");
+			TRC_FUNCTION_ENTER("");
 
-      if (m_renderService != nullptr) {
-        m_renderService->clearContexts();
-      }
-      loadCoordinatorDrivers();
-      loadProductDrivers();
+			if (m_renderService != nullptr) {
+				m_renderService->clearContexts();
+			}
+			loadCoordinatorDrivers();
+			loadProductDrivers();
 
-      TRC_FUNCTION_LEAVE("");
-    }
+			TRC_FUNCTION_LEAVE("");
+		}
 
 	void IqrfDb::reloadCoordinatorDrivers() {
 		TRC_FUNCTION_ENTER("");
@@ -100,49 +100,49 @@ namespace iqrf {
 	///// BINARY OUTPUT API
 
 	std::unique_ptr<BinaryOutput> IqrfDb::getBinaryOutput(const uint32_t id) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::BinaryOutputRepository binoutRepo(m_db);
 		return binoutRepo.get(id);
 	}
 
 	std::unique_ptr<BinaryOutput> IqrfDb::getBinaryOutputByDeviceId(const uint32_t deviceId) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::BinaryOutputRepository binoutRepo(m_db);
 		return binoutRepo.get(deviceId);
 	}
 
 	uint32_t IqrfDb::insertBinaryOutput(BinaryOutput &binaryOutput) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::BinaryOutputRepository binoutRepo(m_db);
 		return binoutRepo.insert(binaryOutput);
 	}
 
 	void IqrfDb::updateBinaryOutput(BinaryOutput &binaryOutput) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::BinaryOutputRepository binoutRepo(m_db);
 		binoutRepo.update(binaryOutput);
 	}
 
 	void IqrfDb::removeBinaryOutput(const uint32_t id) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::BinaryOutputRepository binoutRepo(m_db);
 		binoutRepo.remove(id);
 	}
 
 	void IqrfDb::removeBinaryOutputByDeviceId(const uint32_t deviceId) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::BinaryOutputRepository binoutRepo(m_db);
 		binoutRepo.removeByDeviceId(deviceId);
 	}
 
 	std::set<uint8_t> IqrfDb::getBinaryOutputAddresses() {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::BinaryOutputRepository binoutRepo(m_db);
 		return binoutRepo.getAddresses();
 	}
 
 	std::map<uint8_t, uint8_t> IqrfDb::getBinaryOutputCountMap() {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::BinaryOutputRepository binoutRepo(m_db);
 		return binoutRepo.getAddressCountMap();
 	}
@@ -150,61 +150,61 @@ namespace iqrf {
 	///// DEVICE API
 
 	std::unique_ptr<Device> IqrfDb::getDeviceByAddress(const uint8_t address) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceRepository deviceRepo(m_db);
 		return std::move(deviceRepo.getByAddress(address));
 	}
 
 	std::unique_ptr<Device> IqrfDb::getDeviceByMid(const uint32_t mid) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceRepository deviceRepo(m_db);
 		return std::move(deviceRepo.getByMid(mid));
 	}
 
 	std::vector<std::pair<Device, Product>> IqrfDb::getDevices(const std::vector<uint8_t>& requestedDevices) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceRepository deviceRepo(m_db);
 		return deviceRepo.getDeviceProductPairs(requestedDevices);
 	}
 
 	void IqrfDb::updateDevice(Device &device) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceRepository deviceRepo(m_db);
 		deviceRepo.update(device);
 	}
 
 	std::set<uint8_t> IqrfDb::getDeviceAddresses() {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceRepository deviceRepo(m_db);
 		return deviceRepo.getAddresses();
 	}
 
 	std::optional<uint32_t> IqrfDb::getDeviceMid(const uint8_t address) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceRepository deviceRepo(m_db);
 		return deviceRepo.getMidByAddress(address);
 	}
 
 	std::optional<uint16_t> IqrfDb::getDeviceHwpid(const uint8_t address) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceRepository deviceRepo(m_db);
 		return deviceRepo.getHwpidByAddress(address);
 	}
 
 	bool IqrfDb::deviceImplementsPeripheral(const uint32_t &id, const int16_t peripheral) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceRepository deviceRepo(m_db);
 		return deviceRepo.implementsPeripheral(id, peripheral);
 	}
 
 	std::shared_ptr<std::string> IqrfDb::getDeviceMetadata(const uint8_t address) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceRepository deviceRepo(m_db);
 		return deviceRepo.getMetadataByAddress(address);
 	}
 
 	rapidjson::Document IqrfDb::getDeviceMetadataDoc(const uint8_t address) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceRepository deviceRepo(m_db);
 		auto metadata = deviceRepo.getMetadataByAddress(address);
 		rapidjson::Document doc;
@@ -218,7 +218,7 @@ namespace iqrf {
 	}
 
 	void IqrfDb::setDeviceMetadata(const uint8_t address, std::shared_ptr<std::string> metadata) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceRepository deviceRepo(m_db);
 		auto device = deviceRepo.getByAddress(address);
 		if (device == nullptr) {
@@ -229,7 +229,7 @@ namespace iqrf {
 	}
 
 	std::map<uint8_t, embed::node::NodeMidHwpid> IqrfDb::getNodeMidHwpidMap() {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceRepository deviceRepo(m_db);
 		return deviceRepo.getNodeMidHwpidMap();
 	}
@@ -237,31 +237,31 @@ namespace iqrf {
 	///// DEVICE SENSORS API
 
 	bool IqrfDb::deviceHasSensors(const uint8_t address) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
 		return deviceSensorRepo.deviceHasSensors(address);
 	}
 
 	std::map<uint8_t, std::vector<std::pair<uint8_t, Sensor>>> IqrfDb::getDeviceAddressIndexSensorMap() {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
 		return deviceSensorRepo.getDeviceAddressIndexSensorMap();
 	}
 
 	std::map<uint8_t, std::vector<std::pair<DeviceSensor, Sensor>>> IqrfDb::getDeviceAddressSensorMap() {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
 		return deviceSensorRepo.getDeviceAddressSensorMap();
 	}
 
 	std::unordered_map<uint8_t, std::vector<std::pair<uint8_t, uint8_t>>> IqrfDb::getSensorTypeAddressIndexMap() {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
 		return deviceSensorRepo.getSensorTypeAddressIndexMap();
 	}
 
 	std::optional<uint8_t> IqrfDb::getGlobalSensorIndex(const uint8_t address, const uint8_t type, const uint8_t typeIndex) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
 		return deviceSensorRepo.getGlobalSensorIndex(address, type, typeIndex);
 	}
@@ -273,7 +273,7 @@ namespace iqrf {
 
 	void IqrfDb::setDeviceSensorValue(const uint8_t address, const uint8_t type, const uint8_t index,
 		const double value, std::shared_ptr<std::string> updated, bool frc) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
 		auto ds = deviceSensorRepo.getByAddressTypeIndex(address, type, index, frc);
 		if (ds == nullptr) {
@@ -289,7 +289,7 @@ namespace iqrf {
 
 	void IqrfDb::setDeviceSensorMetadata(const uint8_t address, const uint8_t type, const uint8_t index, json &metadata,
 		std::shared_ptr<std::string> updated, bool frc) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
 		auto ds = deviceSensorRepo.getByAddressTypeIndex(address, type, index, frc);
 		if (ds == nullptr) {
@@ -316,43 +316,43 @@ namespace iqrf {
 	///// LIGHT API
 
 	std::unique_ptr<Light> IqrfDb::getLight(const uint32_t id) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::LightRepository lightRepo(m_db);
 		return lightRepo.get(id);
 	}
 
 	std::unique_ptr<Light> IqrfDb::getLightByDeviceId(const uint32_t deviceId) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::LightRepository lightRepo(m_db);
 		return lightRepo.getByDeviceId(deviceId);
 	}
 
 	uint32_t IqrfDb::insertLight(Light &light) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::LightRepository lightRepo(m_db);
 		return lightRepo.insert(light);
 	}
 
 	void IqrfDb::updateLight(Light &light) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::LightRepository lightRepo(m_db);
 		lightRepo.update(light);
 	}
 
 	void IqrfDb::removeLight(const uint32_t id) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::LightRepository lightRepo(m_db);
 		lightRepo.remove(id);
 	}
 
 	void IqrfDb::removeLightByDeviceId(const uint32_t deviceId) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::LightRepository lightRepo(m_db);
 		lightRepo.removeByDeviceId(deviceId);
 	}
 
 	std::set<uint8_t> IqrfDb::getLightAddresses() {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::LightRepository lightRepo(m_db);
 		return lightRepo.getAddresses();
 	}
@@ -360,7 +360,7 @@ namespace iqrf {
 	///// PRODUCT API
 
 	std::unique_ptr<Product> IqrfDb::getProduct(const uint32_t productId) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::ProductRepository productRepo(m_db);
 		return std::move(productRepo.get(productId));
 	}
@@ -369,19 +369,19 @@ namespace iqrf {
 
 	std::unique_ptr<Sensor> IqrfDb::getSensorByAddressIndexType(const uint8_t address, const uint8_t index,
 		const uint8_t type) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::SensorRepository sensorRepo(m_db);
 		return sensorRepo.getByAddressIndexType(address, index, type);
 	}
 
 	std::map<uint8_t, Sensor> IqrfDb::getDeviceSensorsMapByAddress(const uint8_t address) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::SensorRepository sensorRepo(m_db);
 		return sensorRepo.getDeviceSensorIndexMap(address);
 	}
 
 	std::map<uint8_t, uint32_t> IqrfDb::getDeviceSensorsIdMapByAddress(const uint8_t address) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
+		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::SensorRepository sensorRepo(m_db);
 		return sensorRepo.getDeviceSensorIdIndexMap(address);
 	}
