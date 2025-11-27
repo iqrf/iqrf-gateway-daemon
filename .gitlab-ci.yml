@@ -89,6 +89,9 @@ api-testing:
   tags:
     - docker
     - daemon-api-testing
+  variables:
+    DOCKER_HOST: "unix:///runner/services/docker/docker.sock"
+    DOCKER_TLS_CERTDIR: "/certs"
 
 # Jsonnet
 jsonnet-build:
