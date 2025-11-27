@@ -65,7 +65,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
-        "Websocket auth instance activate" << std::endl <<
+        "ApiTokenService instance activate" << std::endl <<
         "******************************"
       );
 
@@ -78,7 +78,7 @@ namespace iqrf {
             500
           )
         );
-        m_db->exec("PRAGMA journal_mode=WAL;");
+        //m_db->exec("PRAGMA journal_mode=WAL;");
         MigrationManager manager(m_migrationDir);
         manager.migrate(m_db);
       } catch (const std::exception &e) {
@@ -103,7 +103,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
-        "Websocket auth instance deactivate" << std::endl <<
+        "ApiTokenService instance deactivate" << std::endl <<
         "******************************"
       );
 
