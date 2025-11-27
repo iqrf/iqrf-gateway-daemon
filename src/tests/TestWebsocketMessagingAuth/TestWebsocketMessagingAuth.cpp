@@ -53,6 +53,7 @@ namespace iqrf {
   public:
     shape::ILaunchService* m_iLaunchService = nullptr;
     iqrf::ITestSimulationIqrfChannel* m_iTestSimulationIqrfChannel = nullptr;
+    iqrf::IApiTokenService* m_tokenService = nullptr;
 
     shape::GTestStaticRunner m_gtest;
 
@@ -104,6 +105,18 @@ namespace iqrf {
       }
     }
 
+    void attachInterface(iqrf::IApiTokenService* iface)
+    {
+      m_tokenService = iface;
+    }
+
+    void detachInterface(iqrf::IApiTokenService* iface)
+    {
+      if (m_tokenService == iface) {
+        m_tokenService = nullptr;
+      }
+    }
+
     void attachInterface(shape::ILaunchService* iface)
     {
       m_iLaunchService = iface;
@@ -148,6 +161,16 @@ namespace iqrf {
   }
 
   void TestWebsocketMessagingAuth::detachInterface(iqrf::ITestSimulationIqrfChannel* iface)
+  {
+    Imp::get().detachInterface(iface);
+  }
+
+  void TestWebsocketMessagingAuth::attachInterface(iqrf::IApiTokenService* iface)
+  {
+    Imp::get().attachInterface(iface);
+  }
+
+  void TestWebsocketMessagingAuth::detachInterface(iqrf::IApiTokenService* iface)
   {
     Imp::get().detachInterface(iface);
   }
@@ -235,6 +258,9 @@ namespace iqrf {
       ASSERT_FALSE(ec);
       auto path = Imp::get().m_iLaunchService->getConfigurationDir() + "/DB/IqrfAuthDb.db";
       db = create_database_connetion(path);
+      //SQLite::Statement stmt(*db, "PRAGMA journal_mode;");
+      //ASSERT_TRUE(stmt.executeStep());
+      //ASSERT_STREQ("wal", stmt.getColumn(0).getText());
       ASSERT_TRUE(db->tableExists("api_tokens"));
     }
 

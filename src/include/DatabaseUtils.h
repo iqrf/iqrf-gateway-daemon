@@ -3,6 +3,7 @@
 #include <memory>
 
 #include <SQLiteCpp/SQLiteCpp.h>
+#include <sqlite3.h>
 
 /**
  * @file db_utils.h
@@ -21,7 +22,7 @@
  * @param wal Write-ahead logging journal mode
  * @return Database connection handle
  */
-std::shared_ptr<SQLite::Database> create_database_connetion(const std::string& path, bool create = true, int busyTimeout = 3000, bool wal = true) {
+std::shared_ptr<SQLite::Database> create_database_connetion(const std::string& path, bool create = true, int busyTimeout = 3000, bool wal = false) {
   if (!create && !std::filesystem::exists(path)) {
     throw std::invalid_argument("Database file does not exist.");
   }
