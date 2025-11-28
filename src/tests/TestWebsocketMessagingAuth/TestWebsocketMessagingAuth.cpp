@@ -257,10 +257,10 @@ namespace iqrf {
       ws.handshake("localhost", "/", ec);
       ASSERT_FALSE(ec);
       auto path = Imp::get().m_iLaunchService->getConfigurationDir() + "/DB/IqrfAuthDb.db";
-      db = create_database_connetion(path);
-      //SQLite::Statement stmt(*db, "PRAGMA journal_mode;");
-      //ASSERT_TRUE(stmt.executeStep());
-      //ASSERT_STREQ("wal", stmt.getColumn(0).getText());
+      db = create_database_connetion(path, false, 500, true);
+      SQLite::Statement stmt(*db, "PRAGMA journal_mode;");
+      ASSERT_TRUE(stmt.executeStep());
+      ASSERT_STREQ("wal", stmt.getColumn(0).getText());
       ASSERT_TRUE(db->tableExists("api_tokens"));
     }
 
