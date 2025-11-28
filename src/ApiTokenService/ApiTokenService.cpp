@@ -78,7 +78,7 @@ namespace iqrf {
             500
           )
         );
-        //m_db->exec("PRAGMA journal_mode=WAL;");
+        m_db->exec("PRAGMA journal_mode=WAL;");
         MigrationManager manager(m_migrationDir);
         manager.migrate(m_db);
       } catch (const std::exception &e) {
