@@ -32,6 +32,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibdpa_INCLUDE_DIRS})
 
+find_package(SQLite3 REQUIRED)
+
 if(SHAPE_STATIC_LIBS)
   add_library(${PROJECT_NAME} STATIC
     ${_HDRFILES}
@@ -47,6 +49,8 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+  SQLite::SQLite3
+  SQLiteCpp
   DbEntities
   MigrationManager
 )

@@ -23,6 +23,8 @@ include_directories(${CMAKE_SOURCE_DIR}/src/DpaParser)
 
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 
+find_package(SQLite3 REQUIRED)
+
 if(SHAPE_STATIC_LIBS)
   add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES} ${_SRCCONFIG})
 else()
@@ -30,6 +32,8 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME}
+  SQLite::SQLite3
+  SQLiteCpp
   GTestStaticRunner
   gtest
   gtest_main
