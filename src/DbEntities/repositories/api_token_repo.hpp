@@ -59,7 +59,7 @@ public:
     stmt.bind(6, apiToken.isRevoked());
     stmt.bind(7, apiToken.canUseServiceMode());
     try {
-    stmt.exec();
+      stmt.exec();
     } catch (const SQLite::Exception &e) {
       throw std::runtime_error(
         this->formatErrorMessage(
