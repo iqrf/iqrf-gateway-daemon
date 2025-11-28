@@ -34,7 +34,7 @@ void create_token(const std::string& owner, const std::string& expiration, bool 
     service
   );
 
-  auto db = create_database_connetion(params.db_path);
+  auto db = create_database_connetion(params.db_path, true, 3000, true);
   if (!db->tableExists("api_tokens")) {
     throw std::runtime_error("Table api_tokens does not exist in database.");
   }
@@ -50,7 +50,7 @@ void create_token(const std::string& owner, const std::string& expiration, bool 
 }
 
 void get_token(uint32_t id, const SharedParams& params) {
-  auto db = create_database_connetion(params.db_path);
+  auto db = create_database_connetion(params.db_path, true, 3000, true);
   if (!db->tableExists("api_tokens")) {
     throw std::runtime_error("Table api_tokens does not exist in database.");
   }
@@ -74,7 +74,7 @@ void get_token(uint32_t id, const SharedParams& params) {
 }
 
 void list_tokens(const SharedParams& params) {
-  auto db = create_database_connetion(params.db_path);
+  auto db = create_database_connetion(params.db_path, true, 3000, true);
   if (!db->tableExists("api_tokens")) {
     throw std::runtime_error("Table api_tokens does not exist in database.");
   }
@@ -106,7 +106,7 @@ void list_tokens(const SharedParams& params) {
 }
 
 void revoke_token(uint32_t id, const SharedParams& params) {
-  auto db = create_database_connetion(params.db_path);
+  auto db = create_database_connetion(params.db_path, true, 3000, true);
   if (!db->tableExists("api_tokens")) {
     throw std::runtime_error("Table api_tokens does not exist in database.");
   }
@@ -128,7 +128,7 @@ void revoke_token(uint32_t id, const SharedParams& params) {
 }
 
 void verify_token(const std::string& token, const SharedParams& params) {
-  auto db = create_database_connetion(params.db_path);
+  auto db = create_database_connetion(params.db_path, true, 3000, true);
   if (!db->tableExists("api_tokens")) {
     throw std::runtime_error("Table api_tokens does not exist in database.");
   }
