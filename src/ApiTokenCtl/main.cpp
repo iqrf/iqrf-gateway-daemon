@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
       bpo::store(bpo::command_line_parser(args).options(opts).run(), vm);
       if (vm.count("help")) {
         print_create_help();
-        EXIT_SUCCESS;
+        return EXIT_SUCCESS;
       }
       bpo::notify(vm);
 
@@ -110,28 +110,6 @@ int main(int argc, char** argv) {
 
       auto id = get_token_id(vm);
       revoke_token(id, make_shared_params(vm));
-    } catch (const std::exception &e) {
-      std::cerr << e.what() << "\n";
-      return EXIT_FAILURE;
-    }
-  } else if (command == "verify") {
-    auto opts = make_base_options();
-    opts.add_options()
-      (
-        "token,t",
-        bpo::value<std::string>()->required(),
-        "token to verify"
-      );
-
-    bpo::variables_map vm;
-    try {
-      bpo::store(bpo::command_line_parser(args).options(opts).run(), vm);
-      bpo::notify(vm);
-
-      verify_token(
-        vm["token"].as<std::string>(),
-        make_shared_params(vm)
-      );
     } catch (const std::exception &e) {
       std::cerr << e.what() << "\n";
       return EXIT_FAILURE;

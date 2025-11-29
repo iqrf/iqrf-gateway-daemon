@@ -126,37 +126,3 @@ void revoke_token(uint32_t id, const SharedParams& params) {
   }
   std::cout << "API token ID " << std::to_string(id) << " has been revoked.\n";
 }
-
-void verify_token(const std::string& token, const SharedParams& params) {
-  auto db = create_database_connetion(params.db_path, true, 3000, true);
-  if (!db->tableExists("api_tokens")) {
-    throw std::runtime_error("Table api_tokens does not exist in database.");
-  }
-
-  uint32_t id = 0;
-  std::string secret;
-  CryptoUtils::parse_token(token, id, secret);
-
-  iqrf::db::repos::ApiTokenRepository repo(db);
-  auto dbToken = repo.get(id);
-  if (!dbToken) {
-    throw std::invalid_argument("API token record does not exist.");
-  }
-  if (dbToken->isRevoked()) {
-    throw std::runtime_error("API token has been revoked.");
-  }
-  if (dbToken->getExpiresAt() < DateTimeUtils::get_current_timestamp()) {
-    throw std::runtime_error("API token validity has expired.");
-  }
-
-  auto salt = CryptoUtils::base64_decode_data(dbToken->getSalt());
-  auto hash = CryptoUtils::base64_decode_data(dbToken->getHash());
-  auto key = CryptoUtils::base64_decode_data(secret);
-
-  auto candidate = CryptoUtils::sha256_hash_data(salt, key);
-
-  if (hash != candidate) {
-    throw std::invalid_argument("Incorrect API token.");
-  }
-  std::cout << "API token verified.\n";
-}
