@@ -1,19 +1,18 @@
 /**
- * IQRF Gateway Daemon
- * Copyright (C) 2015-2025 IQRF Tech s.r.o., 2019-2025 MICRORISC s.r.o.
+ * Copyright 2015-2025 IQRF Tech s.r.o.
+ * Copyright 2019-2025 MICRORISC s.r.o.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 #pragma once
 
@@ -28,66 +27,72 @@ namespace iqrf::db::models {
  */
 class Light {
 public:
-	/**
-	 * Base constructor
-	 */
-	Light() = default;
+  /**
+   * Base constructor
+   */
+  Light() = default;
 
-	/**
-	 * Constructor without ID
-	 * @param deviceId Device ID
-	 */
-	Light(const uint32_t deviceId) : deviceId(deviceId) {};
+  /**
+   * Constructor without ID
+   * @param deviceId Device ID
+   */
+  Light(const uint32_t deviceId) : deviceId(deviceId) {};
 
-	/**
-	 * Full constructor
-	 * @param id ID
-	 * @param deviceId Device ID
-	 */
-	Light(const uint32_t id, const uint32_t deviceId) : id(id), deviceId(deviceId) {};
+  /**
+   * Full constructor
+   * @param id ID
+   * @param deviceId Device ID
+   */
+  Light(const uint32_t id, const uint32_t deviceId) : id(id), deviceId(deviceId) {};
 
-	/**
-	 * Returns Light ID
-	 * @return Light ID
-	 */
-	uint32_t getId() const {
-		return id;
-	}
+  /**
+   * Returns Light ID
+   * @return Light ID
+   */
+  uint32_t getId() const {
+    return id;
+  }
 
-	/**
-	 * Sets Light ID
-	 * @param id Light ID
-	 */
-	void setId(const uint32_t id) {
-		this->id = id;
-	}
+  /**
+   * Sets Light ID
+   * @param id Light ID
+   */
+  void setId(const uint32_t id) {
+    this->id = id;
+  }
 
-	/**
-	 * Returns device ID
-	 * @return Device ID
-	 */
-	uint32_t getDeviceId() const {
-		return deviceId;
-	}
+  /**
+   * Returns device ID
+   * @return Device ID
+   */
+  uint32_t getDeviceId() const {
+    return deviceId;
+  }
 
-	/**
-	 * Sets device ID
-	 * @param deviceId Device ID
-	 */
-	void setDeviceId(const uint32_t deviceId) {
-		this->deviceId = deviceId;
-	}
+  /**
+   * Sets device ID
+   * @param deviceId Device ID
+   */
+  void setDeviceId(const uint32_t deviceId) {
+    this->deviceId = deviceId;
+  }
 
-	static Light fromResult(SQLite::Statement &stmt) {
-		auto id = stmt.getColumn(0).getUInt();
-		auto deviceId = stmt.getColumn(1).getUInt();
-		return Light(id, deviceId);
-	}
+  /**
+   * @brief Creates a Light object from SQLite::Statement query result.
+   *
+   * @param stmt SQLiteCpp statement object
+   * @return A new `Light` constructed from query result.
+   */
+  static Light fromResult(SQLite::Statement &stmt) {
+    auto id = stmt.getColumn(0).getUInt();
+    auto deviceId = stmt.getColumn(1).getUInt();
+    return Light(id, deviceId);
+  }
 private:
-	/// Light ID
-	uint32_t id;
-	/// Device ID
-	uint32_t deviceId;
+  /// Light ID
+  uint32_t id;
+  /// Device ID
+  uint32_t deviceId;
 };
 
 }
