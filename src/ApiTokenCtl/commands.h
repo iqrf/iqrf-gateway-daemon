@@ -39,11 +39,3 @@ void list_tokens(const SharedParams& params);
  * @param params Shared CLI parameters
  */
 void revoke_token(uint32_t id, const SharedParams& params);
-
-/**
- * TEST COMMAND, WILL NOT BE PART OF CLI UTIL
- * @brief Vetifies an API token
- * @param token API token to verify
- * @param params Shared CLI parameters
- */
-void verify_token(const std::string& token, const SharedParams& params);

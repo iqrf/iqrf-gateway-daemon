@@ -9,12 +9,14 @@ void print_generic_help() {
   std::cout << "Usage: iqrfgd2-tokenctl <command> [options]\n"
     << "Commands:\n"
     << "  create    Create a new API token\n"
+    << "  get       Get information about an API token\n"
+    << "  list      Lists API tokens\n"
     << "  revoke    Revoke an API token\n"
     << "  help      Show help\n\n"
     << "Generic options:\n"
     << "  -h, --help: Show help\n"
     << "  -p, --path: Path to SQLite database file\n"
-    << "  -j, --json: JSON output format"
+    << "  -j, --json: JSON output format\n\n"
     << "Use 'iqrfgd2-tokenctl <command> --help' to command options.\n";
 }
 
