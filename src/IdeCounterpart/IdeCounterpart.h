@@ -18,10 +18,12 @@
 
 #include "ShapeProperties.h"
 #include "IUdpConnectorService.h"
+#include "IMessagingSplitterService.h"
 #include "ITraceService.h"
 #include "IUdpMessagingService.h"
 #include "IIqrfChannelService.h"
 #include "IIqrfDpaService.h"
+#include "IApiTokenService.h"
 #include "TaskQueue.h"
 #include "Trace.h"
 #include <string>
@@ -44,6 +46,21 @@ namespace iqrf {
 	/// IDE counterpart class
 	class IdeCounterpart : public IUdpConnectorService {
 	public:
+    /**
+     * API status codes
+     */
+    enum class StatusCode {
+      Ok,                         //< No errors
+      InternalError,              //< An unexpected internal error has occurred
+      WebSocketOnly,              //< API message did not come from a websocket client
+      InsufficientPermission,     //< API token lacks service mode permission
+      AlreadyActive,              //< Attempt to activate already activated service mode
+      AlreadyInactive,            //< Attempt to deactivete already inactive service mode
+      NotActive,                  //< Service mode is not active, but required for the operation
+      LegacyActive,               //< Legacy service mode is active, but operation requires new legacy mode
+      NotOwner,                   //< Another session manages service mode
+    };
+
 		/**
 		 * Constructor
 		 */
@@ -122,15 +139,39 @@ namespace iqrf {
 
 		/**
 		 * Attaches UDP messaging service interface
-		 * @param iface IQRF channel service interface
+		 * @param iface UDP messaging service interface
 		 */
 		void attachInterface(iqrf::IUdpMessagingService* iface);
 
 		/**
 		 * Detaches UDP messaging service interface
-		 * @param iface IQRF channel service interface
+		 * @param iface UDP messaging service interface
 		 */
 		void detachInterface(iqrf::IUdpMessagingService* iface);
+
+    /**
+		 * Attaches API token service interface
+		 * @param iface API token service interface
+		 */
+		void attachInterface(iqrf::IApiTokenService* iface);
+
+		/**
+		 * Detaches API token service interface
+		 * @param iface API token service interface
+		 */
+		void detachInterface(iqrf::IApiTokenService* iface);
+
+    /**
+		 * Attaches Splitter service interface
+		 * @param iface Splitter service interface
+		 */
+		void attachInterface(iqrf::IMessagingSplitterService* iface);
+
+		/**
+		 * Detaches Splitter service interface
+		 * @param iface Splitter service interface
+		 */
+		void detachInterface(iqrf::IMessagingSplitterService* iface);
 
 		/**
 		 * Attaches tracing service interface
@@ -144,32 +185,34 @@ namespace iqrf {
 		 */
 		void detachInterface(shape::ITraceService* iface);
 	private:
-		/**
-		 * Handles incoming UDP messages from IDE
-		 * @param message IDE message
-		 * @return Execution status code
-		 */
-		int handleMsg(const std::vector<uint8_t> &message);
+    /**
+     * Service mode type
+     */
+    enum class ModeType {
+      None,       //< Inactive
+      Legacy,     //< mngDaemon_Mode
+      New,        //< mngService_Activate
+    };
 
-		/**
-		 * Validates UDP message
-		 * @param message UDP message
-		 */
-		void validateMsg(const std::basic_string<unsigned char> &message);
+    /// Supported message types
 
-		/**
-		 * Asynchronous response handler, used for sending responses to IDE
-		 * @param message Message to send
-		 * @return Execution status code
-		 */
-		int sendMessageToIde(const std::basic_string<unsigned char> &message);
+    static constexpr const char* MsgActivate = "mngService_Activate";
+    static constexpr const char* MsgDeactivate = "mngService_Deactivate";
+    static constexpr const char* MsgGatewayIdent = "mngService_GatewayIdentification";
+    static constexpr const char* MsgTrInfo = "mngService_TrInfo";
+    static constexpr const char* MsgTrWrite = "mngService_TrWrite";
+    static constexpr const char* MsgTrData = "mngService_TrData";
 
-		/// IQRF channel service interface
+    /// IQRF channel service interface
 		IIqrfChannelService *m_iqrfChannelService = nullptr;
 		/// DPA service interface
 		IIqrfDpaService *m_iqrfDpaService = nullptr;
 		/// UDP messaging service interface
 		IUdpMessagingService *m_messaging = nullptr;
+    /// API token service interface
+    IApiTokenService *m_tokenService = nullptr;
+    /// Splitter service interface
+    IMessagingSplitterService *m_splitterService = nullptr;
 		/// Gateway mode mutex
 		mutable std::mutex m_modeMtx;
 		/// Current gateway mode
@@ -183,5 +226,56 @@ namespace iqrf {
 		mutable std::mutex m_callbackMutex;
 		/// Map of Mode set callbacks
 		std::map<std::string, std::function<void()>> m_setModeCallbacks;
+    /// Mode type
+    ModeType m_modeType = ModeType::None;
+    /// Service mode owner
+    std::optional<MessagingInstance> m_serviceModeOwner;
+
+    /**
+     * Convert status code to status message
+     * @param code Status code
+     * @return Status message
+     */
+    static const char* statusCodeToString(StatusCode code);
+
+    /**
+     * Executes registered mode set callbacks
+     */
+    void executeModeSetCallbacks();
+
+		/**
+		 * Handles incoming UDP messages from IDE
+		 * @param message IDE message
+		 * @return Execution status code
+		 */
+		int handleIdeMsg(const std::vector<uint8_t> &message);
+
+		/**
+     * Validates UDP message from IDE
+     * @param message UDP message
+		 */
+    void validateIdeMsg(const std::basic_string<unsigned char>& message);
+
+		/**
+     * Asynchronous response handler, used for sending responses to IDE
+     * @param message Message to send
+     * @return Execution status code
+		 */
+    int sendMessageToIde(const std::basic_string<unsigned char>& message);
+
+    void handleSplitterMsg(const MessagingInstance& messaging, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc);
+
+    StatusCode gatewayIdentification(rapidjson::Document& response, const MessagingInstance& messaging);
+
+    StatusCode transceiverInformation(rapidjson::Document& response, const MessagingInstance& messaging);
+
+    StatusCode activateServiceMode(const MessagingInstance& messaging);
+
+    StatusCode deactivateServiceMode(const MessagingInstance& messaging);
+
+    StatusCode trWrite(rapidjson::Document& request, const MessagingInstance& messaging);
+
+    int sendJsonTrData(const std::basic_string<unsigned char>& message);
+
 	};
 }

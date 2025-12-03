@@ -18,6 +18,7 @@
 #define IUdpConnectorService_EXPORTS
 
 #include "IdeCounterpart.h"
+#include "HexStringCoversion.h"
 
 #include "iqrf__IdeCounterpart.hxx"
 
@@ -37,6 +38,145 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("")
 	}
 
+  ///// Component management /////
+
+	void IdeCounterpart::activate(const shape::Properties *props) {
+		TRC_FUNCTION_ENTER("");
+		TRC_INFORMATION(std::endl
+			<< "******************************" << std::endl
+			<< "IdeCounterpart instance activate" << std::endl
+			<< "******************************"
+		);
+		modify(props);
+    m_splitterService->registerFilteredMsgHandler(
+      {
+        MsgActivate,
+        MsgDeactivate,
+        MsgGatewayIdent,
+        MsgTrInfo,
+        MsgTrWrite,
+      },
+      [&](const MessagingInstance& messaging, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc) {
+        handleSplitterMsg(messaging, msgType, std::move(doc));
+      }
+    );
+		TRC_FUNCTION_LEAVE("")
+	}
+
+	void IdeCounterpart::modify(const shape::Properties *props) {
+		const Document& doc = props->getAsJson();
+
+		const Value* val = Pointer("/gwIdentModeByte").Get(doc);
+		if (val && val->IsUint()) {
+			m_params.mode = static_cast<uint8_t>(val->GetUint());
+		}
+
+		val = Pointer("/gwIdentName").Get(doc);
+		if (val && val->IsString()) {
+			m_params.name = val->GetString();
+		}
+
+		val = Pointer("/gwIdentIpStack").Get(doc);
+		if (val && val->IsString()) {
+			m_params.ipStack = val->GetString();
+		}
+
+		val = Pointer("/gwIdentNetBios").Get(doc);
+		if (val && val->IsString()) {
+			m_params.netBios = val->GetString();
+		}
+
+		val = Pointer("/gwIdentPublicIp").Get(doc);
+		if (val && val->IsString()) {
+			m_params.publicIp = val->GetString();
+		}
+
+		IUdpConnectorService::Mode startupMode = IdeCounterpart::Mode::Operational;
+		val = Pointer("/operMode").Get(doc);
+		if (val && val->IsString()) {
+			startupMode = ModeStringConvertor::str2enum(val->GetString());
+		}
+
+		setMode(startupMode);
+	}
+
+	void IdeCounterpart::deactivate() {
+		TRC_FUNCTION_ENTER("");
+		TRC_INFORMATION(std::endl <<
+			"******************************" << std::endl <<
+			"IdeCounterpart instance deactivate" << std::endl <<
+			"******************************"
+		);
+		setMode(IdeCounterpart::Mode::Operational);
+
+		TRC_FUNCTION_LEAVE("")
+	}
+
+	///// Interface management /////
+
+	void IdeCounterpart::attachInterface(iqrf::IIqrfChannelService* iface) {
+		m_iqrfChannelService = iface;
+	}
+
+	void IdeCounterpart::detachInterface(iqrf::IIqrfChannelService* iface) {
+		if (m_iqrfChannelService == iface) {
+			m_iqrfChannelService = nullptr;
+		}
+	}
+
+	void IdeCounterpart::attachInterface(iqrf::IIqrfDpaService* iface) {
+		m_iqrfDpaService = iface;
+	}
+
+	void IdeCounterpart::detachInterface(iqrf::IIqrfDpaService* iface) {
+		if (m_iqrfDpaService == iface) {
+			m_iqrfDpaService = nullptr;
+		}
+	}
+
+	void IdeCounterpart::attachInterface(iqrf::IUdpMessagingService* iface) {
+		m_messaging = iface;
+    m_messaging->registerMessageHandler([&](const MessagingInstance& messaging, const std::vector<uint8_t>& msg) {
+			(void)messaging;
+			return handleIdeMsg(msg);
+		});
+	}
+
+	void IdeCounterpart::detachInterface(iqrf::IUdpMessagingService* iface) {
+		if (m_messaging == iface) {
+      m_messaging->unregisterMessageHandler();
+			m_messaging = nullptr;
+		}
+	}
+
+  void IdeCounterpart::attachInterface(iqrf::IApiTokenService* iface) {
+		m_tokenService = iface;
+	}
+
+	void IdeCounterpart::detachInterface(iqrf::IApiTokenService* iface) {
+		if (m_tokenService == iface) {
+			m_tokenService = nullptr;
+		}
+	}
+
+  void IdeCounterpart::attachInterface(iqrf::IMessagingSplitterService* iface) {
+		m_splitterService = iface;
+	}
+
+	void IdeCounterpart::detachInterface(iqrf::IMessagingSplitterService* iface) {
+		if (m_splitterService == iface) {
+			m_splitterService = nullptr;
+		}
+	}
+
+	void IdeCounterpart::attachInterface(shape::ITraceService* iface) {
+		shape::Tracer::get().addTracerService(iface);
+	}
+
+	void IdeCounterpart::detachInterface(shape::ITraceService* iface) {
+		shape::Tracer::get().removeTracerService(iface);
+	}
+
 	///// API implementation /////
 
 	IUdpConnectorService::Mode IdeCounterpart::getMode() const {
@@ -52,29 +192,28 @@ namespace iqrf {
 		if (mode == Mode::Operational) {
 			m_exclusiveAcessor.reset();
 			m_snifferAcessor.reset();
+      // mark none mode type
+      m_modeType = ModeType::None;
 		} else if (mode == Mode::Forwarding) {
 			m_exclusiveAcessor.reset();
 			m_snifferAcessor = m_iqrfChannelService->getAccess([&](const std::basic_string<unsigned char>& received)->int {
 				return sendMessageToIde(received);
 			}, IIqrfChannelService::AccesType::Sniffer);
+      // mark none mode type
+      m_modeType = ModeType::None;
 		} else if (mode == Mode::Service) {
 			m_snifferAcessor.reset();
 			m_exclusiveAcessor = m_iqrfChannelService->getAccess([&](const std::basic_string<unsigned char>& received)->int {
 				return sendMessageToIde(received);
 			}, IIqrfChannelService::AccesType::Exclusive);
+      // mark legacy mode type
+      m_modeType = ModeType::Legacy;
 		} else {
 			return;
 		}
 
 		m_mode = mode;
-		{
-			std::lock_guard<std::mutex> lck(m_callbackMutex);
-			for (auto &callback : m_setModeCallbacks) {
-				if (callback.second) {
-					callback.second();
-				}
-			}
-		}
+    executeModeSetCallbacks();
 
 		TRC_INFORMATION("Set mode " << ModeStringConvertor::enum2str(m_mode));
 		TRC_FUNCTION_LEAVE("");
@@ -90,18 +229,51 @@ namespace iqrf {
 		m_setModeCallbacks.erase(instanceId);
 	}
 
-	///// Message handling /////
+	///// Private methods /////
 
-	int IdeCounterpart::handleMsg(const std::vector<uint8_t> &msg) {
-		TRC_DEBUG(std::endl
-			<< "==================================" << std::endl
-			<< "Received from UDP: " << std::endl
+  const char* IdeCounterpart::statusCodeToString(StatusCode code) {
+    switch (code) {
+      case StatusCode::Ok:
+        return "Ok";
+      case StatusCode::InternalError:
+        return "An unexpected internal error has occurred.";
+      case StatusCode::WebSocketOnly:
+        return "Service API is only available for WebSocket connections.";
+      case StatusCode::InsufficientPermission:
+        return "WebSocket API token does not have sufficient permissions to use Service API.";
+      case StatusCode::AlreadyActive:
+        return "Service mode has already been activated.";
+      case StatusCode::AlreadyInactive:
+        return "Service mode has already been deactivated.";
+      case StatusCode::NotActive:
+        return "Service mode is not active.";
+      case StatusCode::LegacyActive:
+        return "Legacy service mode is active.";
+      case StatusCode::NotOwner:
+        return "Another session manages service mode.";
+      default:
+        return "Unknown error.";
+    }
+  }
+
+  void IdeCounterpart::executeModeSetCallbacks() {
+    std::lock_guard<std::mutex> lck(m_callbackMutex);
+    for (auto &callback : m_setModeCallbacks) {
+      if (callback.second) {
+        callback.second();
+      }
+    }
+  }
+
+	int IdeCounterpart::handleIdeMsg(const std::vector<uint8_t> &msg) {
+		TRC_DEBUG("\n==================================\n"
+			<< "Received from UDP:\n"
 			<< MEM_HEX_CHAR(msg.data(), msg.size())
 		);
 		const std::basic_string<uint8_t> message(msg.data(), msg.size());
 
 		try {
-			validateMsg(message);
+			validateIdeMsg(message);
 		} catch (const std::exception &e) {
 			CATCH_EXC_TRC_WAR(std::logic_error, e, e.what());
 			return -1;
@@ -152,7 +324,7 @@ namespace iqrf {
 		}
 	}
 
-	void IdeCounterpart::validateMsg(const std::basic_string<unsigned char> &message) {
+	void IdeCounterpart::validateIdeMsg(const std::basic_string<unsigned char> &message) {
 		const size_t messageLen = message.size();
 
 		if (messageLen < (BaseCommand::HEADER_SIZE + BaseCommand::CRC_SIZE)) {
@@ -186,110 +358,189 @@ namespace iqrf {
 		return 0;
 	}
 
-	///// Component management /////
+  void IdeCounterpart::handleSplitterMsg(const MessagingInstance& messaging, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc) {
+    TRC_FUNCTION_ENTER(
+      PAR(messaging.to_string())
+      NAME_PAR(mType, msgType.m_type) <<
+			NAME_PAR(major, msgType.m_major) <<
+			NAME_PAR(minor, msgType.m_minor) <<
+			NAME_PAR(patch, msgType.m_micro)
+    )
 
-	void IdeCounterpart::activate(const shape::Properties *props) {
-		TRC_FUNCTION_ENTER("");
-		TRC_INFORMATION(std::endl
-			<< "******************************" << std::endl
-			<< "IdeCounterpart instance activate" << std::endl
-			<< "******************************"
-		);
-		modify(props);
-		m_messaging->registerMessageHandler([&](const MessagingInstance& messaging, const std::vector<uint8_t>& msg) {
-			(void)messaging;  //silence -Wunused-parameter
-			return handleMsg(msg);
-		});
-		TRC_FUNCTION_LEAVE("")
-	}
+    StatusCode code = StatusCode::Ok;
 
-	void IdeCounterpart::modify(const shape::Properties *props) {
-		const Document& doc = props->getAsJson();
+    Document rsp(kObjectType);
+    Pointer("/mType").Set(rsp, msgType.m_type);
+    Pointer("/data/msgId").Set(rsp, Pointer("/data/msgId").Get(doc)->GetString());
 
-		const Value* val = Pointer("/gwIdentModeByte").Get(doc);
-		if (val && val->IsUint()) {
-			m_params.mode = static_cast<uint8_t>(val->GetUint());
-		}
+    if (msgType.m_type == MsgActivate) {
+      code = activateServiceMode(messaging);
+    } else if (msgType.m_type == MsgDeactivate) {
+      code = deactivateServiceMode(messaging);
+    } else if (msgType.m_type == MsgGatewayIdent) {
+      code = gatewayIdentification(rsp, messaging);
+    } else if (msgType.m_type == MsgTrInfo) {
+      code = transceiverInformation(rsp, messaging);
+    } else if (msgType.m_type == MsgTrWrite) {
+      code = trWrite(doc, messaging);
+    }
 
-		val = Pointer("/gwIdentName").Get(doc);
-		if (val && val->IsString()) {
-			m_params.name = val->GetString();
-		}
+    Pointer("/data/status").Set(rsp, static_cast<int>(code));
+    Pointer("/data/statusStr").Set(rsp, statusCodeToString(code));
+    m_splitterService->sendMessage(messaging, std::move(rsp));
+    TRC_FUNCTION_LEAVE(PAR(static_cast<int>(code)));
+  }
 
-		val = Pointer("/gwIdentIpStack").Get(doc);
-		if (val && val->IsString()) {
-			m_params.ipStack = val->GetString();
-		}
+  IdeCounterpart::StatusCode IdeCounterpart::gatewayIdentification(rapidjson::Document& response, const MessagingInstance& messaging) {
+    // check access and permissions
+    if (messaging.type != MessagingType::WS || !messaging.clientSession.has_value()) {
+      return StatusCode::WebSocketOnly;
+    }
+    auto sessionInfo = messaging.clientSession.value();
+    auto token = m_tokenService->getApiToken(sessionInfo.getTokenId());
+    if (!token->canUseServiceMode()) {
+      return StatusCode::InsufficientPermission;
+    }
 
-		val = Pointer("/gwIdentNetBios").Get(doc);
-		if (val && val->IsString()) {
-			m_params.netBios = val->GetString();
-		}
+    auto coordinatorParams = m_iqrfDpaService->getCoordinatorParameters();
 
-		val = Pointer("/gwIdentPublicIp").Get(doc);
-		if (val && val->IsString()) {
-			m_params.publicIp = val->GetString();
-		}
+    Pointer("/data/rsp/name").Set(response, m_params.name);
+    Pointer("/data/rsp/hostname").Set(response, m_params.netBios);
+    Pointer("/data/rsp/osBuild").Set(response, coordinatorParams.osBuildWord);
+    Pointer("/data/rsp/osVersion").Set(response, coordinatorParams.osVersionByte);
+    return StatusCode::Ok;
+  }
 
-		IUdpConnectorService::Mode startupMode = IdeCounterpart::Mode::Operational;
-		val = Pointer("/operMode").Get(doc);
-		if (val && val->IsString()) {
-			startupMode = ModeStringConvertor::str2enum(val->GetString());
-		}
+  IdeCounterpart::StatusCode IdeCounterpart::transceiverInformation(rapidjson::Document& response, const MessagingInstance& messaging) {
+    if (messaging.type != MessagingType::WS || !messaging.clientSession.has_value()) {
+      return StatusCode::WebSocketOnly;
+    }
+    auto sessionInfo = messaging.clientSession.value();
+    auto token = m_tokenService->getApiToken(sessionInfo.getTokenId());
+    if (!token->canUseServiceMode()) {
+      return StatusCode::InsufficientPermission;
+    }
 
-		setMode(startupMode);
-	}
+    auto coordinatorParams = m_iqrfDpaService->getCoordinatorParameters();
 
-	void IdeCounterpart::deactivate() {
-		TRC_FUNCTION_ENTER("");
-		TRC_INFORMATION(std::endl <<
-			"******************************" << std::endl <<
-			"IdeCounterpart instance deactivate" << std::endl <<
-			"******************************"
-		);
-		setMode(IdeCounterpart::Mode::Operational);
-		m_messaging->unregisterMessageHandler();
+    Pointer("/data/rsp/mid").Set(response, coordinatorParams.mid);
+    Pointer("/data/rsp/osVersion").Set(response, coordinatorParams.osVersionByte);
+    Pointer("/data/rsp/osBuild").Set(response, coordinatorParams.osBuildWord);
+    Pointer("/data/rsp/trMcuType").Set(response, coordinatorParams.trMcuType);
+    return StatusCode::Ok;
+  }
 
-		TRC_FUNCTION_LEAVE("")
-	}
+  IdeCounterpart::StatusCode IdeCounterpart::activateServiceMode(const MessagingInstance& messaging) {
+    // check access and permissions
+    if (messaging.type != MessagingType::WS || !messaging.clientSession.has_value()) {
+      return StatusCode::WebSocketOnly;
+    }
+    auto sessionInfo = messaging.clientSession.value();
+    auto token = m_tokenService->getApiToken(sessionInfo.getTokenId());
+    if (!token->canUseServiceMode()) {
+      return StatusCode::InsufficientPermission;
+    }
+    // check if service mode enabled
+    std::lock_guard<std::mutex> lock(m_modeMtx);
+    if (m_modeType != ModeType::None) {
+      return StatusCode::AlreadyActive;
+    }
+    // enable service mode
+    m_snifferAcessor.reset();
+    m_exclusiveAcessor = m_iqrfChannelService->getAccess([&](const std::basic_string<unsigned char>& received) {
+      return sendJsonTrData(received);
+    }, IIqrfChannelService::AccesType::Exclusive);
+    m_modeType = ModeType::New;
+    m_serviceModeOwner.emplace(messaging);
+    // execute callbacks
+    executeModeSetCallbacks();
+    return StatusCode::Ok;
+  }
 
-	///// Interface management /////
+  IdeCounterpart::StatusCode IdeCounterpart::deactivateServiceMode(const MessagingInstance& messaging) {
+    // check access and permissions
+    if (messaging.type != MessagingType::WS || !messaging.clientSession.has_value()) {
+      return StatusCode::WebSocketOnly;
+    }
+    auto sessionInfo = messaging.clientSession.value();
+    auto token = m_tokenService->getApiToken(sessionInfo.getTokenId());
+    if (!token->canUseServiceMode()) {
+      return StatusCode::InsufficientPermission;
+    }
+    // check if service mode is deactivated
+    std::lock_guard<std::mutex> lock(m_modeMtx);
+    if (m_modeType == ModeType::None) {
+      return StatusCode::AlreadyInactive;
+    }
+    // check if legacy service mode is active
+    if (m_modeType == ModeType::Legacy) {
+      return StatusCode::LegacyActive;
+    }
+    // check if this session manages service mode
+    auto owner = m_serviceModeOwner.value();
+    auto session = owner.clientSession.value();
+    auto candidate = messaging.clientSession.value();
+    if (owner.instance != messaging.instance ||
+      session.getSessionId() != candidate.getSessionId() ||
+      session.getTokenId() != candidate.getTokenId()
+    ) {
+      return StatusCode::NotOwner;
+    }
+    // deactivate service mode
+    m_snifferAcessor.reset();
+    m_exclusiveAcessor.reset();
+    m_modeType = ModeType::None;
+    m_serviceModeOwner.reset();
+    // execute callbacks
+    executeModeSetCallbacks();
+    return StatusCode::Ok;
+  }
 
-	void IdeCounterpart::attachInterface(iqrf::IIqrfChannelService* iface) {
-		m_iqrfChannelService = iface;
-	}
+  IdeCounterpart::StatusCode IdeCounterpart::trWrite(rapidjson::Document& request, const MessagingInstance& messaging) {
+    // check access and permissions
+    if (messaging.type != MessagingType::WS || !messaging.clientSession.has_value()) {
+      return StatusCode::WebSocketOnly;
+    }
+    auto sessionInfo = messaging.clientSession.value();
+    auto token = m_tokenService->getApiToken(sessionInfo.getTokenId());
+    if (!token->canUseServiceMode()) {
+      return StatusCode::InsufficientPermission;
+    }
+    // check if not in service mode
+    if (m_modeType == ModeType::None) {
+      return StatusCode::NotActive;
+    }
+    // check if legacy service mode is active
+    if (m_modeType == ModeType::Legacy) {
+      return StatusCode::LegacyActive;
+    }
+    // check if this session manages service mode
+    auto owner = m_serviceModeOwner.value();
+    auto session = owner.clientSession.value();
+    auto candidate = messaging.clientSession.value();
+    if (owner.instance != messaging.instance ||
+      session.getSessionId() != candidate.getSessionId() ||
+      session.getTokenId() != candidate.getTokenId()
+    ) {
+      return StatusCode::NotOwner;
+    }
+    auto packet = Pointer("/data/req/packet").Get(request)->GetString();
+    std::vector<uint8_t> vec;
+    int len = HexStringConversion::parseBinary(vec.data(), packet, sizeofBufferCOM);
+    m_exclusiveAcessor->send(vec.data());
+    return StatusCode::Ok;
+  }
 
-	void IdeCounterpart::detachInterface(iqrf::IIqrfChannelService* iface) {
-		if (m_iqrfChannelService == iface) {
-			m_iqrfChannelService = nullptr;
-		}
-	}
+  int IdeCounterpart::sendJsonTrData(const std::basic_string<unsigned char>& trData) {
+    Document rsp(kObjectType);
+    Pointer("/mType").Set(rsp, MsgTrData);
+    Pointer("/data/msgId").Set(rsp, "async");
+    Pointer("/data/rsp/packet").Set(rsp, HexStringConversion::encodeBinary(trData.data(), trData.size()));
+    Pointer("/data/status").Set(rsp, static_cast<int>(StatusCode::Ok));
+    Pointer("/data/statusStr").Set(rsp, statusCodeToString(StatusCode::Ok));
 
-	void IdeCounterpart::attachInterface(iqrf::IIqrfDpaService* iface) {
-		m_iqrfDpaService = iface;
-	}
+    m_splitterService->sendMessage(m_serviceModeOwner.value(), std::move(rsp));
+    return 0;
+  }
 
-	void IdeCounterpart::detachInterface(iqrf::IIqrfDpaService* iface) {
-		if (m_iqrfDpaService == iface) {
-			m_iqrfDpaService = nullptr;
-		}
-	}
-
-	void IdeCounterpart::attachInterface(iqrf::IUdpMessagingService* iface) {
-		m_messaging = iface;
-	}
-
-	void IdeCounterpart::detachInterface(iqrf::IUdpMessagingService* iface) {
-		if (m_messaging == iface) {
-			m_messaging = nullptr;
-		}
-	}
-
-	void IdeCounterpart::attachInterface(shape::ITraceService* iface) {
-		shape::Tracer::get().addTracerService(iface);
-	}
-
-	void IdeCounterpart::detachInterface(shape::ITraceService* iface) {
-		shape::Tracer::get().removeTracerService(iface);
-	}
 }

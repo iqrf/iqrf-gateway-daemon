@@ -178,12 +178,12 @@ namespace iqrf {
 
       std::string message(msg.begin(), msg.end());
 
-      if (!messaging.hasClientSession<std::size_t>()) {
+      if (!messaging.clientSession.has_value()) {
         TRC_WARNING("Cannot send message via [" << messaging.to_string() << "]: Client session ID missing.");
         return;
       }
 
-      m_server->send(messaging.getClientSession<std::size_t>(), message);
+      m_server->send(messaging.clientSession.value().getSessionId(), message);
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -236,7 +236,7 @@ namespace iqrf {
 
       if (m_messageHandlerFunc) {
         auto auxMessaging = m_messagingInstance;
-        auxMessaging.setClientSession<std::size_t>(sessionId);
+        auxMessaging.clientSession.emplace(sessionId, m_sessionTokenMap[sessionId]);
         m_messageHandlerFunc(auxMessaging, message);
       }
 

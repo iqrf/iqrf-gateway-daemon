@@ -17,11 +17,12 @@
  */
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <tuple>
-#include <type_traits>
-#include <variant>
 
 namespace iqrf {
 
@@ -84,6 +85,22 @@ namespace iqrf {
 		}
 	};
 
+  /**
+   * @brief Immutable container for WebSocket session information.
+   */
+  struct WsSessionInfo {
+  private:
+    /// Session ID
+    std::size_t sessionId_;
+    /// Token ID
+    uint32_t tokenId_;
+  public:
+    WsSessionInfo(std::size_t sessionId, uint32_t tokenId): sessionId_(sessionId), tokenId_(tokenId) {}
+
+    std::size_t getSessionId() const { return sessionId_; }
+    uint32_t getTokenId() const { return tokenId_; };
+  };
+
 
 	/// @brief MessagingInstance represents an instance of messaging service by type and instance name
 	class MessagingInstance {
@@ -127,32 +144,11 @@ namespace iqrf {
 			return MessagingConversion::messagingTypeToString(this->type) + '-' + this->instance;
 		}
 
-    /**
-     * Check if messaging instance has client session information
-     */
-    template<typename T>
-    typename std::enable_if<std::is_same<T, std::size_t>::value || std::is_same<T, std::string>::value, bool>::type
-    hasClientSession() const {
-      return std::holds_alternative<T>(this->clientSession);
-    }
-
-    template<typename T>
-    typename std::enable_if<std::is_same<T, std::size_t>::value || std::is_same<T, std::string>::value, T>::type
-    getClientSession() const {
-      return std::get<T>(this->clientSession);
-    }
-
-    template<typename T>
-    typename std::enable_if<std::is_same<T, std::size_t>::value || std::is_same<T, std::string>::value, void>::type
-    setClientSession(const T& val) {
-      this->clientSession = val;
-    }
-
 		/// Messaging type
 		MessagingType type;
 		/// Instance name
 		std::string instance;
     /// Session ID or topic
-    std::variant<std::monostate, std::size_t, std::string> clientSession;
+    std::optional<WsSessionInfo> clientSession;
 	};
 }
