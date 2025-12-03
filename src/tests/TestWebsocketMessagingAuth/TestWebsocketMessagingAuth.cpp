@@ -607,13 +607,22 @@ namespace iqrf {
     beast::error_code ec;
 
     auto timestamp = DateTimeUtils::get_current_timestamp();
-    insertToken(valid_token, timestamp, timestamp + 31536000);
+    auto expiration = timestamp + 31536000;
+    insertToken(valid_token, timestamp, expiration);
     // do successful auth
     json doc({
       {"auth", valid_token_string}
     });
     ws.write(net::buffer(doc.dump()), ec);
     ASSERT_FALSE(ec);
+    // read auth success
+    beast::flat_buffer buffer;
+    ws.read(buffer, ec);
+    ASSERT_FALSE(ec);
+    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"type\":\"auth_success\"}";
+    std::string received = beast::buffers_to_string(buffer.data());
+    EXPECT_EQ(expected, received);
+    buffer.consume(buffer.size());
     // attempt to communicate after websocket auth successful
     std::string test_request = R"({
       "mType": "iqrfRaw",
@@ -631,11 +640,10 @@ namespace iqrf {
 
     // simulate response from network
     Imp::get().m_iTestSimulationIqrfChannel->pushOutgoingMessage("00.00.06.83.00.00.00.44", 100);
-    beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
-    auto received = beast::buffers_to_string(buffer.data());
-    std::string expected =
+    received = beast::buffers_to_string(buffer.data());
+    expected =
 R"({
     "mType": "iqrfRaw",
     "data": {
@@ -655,13 +663,22 @@ R"({
 
     removeToken(revoked_later_token.getId());
     auto timestamp = DateTimeUtils::get_current_timestamp();
-    insertToken(revoked_later_token, timestamp, timestamp + 31536000);
+    auto expiration = timestamp + 31536000;
+    insertToken(revoked_later_token, timestamp, expiration);
     // do successful auth
     json doc({
       {"auth", revoked_later_token_string}
     });
     ws.write(net::buffer(doc.dump()), ec);
     ASSERT_FALSE(ec);
+    // read auth success
+    beast::flat_buffer buffer;
+    ws.read(buffer, ec);
+    ASSERT_FALSE(ec);
+    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"type\":\"auth_success\"}";
+    std::string received = beast::buffers_to_string(buffer.data());
+    EXPECT_EQ(expected, received);
+    buffer.consume(buffer.size());
     // attempt to communicate after websocket auth successful
     std::string test_request = R"({
       "mType": "iqrfRaw",
@@ -679,11 +696,10 @@ R"({
 
     // simulate response from network
     Imp::get().m_iTestSimulationIqrfChannel->pushOutgoingMessage("00.00.06.83.00.00.00.44", 100);
-    beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
-    auto received = beast::buffers_to_string(buffer.data());
-    std::string expected =
+    received = beast::buffers_to_string(buffer.data());
+    expected =
 R"({
     "mType": "iqrfRaw",
     "data": {
@@ -723,6 +739,11 @@ R"({
     });
     ws.write(net::buffer(doc.dump()), ec);
     ASSERT_FALSE(ec);
+      // read auth success
+    beast::flat_buffer buffer;
+    ws.read(buffer, ec);
+    ASSERT_FALSE(ec);
+    buffer.consume(buffer.size());
     // attempt to communicate after websocket auth successful
     std::string test_request = R"({
       "mType": "iqrfRaw",
@@ -740,7 +761,6 @@ R"({
 
     // simulate response from network
     Imp::get().m_iTestSimulationIqrfChannel->pushOutgoingMessage("00.00.06.83.00.00.00.44", 100);
-    beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     auto received = beast::buffers_to_string(buffer.data());

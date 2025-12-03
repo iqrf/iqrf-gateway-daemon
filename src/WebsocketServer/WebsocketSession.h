@@ -158,7 +158,7 @@ namespace iqrf {
               self->m_writeQueue.clear();
               self->m_writing = false;
               self->m_writeQueue.push_back(
-                create_error_message(
+                create_auth_error_message(
                   make_error_code(auth_error::expired_token)
                 )
               );
@@ -423,10 +423,11 @@ namespace iqrf {
           auto ec = this->auth(message);
           if (ec) {
             // not auth message or auth failed, close
-            this->send_system(create_error_message(ec));
+            this->send_system(create_auth_error_message(ec));
             this->close(boost::beast::websocket::close_code::policy_error);
             return;
           }
+          this->send(create_auth_success_message(m_expiration));
         } else {
           // authenticated
           if (m_expiration < now) {
@@ -434,7 +435,7 @@ namespace iqrf {
             auto ec = make_error_code(auth_error::expired_token);
             m_authenticated = false;
             m_expiration = -1;
-            this->send_system(create_error_message(ec));
+            this->send_system(create_auth_error_message(ec));
             this->init_auth_timeout();
           } else {
             // not expired, message accepted
@@ -543,7 +544,7 @@ namespace iqrf {
 
       if (!m_authenticated) {
         // session is not authenticated by the end of timeout
-        this->send_system(create_error_message(make_error_code(auth_error::auth_timeout)));
+        this->send_system(create_auth_error_message(make_error_code(auth_error::auth_timeout)));
         this->close(boost::beast::websocket::close_code::policy_error);
       }
     }

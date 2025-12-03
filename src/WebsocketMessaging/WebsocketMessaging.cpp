@@ -295,7 +295,7 @@ namespace iqrf {
             auto token = m_tokenService->getApiToken(itr->second);
             if (!token) {
               auto sessionId = itr->first;
-              m_server->send(sessionId, create_error_message(make_error_code(auth_error::token_not_found)));
+              m_server->send(sessionId, create_auth_error_message(make_error_code(auth_error::token_not_found)));
               m_server->closeSession(sessionId, boost::beast::websocket::close_code::internal_error);
               itr = m_sessionTokenMap.erase(itr);
               continue;
@@ -305,7 +305,7 @@ namespace iqrf {
           }
           if (revoked) {
             auto sessionId = itr->first;
-            m_server->send(sessionId, create_error_message(make_error_code(auth_error::revoked_token)));
+            m_server->send(sessionId, create_auth_error_message(make_error_code(auth_error::revoked_token)));
             m_server->closeSession(sessionId, boost::beast::websocket::close_code::policy_error);
             itr = m_sessionTokenMap.erase(itr);
           } else {

@@ -69,7 +69,14 @@ inline boost::system::error_code make_error_code(auth_error err) {
   return {static_cast<int>(err), auth_category()};
 }
 
-inline std::string create_error_message(const boost::system::error_code& ec) {
+inline std::string create_auth_success_message(int64_t expiration) {
+  return nlohmann::json({
+    {"type", "auth_success"},
+    {"expiration", expiration},
+  }).dump();
+}
+
+inline std::string create_auth_error_message(const boost::system::error_code& ec) {
   return nlohmann::json({
     {"type", "auth_error"},
     {"code", ec.value()},
