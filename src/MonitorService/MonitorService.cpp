@@ -166,7 +166,7 @@ namespace iqrf {
     int networkQueueLen = -1;
     IIqrfChannelService::State iqrfChannelState = IIqrfChannelService::State::NotReady;
     IIqrfDpaService::DpaState dpaChannelState = IIqrfDpaService::DpaState::NotReady;
-    IUdpConnectorService::Mode operMode = IUdpConnectorService::Mode::Unknown;
+    IModeService::Mode operMode = IModeService::Mode::Unknown;
     bool enumRunning = false;
     bool dataReadRunning = false;
 
@@ -191,8 +191,8 @@ namespace iqrf {
       networkQueueLen = m_splitterService->getNetworkQueueLen();
     }
 
-    if (m_udpConnectorService) {
-      operMode = m_udpConnectorService->getMode();
+    if (m_modeService) {
+      operMode = m_modeService->getMode();
     }
 
     auto ts = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -306,17 +306,17 @@ namespace iqrf {
     }
   }
 
-  void MonitorService::attachInterface(IUdpConnectorService* iface) {
-    m_udpConnectorService = iface;
-    m_udpConnectorService->registerModeSetCallback(
+  void MonitorService::attachInterface(IModeService* iface) {
+    m_modeService = iface;
+    m_modeService->registerModeSetCallback(
       m_instanceId, [&]() {invokeWorker();}
     );
   }
 
-  void MonitorService::detachInterface(IUdpConnectorService* iface) {
-    if (m_udpConnectorService == iface) {
-      m_udpConnectorService->unregisterModeSetCallback(m_instanceId);
-      m_udpConnectorService = nullptr;
+  void MonitorService::detachInterface(IModeService* iface) {
+    if (m_modeService == iface) {
+      m_modeService->unregisterModeSetCallback(m_instanceId);
+      m_modeService = nullptr;
     }
   }
 

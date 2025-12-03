@@ -20,6 +20,7 @@
 #include "IMessagingService.h"
 #include "ILaunchService.h"
 #include "ITraceService.h"
+#include "IModeService.h"
 #include "ShapeProperties.h"
 
 /// iqrf namespace
@@ -104,6 +105,18 @@ namespace iqrf {
      * @param iface API token service interface
      */
     void detachInterface(IApiTokenService *iface);
+
+    /**
+     * Attaches mode service interface
+     * @param iface Mode service interface
+     */
+    void attachInterface(IModeService *iface);
+
+    /**
+     * Detaches mode service interface
+     * @param iface Mode service interface
+     */
+    void detachInterface(IModeService *iface);
 
     /**
      * Attaches tracing service interface

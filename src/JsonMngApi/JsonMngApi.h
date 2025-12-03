@@ -21,7 +21,6 @@
 #include "IIqrfDb.h"
 #include "ISchedulerService.h"
 #include "IJsCacheService.h"
-#include "IUdpConnectorService.h"
 #include "IMessagingSplitterService.h"
 #include "ShapeProperties.h"
 #include "ITraceService.h"
@@ -51,9 +50,6 @@ namespace iqrf {
 
 		void attachInterface(IJsCacheService *iface);
 		void detachInterface(IJsCacheService *iface);
-
-		void attachInterface(IUdpConnectorService *iface);
-		void detachInterface(IUdpConnectorService *iface);
 
 		void attachInterface(IMessagingSplitterService *iface);
 		void detachInterface(IMessagingSplitterService *iface);

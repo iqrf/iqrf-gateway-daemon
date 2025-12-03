@@ -144,6 +144,11 @@ namespace iqrf {
       "mngScheduler_RemoveTask",
       "mngScheduler_StartTask",
       "mngScheduler_StopTask",
+      "mngService_Activate",
+      "mngService_Deactivate",
+      "mngService_GwIdentification",
+      "mngService_TrInfo",
+      "mngService_TrWrite",
       "ntfDaemon_InvokeMonitor"
     };
   public:

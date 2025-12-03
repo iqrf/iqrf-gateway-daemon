@@ -50,7 +50,9 @@ namespace iqrf {
     shape::ILaunchService *m_launchService = nullptr;
     /// API token service
     IApiTokenService *m_tokenService = nullptr;
-    /// Atomic variable for worker run
+    /// Mode service
+    IModeService *m_modeService = nullptr;
+    /// Worker run variable
     bool m_tokenCheckRun;
     /// Token checking thread
     std::thread m_tokenCheckThread;
@@ -178,12 +180,12 @@ namespace iqrf {
 
       std::string message(msg.begin(), msg.end());
 
-      if (!messaging.hasClientSession<std::size_t>()) {
+      if (!messaging.clientSession.has_value()) {
         TRC_WARNING("Cannot send message via [" << messaging.to_string() << "]: Client session ID missing.");
         return;
       }
 
-      m_server->send(messaging.getClientSession<std::size_t>(), message);
+      m_server->send(messaging.clientSession.value().getSessionId(), message);
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -217,6 +219,16 @@ namespace iqrf {
       }
     }
 
+    void attachInterface(IModeService *iface) {
+      m_modeService = iface;
+    }
+
+    void detachInterface(IModeService *iface) {
+      if (m_modeService == iface) {
+        m_modeService = nullptr;
+      }
+    }
+
   private:
     std::string getCertPath(const std::string& path) {
       if (path.size() == 0 || path.at(0) == '/') {
@@ -236,7 +248,7 @@ namespace iqrf {
 
       if (m_messageHandlerFunc) {
         auto auxMessaging = m_messagingInstance;
-        auxMessaging.setClientSession<std::size_t>(sessionId);
+        auxMessaging.clientSession.emplace(sessionId, m_sessionTokenMap[sessionId]);
         m_messageHandlerFunc(auxMessaging, message);
       }
 
@@ -273,6 +285,12 @@ namespace iqrf {
 
     void handleSessionClosed(const std::size_t sessionId) {
       std::lock_guard<std::mutex> lock(m_tokenMtx);
+      auto mode = m_modeService->getServiceModeType();
+      if (mode == IModeService::ServiceModeType::New) {
+        auto auxMessaging = m_messagingInstance;
+        auxMessaging.clientSession.emplace(sessionId, m_sessionTokenMap[sessionId]);
+        m_modeService->clientDisconnected(auxMessaging);
+      }
       m_sessionTokenMap.erase(sessionId);
     }
 
@@ -377,6 +395,14 @@ namespace iqrf {
   }
 
   void WebsocketMessaging::detachInterface(IApiTokenService *iface) {
+    impl_->detachInterface(iface);
+  }
+
+  void WebsocketMessaging::attachInterface(IModeService *iface) {
+    impl_->attachInterface(iface);
+  }
+
+  void WebsocketMessaging::detachInterface(IModeService *iface) {
     impl_->detachInterface(iface);
   }
 

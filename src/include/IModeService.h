@@ -17,24 +17,25 @@
 #pragma once
 
 #include "EnumStringConvertor.h"
+#include "MessagingCommon.h"
 #include "ShapeDefines.h"
 #include <string>
 #include <vector>
 #include <functional>
 
-#ifdef IUdpConnectorService_EXPORTS
-#define IUdpConnectorService_DECLSPEC SHAPE_ABI_EXPORT
+#ifdef IModeService_EXPORTS
+#define IModeService_DECLSPEC SHAPE_ABI_EXPORT
 #else
-#define IUdpConnectorService_DECLSPEC SHAPE_ABI_IMPORT
+#define IModeService_DECLSPEC SHAPE_ABI_IMPORT
 #endif
 
 namespace iqrf {
 
   /// \class IMessaging
- /// \brief IMessaging interface
- /// \details
- /// Provides interface for sending/receiving message from/to general communication interface
-  class IUdpConnectorService_DECLSPEC IUdpConnectorService
+  /// \brief IMessaging interface
+  /// \details
+  /// Provides interface for management of daemon mode and direct communication with IQRF interface
+  class IModeService_DECLSPEC IModeService
   {
   public:
     /// \brief operational mode
@@ -50,38 +51,40 @@ namespace iqrf {
       Forwarding
     };
 
-    /// \brief switch operational mode
-    /// \param [in] mode operational mode to switch
-    /// \details
-    /// \details
-    /// Operational is used for normal work
-    /// Service the only UDP Messaging is used to communicate with IQRF IDE
-    /// Forwarding normal work but all DPA messages are forwarded to IQRF IDE to me monitored there
-    virtual void setMode(Mode mode) = 0;
+    /**
+     * Service mode type
+     */
+    enum class ServiceModeType {
+      None,       //< Inactive
+      Legacy,     //< Legacy mode for UDP
+      New,        //< New mode for WS
+    };
 
     virtual Mode getMode() const = 0;
+    virtual ServiceModeType getServiceModeType() const = 0;
     virtual void registerModeSetCallback(const std::string &instanceId, std::function<void()> callback) = 0;
     virtual void unregisterModeSetCallback(const std::string &instanceId) = 0;
+    virtual void clientDisconnected(const MessagingInstance& messaging) = 0;
 
-    inline virtual ~IUdpConnectorService() {};
+    inline virtual ~IModeService() {};
   };
 
   class ModeConvertTable
   {
   public:
-    static const std::vector<std::pair<IUdpConnectorService::Mode, std::string>>& table()
+    static const std::vector<std::pair<IModeService::Mode, std::string>>& table()
     {
-      static std::vector <std::pair<IUdpConnectorService::Mode, std::string>> table = {
-        { IUdpConnectorService::Mode::Unknown, "unknown" },
-        { IUdpConnectorService::Mode::Forwarding, "forwarding" },
-        { IUdpConnectorService::Mode::Operational, "operational" },
-        { IUdpConnectorService::Mode::Service, "service" }
+      static std::vector <std::pair<IModeService::Mode, std::string>> table = {
+        { IModeService::Mode::Unknown, "unknown" },
+        { IModeService::Mode::Forwarding, "forwarding" },
+        { IModeService::Mode::Operational, "operational" },
+        { IModeService::Mode::Service, "service" }
       };
       return table;
     }
-    static IUdpConnectorService::Mode defaultEnum()
+    static IModeService::Mode defaultEnum()
     {
-      return IUdpConnectorService::Mode::Unknown;
+      return IModeService::Mode::Unknown;
     }
     static const std::string& defaultStr()
     {
@@ -90,6 +93,6 @@ namespace iqrf {
     }
   };
 
-  typedef shape::EnumStringConvertor<IUdpConnectorService::Mode, ModeConvertTable> ModeStringConvertor;
+  typedef shape::EnumStringConvertor<IModeService::Mode, ModeConvertTable> ModeStringConvertor;
 
 }
