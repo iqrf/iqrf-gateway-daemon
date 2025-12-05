@@ -56,6 +56,20 @@
 				}
 			}
 		},
+		"managementQueueCapacity": {
+			"title": "Management queue capacity",
+			"description": "Number of messages that management queue can store for processing.",
+			"type": "integer",
+			"minimum": 0,
+			"default": 32
+		},
+		"networkQueueCapacity": {
+			"title": "Network queue capacity",
+			"description": "Number of messages that network queue can store for processing.",
+			"type": "integer",
+			"minimum": 0,
+			"default": 32
+		},
 		"RequiredInterfaces": {
 			"type": "array",
 			"description": "Array of required interfaces.",
