@@ -136,7 +136,8 @@ namespace iqrf {
 
     static unsigned num = 0;
     int dpaQueueLen = -1;
-    int msgQueueLen = -1;
+    int managementQueueLen = -1;
+    int networkQueueLen = -1;
     IIqrfChannelService::State iqrfChannelState = IIqrfChannelService::State::NotReady;
     IIqrfDpaService::DpaState dpaChannelState = IIqrfDpaService::DpaState::NotReady;
     IUdpConnectorService::Mode operMode = IUdpConnectorService::Mode::Unknown;
@@ -160,7 +161,8 @@ namespace iqrf {
     }
 
     if (m_splitterService) {
-      msgQueueLen = m_splitterService->getMsgQueueLen();
+      managementQueueLen = m_splitterService->getManagementQueueLen();
+      networkQueueLen = m_splitterService->getNetworkQueueLen();
     }
 
     if (m_udpConnectorService) {
@@ -176,7 +178,8 @@ namespace iqrf {
     Pointer("/data/dpaQueueLen").Set(doc, dpaQueueLen);
     Pointer("/data/iqrfChannelState").Set(doc, IIqrfChannelService::StateStringConvertor::enum2str(iqrfChannelState));
     Pointer("/data/dpaChannelState").Set(doc, IIqrfDpaService::DpaStateStringConvertor::enum2str(dpaChannelState));
-    Pointer("/data/msgQueueLen").Set(doc, msgQueueLen);
+    Pointer("/data/managementQueueLen").Set(doc, managementQueueLen);
+    Pointer("/data/networkQueueLen").Set(doc, networkQueueLen);
     Pointer("/data/operMode").Set(doc, ModeStringConvertor::enum2str(operMode));
     Pointer("/data/enumInProgress").Set(doc, enumRunning);
     Pointer("/data/dataReadingInProgress").Set(doc, dataReadRunning);

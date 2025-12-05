@@ -1,0 +1,9 @@
+{
+  "mType": "mngDaemon_StopNetworkQueue",
+  "data": {
+    "msgId": "6fb18da9-9bfc-4d63-b330-83893a61bec0",
+    "status": 0,
+    "statusStr": "ok",
+    "insId": "iqrfgd2-default"
+  }
+}

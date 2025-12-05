@@ -1,0 +1,9 @@
+{
+  "mType": "mngDaemon_StartNetworkQueue",
+  "data": {
+    "msgId": "a174933f-7266-4c2a-acb9-dd4c8eff249e",
+    "status": 0,
+    "statusStr": "ok",
+    "insId": "iqrfgd2-default"
+  }
+}

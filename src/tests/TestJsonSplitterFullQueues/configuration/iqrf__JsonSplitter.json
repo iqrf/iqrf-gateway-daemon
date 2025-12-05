@@ -4,6 +4,6 @@
 	"validateJsonResponse": true,
 	"insId": "iqrfgd2-default",
 	"messagingList": [],
-	"managementQueueCapacity": 32,
-	"networkQueueCapacity": 32
+	"managementQueueCapacity": 0,
+	"networkQueueCapacity": 0
 }
