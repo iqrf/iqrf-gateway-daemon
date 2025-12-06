@@ -548,6 +548,7 @@ namespace iqrf {
 		);
 		try {
 			migrateDatabase();
+      m_db->exec("PRAGMA foreign_keys = ON;");
 		} catch (const std::exception &e) {
 			THROW_EXC_TRC_WAR(std::logic_error, "[IqrfDb] Failed to migrate database to latest version: " << e.what());
 		}
@@ -675,6 +676,7 @@ namespace iqrf {
 	void IqrfDb::stopEnumerationThread() {
 		TRC_FUNCTION_ENTER("");
 		m_enumRun = false;
+		m_enumThreadRun = false;
 		m_enumCv.notify_all();
 		if (m_enumThread.joinable()) {
 			m_enumThread.join();
@@ -752,17 +754,20 @@ namespace iqrf {
 					TRC_DEBUG("DPA has exclusive access.");
 				}
 				clearAuxBuffers();
+        if (!m_enumRun && !m_enumThreadRun) {
+          break;
+        }
 			}
 
 			// wait until next enumeration invocation
 			std::unique_lock<std::mutex> lock(m_enumMutex);
-			if (m_enumRepeat) {
-				TRC_DEBUG("Enumeration failed, repeating enumeration.");
-				m_enumCv.wait_for(lock, std::chrono::seconds(3));
-			} else {
-				TRC_DEBUG("Waiting until next enumeration is invoked.");
-				m_enumCv.wait(lock);
-			}
+      if (m_enumRepeat) {
+        TRC_DEBUG("Enumeration failed, repeating enumeration.");
+        m_enumCv.wait_for(lock, std::chrono::seconds(3));
+      } else {
+        TRC_DEBUG("Waiting until next enumeration is invoked.");
+        m_enumCv.wait(lock);
+      }
 		}
 		TRC_FUNCTION_LEAVE("");
 	}
@@ -2093,7 +2098,6 @@ namespace iqrf {
 			"IqrfDb instance deactivate" << std::endl <<
 			"******************************"
 		);
-		m_enumThreadRun = false;
 		stopEnumerationThread();
 		m_cacheService->unregisterCacheReloadedHandler(m_instance);
 		m_dpaService->unregisterAnyMessageHandler(m_instance);
