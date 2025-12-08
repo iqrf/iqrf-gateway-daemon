@@ -395,6 +395,10 @@ namespace iqrf {
 
 			executeCallbacks(false);
 
+      if (!m_workerRun) {
+        break;
+      }
+
 			auto nowTime = std::chrono::steady_clock::now();
 			auto waitTimeSec = std::chrono::duration_cast<std::chrono::seconds>(nextReadingTime - nowTime).count();
 
