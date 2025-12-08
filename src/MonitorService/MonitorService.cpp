@@ -180,6 +180,7 @@ namespace iqrf {
     Pointer("/data/dpaChannelState").Set(doc, IIqrfDpaService::DpaStateStringConvertor::enum2str(dpaChannelState));
     Pointer("/data/managementQueueLen").Set(doc, managementQueueLen);
     Pointer("/data/networkQueueLen").Set(doc, networkQueueLen);
+    Pointer("/data/msgQueueLen").Set(doc, networkQueueLen);
     Pointer("/data/operMode").Set(doc, ModeStringConvertor::enum2str(operMode));
     Pointer("/data/enumInProgress").Set(doc, enumRunning);
     Pointer("/data/dataReadingInProgress").Set(doc, dataReadRunning);

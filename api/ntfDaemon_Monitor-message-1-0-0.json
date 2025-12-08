@@ -29,6 +29,7 @@
         "dpaChannelState",
         "managementQueueLen",
         "networkQueueLen",
+        "msgQueueLen",
         "operMode",
         "enumInProgress",
         "dataReadingInProgress"
@@ -52,12 +53,15 @@
           "description": "State (Ready/NotReady/ExclusiveAccess) of DPA channel - one of USB CDC, SPI or UART interface."
         },
         "managementQueueLen": {
-          "description": "Length of pending API management message queue.",
+          "description": "Length of pending management API message queue.",
           "type": "integer"
         },
         "networkQueueLen": {
-          "description": "Length of pending API network message queue.",
+          "description": "Length of pending network API message queue.",
           "type": "integer"
+        },
+        "msgQueueLen": {
+          "description": "Length of pending network API message queue. Deprecated, will be removed in future release."
         },
         "operMode": {
           "type": "string",
