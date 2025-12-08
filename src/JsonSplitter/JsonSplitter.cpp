@@ -117,6 +117,7 @@ namespace iqrf {
     shape::ILaunchService* m_iLaunchService = nullptr;
     /// Management queue message whitelist
     const std::set<std::string> m_managementQueueWhitelist = {
+      "cfgDaemon_Component",
       "iqrfDb_GetBinaryOutputs",
       "iqrfDb_GetDevice",
       "iqrfDb_GetDevices",
@@ -126,6 +127,9 @@ namespace iqrf {
       "iqrfDb_GetSensors",
       "iqrfDb_MetadataAnnotation",
       "iqrfDb_SetDeviceMetadata",
+      "iqrfSensorData_GetConfig",
+      "iqrfSensorData_SetConfig",
+      "iqrfSensorData_Status",
       "mngDaemon_Exit",
       "mngDaemon_Mode",
       "mngDaemon_StartNetworkQueue",
