@@ -325,9 +325,16 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void IqrfDpa::getIqrfNetworkParams()
+  void IqrfDpa::initializeCoordinator()
   {
     TRC_FUNCTION_ENTER("");
+
+    auto exclusiveAccess = getExclusiveAccess();
+
+    // handle asyn reset
+    registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) { //spaces in front of "  IqrfDpa" make it first in handlers map
+      asyncRestartHandler(dpaMessage);
+    });
 
     bool sentExplicitRestart = false;
 
@@ -347,7 +354,7 @@ namespace iqrf {
           TRC_INFORMATION("No async TR reset response => Send explicit request");
 
           iqrf::embed::os::RawDpaRestart iqrfEmbedOsRestart(0); // restart coordinator
-          auto trn = executeDpaTransaction(iqrfEmbedOsRestart.getRequest(), -1);
+          auto trn = exclusiveAccess->executeDpaTransaction(iqrfEmbedOsRestart.getRequest(), -1);
           // don't care about result => interested in async reset response
         }
         else {
@@ -364,8 +371,6 @@ namespace iqrf {
     }
 
     // Get coordinator parameters
-    auto exclusiveAccess = getExclusiveAccess();
-
     iqrf::embed::os::RawDpaRead iqrfEmbedOsRead(0);
     try {
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -400,20 +405,6 @@ namespace iqrf {
       state = IIqrfDpaService::DpaState::NotReady;
       std::cout << std::endl << "Error: Cannot get TR parameters msg => interface to DPA coordinator is not working - verify (CDC or SPI or UART) configuration" << std::endl;
     }
-
-    TRC_FUNCTION_LEAVE("")
-  }
-
-  void IqrfDpa::initializeCoordinator()
-  {
-    TRC_FUNCTION_ENTER("");
-
-    // handle asyn reset
-    registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) { //spaces in front of "  IqrfDpa" make it first in handlers map
-      asyncRestartHandler(dpaMessage);
-    });
-
-    getIqrfNetworkParams();
 
     // unregister asyn reset - not needed  after getIqrfNetworkParams()
     unregisterAsyncMessageHandler("  IqrfDpa");

@@ -89,7 +89,6 @@ namespace iqrf {
     std::condition_variable m_asyncRestartCv;
 
     void asyncRestartHandler(const DpaMessage& dpaMessage);
-    void getIqrfNetworkParams();
 
     /// Coordinator parameters
     IIqrfDpaService::CoordinatorParameters m_cPar;
