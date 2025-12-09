@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
       )
       (
         "service,s",
-        bpo::bool_switch()->default_value(false),
+        bpo::bool_switch(),
         "token can use service mode"
       );
 
@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
       create_token(
         vm["owner"].as<std::string>(),
         vm["expiration"].as<std::string>(),
-        vm.count("service"),
+        vm["service"].as<bool>(),
         make_shared_params(vm)
       );
     } catch (const std::exception &e) {
