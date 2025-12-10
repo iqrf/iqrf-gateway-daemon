@@ -5,6 +5,8 @@
     "timestamp": 1562256558,
     "dpaQueueLen": 0,
     "dpaChannelState": "Ready",
+    "managementQueueLen": 0,
+    "networkQueueLen": 0,
     "msgQueueLen": 0,
     "operMode": "operational",
     "enumInProgress": false,

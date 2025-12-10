@@ -367,26 +367,28 @@ namespace iqrf {
 			}
 
 			auto nextReadingTime = std::chrono::steady_clock::now() + std::chrono::minutes(m_period);
+			auto messagingList = m_messagingList;
+			auto asyncReports = m_asyncReports;
 
 			try {
 				executeCallbacks(true);
 				SensorDataResult result;
-				if (m_asyncReports) {
+				if (asyncReports) {
 					Document doc;
 					result.setMessageType(m_mTypeReportAsync);
 					result.setMessageId("async");
 					result.createStartMessage(doc);
-					m_splitterService->sendMessage(m_messagingList, std::move(doc));
+					m_splitterService->sendMessage(messagingList, std::move(doc));
 				}
 				getDataByFrc(result);
 				m_dbService->updateSensorValues(result.getSensorData());
 				m_exclusiveAccess.reset();
-				if (m_asyncReports) {
+				if (asyncReports) {
 					Document doc;
 					result.setMessageType(m_mTypeReportAsync);
 					result.setMessageId("async");
 					result.createResultMessage(doc);
-					m_splitterService->sendMessage(m_messagingList, std::move(doc));
+					m_splitterService->sendMessage(messagingList, std::move(doc));
 				}
 			} catch (const std::exception &e) {
 				CATCH_EXC_TRC_WAR(std::exception, e, e.what());
@@ -416,7 +418,7 @@ namespace iqrf {
 		TRC_FUNCTION_ENTER("");
 
 		bool running = m_workerRun;
-		bool reading = m_workerRun && m_exclusiveAccess != nullptr;
+		bool reading = running && m_exclusiveAccess != nullptr;
 
 		Document rsp;
 		Pointer("/mType").Set(rsp, m_mTypeStatus);
