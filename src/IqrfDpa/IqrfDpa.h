@@ -54,7 +54,6 @@ namespace iqrf {
     IIqrfDpaService::DpaState getDpaChannelState() override;
     void registerAnyMessageHandler(const std::string& serviceId, AnyMessageHandlerFunc fun) override;
     void unregisterAnyMessageHandler(const std::string& serviceId) override;
-    void reinitializeCoordinator() override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

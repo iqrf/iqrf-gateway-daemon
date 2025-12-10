@@ -484,11 +484,6 @@ namespace iqrf {
     m_dpaHandler->unregisterAnyMessageHandler(serviceId);
   }
 
-  void IqrfDpa::reinitializeCoordinator()
-  {
-    initializeCoordinator();
-  }
-
   void IqrfDpa::deactivate()
   {
     TRC_FUNCTION_ENTER("");
