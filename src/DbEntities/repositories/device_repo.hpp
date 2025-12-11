@@ -254,7 +254,7 @@ public:
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT p.hwpid
-      FROM products as p INNER JOIN device as d
+      FROM product as p INNER JOIN device as d
       ON p.id = d.productId
       WHERE d.address = ?
       LIMIT 1;
