@@ -38,6 +38,7 @@ protected:
     ManagementQueueFull,
     NetworkQueueInactive,
     NetworkQueueFull,
+    UnexpectedAuth,
   };
 
   /**
@@ -198,6 +199,25 @@ public:
       doc,
       networkQueue ? "Network queue is full." : "Management queue is full."
     );
+    return doc;
+  }
+};
+
+/**
+ * Unexpected auth messageErorr class
+ */
+class UnexpectedAuthMsg : protected BaseErrorMsg {
+public:
+
+  /**
+   * Creates a unexpected auth message error message
+   * @return Unexpected auth messageError document
+   */
+  static rapidjson::Document createMessage() {
+    auto doc = BaseErrorMsg::createMessage("auth");
+    rapidjson::Pointer("/data/rsp/error").Set(doc, "Received a duplicate or unexpected auth message.");
+    rapidjson::Pointer("/data/status").Set(doc, ErrorMsgCodes::UnexpectedAuth);
+    rapidjson::Pointer("/data/statusStr").Set(doc, "Unexpected auth message.");
     return doc;
   }
 };

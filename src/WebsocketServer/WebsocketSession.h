@@ -475,12 +475,12 @@ namespace iqrf {
         TRC_WARNING("Invalid JSON messsage received.")
         return make_error_code(auth_error::auth_failed);
       }
-      auto valid = doc.is_object() && doc.size() == 1 && doc.count("auth") && doc["auth"].is_string();
-      if (!valid) {
+      auto isAuth = is_auth_message(doc);
+      if (!isAuth) {
         return make_error_code(auth_error::no_auth);
       }
 
-      auto token = doc["auth"].get<std::string>();
+      auto token = doc["token"].get<std::string>();
       uint32_t id;
       std::string key;
       try {

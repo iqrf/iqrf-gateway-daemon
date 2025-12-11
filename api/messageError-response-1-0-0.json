@@ -136,6 +136,15 @@
               "not": {"required": ["message", "error", "offset"]}
             }
           }
+        },
+        {
+          "properties": {
+            "status": {"const": 9},
+            "rsp": {
+              "required": ["error"],
+              "not": {"required": ["message", "offset", "ignoredMessage", "capacity"]}
+            }
+          }
         }
       ]
     }
