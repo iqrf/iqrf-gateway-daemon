@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <iomanip>
 #include <regex>
 #include <sstream>
@@ -99,4 +100,38 @@ public:
 		}
 		return to;
 	}
+
+  /**
+   * @brief Converts time point into epoch timestamp in seconds
+   *
+   * @param timePoint Time point
+   * @return Epoch timestamp in seconds
+   */
+  static uint64_t getEpochTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timePoint) {
+    auto seconds = std::chrono::duration_cast<std::chrono::seconds>(timePoint.time_since_epoch());
+    return static_cast<uint64_t>(seconds.count());
+  }
+
+  /**
+   * @brief Converts time point into ISO8601 datetime string timestamp
+   *
+   * The function uses thread-safe gmtime_r.
+   *
+   * @param timePoint Time point
+   * @return Datetime string timestamp
+   */
+  static std::string getISO8601TimestampSafe(const std::chrono::time_point<std::chrono::system_clock>& timePoint, bool withMillis = true) {
+    std::time_t t = std::chrono::system_clock::to_time_t(timePoint);
+    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(timePoint.time_since_epoch()) % 1000;
+    std::tm utc{};
+    gmtime_r(&t, &utc);
+    char buffer[32];
+    std::strftime(buffer, sizeof(buffer), "%FT%T", &utc);
+    if (!withMillis) {
+      return std::string(buffer) + 'Z';
+    }
+    char buffer_millis[40];
+    int final_len = std::snprintf(buffer_millis, sizeof(buffer_millis), "%s.%03dZ", buffer, static_cast<int>(millis.count()));
+    return std::string(buffer_millis, final_len);
+  }
 };

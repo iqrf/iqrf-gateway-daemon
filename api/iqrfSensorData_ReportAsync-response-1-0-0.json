@@ -38,10 +38,34 @@
 					"description": "Response object.",
 					"type": "object",
 					"required": [
+            "dateTime",
+            "unixTime",
+            "reportNum",
 						"reading"
 					],
 					"additionalProperties": false,
 					"properties": {
+            "dateTime": {
+              "$id": "#/properties/data/properties/rsp/properties/dateTime",
+              "title": "Datetime",
+              "description": "ISO8601 timestamp of report.",
+              "type": "string",
+              "format": "date-time"
+            },
+            "unixTime": {
+              "$id": "#/properties/data/properties/rsp/properties/unixTime",
+              "title": "Unix time",
+              "description": "Unix timestamp in seconds.",
+              "type": "integer",
+              "minimum": 0
+            },
+            "reportNum": {
+              "$id": "#/properties/data/properties/rsp/properties/reportId",
+              "title": "Report number",
+              "description": "Number representing report",
+              "type": "integer",
+              "minimum": 1
+            },
 						"reading": {
 							"$id": "#/properties/data/properties/rsp/properties/reading",
 							"title": "Reading data",

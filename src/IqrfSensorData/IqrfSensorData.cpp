@@ -123,6 +123,10 @@ namespace iqrf {
 		return res;
 	}
 
+  uint64_t IqrfSensorData::getNextReportNumber() {
+    return m_reportCounter.fetch_add(1, std::memory_order_relaxed);
+  }
+
 	///// Message handling
 
 	void IqrfSensorData::setOfflineFrc(SensorDataResult &result) {
@@ -373,6 +377,7 @@ namespace iqrf {
 			try {
 				executeCallbacks(true);
 				SensorDataResult result;
+        result.setReportNumber(getNextReportNumber());
 				if (asyncReports) {
 					Document doc;
 					result.setMessageType(m_mTypeReportAsync);

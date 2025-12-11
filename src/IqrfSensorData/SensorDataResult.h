@@ -19,6 +19,7 @@
 #include "JsDriverSensor.h"
 #include "rapidjson/document.h"
 #include "ServiceResultBase.h"
+#include "TimeConversion.h"
 
 using namespace rapidjson;
 
@@ -35,6 +36,14 @@ namespace iqrf {
 	/// Sensor data result class
 	class SensorDataResult : public ServiceResultBase {
 	public:
+    /**
+     * Sets report number
+     * @param reportNum Report number
+     */
+    void setReportNumber(const uint64_t reportNum) {
+      m_reportNum = reportNum;
+    }
+
 		/**
 		 * Stores device HWPID
 		 * @param address Device address
@@ -122,15 +131,23 @@ namespace iqrf {
 			return sensorData;
 		}
 
+    /**
+     * Populates response document with start message
+     * @param doc Response document
+     */
 		void createStartMessage(Document &doc) {
 			ServiceResultBase::setResponseMetadata(doc);
+      auto tp = std::chrono::system_clock::now();
+      Pointer("/data/rsp/dateTime").Set(doc, TimeConversion::getISO8601TimestampSafe(tp, false));
+      Pointer("/data/rsp/unixTime").Set(doc, TimeConversion::getEpochTimestamp(tp));
+      Pointer("/data/rsp/reportNum").Set(doc, m_reportNum);
 			Pointer("/data/rsp/reading").Set(doc, true);
 			ServiceResultBase::createResponse(doc);
 		}
 
 		/**
 		 * Populates response document
-		 * @param response Response document
+		 * @param doc Response document
 		 */
 		void createResultMessage(Document &doc) {
 			// Default parameters
@@ -189,6 +206,10 @@ namespace iqrf {
 					array.PushBack(device, allocator);
 				}
 				Pointer("/data/rsp/devices").Set(doc, array, allocator);
+        auto tp = std::chrono::system_clock::now();
+        Pointer("/data/rsp/dateTime").Set(doc, TimeConversion::getISO8601TimestampSafe(tp, false));
+        Pointer("/data/rsp/unixTime").Set(doc, TimeConversion::getEpochTimestamp(tp));
+        Pointer("/data/rsp/reportNum").Set(doc, m_reportNum);
 				Pointer("/data/rsp/reading").Set(doc, false);
 			}
 
@@ -198,5 +219,7 @@ namespace iqrf {
 	private:
 		/// Device metadata
 		std::map<uint8_t, DeviceData> m_deviceData;
+    /// Report number
+    uint64_t m_reportNum;
 	};
 }
