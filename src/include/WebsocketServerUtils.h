@@ -69,6 +69,12 @@ inline boost::system::error_code make_error_code(auth_error err) {
   return {static_cast<int>(err), auth_category()};
 }
 
+inline bool is_auth_message(const nlohmann::json& doc) {
+  return doc.is_object() && doc.size() == 2 &&
+    (doc.contains("type") && doc["type"].is_string() && doc["type"].get<std::string>() == "auth") &&
+    (doc.contains("token") && doc["token"].is_string());
+}
+
 inline std::string create_auth_success_message(int64_t expiration) {
   return nlohmann::json({
     {"type", "auth_success"},

@@ -385,7 +385,8 @@ namespace iqrf {
     beast::error_code ec;
 
     json doc({
-      {"auth", "token"}
+      {"type", "auth"},
+      {"token", "token"}
     });
 
     ws.write(net::buffer(doc.dump()), ec);
@@ -412,7 +413,8 @@ namespace iqrf {
     beast::error_code ec;
 
     json doc({
-      {"auth", "iqaros;1;zDrcvQaXWopzJ+DbfkpGq3Tn00wkt3n6fExj8iUsYio="}
+      {"type", "auth"},
+      {"token", "iqaros;1;zDrcvQaXWopzJ+DbfkpGq3Tn00wkt3n6fExj8iUsYio="}
     });
 
     ws.write(net::buffer(doc.dump()), ec);
@@ -439,7 +441,8 @@ namespace iqrf {
     beast::error_code ec;
 
     json doc({
-      {"auth", "iqrfgd2;1a;zDrcvQaXWopzJ+DbfkpGq3Tn00wkt3n6fExj8iUsYio="}
+      {"type", "auth"},
+      {"token", "iqrfgd2;1a;zDrcvQaXWopzJ+DbfkpGq3Tn00wkt3n6fExj8iUsYio="}
     });
 
     ws.write(net::buffer(doc.dump()), ec);
@@ -466,7 +469,8 @@ namespace iqrf {
     beast::error_code ec;
 
     json doc({
-      {"auth", "iqrfgd2;1a;zDrcvQaXWopzJ+o="}
+      {"type", "auth"},
+      {"token", "iqrfgd2;1a;zDrcvQaXWopzJ+o="}
     });
 
     ws.write(net::buffer(doc.dump()), ec);
@@ -493,7 +497,8 @@ namespace iqrf {
     beast::error_code ec;
 
     json doc({
-      {"auth", "iqrfgd2;1;zDrcvQaXWopzJ-DbfkpGq3Tn00wkt3n*fExj8iUsYio="}
+      {"type", "auth"},
+      {"token", "iqrfgd2;1;zDrcvQaXWopzJ-DbfkpGq3Tn00wkt3n*fExj8iUsYio="}
     });
 
     ws.write(net::buffer(doc.dump()), ec);
@@ -520,7 +525,8 @@ namespace iqrf {
     beast::error_code ec;
 
     json doc({
-      {"auth", "iqrfgd2;15;zDrcvQaXWopzJ+DbfkpGq3Tn00wkt3n6fExj8iUsYio="}
+      {"type", "auth"},
+      {"token", "iqrfgd2;15;zDrcvQaXWopzJ+DbfkpGq3Tn00wkt3n6fExj8iUsYio="}
     });
 
     ws.write(net::buffer(doc.dump()), ec);
@@ -550,7 +556,8 @@ namespace iqrf {
     insertToken(revoked_token, timestamp, timestamp + 31536000);
 
     json doc({
-      {"auth", revoked_token_string}
+      {"type", "auth"},
+      {"token", revoked_token_string}
     });
 
     ws.write(net::buffer(doc.dump()), ec);
@@ -580,7 +587,8 @@ namespace iqrf {
     insertToken(expired_token, timestamp - 2592000, timestamp - 3600);
 
     json doc({
-      {"auth", expired_token_string}
+      {"type", "auth"},
+      {"token", expired_token_string}
     });
 
     ws.write(net::buffer(doc.dump()), ec);
@@ -611,7 +619,8 @@ namespace iqrf {
     insertToken(valid_token, timestamp, expiration);
     // do successful auth
     json doc({
-      {"auth", valid_token_string}
+      {"type", "auth"},
+      {"token", valid_token_string}
     });
     ws.write(net::buffer(doc.dump()), ec);
     ASSERT_FALSE(ec);
@@ -658,6 +667,50 @@ R"({
     EXPECT_EQ(expected, received);
   }
 
+    TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_after_auth_success) {
+    beast::error_code ec;
+
+    auto timestamp = DateTimeUtils::get_current_timestamp();
+    auto expiration = timestamp + 31536000;
+    insertToken(valid_token, timestamp, expiration);
+    // do successful auth
+    json doc({
+      {"type", "auth"},
+      {"token", valid_token_string}
+    });
+    ws.write(net::buffer(doc.dump()), ec);
+    ASSERT_FALSE(ec);
+    // read auth success
+    beast::flat_buffer buffer;
+    ws.read(buffer, ec);
+    ASSERT_FALSE(ec);
+    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"type\":\"auth_success\"}";
+    std::string received = beast::buffers_to_string(buffer.data());
+    EXPECT_EQ(expected, received);
+    buffer.consume(buffer.size());
+    // send another auth message
+    ws.write(net::buffer(doc.dump()), ec);
+    ASSERT_FALSE(ec);
+    // read unexpected auth message
+    ws.read(buffer, ec);
+    ASSERT_FALSE(ec);
+    received = beast::buffers_to_string(buffer.data());
+    expected =
+R"({
+    "mType": "messageError",
+    "data": {
+        "msgId": "auth",
+        "rsp": {
+            "error": "Received a duplicate or unexpected auth message."
+        },
+        "status": 9,
+        "statusStr": "Unexpected auth message.",
+        "insId": "iqrfgd2-default"
+    }
+})";
+    EXPECT_EQ(expected, received);
+  }
+
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_success_revoked_after) {
     beast::error_code ec;
 
@@ -667,7 +720,8 @@ R"({
     insertToken(revoked_later_token, timestamp, expiration);
     // do successful auth
     json doc({
-      {"auth", revoked_later_token_string}
+      {"type", "auth"},
+      {"token", revoked_later_token_string}
     });
     ws.write(net::buffer(doc.dump()), ec);
     ASSERT_FALSE(ec);
@@ -735,7 +789,8 @@ R"({
 
     // do successful auth
     json doc({
-      {"auth", valid_token_string}
+      {"type", "auth"},
+      {"token", valid_token_string}
     });
     ws.write(net::buffer(doc.dump()), ec);
     ASSERT_FALSE(ec);
