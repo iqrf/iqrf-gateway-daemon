@@ -219,12 +219,12 @@ namespace iqrf {
 		 */
 		std::vector<std::set<uint8_t>> splitSet(std::set<uint8_t> &set, size_t size);
 
-    /**
-     * Advances report number counter and returns new value
-     *
-     * @return Report number
-     */
-    uint64_t getNextReportNumber();
+		/**
+		 * Advances report number counter and returns new value
+		 *
+		 * @return Report number
+		 */
+		uint64_t getNextReportNumber();
 
 		/**
 		 * Sets offline FRC flag
@@ -395,7 +395,7 @@ namespace iqrf {
 		mutable std::mutex m_callbackMutex;
 		/// Callback map
 		std::map<std::string, std::function<void(bool)>> m_readingCallbacks;
-    /// Report counter
-    std::atomic<uint64_t> m_reportCounter{1};
+		/// Report counter
+		std::atomic<uint64_t> m_reportCounter{1};
 	};
 }

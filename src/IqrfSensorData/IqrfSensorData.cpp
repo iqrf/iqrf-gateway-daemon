@@ -123,9 +123,9 @@ namespace iqrf {
 		return res;
 	}
 
-  uint64_t IqrfSensorData::getNextReportNumber() {
-    return m_reportCounter.fetch_add(1, std::memory_order_relaxed);
-  }
+	uint64_t IqrfSensorData::getNextReportNumber() {
+		return m_reportCounter.fetch_add(1, std::memory_order_relaxed);
+	}
 
 	///// Message handling
 
@@ -377,7 +377,7 @@ namespace iqrf {
 			try {
 				executeCallbacks(true);
 				SensorDataResult result;
-        result.setReportNumber(getNextReportNumber());
+				result.setReportNumber(getNextReportNumber());
 				if (asyncReports) {
 					Document doc;
 					result.setMessageType(m_mTypeReportAsync);
@@ -402,9 +402,9 @@ namespace iqrf {
 
 			executeCallbacks(false);
 
-      if (!m_workerRun) {
-        break;
-      }
+			if (!m_workerRun) {
+				break;
+			}
 
 			auto nowTime = std::chrono::steady_clock::now();
 			auto waitTimeSec = std::chrono::duration_cast<std::chrono::seconds>(nextReadingTime - nowTime).count();
