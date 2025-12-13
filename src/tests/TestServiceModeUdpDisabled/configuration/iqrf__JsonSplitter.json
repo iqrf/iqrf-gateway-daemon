@@ -1,0 +1,9 @@
+{
+	"component": "iqrf::JsonSplitter",
+	"instance": "JsonSplitter",
+	"validateJsonResponse": true,
+	"insId": "iqrfgd2-default",
+	"messagingList": [],
+	"managementQueueCapacity": 32,
+	"networkQueueCapacity": 32
+}

@@ -17,17 +17,16 @@
 
 #define IIqrfChannelService_EXPORTS
 
-#include "TestJsonSplitterErrorMessages.h"
-#include "Trace.h"
 #include "GTestStaticRunner.h"
-#include "HexStringCoversion.h"
+#include "TestServiceModeUdpDisabled.h"
+#include "Trace.h"
 #include "TestUtils.h"
+
+#include "iqrf__TestServiceModeUdpDisabled.hxx"
 
 #include "gtest/gtest.h"
 
-#include "iqrf__TestJsonSplitterErrorMessages.hxx"
-
-TRC_INIT_MNAME(iqrf::TestJsonSplitterErrorMessages)
+TRC_INIT_MNAME(iqrf::TestServiceModeUdpDisabled)
 
 using namespace rapidjson;
 
@@ -62,7 +61,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
-        "TestJsonSplitterErrorMessages instance activate" << std::endl <<
+        "TestServiceModeUdpDisabled instance activate" << std::endl <<
         "******************************"
       );
 
@@ -76,7 +75,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
-        "TestJsonSplitterErrorMessages instance deactivate" << std::endl <<
+        "TestServiceModeUdpDisabled instance deactivate" << std::endl <<
         "******************************"
       );
       TRC_FUNCTION_LEAVE("")
@@ -119,99 +118,79 @@ namespace iqrf {
   };
 
   ////////////////////////////////////
-  TestJsonSplitterErrorMessages::TestJsonSplitterErrorMessages()
+  TestServiceModeUdpDisabled::TestServiceModeUdpDisabled()
   {
   }
 
-  TestJsonSplitterErrorMessages::~TestJsonSplitterErrorMessages()
+  TestServiceModeUdpDisabled::~TestServiceModeUdpDisabled()
   {
   }
 
-  void TestJsonSplitterErrorMessages::activate(const shape::Properties *props)
+  void TestServiceModeUdpDisabled::activate(const shape::Properties *props)
   {
     Imp::get().activate(props);
   }
 
-  void TestJsonSplitterErrorMessages::deactivate()
+  void TestServiceModeUdpDisabled::deactivate()
   {
     Imp::get().deactivate();
   }
 
-  void TestJsonSplitterErrorMessages::modify(const shape::Properties *props)
+  void TestServiceModeUdpDisabled::modify(const shape::Properties *props)
   {
     (void)props; //silence -Wunused-parameter
   }
 
-  void TestJsonSplitterErrorMessages::attachInterface(iqrf::ITestSimulationIqrfChannel* iface)
+  void TestServiceModeUdpDisabled::attachInterface(iqrf::ITestSimulationIqrfChannel* iface)
   {
     Imp::get().attachInterface(iface);
   }
 
-  void TestJsonSplitterErrorMessages::detachInterface(iqrf::ITestSimulationIqrfChannel* iface)
+  void TestServiceModeUdpDisabled::detachInterface(iqrf::ITestSimulationIqrfChannel* iface)
   {
     Imp::get().detachInterface(iface);
   }
 
-  void TestJsonSplitterErrorMessages::attachInterface(iqrf::ITestSimulationMessaging* iface)
+  void TestServiceModeUdpDisabled::attachInterface(iqrf::ITestSimulationMessaging* iface)
   {
     Imp::get().attachInterface(iface);
   }
 
-  void TestJsonSplitterErrorMessages::detachInterface(iqrf::ITestSimulationMessaging* iface)
+  void TestServiceModeUdpDisabled::detachInterface(iqrf::ITestSimulationMessaging* iface)
   {
     Imp::get().detachInterface(iface);
   }
 
-  void TestJsonSplitterErrorMessages::attachInterface(shape::ILaunchService* iface)
+  void TestServiceModeUdpDisabled::attachInterface(shape::ILaunchService* iface)
   {
     Imp::get().attachInterface(iface);
   }
 
-  void TestJsonSplitterErrorMessages::detachInterface(shape::ILaunchService* iface)
+  void TestServiceModeUdpDisabled::detachInterface(shape::ILaunchService* iface)
   {
     Imp::get().detachInterface(iface);
   }
 
-  void TestJsonSplitterErrorMessages::attachInterface(shape::ITraceService* iface)
+  void TestServiceModeUdpDisabled::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
   }
 
-  void TestJsonSplitterErrorMessages::detachInterface(shape::ITraceService* iface)
+  void TestServiceModeUdpDisabled::detachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().removeTracerService(iface);
   }
 
-  ////////////////////////////////////////////////////////
-  class JsonSplitterErrorMessagesTest : public ::testing::Test {};
+  //////////////////////////////////////////////////////////////////
+  class ServiceModeUdpDisabledTest : public ::testing::Test {};
 
-  TEST_F(JsonSplitterErrorMessagesTest, json_parse_error) {
+  TEST_F(ServiceModeUdpDisabledTest, set_service_udp_not_active) {
     std::string request = R"({
-      "mType: "invalid_json"
-    })";
-
-    // Send request and get error response
-    Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(request);
-    std::string response = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
-    auto doc = parseJsonString(response);
-    ASSERT_FALSE(doc.HasParseError());
-
-    EXPECT_STREQ("messageError", Pointer("/mType").Get(doc)->GetString());
-    EXPECT_STREQ("unknown", Pointer("/data/msgId").Get(doc)->GetString());
-    EXPECT_EQ(request, Pointer("/data/rsp/message").Get(doc)->GetString());
-    EXPECT_STREQ("Missing a colon after a name of object member.", Pointer("/data/rsp/error").Get(doc)->GetString());
-    EXPECT_EQ(17, Pointer("/data/rsp/offset").Get(doc)->GetInt());
-    EXPECT_EQ(2, Pointer("/data/status").Get(doc)->GetInt());
-    EXPECT_STREQ("Failed to parse JSON message.", Pointer("/data/statusStr").Get(doc)->GetString());
-  }
-
-  TEST_F(JsonSplitterErrorMessagesTest, missing_mtype_error) {
-    std::string request = R"({
+      "mType": "mngDaemon_Mode",
       "data": {
-        "msgId": "test_missing_mtype",
-        "timeout": 1000,
+        "msgId": "test_set_service_mode",
         "req": {
-          "rData": "00.00.06.03.FF.FF"
+          "operMode": "service"
         },
         "returnVerbose": true
       }
@@ -223,20 +202,22 @@ namespace iqrf {
     auto doc = parseJsonString(response);
     ASSERT_FALSE(doc.HasParseError());
 
-    EXPECT_STREQ("messageError", Pointer("/mType").Get(doc)->GetString());
-    EXPECT_STREQ("test_missing_mtype", Pointer("/data/msgId").Get(doc)->GetString());
-    EXPECT_EQ(request, Pointer("/data/rsp/message").Get(doc)->GetString());
-    EXPECT_EQ(3, Pointer("/data/status").Get(doc)->GetInt());
-    EXPECT_STREQ("mType missing in JSON message.", Pointer("/data/statusStr").Get(doc)->GetString());
+    EXPECT_STREQ("mngDaemon_Mode", Pointer("/mType").Get(doc)->GetString());
+    EXPECT_STREQ("test_set_service_mode", Pointer("/data/msgId").Get(doc)->GetString());
+    EXPECT_STREQ("operational", Pointer("/data/rsp/operMode").Get(doc)->GetString());
+    EXPECT_STREQ("UDP service not active.", Pointer("/data/errorStr").Get(doc)->GetString());
+    EXPECT_EQ(-1, Pointer("/data/status").Get(doc)->GetInt());
+    EXPECT_STREQ("err", Pointer("/data/statusStr").Get(doc)->GetString());
   }
 
-  TEST_F(JsonSplitterErrorMessagesTest, invalid_message_error) {
+  TEST_F(ServiceModeUdpDisabledTest, set_operational_udp_not_active) {
     std::string request = R"({
-      "mType": "iqrfRaw",
+      "mType": "mngDaemon_Mode",
       "data": {
-        "msgId": "test_invalid_message",
-        "timeout": 1000,
-        "req": {},
+        "msgId": "test_set_operational_mode",
+        "req": {
+          "operMode": "operational"
+        },
         "returnVerbose": true
       }
     })";
@@ -247,18 +228,24 @@ namespace iqrf {
     auto doc = parseJsonString(response);
     ASSERT_FALSE(doc.HasParseError());
 
-    EXPECT_STREQ("messageError", Pointer("/mType").Get(doc)->GetString());
-    EXPECT_STREQ("test_invalid_message", Pointer("/data/msgId").Get(doc)->GetString());
-    EXPECT_EQ(request, Pointer("/data/rsp/message").Get(doc)->GetString());
-    EXPECT_STREQ("Failed to validate request message. Violating member: <root>[data][req]. Violation: Missing required property 'rData'.", Pointer("/data/rsp/error").Get(doc)->GetString());
-    EXPECT_EQ(4, Pointer("/data/status").Get(doc)->GetInt());
-    EXPECT_STREQ("Failed to validate JSON message contents.", Pointer("/data/statusStr").Get(doc)->GetString());
+    EXPECT_STREQ("mngDaemon_Mode", Pointer("/mType").Get(doc)->GetString());
+    EXPECT_STREQ("test_set_operational_mode", Pointer("/data/msgId").Get(doc)->GetString());
+    EXPECT_STREQ("operational", Pointer("/data/rsp/operMode").Get(doc)->GetString());
+    EXPECT_STREQ("UDP service not active.", Pointer("/data/errorStr").Get(doc)->GetString());
+    EXPECT_EQ(-1, Pointer("/data/status").Get(doc)->GetInt());
+    EXPECT_STREQ("err", Pointer("/data/statusStr").Get(doc)->GetString());
   }
 
-  TEST_F(JsonSplitterErrorMessagesTest, unexpected_auth_error) {
+  TEST_F(ServiceModeUdpDisabledTest, set_forwarding_udp_not_active) {
     std::string request = R"({
-      "type": "auth",
-      "token": "iqrfgd2;1;zDrcvQaXWopzJ+DbfkpGq3Tn00wkt3n6fExj8iUsYio="
+      "mType": "mngDaemon_Mode",
+      "data": {
+        "msgId": "test_set_forwarding_mode",
+        "req": {
+          "operMode": "forwarding"
+        },
+        "returnVerbose": true
+      }
     })";
 
     // Send request and get error response
@@ -267,10 +254,37 @@ namespace iqrf {
     auto doc = parseJsonString(response);
     ASSERT_FALSE(doc.HasParseError());
 
-    EXPECT_STREQ("messageError", Pointer("/mType").Get(doc)->GetString());
-    EXPECT_STREQ("auth", Pointer("/data/msgId").Get(doc)->GetString());
-    EXPECT_STREQ("Received a duplicate or unexpected auth message.", Pointer("/data/rsp/error").Get(doc)->GetString());
-    EXPECT_EQ(9, Pointer("/data/status").Get(doc)->GetInt());
-    EXPECT_STREQ("Unexpected auth message.", Pointer("/data/statusStr").Get(doc)->GetString());
+    EXPECT_STREQ("mngDaemon_Mode", Pointer("/mType").Get(doc)->GetString());
+    EXPECT_STREQ("test_set_forwarding_mode", Pointer("/data/msgId").Get(doc)->GetString());
+    EXPECT_STREQ("operational", Pointer("/data/rsp/operMode").Get(doc)->GetString());
+    EXPECT_STREQ("UDP service not active.", Pointer("/data/errorStr").Get(doc)->GetString());
+    EXPECT_EQ(-1, Pointer("/data/status").Get(doc)->GetInt());
+    EXPECT_STREQ("err", Pointer("/data/statusStr").Get(doc)->GetString());
+  }
+
+  TEST_F(ServiceModeUdpDisabledTest, get_mode_udp_not_active) {
+    std::string request = R"({
+      "mType": "mngDaemon_Mode",
+      "data": {
+        "msgId": "test_get_mode",
+        "req": {
+          "operMode": ""
+        },
+        "returnVerbose": true
+      }
+    })";
+
+    // Send request and get error response
+    Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(request);
+    std::string response = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
+    auto doc = parseJsonString(response);
+    ASSERT_FALSE(doc.HasParseError());
+
+    EXPECT_STREQ("mngDaemon_Mode", Pointer("/mType").Get(doc)->GetString());
+    EXPECT_STREQ("test_get_mode", Pointer("/data/msgId").Get(doc)->GetString());
+    EXPECT_STREQ("operational", Pointer("/data/rsp/operMode").Get(doc)->GetString());
+    EXPECT_STREQ("UDP service not active.", Pointer("/data/errorStr").Get(doc)->GetString());
+    EXPECT_EQ(-1, Pointer("/data/status").Get(doc)->GetInt());
+    EXPECT_STREQ("err", Pointer("/data/statusStr").Get(doc)->GetString());
   }
 }

@@ -1,0 +1,4 @@
+{
+  "component": "iqrf::TestServiceModeUdpDisabled",
+  "instance": "iqrf::TestServiceModeUdpDisabled"
+}

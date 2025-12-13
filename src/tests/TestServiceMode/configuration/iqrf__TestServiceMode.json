@@ -1,0 +1,4 @@
+{
+  "component": "iqrf::TestServiceMode",
+  "instance": "iqrf::TestServiceMode"
+}
