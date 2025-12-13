@@ -520,9 +520,13 @@ namespace iqrf {
     if (!token->canUseServiceMode()) {
       return StatusCode::InsufficientPermission;
     }
-    // check if service mode enabled
     std::lock_guard<std::mutex> lock(m_modeMtx);
-    if (m_modeType != ServiceModeType::None) {
+    // check if legacy service mode is active
+    if (m_modeType == ServiceModeType::Legacy) {
+      return StatusCode::LegacyActive;
+    }
+    // check if service mode enabled
+    if (m_modeType == ServiceModeType::New) {
       return StatusCode::AlreadyActive;
     }
     // enable service mode
@@ -548,8 +552,8 @@ namespace iqrf {
     if (!token->canUseServiceMode()) {
       return StatusCode::InsufficientPermission;
     }
-    // check if service mode is deactivated
     std::lock_guard<std::mutex> lock(m_modeMtx);
+    // check if service mode is deactivated
     if (m_modeType == ServiceModeType::None) {
       return StatusCode::AlreadyInactive;
     }
