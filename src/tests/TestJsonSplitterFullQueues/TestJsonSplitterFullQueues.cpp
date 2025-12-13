@@ -21,13 +21,9 @@
 #include "Trace.h"
 #include "GTestStaticRunner.h"
 #include "HexStringCoversion.h"
+#include "TestUtils.h"
 
 #include "gtest/gtest.h"
-
-#include "rapidjson/pointer.h"
-#include "rapidjson/istreamwrapper.h"
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/prettywriter.h"
 
 #include "iqrf__TestJsonSplitterFullQueues.hxx"
 
@@ -187,16 +183,7 @@ namespace iqrf {
   }
 
   ////////////////////////////////////////////////////////
-  class JsonSplitterFullQueueTest : public ::testing::Test
-  {
-  protected:
-
-    rapidjson::Document parseResponse(const std::string& response) {
-      rapidjson::Document doc;
-      doc.Parse(response.c_str());
-      return doc;
-    }
-  };
+  class JsonSplitterFullQueueTest : public ::testing::Test {};
 
   TEST_F(JsonSplitterFullQueueTest, management_queue_full) {
     std::string request = R"({
@@ -210,7 +197,7 @@ namespace iqrf {
     // Send request and get error response
     Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(request);
     std::string response = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
-    auto doc = parseResponse(response);
+    auto doc = parseJsonString(response);
     ASSERT_FALSE(doc.HasParseError());
 
     EXPECT_STREQ("messageError", Pointer("/mType").Get(doc)->GetString());
@@ -237,7 +224,7 @@ namespace iqrf {
     // Send request and get error response
     Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(request);
     std::string response = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
-    auto doc = parseResponse(response);
+    auto doc = parseJsonString(response);
     ASSERT_FALSE(doc.HasParseError());
 
     EXPECT_STREQ("messageError", Pointer("/mType").Get(doc)->GetString());

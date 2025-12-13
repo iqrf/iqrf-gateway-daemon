@@ -1,0 +1,116 @@
+{
+  "applicationName": "iqrfgd2",
+  "resourceDir": "",
+  "dataDir": "configuration/",
+  "cacheDir": "configuration",
+  "userDir": "",
+  "configurationDir": "configuration",
+  "deploymentDir": "../../..",
+  "components": [
+    {
+      "name": "shape::TraceFormatService",
+      "libraryPath": "shape/bin",
+      "libraryName": "TraceFormatService",
+      "enabled": true,
+      "startlevel": -4
+    },
+    {
+      "name": "shape::TraceFileService",
+      "libraryPath": "shape/bin",
+      "libraryName": "TraceFileService",
+      "enabled": true,
+      "startlevel": -3
+    },
+    {
+      "name": "shape::LauncherService",
+      "libraryPath": "",
+      "libraryName": "",
+      "enabled": true,
+      "startlevel": -2
+    },
+    {
+      "name": "shape::CurlRestApiService",
+      "libraryPath": "shapeware/bin",
+      "libraryName": "CurlRestApiService",
+      "enabled": true,
+      "startlevel": -1
+    },
+    {
+      "name": "iqrf::Scheduler",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "Scheduler",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
+      "name": "iqrf::TestSimulationIqrfChannel",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "TestSimulationIqrfChannel",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::IqrfDpa",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IqrfDpa",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::IqrfDb",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IqrfDb",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::ApiTokenService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "ApiTokenService",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::IdeCounterpart",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IdeCounterpart",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::JsCache",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "JsCache",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
+      "name": "iqrf::JsRenderDuktape",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "JsRenderDuktape",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
+      "name": "iqrf::TestSimulationMessaging",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "TestSimulationMessaging",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::JsonSplitter",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "JsonSplitter",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
+      "name": "iqrf::TestServiceModeUdpDisabled",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "TestServiceModeUdpDisabled",
+      "enabled": true,
+      "startlevel": 4
+    }
+  ]
+}
