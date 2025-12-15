@@ -14,6 +14,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   GTest::gmock
   GTest::gtest_main
   GTest::gmock_main
+  date
 )
 
 include(GoogleTest)
