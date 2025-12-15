@@ -36,7 +36,7 @@ protected:
     result = val * val;
   }
 
-  void setUp() {
+  void SetUp() override {
     result = 0;
   }
 };
@@ -46,12 +46,12 @@ TEST_F(TaskQueueTest, SizeTest) {
     multHandler(val);
   });
   EXPECT_EQ(queue.size(), 0);
+  EXPECT_EQ(result, 0);
 
   queue.pushToQueue(2);
   queue.pushToQueue(3);
   EXPECT_EQ(queue.size(), 2);
 
-  queue.startQueue();
   // let queue process tasks
   std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -90,6 +90,7 @@ TEST_F(TaskQueueTest, StartQueueTest) {
     multHandlerDelay(val);
   });
   EXPECT_EQ(queue.size(), 0);
+  EXPECT_EQ(result, 0);
 
   queue.pushToQueue(2);
   queue.stopQueue();
@@ -101,6 +102,7 @@ TEST_F(TaskQueueTest, StartQueueTest) {
   std::this_thread::sleep_for(std::chrono::milliseconds(1100));
 
   EXPECT_EQ(queue.size(), 0);
+  EXPECT_EQ(result, 4);
 }
 
 TEST_F(TaskQueueTest, StopQueueTest) {
@@ -108,6 +110,7 @@ TEST_F(TaskQueueTest, StopQueueTest) {
     multHandlerDelay(val);
   });
   EXPECT_EQ(queue.size(), 0);
+  EXPECT_EQ(result, 0);
 
   queue.pushToQueue(2);
   queue.stopQueue();
@@ -124,6 +127,7 @@ TEST_F(TaskQueueTest, ClearQueueTest) {
     multHandler(val);
   });
   EXPECT_EQ(queue.size(), 0);
+  EXPECT_EQ(result, 0);
 
   queue.stopQueue();
 
@@ -136,6 +140,7 @@ TEST_F(TaskQueueTest, ClearQueueTest) {
   queue.clearQueue();
 
   EXPECT_EQ(queue.size(), 0);
+  EXPECT_EQ(result, 0);
 }
 
 }
