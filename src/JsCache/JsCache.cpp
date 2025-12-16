@@ -1181,7 +1181,8 @@ namespace iqrf {
 		createDirectory(std::filesystem::path(tmpServerStatePath).parent_path());
 		CurlUtils::downloadFile(
 			getAbsoluteUrl(SERVER_URL),
-			tmpServerStatePath
+			tmpServerStatePath,
+      {{"accept", "application/json"}}
 		);
 		ServerState remoteServerState = getCacheServer(tmpServerStatePath);
 
@@ -1213,8 +1214,8 @@ namespace iqrf {
 
 		std::string tmpArchivePath = getTmpPath("cache.zip");
 		std::string tmpServerStatePath = getTmpPath("serverCheck.json");
-		CurlUtils::downloadFile(getAbsoluteUrl(ZIP_URL), tmpArchivePath);
-		CurlUtils::downloadFile(getAbsoluteUrl(SERVER_URL), tmpServerStatePath);
+		CurlUtils::downloadFile(getAbsoluteUrl(ZIP_URL), tmpArchivePath, {{"accept", "application/zip"}});
+		CurlUtils::downloadFile(getAbsoluteUrl(SERVER_URL), tmpServerStatePath, {{"accept", "application/json"}});
 
 		if (!std::filesystem::exists(tmpArchivePath)) {
 			THROW_EXC_TRC_WAR(std::runtime_error, "file not exist " << PAR(tmpArchivePath));

@@ -46,7 +46,8 @@ void get_server_check(const std::string &url) {
 
 void download_cache(const std::string &url) {
   cpr::Response rsp = cpr::Get(
-    cpr::Url{url + "/zip"}
+    cpr::Url{url + "/zip"},
+    cpr::Header{{"accept", "application/zip"}}
   );
   if (rsp.status_code != 200) {
     throw std::logic_error("Cannot download zip file, status code: " + std::to_string(rsp.status_code));
