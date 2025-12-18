@@ -386,6 +386,16 @@ namespace iqrf {
         "returnVerbose": true
       }
     })";
+    static constexpr std::string_view RAW = R"({
+      "mType": "iqrfRaw",
+      "data": {
+        "msgId": "test_raw",
+        "req": {
+          "rData": "00.00.06.03.ff.ff"
+        },
+        "returnVerbose": true
+      }
+    })";
   };
 
   TEST_F(ServiceModeTest, no_websocket_gwident) {
@@ -904,6 +914,96 @@ namespace iqrf {
     EXPECT_STREQ("WebSocket service mode is active.", Pointer("/data/errorStr").Get(doc)->GetString());
     EXPECT_EQ(-1, Pointer("/data/status").Get(doc)->GetInt());
     EXPECT_STREQ("err", Pointer("/data/statusStr").Get(doc)->GetString());
+  }
+
+  TEST_F(ServiceModeTest, service_activate_legacy_execute_nonwhitelisted_message) {
+    auto ws = wsConnectAuth(service_string);
+    beast::error_code ec;
+    // send legacy service mode
+    ws.write(net::buffer(ServiceModeTest::MODE_SERVICE), ec);
+    ASSERT_FALSE(ec);
+    // read legacy service success
+    beast::flat_buffer buffer;
+    ws.read(buffer, ec);
+    ASSERT_FALSE(ec);
+    std::string response = beast::buffers_to_string(buffer.data());
+    buffer.consume(buffer.size());
+    auto doc = parseJsonString(response);
+    ASSERT_FALSE(doc.HasParseError());
+    // check response
+    EXPECT_STREQ("mngDaemon_Mode", Pointer("/mType").Get(doc)->GetString());
+    EXPECT_STREQ("d6b05c55-408b-459d-bc25-f74c42fa0153", Pointer("/data/msgId").Get(doc)->GetString());
+    EXPECT_STREQ("service", Pointer("/data/rsp/operMode").Get(doc)->GetString());
+    EXPECT_EQ(0, Pointer("/data/status").Get(doc)->GetInt());
+    EXPECT_STREQ("ok", Pointer("/data/statusStr").Get(doc)->GetString());
+    // send raw message
+    ws.write(net::buffer(ServiceModeTest::RAW), ec);
+    ASSERT_FALSE(ec);
+    ws.read(buffer, ec);
+    ASSERT_FALSE(ec);
+    response = beast::buffers_to_string(buffer.data());
+    buffer.consume(buffer.size());
+    doc = parseJsonString(response);
+    ASSERT_FALSE(doc.HasParseError());
+    // check response
+    EXPECT_STREQ("messageError", Pointer("/mType").Get(doc)->GetString());
+    EXPECT_STREQ("test_raw", Pointer("/data/msgId").Get(doc)->GetString());
+    EXPECT_STREQ("Message type iqrfRaw not supported in service mode.", Pointer("/data/rsp/error").Get(doc)->GetString());
+    EXPECT_EQ(10, Pointer("/data/status").Get(doc)->GetInt());
+    EXPECT_STREQ("Service mode is active.", Pointer("/data/statusStr").Get(doc)->GetString());
+    // send legacy operational mode
+    ws.write(net::buffer(ServiceModeTest::MODE_OPERATIONAL), ec);
+    ASSERT_FALSE(ec);
+    // read legacy service success
+    ws.read(buffer, ec);
+    ASSERT_FALSE(ec);
+    response = beast::buffers_to_string(buffer.data());
+    buffer.consume(buffer.size());
+    doc = parseJsonString(response);
+    ASSERT_FALSE(doc.HasParseError());
+    // check response
+    EXPECT_STREQ("mngDaemon_Mode", Pointer("/mType").Get(doc)->GetString());
+    EXPECT_STREQ("d6b05c55-408b-459d-bc25-f74c42fa0153", Pointer("/data/msgId").Get(doc)->GetString());
+    EXPECT_STREQ("operational", Pointer("/data/rsp/operMode").Get(doc)->GetString());
+    EXPECT_EQ(0, Pointer("/data/status").Get(doc)->GetInt());
+    EXPECT_STREQ("ok", Pointer("/data/statusStr").Get(doc)->GetString());
+  }
+
+  TEST_F(ServiceModeTest, service_activate_execute_nonwhitelisted_message) {
+    auto ws = wsConnectAuth(service_string);
+    beast::error_code ec;
+    // send activate
+    ws.write(net::buffer(ServiceModeTest::ACTIVATE), ec);
+    ASSERT_FALSE(ec);
+    // read activate success
+    beast::flat_buffer buffer;
+    ws.read(buffer, ec);
+    ASSERT_FALSE(ec);
+    std::string response = beast::buffers_to_string(buffer.data());
+    buffer.consume(buffer.size());
+    auto doc = parseJsonString(response);
+    ASSERT_FALSE(doc.HasParseError());
+    // check response
+    EXPECT_STREQ("mngService_Activate", Pointer("/mType").Get(doc)->GetString());
+    EXPECT_STREQ("d6b05c55-408b-459d-bc25-f74c42fa0153", Pointer("/data/msgId").Get(doc)->GetString());
+    EXPECT_EQ(0, Pointer("/data/status").Get(doc)->GetInt());
+    EXPECT_STREQ("Ok", Pointer("/data/statusStr").Get(doc)->GetString());
+    // send raw message
+    ws.write(net::buffer(ServiceModeTest::RAW), ec);
+    ASSERT_FALSE(ec);
+    // read raw message error
+    ws.read(buffer, ec);
+    ASSERT_FALSE(ec);
+    response = beast::buffers_to_string(buffer.data());
+    buffer.consume(buffer.size());
+    doc = parseJsonString(response);
+    ASSERT_FALSE(doc.HasParseError());
+    // check response
+    EXPECT_STREQ("messageError", Pointer("/mType").Get(doc)->GetString());
+    EXPECT_STREQ("test_raw", Pointer("/data/msgId").Get(doc)->GetString());
+    EXPECT_STREQ("Message type iqrfRaw not supported in service mode.", Pointer("/data/rsp/error").Get(doc)->GetString());
+    EXPECT_EQ(10, Pointer("/data/status").Get(doc)->GetInt());
+    EXPECT_STREQ("Service mode is active.", Pointer("/data/statusStr").Get(doc)->GetString());
   }
 
   TEST_F(ServiceModeTest, service_deactivate_while_inactive) {

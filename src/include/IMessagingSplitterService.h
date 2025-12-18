@@ -44,6 +44,7 @@ namespace iqrf {
     class MsgType;
 
     typedef std::function<void(const MessagingInstance& messaging, const MsgType& msgType, rapidjson::Document doc)> FilteredMessageHandlerFunc;
+    using ServiceModeCheckHandler = std::function<bool(void)>;
 
     class MsgType {
     public:
@@ -71,6 +72,8 @@ namespace iqrf {
     virtual void sendMessage(const std::list<MessagingInstance>& messagings, rapidjson::Document doc) const = 0;
     virtual void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc) = 0;
     virtual void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters) = 0;
+    virtual void registerServiceModeCheck(ServiceModeCheckHandler handler) = 0;
+    virtual void unregisterServiceModeCheck() = 0;
     virtual int getManagementQueueLen() const = 0;
     virtual int getNetworkQueueLen() const = 0;
 

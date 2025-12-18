@@ -85,9 +85,30 @@
       "startlevel": 0
     },
     {
+      "name": "iqrf::ApiTokenService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "ApiTokenService",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::IdeCounterpart",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IdeCounterpart",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
       "name": "iqrf::JsonSplitter",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsonSplitter",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
+      "name": "iqrf::UdpMessaging",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "UdpMessaging",
       "enabled": true,
       "startlevel": 1
     },

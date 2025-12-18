@@ -161,10 +161,14 @@ namespace iqrf {
 
   void IdeCounterpart::attachInterface(iqrf::IMessagingSplitterService* iface) {
 		m_splitterService = iface;
+    m_splitterService->registerServiceModeCheck([this]() -> bool {
+      return getMode() == Mode::Service;
+    });
 	}
 
 	void IdeCounterpart::detachInterface(iqrf::IMessagingSplitterService* iface) {
 		if (m_splitterService == iface) {
+      m_splitterService->unregisterServiceModeCheck();
 			m_splitterService = nullptr;
 		}
 	}

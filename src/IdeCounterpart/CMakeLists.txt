@@ -26,8 +26,6 @@ AddShapeRequiredInterface(${COMPONENT} iqrf::IApiTokenService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
-find_package(SQLite3 REQUIRED)
-
 file(GLOB_RECURSE _HDRFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h  ${COMPONENT_HXX})
 file(GLOB_RECURSE _SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
@@ -47,8 +45,6 @@ endif()
 
 target_link_libraries(${PROJECT_NAME}
   DbEntities
-  SQLite::SQLite3
-  SQLiteCpp
 )
 
 DeployShapeComponent(${PROJECT_NAME})

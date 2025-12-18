@@ -39,6 +39,7 @@ protected:
     NetworkQueueInactive,
     NetworkQueueFull,
     UnexpectedAuth,
+    ServiceMode,
   };
 
   /**
@@ -218,6 +219,27 @@ public:
     rapidjson::Pointer("/data/rsp/error").Set(doc, "Received a duplicate or unexpected auth message.");
     rapidjson::Pointer("/data/status").Set(doc, ErrorMsgCodes::UnexpectedAuth);
     rapidjson::Pointer("/data/statusStr").Set(doc, "Unexpected auth message.");
+    return doc;
+  }
+};
+
+/**
+ * Service mode enabled messageError class
+ */
+class ServiceModeMsg : protected BaseErrorMsg {
+public:
+
+  /**
+   * Creates a service mode message error message
+   * @param msgId Message ID
+   * @param mType Message type
+   * @return Service mode message error document
+   */
+  static rapidjson::Document createMessage(const std::string& msgId, const std::string& mType) {
+    auto doc = BaseErrorMsg::createMessage(msgId);
+    rapidjson::Pointer("/data/rsp/error").Set(doc, "Message type " + mType + " not supported in service mode.");
+    rapidjson::Pointer("/data/status").Set(doc, ErrorMsgCodes::ServiceMode);
+    rapidjson::Pointer("/data/statusStr").Set(doc, "Service mode is active.");
     return doc;
   }
 };

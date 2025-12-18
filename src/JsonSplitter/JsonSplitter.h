@@ -33,6 +33,8 @@ namespace iqrf {
     void sendMessage(const std::list<MessagingInstance>& messagings, rapidjson::Document doc) const override;
     void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc) override;
     void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters) override;
+    void registerServiceModeCheck(ServiceModeCheckHandler handler) override;
+    void unregisterServiceModeCheck() override;
     int getManagementQueueLen() const override;
     int getNetworkQueueLen() const override;
 
@@ -42,6 +44,7 @@ namespace iqrf {
 
     void attachInterface(shape::ILaunchService* iface);
     void detachInterface(shape::ILaunchService* iface);
+
 
     void attachInterface(iqrf::IMessagingService* iface);
     void detachInterface(iqrf::IMessagingService* iface);

@@ -273,4 +273,70 @@ namespace iqrf {
     EXPECT_EQ(9, Pointer("/data/status").Get(doc)->GetInt());
     EXPECT_STREQ("Unexpected auth message.", Pointer("/data/statusStr").Get(doc)->GetString());
   }
+
+  TEST_F(JsonSplitterErrorMessagesTest, service_mode_active_error) {
+    // enable service mode
+    std::string modeRequest = R"({
+      "mType": "mngDaemon_Mode",
+      "data": {
+        "msgId": "d6b05c55-408b-459d-bc25-f74c42fa0153",
+        "req": {
+          "operMode": "service"
+        },
+        "returnVerbose": true
+      }
+    })";
+    Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(modeRequest);
+    std::string modeResponse = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(100);
+    auto doc = parseJsonString(modeResponse);
+    ASSERT_FALSE(doc.HasParseError());
+    // check success response
+    EXPECT_STREQ("mngDaemon_Mode", Pointer("/mType").Get(doc)->GetString());
+    EXPECT_STREQ("d6b05c55-408b-459d-bc25-f74c42fa0153", Pointer("/data/msgId").Get(doc)->GetString());
+    EXPECT_STREQ("service", Pointer("/data/rsp/operMode").Get(doc)->GetString());
+    EXPECT_EQ(0, Pointer("/data/status").Get(doc)->GetInt());
+    EXPECT_STREQ("ok", Pointer("/data/statusStr").Get(doc)->GetString());
+    // attempt non-service message
+    std::string rawRequest = R"({
+      "mType": "iqrfRaw",
+      "data": {
+        "msgId": "test_raw",
+        "timeout": 1000,
+        "req": {
+          "rData": "00.00.06.03.ff.ff"
+        },
+        "returnVerbose": true
+      }
+    })";
+    Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(rawRequest);
+    std::string rawResponse = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(100);
+    doc = parseJsonString(rawResponse);
+    ASSERT_FALSE(doc.HasParseError());
+    // check error response
+    EXPECT_STREQ("messageError", Pointer("/mType").Get(doc)->GetString());
+    EXPECT_STREQ("test_raw", Pointer("/data/msgId").Get(doc)->GetString());
+    EXPECT_EQ(10, Pointer("/data/status").Get(doc)->GetInt());
+    EXPECT_STREQ("Service mode is active.", Pointer("/data/statusStr").Get(doc)->GetString());
+    // disable service mode
+    modeRequest = R"({
+      "mType": "mngDaemon_Mode",
+      "data": {
+        "msgId": "d6b05c55-408b-459d-bc25-f74c42fa0153",
+        "req": {
+          "operMode": "operational"
+        },
+        "returnVerbose": true
+      }
+    })";
+    Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(modeRequest);
+    modeResponse = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(100);
+    doc = parseJsonString(modeResponse);
+    ASSERT_FALSE(doc.HasParseError());
+    // check success response
+    EXPECT_STREQ("mngDaemon_Mode", Pointer("/mType").Get(doc)->GetString());
+    EXPECT_STREQ("d6b05c55-408b-459d-bc25-f74c42fa0153", Pointer("/data/msgId").Get(doc)->GetString());
+    EXPECT_STREQ("operational", Pointer("/data/rsp/operMode").Get(doc)->GetString());
+    EXPECT_EQ(0, Pointer("/data/status").Get(doc)->GetInt());
+    EXPECT_STREQ("ok", Pointer("/data/statusStr").Get(doc)->GetString());
+  }
 }
