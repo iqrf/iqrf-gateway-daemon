@@ -316,12 +316,7 @@ namespace iqrf {
           << "Incoming connection from " << session->getAddress() << ':' << session->getPort()
           << ", session ID " << session->getId()
         );
-        session->setOnOpen(
-          [this, session](std::size_t sessionId) {
-            (void) sessionId;
-            registerSession(session);
-          }
-        );
+        // set callbacks
         session->setOnClose(
           [this](std::size_t sessionId) {
             unregisterSession(sessionId);
@@ -329,6 +324,8 @@ namespace iqrf {
         );
         session->setOnMessage(m_onMessage);
         session->setOnAuth(m_onAuth);
+        // store session in server
+        registerSession(session);
         session->run();
       }
       accept();
