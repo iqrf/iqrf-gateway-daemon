@@ -411,6 +411,7 @@ namespace iqrf {
 
       auto now = DateTimeUtils::get_current_timestamp();
       std::string message = boost::beast::buffers_to_string(m_buffer.data());
+      m_buffer.consume(m_buffer.size());
 
       bool acceptMessage = false;
 
@@ -449,8 +450,6 @@ namespace iqrf {
       if (acceptMessage && this->onMessage) {
         this->onMessage(m_id, message);
       }
-
-      m_buffer.consume(m_buffer.size());
       this->read();
     }
 
