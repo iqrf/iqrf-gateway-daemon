@@ -163,7 +163,7 @@ namespace iqrf {
                 )
               );
               self->write();
-              self->init_auth_timeout();
+              self->close(boost::beast::websocket::close_code::policy_error);
               return;
             }
           }
@@ -437,7 +437,8 @@ namespace iqrf {
             m_authenticated = false;
             m_expiration = -1;
             this->send_system(create_auth_error_message(ec));
-            this->init_auth_timeout();
+            this->close(boost::beast::websocket::close_code::policy_error);
+            return;
           } else {
             // not expired, message accepted
             acceptMessage = true;
