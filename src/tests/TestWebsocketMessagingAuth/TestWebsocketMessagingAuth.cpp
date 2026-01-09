@@ -209,7 +209,7 @@ namespace iqrf {
       "OZjVJ/KYRfJ9FALd3VCY7+z3zsyDDa6kGVvP1K0unL0=",
       0,
       0,
-      false,
+      ApiToken::Status::Valid,
       false
     };
     db::models::ApiToken revoked_token{
@@ -219,7 +219,7 @@ namespace iqrf {
       "zsRbb+1AYkZi+DooboxUrvejyay4YJ7jJbny9xN8xH8=",
       0,
       0,
-      true,
+      ApiToken::Status::Revoked,
       false
     };
     db::models::ApiToken expired_token{
@@ -229,7 +229,7 @@ namespace iqrf {
       "/LPYJ33UI9fZzY2b4+hOGf9lcreR9gmM9cHdPLZkEbg=",
       0,
       0,
-      false,
+      ApiToken::Status::Expired,
       false
     };
     db::models::ApiToken revoked_later_token{
@@ -239,7 +239,7 @@ namespace iqrf {
       "uohKt+Eg2DYDZfAMYp2ic9bJKDoyibMZqhBisrNH+bI=",
       0,
       0,
-      false,
+      ApiToken::Status::Valid,
       false,
     };
     const std::string valid_token_string = "iqrfgd2;1;zDrcvQaXWopzJ+DbfkpGq3Tn00wkt3n6fExj8iUsYio=";
@@ -267,17 +267,18 @@ namespace iqrf {
     void insertToken(db::models::ApiToken& token, int64_t created_at, int64_t expiration) {
       SQLite::Statement stmt(*db,
         R"(
-        INSERT OR IGNORE INTO api_tokens (id, owner, salt, hash, createdAt, expiresAt, revoked, service)
+        INSERT OR IGNORE INTO api_tokens (id, owner, salt, hash, createdAt, expiresAt, status, service)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?);
         )"
       );
+
       stmt.bind(1, token.getId());
       stmt.bind(2, token.getOwner());
       stmt.bind(3, token.getSalt());
       stmt.bind(4, token.getHash());
       stmt.bind(5, created_at);
       stmt.bind(6, expiration);
-      stmt.bind(7, token.isRevoked());
+      stmt.bind(7, static_cast<int>(token.getStatus()));
       stmt.bind(8, token.canUseServiceMode());
       try {
         stmt.exec();

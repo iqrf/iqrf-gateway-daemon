@@ -68,7 +68,7 @@ void get_token(uint32_t id, const SharedParams& params) {
       << "Owner: " << token->getOwner() << '\n'
       << "Created at: " << std::to_string(token->getCreatedAt()) << '\n'
       << "Expires at: " << std::to_string(token->getExpiresAt()) << '\n'
-      << "Revoked: " << (token->isRevoked() ? "YES" : "NO") << '\n'
+      << "Status: " << ApiToken::toString(token->getStatus()) << '\n'
       << "Service mode: " << (token->canUseServiceMode() ? "YES" : "NO") << "\n";
   }
 }
@@ -98,7 +98,7 @@ void list_tokens(const SharedParams& params) {
       << pad_end(token.getOwner(), MAX_OWNER_LEN) << ' '
       << pad_end(std::to_string(token.getCreatedAt()), OUTPUT_DT_LEN) << ' '
       << pad_end(std::to_string(token.getExpiresAt()), OUTPUT_DT_LEN) << ' '
-      << pad_end(token.isRevoked() ? "YES" : "NO", OUTPUT_REVOKED_LEN) << ' '
+      << pad_end(std::string(ApiToken::toString(token.getStatus())), OUTPUT_REVOKED_LEN) << ' '
       << pad_end(token.canUseServiceMode() ? "YES" : "NO", OUTPUT_SERVICE_LEN)
       << "|\n";
   }
@@ -116,7 +116,7 @@ void revoke_token(uint32_t id, const SharedParams& params) {
   if (!token) {
     throw std::runtime_error("API token does not exist.");
   }
-  if (token->isRevoked()) {
+  if (token->getStatus() == ApiToken::Status::Revoked) {
     std::cout << "API token ID " << std::to_string(id) << " is already revoked.\n";
     return;
   }
