@@ -60,7 +60,7 @@ void print_list_header() {
     << pad_end("Owner", MAX_OWNER_LEN) << ' '
     << pad_end("Created at", OUTPUT_DT_LEN) << ' '
     << pad_end("Expires at", OUTPUT_DT_LEN) << ' '
-    << pad_end("Revoked", OUTPUT_REVOKED_LEN) << ' '
+    << pad_end("Status", OUTPUT_REVOKED_LEN) << ' '
     << pad_end("Service", OUTPUT_SERVICE_LEN) << "|\n";
   print_table_horizontal_line();
 }
@@ -106,7 +106,7 @@ json token_to_json(const iqrf::db::models::ApiToken& token) {
       {"owner", token.getOwner()},
       {"created_at", token.getCreatedAt()},
       {"expires_at", token.getExpiresAt()},
-      {"revoked", token.isRevoked()},
+      {"status", static_cast<int>(token.getStatus())},
       {"service", token.canUseServiceMode()}
   });
 }
@@ -117,7 +117,7 @@ std::string token_to_json_string(const iqrf::db::models::ApiToken& token) {
       {"owner", token.getOwner()},
       {"created_at", token.getCreatedAt()},
       {"expires_at", token.getExpiresAt()},
-      {"revoked", token.isRevoked()},
+      {"status", static_cast<int>(token.getStatus())},
       {"service", token.canUseServiceMode()}
   }).dump();
 }
