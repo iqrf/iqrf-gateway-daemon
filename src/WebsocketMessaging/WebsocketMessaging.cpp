@@ -258,9 +258,15 @@ namespace iqrf {
         return make_error_code(auth_error::invalid_token);
       }
 
-      if (token->isRevoked()) {
+      auto status = token->getStatus();
+      if (status == ApiToken::Status::Revoked) {
         return make_error_code(auth_error::revoked_token);
       }
+
+      if (status == ApiToken::Status::Expired) {
+        return make_error_code(auth_error::expired_token);
+      }
+
       if (token->getExpiresAt() < DateTimeUtils::get_current_timestamp()) {
         return make_error_code(auth_error::expired_token);
       }
@@ -300,7 +306,7 @@ namespace iqrf {
               itr = m_sessionTokenMap.erase(itr);
               continue;
             }
-            revoked = token->isRevoked();
+            revoked = token->getStatus() == ApiToken::Status::Revoked;
             tokenMap[tokenId] = revoked;
           }
           if (revoked) {

@@ -24,8 +24,51 @@
 
 namespace iqrf::db::models {
 
+/**
+ * Auth DB API token entity
+ */
 class ApiToken {
 public:
+  /**
+   * @brief Token status
+   *
+   * Token can either be valid, expired, or revoked.
+   */
+  enum class Status : int {
+    Valid,
+    Expired,
+    Revoked,
+  };
+
+  /**
+   * Get Status enum from value
+   * @param value Integer value
+   * @return `Status` Status enum member
+   * @throws `std::invalid_argument` If value does not exist on enum
+   */
+  static Status fromValue(int value) {
+    switch (value) {
+      case 0: return Status::Valid;
+      case 1: return Status::Expired;
+      case 2: return Status::Revoked;
+      default: throw std::invalid_argument("Unknown status value.");
+    }
+  }
+
+  /**
+   * Get string representation of Status enum member
+   * @param status Status enum member
+   * @return `std::string_view` String representation
+   */
+  static std::string_view toString(Status status) {
+    switch (status) {
+      case Status::Valid: return "valid";
+      case Status::Expired: return "expired";
+      case Status::Revoked: return "revoked";
+      default: return "unknown";
+    }
+  }
+
   /**
    * Base constructor
    */
@@ -33,61 +76,118 @@ public:
 
   /**
    * Constructor without ID
+   * @param owner Token owner
+   * @param salt Salt for hashing
+   * @param hash Hash from salt and secret
+   * @param createdAt Timestamp of creation
+   * @param expiresAt Timestamp of expiration
+   * @param status Token status as integer
+   * @param service Access to service mode
    */
   ApiToken(const std::string& owner, const std::string& salt, const std::string& hash,
-    int64_t createdAt, int64_t expiresAt, bool revoked, bool service)
-    : owner(owner),
-      salt(salt),
-      hash(hash),
-      createdAt(createdAt),
-      expiresAt(expiresAt),
-      revoked(revoked),
-      service(service) {}
+    int64_t createdAt, int64_t expiresAt, int status, bool service)
+    : owner_(owner),
+      salt_(salt),
+      hash_(hash),
+      createdAt_(createdAt),
+      expiresAt_(expiresAt),
+      status_(fromValue(status)),
+      service_(service) {}
+
+  /**
+   * Constructor without ID
+   * @param owner Token owner
+   * @param salt Salt for hashing
+   * @param hash Hash from salt and secret
+   * @param createdAt Timestamp of creation
+   * @param expiresAt Timestamp of expiration
+   * @param status Token status
+   * @param service Access to service mode
+   */
+  ApiToken(const std::string& owner, const std::string& salt, const std::string& hash,
+    int64_t createdAt, int64_t expiresAt, Status status, bool service)
+    : owner_(owner),
+      salt_(salt),
+      hash_(hash),
+      createdAt_(createdAt),
+      expiresAt_(expiresAt),
+      status_(status),
+      service_(service) {}
 
   /**
    * Full constructor
+   * @param id Token ID
+   * @param owner Token owner
+   * @param salt Salt for hashing
+   * @param hash Hash from salt and secret
+   * @param createdAt Timestamp of creation
+   * @param expiresAt Timestamp of expiration
+   * @param status Token status as integer
+   * @param service Access to service mode
    */
   ApiToken(const uint32_t id, const std::string& owner, const std::string& salt, const std::string& hash,
-    int64_t createdAt, int64_t expiresAt, bool revoked, bool service)
-    : id(id),
-      owner(owner),
-      salt(salt),
-      hash(hash),
-      createdAt(createdAt),
-      expiresAt(expiresAt),
-      revoked(revoked),
-      service(service) {}
+    int64_t createdAt, int64_t expiresAt, int status, bool service)
+    : id_(id),
+      owner_(owner),
+      salt_(salt),
+      hash_(hash),
+      createdAt_(createdAt),
+      expiresAt_(expiresAt),
+      status_(fromValue(status)),
+      service_(service) {}
+
+  /**
+   * Full constructor
+   * @param id Token ID
+   * @param owner Token owner
+   * @param salt Salt for hashing
+   * @param hash Hash from salt and secret
+   * @param createdAt Timestamp of creation
+   * @param expiresAt Timestamp of expiration
+   * @param status Token status
+   * @param service Access to service mode
+   */
+  ApiToken(const uint32_t id, const std::string& owner, const std::string& salt, const std::string& hash,
+    int64_t createdAt, int64_t expiresAt, Status status, bool service)
+    : id_(id),
+      owner_(owner),
+      salt_(salt),
+      hash_(hash),
+      createdAt_(createdAt),
+      expiresAt_(expiresAt),
+      status_(status),
+      service_(service) {}
 
   uint32_t getId() const {
-    return id;
+    return id_;
   }
 
   const std::string& getOwner() const {
-    return owner;
+    return owner_;
   }
 
   const std::string& getSalt() const {
-    return salt;
+    return salt_;
   }
 
   const std::string& getHash() const {
-    return hash;
+    return hash_;
   }
 
   int64_t getCreatedAt() const {
-    return createdAt;
+    return createdAt_;
   }
 
   int64_t getExpiresAt() const {
-    return expiresAt;
+    return expiresAt_;
   }
 
-  bool isRevoked() const {
-    return revoked;
+  Status getStatus() const {
+    return status_;
   }
 
   bool canUseServiceMode() const {
-    return service;
+    return service_;
   }
 
   static ApiToken fromResult(SQLite::Statement& stmt) {
@@ -97,27 +197,27 @@ public:
     auto hash = stmt.getColumn(3).getString();
     auto createdAt = stmt.getColumn(4).getInt64();
     auto expiresAt = stmt.getColumn(5).getInt64();
-    bool revoked = stmt.getColumn(6).getUInt() != 0;
+    auto status = stmt.getColumn(6).getInt();
     bool service = stmt.getColumn(7).getUInt() != 0;
-    return ApiToken(id, owner, salt, hash, createdAt, expiresAt, revoked, service);
+    return ApiToken(id, owner, salt, hash, createdAt, expiresAt, status, service);
   }
 private:
   /// Token ID
-  uint32_t id;
+  uint32_t id_;
   /// Token owner
-  std::string owner;
+  std::string owner_;
   /// Salt
-  std::string salt;
+  std::string salt_;
   /// Hashed salt and secret
-  std::string hash;
+  std::string hash_;
   /// Created at timestamp
-  int64_t createdAt;
+  int64_t createdAt_;
   /// Expiration timestmap
-  int64_t expiresAt;
-  /// Token revoked
-  bool revoked;
+  int64_t expiresAt_;
+  /// Token status
+  Status status_;
   /// Token can use service mode
-  bool service;
+  bool service_;
 };
 
 }

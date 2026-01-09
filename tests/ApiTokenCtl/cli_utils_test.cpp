@@ -14,7 +14,7 @@ protected:
   std::string hash = "JzDeC2H1D8+rG0/Z9QABWz3APZ++lfmC2tzwTOgaIC8=";
   int64_t created_at = 1730726400;
   int64_t expires_at = 1731590400;
-  bool revoked = false;
+  iqrf::db::models::ApiToken::Status status = iqrf::db::models::ApiToken::Status::Valid;
   bool service = false;
 
   iqrf::db::models::ApiToken token;
@@ -27,7 +27,7 @@ protected:
       hash,
       created_at,
       expires_at,
-      revoked,
+      status,
       service
     );
   }
@@ -79,14 +79,14 @@ TEST_F(CliUtilsTest, token_to_json_value) {
   EXPECT_EQ(created_at, doc["created_at"]);
   EXPECT_TRUE(doc.count("expires_at"));
   EXPECT_EQ(expires_at, doc["expires_at"]);
-  EXPECT_TRUE(doc.count("revoked"));
-  EXPECT_FALSE(doc["revoked"]);
+  EXPECT_TRUE(doc.count("status"));
+  EXPECT_EQ(static_cast<int>(status), doc["status"]);
   EXPECT_TRUE(doc.count("service"));
   EXPECT_FALSE(doc["service"]);
 }
 
 TEST_F(CliUtilsTest, token_to_json_string_value) {
-  std::string expected = "{\"created_at\":1730726400,\"expires_at\":1731590400,\"id\":1,\"owner\":\"test\",\"revoked\":false,\"service\":false}";
+  std::string expected = "{\"created_at\":1730726400,\"expires_at\":1731590400,\"id\":1,\"owner\":\"test\",\"service\":false,\"status\":0}";
   EXPECT_EQ(expected, token_to_json_string(token));
 }
 
