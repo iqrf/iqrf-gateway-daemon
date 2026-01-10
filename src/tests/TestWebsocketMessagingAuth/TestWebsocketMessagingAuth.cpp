@@ -297,15 +297,9 @@ namespace iqrf {
     }
 
     void removeToken(uint32_t id) {
-      SQLite::Statement stmt(*db,
-        R"(
-        DELETE FROM api_tokens
-        WHERE id = ?
-        )"
-      );
-      stmt.bind(1, id);
+      db::repos::ApiTokenRepository repo(db);
       try {
-        stmt.exec();
+        repo.remove(id);
       } catch (const std::exception &e) {
         FAIL() << "Failed to remove token." << e.what();
       }
@@ -399,7 +393,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":5,"error":"Invalid token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -427,7 +421,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":5,"error":"Invalid token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -455,7 +449,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":5,"error":"Invalid token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -483,7 +477,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":5,"error":"Invalid token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -511,7 +505,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":5,"error":"Invalid token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -539,7 +533,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":4,"error":"Token not found","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -570,7 +564,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":7,"error":"Revoked token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":6,"error":"Revoked token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -601,7 +595,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     std::string received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":6,"error":"Expired token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":5,"error":"Expired token","type":"auth_error"})");
 
     // clear buffer
     buffer.consume(buffer.size());
@@ -756,7 +750,7 @@ R"({
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":6,"error":"Expired token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":5,"error":"Expired token","type":"auth_error"})");
     // clear buffer
     buffer.consume(buffer.size());
     // Read close frame and check close reason
@@ -806,7 +800,7 @@ R"({
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":6,"error":"Expired token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":5,"error":"Expired token","type":"auth_error"})");
     // clear buffer
     buffer.consume(buffer.size());
     // Read close frame and check close reason
@@ -879,7 +873,7 @@ R"({
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":7,"error":"Revoked token","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":6,"error":"Revoked token","type":"auth_error"})");
     // clear buffer
     buffer.consume(buffer.size());
     // Read close frame and check close reason
@@ -949,7 +943,7 @@ R"({
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":4,"error":"Token not found","type":"auth_error"})");
+    EXPECT_EQ(received, R"({"code":4,"error":"Invalid token","type":"auth_error"})");
     // clear buffer
     buffer.consume(buffer.size());
     // Read close frame and check close reason
