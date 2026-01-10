@@ -25,7 +25,6 @@ enum class auth_error {
   no_auth,
   auth_timeout,
   auth_failed,
-  token_not_found,
   invalid_token,
   expired_token,
   revoked_token,
@@ -47,8 +46,6 @@ public:
         return "Authentication timeout";
       case auth_error::auth_failed:
         return "Authentication failed";
-      case auth_error::token_not_found:
-        return "Token not found";
       case auth_error::invalid_token:
         return "Invalid token";
       case auth_error::expired_token:

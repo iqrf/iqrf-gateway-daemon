@@ -186,6 +186,14 @@ public:
     return status_;
   }
 
+  void expire() {
+    status_ = Status::Expired;
+  }
+
+  void revoke() {
+    status_ = Status::Revoked;
+  }
+
   bool canUseServiceMode() const {
     return service_;
   }

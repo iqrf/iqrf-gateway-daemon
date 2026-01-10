@@ -16,10 +16,13 @@
  */
 
 #include "ApiTokenService.h"
+#include "CryptoUtils.h"
+#include "DateTimeUtils.h"
 #include "MigrationManager.h"
 #include "Trace.h"
 
 #include <mutex>
+#include <unordered_map>
 
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
@@ -41,19 +44,27 @@ namespace iqrf {
     /**
      * @brief Path to database file
      */
-    std::string m_dbPath;
+    std::string dbPath_;
     /**
      * @brief Path to migrations directory
      */
-    std::string m_migrationDir;
+    std::string migrationDir_;
     /**
      * @brief Database access mutex
      */
-    std::mutex m_mtx;
+    std::mutex dbMutex_;
     /**
      * @brief Database connection pointer
      */
-    std::shared_ptr<SQLite::Database> m_db = nullptr;
+    std::shared_ptr<SQLite::Database> db_ = nullptr;
+    /**
+     * @brief Map storing revoked or expired token IDs
+     */
+    std::unordered_map<uint32_t, ApiToken::Status> tokenMap_;
+    /**
+     * @brief Map access mutex
+     */
+    std::mutex tokenMapMtx_;
   public:
     Impl() {}
 
@@ -71,16 +82,16 @@ namespace iqrf {
 
       modify(props);
       try {
-        m_db = std::make_shared<SQLite::Database>(
+        db_ = std::make_shared<SQLite::Database>(
           SQLite::Database(
-            m_dbPath,
+            dbPath_,
             SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE,
             500
           )
         );
-        m_db->exec("PRAGMA journal_mode=WAL;");
-        MigrationManager manager(m_migrationDir);
-        manager.migrate(m_db);
+        db_->exec("PRAGMA journal_mode=WAL;");
+        MigrationManager manager(migrationDir_);
+        manager.migrate(db_);
       } catch (const std::exception &e) {
         THROW_EXC_TRC_WAR(std::logic_error, "[IqrfDb] Failed to migrate database to latest version: " << e.what());
       }
@@ -93,8 +104,8 @@ namespace iqrf {
       (void)props;
 
       auto dbDir = m_launchService->getDataDir() + "/DB/";
-      m_migrationDir = dbDir + "migrations/auth/";
-      m_dbPath = dbDir + "IqrfAuthDb.db";
+      migrationDir_ = dbDir + "migrations/auth/";
+      dbPath_ = dbDir + "IqrfAuthDb.db";
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -113,9 +124,109 @@ namespace iqrf {
     ///// Public API /////
 
     std::unique_ptr<ApiToken> getApiToken(const uint32_t id) {
-      std::lock_guard<std::mutex> lock(m_mtx);
-      db::repos::ApiTokenRepository repo(m_db);
+      std::lock_guard<std::mutex> lock(dbMutex_);
+      db::repos::ApiTokenRepository repo(db_);
       return repo.get(id);
+    }
+
+    std::optional<ApiToken::Status> authenticate(const uint32_t id, const std::string& secret, int64_t& expiration) {
+      {
+        // check if token was previously seen expired and revoked
+        std::lock_guard<std::mutex> lock(tokenMapMtx_);
+        auto it = tokenMap_.find(id);
+        if (it != tokenMap_.end()) {
+          return it->second;
+        }
+      }
+
+      std::unique_ptr<ApiToken> token;
+      // assume token is valid
+      ApiToken::Status newStatus = ApiToken::Status::Valid;
+      {
+        std::lock_guard<std::mutex> lock(dbMutex_);
+        SQLite::Transaction transaction(*db_);
+        try {
+          db::repos::ApiTokenRepository repo(db_);
+          token = repo.get(id);
+          if (!token) {
+            // token does not exist, conclude transaction with no changes and return
+            transaction.commit();
+            return std::nullopt;
+          }
+
+          auto currentStatus = token->getStatus();
+          if (currentStatus == ApiToken::Status::Expired || currentStatus == ApiToken::Status::Revoked) {
+            // token in db expired or revoked, mark new status for map update and conclude transaction, no changes needed
+            newStatus = currentStatus;
+            transaction.commit();
+          } else {
+            // token not expired in DB
+            auto now = DateTimeUtils::get_current_timestamp();
+            if (now >= token->getExpiresAt()) {
+              // token needs to be expired in DB
+              newStatus = ApiToken::Status::Expired;
+              token->expire();
+              repo.update(*token);
+            }
+            transaction.commit();
+          }
+        } catch (const std::exception &e) {
+          transaction.rollback();
+          return std::nullopt;
+        }
+      }
+
+      if (newStatus == ApiToken::Status::Expired) {
+        // token
+        std::lock_guard<std::mutex> lock(tokenMapMtx_);
+        if (tokenMap_.count(id) == 0 || tokenMap_[id] != ApiToken::Status::Revoked) {
+          tokenMap_[id] = newStatus;
+        }
+        return newStatus;
+      }
+
+      // check for correct hash
+      auto salt = CryptoUtils::base64_decode_data(token->getSalt());
+      auto hash = CryptoUtils::base64_decode_data(token->getHash());
+      auto key = CryptoUtils::base64_decode_data(secret);
+      auto candidate = CryptoUtils::sha256_hash_data(salt, key);
+      if (hash != candidate) {
+        // hash mismatch, invalid token
+        return std::nullopt;
+      }
+      expiration = token->getExpiresAt();
+      return newStatus;
+    }
+
+    std::optional<bool> isRevoked(const uint32_t id) {
+      {
+        // check token map first
+        std::lock_guard<std::mutex> lock(tokenMapMtx_);
+        if (tokenMap_.count(id)) {
+          auto status = tokenMap_[id];
+          if (status == ApiToken::Status::Revoked) {
+            return true;
+          }
+        }
+      }
+      bool revoked;
+      {
+        // not found in map, get from database
+        std::lock_guard<std::mutex> lock(dbMutex_);
+        db::repos::ApiTokenRepository repo(db_);
+        auto token = repo.get(id);
+        if (!token) {
+          // token does not exist
+          return std::nullopt;
+        }
+        revoked = token->getStatus() == ApiToken::Status::Revoked;
+      }
+      if (revoked) {
+        // store revoked state before returning
+        std::lock_guard<std::mutex> lock(tokenMapMtx_);
+        tokenMap_.insert_or_assign(id, ApiToken::Status::Revoked);
+      }
+      return revoked;
     }
 
     ///// Interface management /////
@@ -162,6 +273,14 @@ namespace iqrf {
 
   std::unique_ptr<ApiToken> ApiTokenService::getApiToken(const uint32_t id) {
     return impl_->getApiToken(id);
+  }
+
+  std::optional<ApiToken::Status> ApiTokenService::authenticate(const uint32_t id, const std::string& secret, int64_t& expiration) {
+    return impl_->authenticate(id, secret, expiration);
+  }
+
+  std::optional<bool> ApiTokenService::isRevoked(const uint32_t id) {
+    return impl_->isRevoked(id);
   }
 
   ///// Interface management /////
