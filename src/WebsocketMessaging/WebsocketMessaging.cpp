@@ -18,7 +18,6 @@
 #define IMessagingService_EXPORTS
 
 #include "CryptoUtils.h"
-#include "DateTimeUtils.h"
 #include "WebsocketMessaging.h"
 #include "WebsocketServer.h"
 #include "WebsocketServerUtils.h"
@@ -244,36 +243,19 @@ namespace iqrf {
     }
 
     boost::system::error_code handleWebsocketSessionAuth(const std::size_t sessionId, const uint32_t id, const std::string& secret, int64_t& expiration) {
-      auto token = m_tokenService->getApiToken(id);
-      if (!token) {
-        return make_error_code(auth_error::token_not_found);
-      }
-
-      auto salt = CryptoUtils::base64_decode_data(token->getSalt());
-      auto hash = CryptoUtils::base64_decode_data(token->getHash());
-      auto key = CryptoUtils::base64_decode_data(secret);
-
-      auto candidate = CryptoUtils::sha256_hash_data(salt, key);
-      if (hash != candidate) {
+      auto result = m_tokenService->authenticate(id, secret, expiration);
+      if (!result.has_value()) {
         return make_error_code(auth_error::invalid_token);
       }
-
-      auto status = token->getStatus();
-      if (status == ApiToken::Status::Revoked) {
+      if (result.value() == ApiToken::Status::Revoked) {
         return make_error_code(auth_error::revoked_token);
       }
 
-      if (status == ApiToken::Status::Expired) {
+      if (result.value() == ApiToken::Status::Expired) {
         return make_error_code(auth_error::expired_token);
       }
-
-      if (token->getExpiresAt() < DateTimeUtils::get_current_timestamp()) {
-        return make_error_code(auth_error::expired_token);
-      }
-
-      expiration = token->getExpiresAt();
       std::lock_guard<std::mutex> lock(m_tokenMtx);
-      m_sessionTokenMap[sessionId] = token->getId();
+      m_sessionTokenMap[sessionId] = id;
       return make_error_code(auth_error::success);
     }
 
@@ -298,15 +280,15 @@ namespace iqrf {
           if (tokenMap.count(tokenId)) {
             revoked = tokenMap[tokenId];
           } else {
-            auto token = m_tokenService->getApiToken(itr->second);
-            if (!token) {
+            auto result = m_tokenService->isRevoked(tokenId);
+            if (!result.has_value()) {
               auto sessionId = itr->first;
-              m_server->send(sessionId, create_auth_error_message(make_error_code(auth_error::token_not_found)));
+              m_server->send(sessionId, create_auth_error_message(make_error_code(auth_error::invalid_token)));
               m_server->closeSession(sessionId, boost::beast::websocket::close_code::internal_error);
               itr = m_sessionTokenMap.erase(itr);
               continue;
             }
-            revoked = token->getStatus() == ApiToken::Status::Revoked;
+            revoked = result.value();
             tokenMap[tokenId] = revoked;
           }
           if (revoked) {

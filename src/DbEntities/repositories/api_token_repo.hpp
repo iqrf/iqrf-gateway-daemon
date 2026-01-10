@@ -87,7 +87,7 @@ public:
     stmt.bind(7, static_cast<int>(apiToken.getStatus()));
     stmt.bind(8, apiToken.canUseServiceMode());
     try {
-    stmt.exec();
+      stmt.exec();
     } catch (const SQLite::Exception &e) {
       throw std::runtime_error(
         this->formatErrorMessage(
@@ -97,6 +97,28 @@ public:
       );
     }
     return m_db->getLastInsertRowid();
+  }
+
+  void update(ApiToken &token) {
+    SQLite::Statement stmt(*m_db,
+      R"(
+        UPDATE api_tokens
+        SET status = ?
+        WHERE id = ?;
+      )"
+    );
+    stmt.bind(1, static_cast<int>(token.getStatus()));
+    stmt.bind(2, token.getId());
+    try {
+      stmt.exec();
+    } catch (const SQLite::Exception &e) {
+      throw std::runtime_error(
+        this->formatErrorMessage(
+          "Failed to update ApiToken entity ID " + std::to_string(token.getId()),
+          e.what()
+        )
+      );
+    }
   }
 
   bool revoke(uint32_t id) {
@@ -120,6 +142,22 @@ public:
         )
       );
     }
+  }
+
+  /**
+   * @brief Removes existing api token record by ID
+   *
+   * @param id Record ID
+   */
+  void remove(const uint32_t id) {
+    SQLite::Statement stmt(*m_db,
+      R"(
+      DELETE FROM api_tokens
+      WHERE id = ?;
+      )"
+    );
+    stmt.bind(1, id);
+    stmt.exec();
   }
 };
 

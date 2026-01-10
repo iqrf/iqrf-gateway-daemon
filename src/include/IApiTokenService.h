@@ -16,6 +16,8 @@
  */
 #pragma once
 
+#include <optional>
+
 #include "repositories/api_token_repo.hpp"
 
 namespace iqrf {
@@ -32,6 +34,29 @@ namespace iqrf {
      * @return API token entity
      */
     virtual std::unique_ptr<ApiToken> getApiToken(const uint32_t id) = 0;
+
+    /**
+     * @brief Attempt to authenticate with token
+     *
+     * The method returns status of token as an optional value, authentication is successful if a token not expired or revoked,
+     * if the optional carries no value, the token is invalid or the record does not exist in database.
+     *
+     * If a token is not marked as expired in database, and would be, the table record is updated.
+     *
+     * @param id Token ID
+     * @param secret Secret
+     * @param expiration Token expiration
+     * @return Token status if token exists, nullopt if token does not exist, or if the token is invalid
+     */
+    virtual std::optional<ApiToken::Status> authenticate(const uint32_t id, const std::string& secret, int64_t& expiration) = 0;
+
+    /**
+     * @brief Check if token is revoked
+     *
+     * @param id Token ID
+     * @return Token revoked status, nullopt if token does not exist
+     */
+    virtual std::optional<bool> isRevoked(const uint32_t id) = 0;
   };
 
 }

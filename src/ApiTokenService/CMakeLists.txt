@@ -33,6 +33,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibdpa_INCLUDE_DIRS})
 
 find_package(SQLite3 REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 if(SHAPE_STATIC_LIBS)
   add_library(${PROJECT_NAME} STATIC
@@ -49,10 +50,12 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+  nlohmann_json::nlohmann_json
   SQLite::SQLite3
   SQLiteCpp
   DbEntities
   MigrationManager
+  OpenSSL::Crypto
 )
 
 DeployShapeComponent(${PROJECT_NAME})
