@@ -153,6 +153,10 @@ namespace iqrf {
 
             auto now = DateTimeUtils::get_current_timestamp();
             if (now >= self->m_expiration) {
+              TRC_WARNING(
+                SESSION_LOG(self->m_id, self->m_address, self->m_port)
+                << "Session expired while processing request, closing session."
+              );
               self->m_authenticated = false;
               self->m_expiration = -1;
               self->m_writeQueue.clear();
@@ -389,12 +393,18 @@ namespace iqrf {
     void on_read(boost::beast::error_code ec, std::size_t bytesRead) {
       boost::ignore_unused(bytesRead);
 
-      if (ec == boost::beast::websocket::error::closed) {
+      if (
+        ec == boost::beast::websocket::error::closed ||
+        ec == boost::asio::error::not_connected ||
+        ec == boost::asio::error::operation_aborted
+      ) {
         TRC_INFORMATION(
           SESSION_LOG(m_id, m_address, m_port)
           << "Connection closed: "
           << BEAST_ERR_LOG(ec)
         );
+        // notify server close may be called twice in some scenarios
+        // could store a variable which would check if onClose was already closed
         this->notify_server_close();
         return;
       }
@@ -432,6 +442,10 @@ namespace iqrf {
         } else {
           // authenticated
           if (m_expiration < now) {
+            TRC_WARNING(
+              SESSION_LOG(m_id, m_address, m_port)
+              << "Session expired, cannot process request."
+            );
             // token expired, message dropped
             auto ec = make_error_code(auth_error::expired_token);
             m_authenticated = false;
@@ -498,12 +512,13 @@ namespace iqrf {
       if (ec) {
         TRC_WARNING(
           SESSION_LOG(m_id, m_address, m_port)
-          << "Session authentication failed"
+          << "Failed to authenticate session using key ID " << id << ": "
+          << BEAST_ERR_LOG(ec)
         );
       } else {
         TRC_INFORMATION(
           SESSION_LOG(m_id, m_address, m_port)
-          << "Session successfully authenticated."
+          << "Session successfully authenticated using key ID " << id << "."
         );
         m_authenticated = true;
         m_expiration = expiration;
@@ -543,6 +558,10 @@ namespace iqrf {
       }
 
       if (!m_authenticated) {
+        TRC_WARNING(
+          SESSION_LOG(m_id, m_address, m_port)
+          << "Authentication timed out, closing session."
+        );
         // session is not authenticated by the end of timeout
         this->send_system(create_auth_error_message(make_error_code(auth_error::auth_timeout)));
         this->close(boost::beast::websocket::close_code::policy_error);
