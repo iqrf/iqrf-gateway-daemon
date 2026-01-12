@@ -39,3 +39,10 @@ void list_tokens(const SharedParams& params);
  * @param params Shared CLI parameters
  */
 void revoke_token(uint32_t id, const SharedParams& params);
+
+/**
+ * @brief Rotates an existing API token
+ * @param id Token ID
+ * @param params Shared CLI parameters
+ */
+void rotate_token(const uint32_t id, const SharedParams& params);

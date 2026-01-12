@@ -12,6 +12,7 @@ void print_generic_help() {
     << "  get       Get information about an API token\n"
     << "  list      Lists API tokens\n"
     << "  revoke    Revoke an API token\n"
+    << "  rotate    Rotates an API token\n"
     << "  help      Show help\n\n"
     << "Generic options:\n"
     << "  -h, --help: Show help\n"
@@ -44,6 +45,13 @@ void print_get_help() {
 
 void print_revoke_help() {
   std::cout << "Usage: iqrfgd2-tokenctl revoke [-h] -i <token_id>\n"
+    << "Command options:\n"
+    << "  -h, --help: Show command help\n"
+    << "  -i, --id: API token ID\n";
+}
+
+void print_rotate_help() {
+  std::cout << "Usage: iqrfgd2-tokenctl rotate [-h] -i <token_id>\n"
     << "Command options:\n"
     << "  -h, --help: Show command help\n"
     << "  -i, --id: API token ID\n";
@@ -133,4 +141,15 @@ std::string pad_end(const std::string& text, std::size_t max_width, char pad_cha
   }
 
   return text + std::string(max_width - len, pad_character);
+}
+
+std::string construct_shareable_token(uint32_t id, const std::string& key, bool json_output) {
+  std::string token("iqrfgd2;" + std::to_string(id) + ';' + key);
+  if (json_output) {
+    json doc = {
+      {"token", token}
+    };
+    return doc.dump();
+  }
+  return token;
 }

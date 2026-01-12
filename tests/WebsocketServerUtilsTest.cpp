@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "WebsocketServerUtils.h"
 
-TEST(WebsocketServerUtils, is_auth_message_ok) {
+TEST(WebsocketServerUtilsTest, is_auth_message_ok) {
   nlohmann::json doc({
     {"type", "auth"},
     {"token", "iqrfgd2;1;zDrcvQaXWopzJ+DbfkpGq3Tn00wkt3n6fExj8iUsYio="}
@@ -9,7 +9,7 @@ TEST(WebsocketServerUtils, is_auth_message_ok) {
   EXPECT_TRUE(is_auth_message(doc));
 }
 
-TEST(WebsocketServerUtils, is_auth_message_invalid) {
+TEST(WebsocketServerUtilsTest, is_auth_message_invalid) {
   nlohmann::json doc({
     {"nonsense", "not_auth"}
   });

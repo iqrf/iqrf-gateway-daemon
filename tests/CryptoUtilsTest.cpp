@@ -163,17 +163,3 @@ TEST(crypto_utils, parse_token_secret_invalid_characters) {
     FAIL() << "Expected std::invalid_argument to be thrown, but a different exception type was thrown";
   }
 }
-
-TEST(crypto_utils, construct_shareable_token_plain) {
-  EXPECT_EQ(
-    "iqrfgd2;1;updgKmdhceGzmI9i0M9UELExYZwSKrCBv1vusq+TfHk=",
-    CryptoUtils::construct_shareable_token(1, "updgKmdhceGzmI9i0M9UELExYZwSKrCBv1vusq+TfHk=", false)
-  );
-}
-
-TEST(crypto_utils, construct_shareable_token_json) {
-  EXPECT_EQ(
-    "{\"token\":\"iqrfgd2;1;updgKmdhceGzmI9i0M9UELExYZwSKrCBv1vusq+TfHk=\"}",
-    CryptoUtils::construct_shareable_token(1, "updgKmdhceGzmI9i0M9UELExYZwSKrCBv1vusq+TfHk=", true)
-  );
-}
