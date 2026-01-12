@@ -24,7 +24,7 @@ public:
    * @brief Get current time as Unix epoch timestamp
    * @return Current time in seconds since epoch
    */
-  static std::time_t get_current_timestamp() {
+  static int64_t get_current_timestamp() {
     return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
   }
 
@@ -38,7 +38,7 @@ public:
    * @param created_at Created at timestamp for computing expiration
    * @return Expiration Unix timestamp
    */
-  static std::time_t parse_expiration(const std::string& input, std::time_t created_at) {
+  static int64_t parse_expiration(const std::string& input, int64_t created_at) {
     // numerical, input as unix epoch timestamp
     if (!input.empty() && std::all_of(input.begin(), input.end(), ::isdigit)) {
       auto candidate = std::stoll(input);

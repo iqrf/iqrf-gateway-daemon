@@ -16,8 +16,8 @@ void create_token(const std::string& owner, const std::string& expiration, bool 
     );
   }
 
-  std::size_t created_at = DateTimeUtils::get_current_timestamp();
-  auto parsed_expiration = DateTimeUtils::parse_expiration(expiration, created_at);
+  int64_t created_at = DateTimeUtils::get_current_timestamp();
+  int64_t parsed_expiration = DateTimeUtils::parse_expiration(expiration, created_at);
   auto salt = CryptoUtils::random_data(16);
   auto key = CryptoUtils::random_data(32);
   auto hash = CryptoUtils::sha256_hash_data(salt, key);
@@ -28,9 +28,9 @@ void create_token(const std::string& owner, const std::string& expiration, bool 
     owner,
     CryptoUtils::base64_encode_data(salt),
     encoded_hash,
-    static_cast<int64_t>(created_at),
-    static_cast<int64_t>(parsed_expiration),
-    false,
+    created_at,
+    parsed_expiration,
+    ApiToken::Status::Valid,
     service
   );
 
@@ -40,13 +40,8 @@ void create_token(const std::string& owner, const std::string& expiration, bool 
   }
 
   iqrf::db::repos::ApiTokenRepository repo(db);
-  repo.insert(token);
-  auto id = db->getLastInsertRowid();
-  if (params.json_output) {
-    std::cout << CryptoUtils::construct_shareable_token(static_cast<uint32_t>(id), encoded_key, true) << '\n';
-  } else {
-    std::cout << CryptoUtils::construct_shareable_token(static_cast<uint32_t>(id), encoded_key, false) << '\n';
-  }
+  auto id = repo.insert(token);
+  std::cout << construct_shareable_token(static_cast<uint32_t>(id), encoded_key, params.json_output) << '\n';
 }
 
 void get_token(uint32_t id, const SharedParams& params) {
@@ -125,4 +120,54 @@ void revoke_token(uint32_t id, const SharedParams& params) {
     throw std::runtime_error("Failed to revoke API token ID " + std::to_string(id) + ".\n");
   }
   std::cout << "API token ID " << std::to_string(id) << " has been revoked.\n";
+}
+
+void rotate_token(const uint32_t id, const SharedParams& params) {
+  auto db = create_database_connetion(params.db_path, true, 3000, true);
+  if (!db->tableExists("api_tokens")) {
+    throw std::runtime_error("Table api_tokens does not exist in database.");
+  }
+
+  iqrf::db::repos::ApiTokenRepository repo(db);
+  auto token = repo.get(id);
+  if (!token) {
+    throw std::runtime_error("API token does not exist.");
+  }
+  auto status = token->getStatus();
+  if (status == ApiToken::Status::Expired || status == ApiToken::Status::Revoked) {
+    throw std::runtime_error("Expired and revoked tokens cannot be rotated.");
+  }
+  int64_t now = DateTimeUtils::get_current_timestamp();
+  if (now >= token->getExpiresAt()) {
+    // TODO: maybe mark expired here and persist?
+    throw std::runtime_error("Token is expired.");
+  }
+  auto ttl = token->getExpiresAt() - token->getCreatedAt();
+  SQLite::Transaction transaction(*db);
+  try {
+    // revoke old
+    repo.revoke(id);
+    // create new token
+    int64_t expiration = now + ttl;
+    auto salt = CryptoUtils::random_data(16);
+    auto key = CryptoUtils::random_data(32);
+    auto hash = CryptoUtils::sha256_hash_data(salt, key);
+    auto encoded_key = CryptoUtils::base64_encode_data(key);
+    auto encoded_hash = CryptoUtils::base64_encode_data(hash);
+    iqrf::db::models::ApiToken newToken(
+      token->getOwner(),
+      CryptoUtils::base64_encode_data(salt),
+      encoded_hash,
+      now,
+      expiration,
+      ApiToken::Status::Valid,
+      token->canUseServiceMode()
+    );
+    auto id = repo.insert(newToken);
+    transaction.commit();
+    std::cout << construct_shareable_token(static_cast<uint32_t>(id), encoded_key, params.json_output) << '\n';
+  } catch (const std::exception &e) {
+    transaction.rollback();
+    throw std::runtime_error(e.what());
+  }
 }

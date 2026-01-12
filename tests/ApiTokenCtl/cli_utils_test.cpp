@@ -105,3 +105,17 @@ TEST(cli_utils, pad_end_longer) {
   EXPECT_EQ("teststri", pad_end("teststring", 8));
   EXPECT_EQ("testst", pad_end("teststring", 6, '-'));
 }
+
+TEST(cli_utils, construct_shareable_token_plain) {
+  EXPECT_EQ(
+    "iqrfgd2;1;updgKmdhceGzmI9i0M9UELExYZwSKrCBv1vusq+TfHk=",
+    construct_shareable_token(1, "updgKmdhceGzmI9i0M9UELExYZwSKrCBv1vusq+TfHk=", false)
+  );
+}
+
+TEST(cli_utils, construct_shareable_token_json) {
+  EXPECT_EQ(
+    "{\"token\":\"iqrfgd2;1;updgKmdhceGzmI9i0M9UELExYZwSKrCBv1vusq+TfHk=\"}",
+    construct_shareable_token(1, "updgKmdhceGzmI9i0M9UELExYZwSKrCBv1vusq+TfHk=", true)
+  );
+}

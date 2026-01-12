@@ -189,22 +189,4 @@ public:
     }
     secret = parts[2];
   }
-
-  /**
-   * @brief Construct shareable token, to be used for verification
-   * @param id Token ID
-   * @param key Base64-encoded key
-   * @param json_output Output in JSON format
-   * @return Token containing a prefix, ID and key
-   */
-  static std::string construct_shareable_token(uint32_t id, const std::string& key, bool json_output) {
-    std::string token("iqrfgd2;" + std::to_string(id) + ';' + key);
-    if (json_output) {
-      json doc = {
-        {"token", token}
-      };
-      return doc.dump();
-    }
-    return token;
-  }
 };

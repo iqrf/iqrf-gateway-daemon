@@ -20,29 +20,34 @@
  */
 
 /**
- * @brief Prints general usage help message.
+ * @brief Prints general usage help message
  */
 void print_generic_help();
 
 /**
- * @brief Prints create command usage help message.
+ * @brief Prints create command usage help message
  */
 void print_create_help();
 
 /**
- * @brief Prints list command usage help message.
+ * @brief Prints list command usage help message
  */
 void print_list_help();
 
 /**
- * @brief Prints get command usage help message.
+ * @brief Prints get command usage help message
  */
 void print_get_help();
 
 /**
- * @brief Prints revoke command usage help message.
+ * @brief Prints revoke command usage help message
  */
 void print_revoke_help();
+
+/**
+ * @brief Prints rotate command usage help message
+ */
+void print_rotate_help();
 
 /**
  * @brief Prints table horizontal line
@@ -117,3 +122,12 @@ std::string token_to_json_string(const iqrf::db::models::ApiToken& token);
  * @return `std::string` Padded string
  */
 std::string pad_end(const std::string& text, std::size_t max_width, char pad_character = ' ');
+
+/**
+ * @brief Construct shareable token, to be used for verification
+ * @param id Token ID
+ * @param key Base64-encoded key
+ * @param json_output Output in JSON format
+ * @return Token containing a prefix, ID and key
+ */
+std::string construct_shareable_token(uint32_t id, const std::string& key, bool json_output);
