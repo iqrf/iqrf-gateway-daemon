@@ -14,8 +14,10 @@ int main(int argc, char** argv) {
   if (command == "help") {
     print_generic_help();
     EXIT_SUCCESS;
-  } else if (command == "create") {
-    auto opts = make_base_options();
+  }
+
+  auto opts = make_base_options();
+  if (command == "create") {
     opts.add_options()
       (
         "owner,o",
@@ -53,7 +55,6 @@ int main(int argc, char** argv) {
       return EXIT_FAILURE;
     }
   } else if (command == "list") {
-    auto opts = make_base_options();
     bpo::variables_map vm;
     try {
       bpo::store(bpo::command_line_parser(args).options(opts).run(), vm);
@@ -69,7 +70,6 @@ int main(int argc, char** argv) {
       return EXIT_FAILURE;
     }
   } else if (command == "get") {
-    auto opts = make_base_options();
     opts.add_options()
       (
         "id,i",
@@ -92,7 +92,6 @@ int main(int argc, char** argv) {
       return EXIT_FAILURE;
     }
   } else if (command == "revoke") {
-    auto opts = make_base_options();
     opts.add_options()
       (
         "id,i",
@@ -110,6 +109,28 @@ int main(int argc, char** argv) {
 
       auto id = get_token_id(vm);
       revoke_token(id, make_shared_params(vm));
+    } catch (const std::exception &e) {
+      std::cerr << e.what() << "\n";
+      return EXIT_FAILURE;
+    }
+  } else if (command == "rotate") {
+    opts.add_options()
+      (
+        "id,i",
+        bpo::value<int64_t>()->required(),
+        "API token ID"
+      );
+    bpo::variables_map vm;
+    try {
+      bpo::store(bpo::command_line_parser(args).options(opts).run(), vm);
+      if (vm.count("help")) {
+        print_rotate_help();
+        return EXIT_SUCCESS;
+      }
+      bpo::notify(vm);
+
+      auto id = get_token_id(vm);
+      rotate_token(id, make_shared_params(vm));
     } catch (const std::exception &e) {
       std::cerr << e.what() << "\n";
       return EXIT_FAILURE;
