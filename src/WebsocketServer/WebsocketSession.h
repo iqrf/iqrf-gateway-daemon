@@ -147,6 +147,11 @@ namespace iqrf {
         m_stream.get_executor(),
         [self = this->shared_from_this(), message]() mutable {
           if (self->onAuth) {
+            TRC_DEBUG("send(): authenticated=" << self->m_authenticated
+              << " expiration=" << self->m_expiration
+              << " now=" << DateTimeUtils::get_current_timestamp()
+            );
+
             if (!self->m_authenticated) {
               return;
             }
@@ -171,10 +176,26 @@ namespace iqrf {
               return;
             }
           }
-
+          TRC_DEBUG(
+            SESSION_LOG(self->m_id, self->m_address, self->m_port)
+            << "before queue push len: " << self->m_writeQueue.size()
+          );
           self->m_writeQueue.push_back(std::move(message));
+          TRC_DEBUG(
+            SESSION_LOG(self->m_id, self->m_address, self->m_port)
+            << "after queue push len: " << self->m_writeQueue.size()
+          );
           if (!self->m_writing) {
+            TRC_DEBUG(
+              SESSION_LOG(self->m_id, self->m_address, self->m_port)
+              << "starting write loop"
+            );
             self->write();
+          } else {
+            TRC_DEBUG(
+              SESSION_LOG(self->m_id, self->m_address, self->m_port)
+              << "already writing"
+            );
           }
         }
       );
@@ -438,6 +459,7 @@ namespace iqrf {
             this->close(boost::beast::websocket::close_code::policy_error);
             return;
           }
+          TRC_DEBUG("Auth expiration set to: " << m_expiration);
           this->send(create_auth_success_message(m_expiration));
         } else {
           // authenticated
