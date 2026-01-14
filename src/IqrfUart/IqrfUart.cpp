@@ -205,7 +205,8 @@ namespace iqrf {
 				m_spiEnableGpio,
 				m_uartEnableGpio,
 				m_i2cEnableGpio,
-				m_trReset
+				m_trReset,
+				false
 			);
 			m_connector = std::make_unique<iqrf::connector::uart::UartConnector>(cfg);
 		}
