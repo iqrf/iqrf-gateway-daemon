@@ -48,7 +48,7 @@ namespace iqrf {
      *
      * @param message Message to send
      */
-    virtual void send(const std::string& message) = 0;
+    virtual void send(std::string message) = 0;
 
     /**
      * @brief Starts the session
