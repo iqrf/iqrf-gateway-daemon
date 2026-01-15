@@ -280,7 +280,6 @@ namespace iqrf {
 
     void accept() {
       m_acceptor->async_accept(
-        boost::asio::make_strand(*m_ioc),
         [this](boost::beast::error_code ec, boost::asio::ip::tcp::socket socket) {
           this->on_accept(std::move(ec), std::move(socket));
         }

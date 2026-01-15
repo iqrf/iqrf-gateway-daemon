@@ -52,6 +52,7 @@ namespace iqrf {
     uint16_t m_port;
     /// Socket/stream
     StreamType m_stream;
+    boost::asio::strand<boost::asio::io_context::executor_type> m_strand;
     /// Receive buffer
     boost::beast::flat_buffer m_buffer;
     /// Writing queue
@@ -87,8 +88,17 @@ namespace iqrf {
      * @param stream Session stream
      */
     WebsocketSession(std::size_t id, StreamType&& stream, uint16_t authTimeout)
-    : m_id(id), m_stream(std::move(stream)),
-      m_authTimeout(authTimeout), m_authTimer(m_stream.get_executor())
+    : m_id(id),
+      m_stream(std::move(stream)),
+      m_strand(
+        boost::asio::make_strand(
+          static_cast<boost::asio::io_context&>(
+            boost::beast::get_lowest_layer(m_stream).get_executor().context()
+          )
+        )
+      ),
+      m_authTimeout(authTimeout),
+      m_authTimer(m_strand)
     {
       if constexpr (std::is_same_v<StreamType, WsStreamTls>) {
         auto endpoint = m_stream.next_layer().lowest_layer().remote_endpoint();
@@ -142,9 +152,9 @@ namespace iqrf {
      *
      * @param message Message to send
      */
-    void send(const std::string& message) override {
+    void send(std::string message) override {
       boost::asio::post(
-        m_stream.get_executor(),
+        m_strand,
         [self = this->shared_from_this(), message]() mutable {
           if (self->onAuth) {
             TRC_DEBUG("send(): authenticated=" << self->m_authenticated
@@ -207,9 +217,12 @@ namespace iqrf {
     void run() override {
       boost::asio::dispatch(
         m_stream.get_executor(),
-        boost::beast::bind_front_handler(
-          &WebsocketSession::on_run,
-          this->shared_from_this()
+        boost::asio::bind_executor(
+          m_strand,
+          boost::beast::bind_front_handler(
+            &WebsocketSession::on_run,
+            this->shared_from_this()
+          )
         )
       );
     }
@@ -221,25 +234,28 @@ namespace iqrf {
      */
     void close(boost::beast::websocket::close_code cc) override {
       boost::asio::post(
-        m_stream.get_executor(),
+        m_strand,
         [self = this->shared_from_this(), cc]() {
           self->m_stream.async_close(
             cc,
-            [self](boost::beast::error_code ec) {
-              if (ec) {
-                TRC_WARNING(
-                  SESSION_LOG(self->m_id, self->m_address, self->m_port)
-                    << "Failed to close WebSocket session gracefully: "
-                    << BEAST_ERR_LOG(ec)
-                );
-              } else {
-                TRC_INFORMATION(
-                  SESSION_LOG(self->m_id, self->m_address, self->m_port)
-                    << "WebSocket session closed gracefully."
-                );
+            boost::asio::bind_executor(
+              self->m_strand,
+              [self](boost::beast::error_code ec) {
+                if (ec) {
+                  TRC_WARNING(
+                    SESSION_LOG(self->m_id, self->m_address, self->m_port)
+                      << "Failed to close WebSocket session gracefully: "
+                      << BEAST_ERR_LOG(ec)
+                  );
+                } else {
+                  TRC_INFORMATION(
+                    SESSION_LOG(self->m_id, self->m_address, self->m_port)
+                      << "WebSocket session closed gracefully."
+                  );
+                }
+                self->shutdown_transport();
               }
-              self->shutdown_transport();
-            }
+            )
           );
         }
       );
@@ -294,9 +310,12 @@ namespace iqrf {
       if constexpr (std::is_same_v<StreamType, WsStreamTls>) {
         m_stream.next_layer().async_handshake(
           boost::asio::ssl::stream_base::server,
-          boost::beast::bind_front_handler(
-            &WebsocketSession::on_handshake,
-            this->shared_from_this()
+          boost::asio::bind_executor(
+            m_strand,
+            boost::beast::bind_front_handler(
+              &WebsocketSession::on_handshake,
+              this->shared_from_this()
+            )
           )
         );
       } else {
@@ -313,6 +332,8 @@ namespace iqrf {
      * @param ec TLS handshake error code
      */
     void on_handshake(boost::beast::error_code ec) {
+      BOOST_ASSERT(m_strand.running_in_this_thread());
+
       if (ec) {
         TRC_WARNING(
           SESSION_LOG(m_id, m_address, m_port)
@@ -322,6 +343,7 @@ namespace iqrf {
         this->close(boost::beast::websocket::close_code::protocol_error);
         return;
       }
+
       this->accept();
     }
 
@@ -345,9 +367,12 @@ namespace iqrf {
         )
       );
       m_stream.async_accept(
-        boost::beast::bind_front_handler(
-          &WebsocketSession::on_accept,
-          this->shared_from_this()
+        boost::asio::bind_executor(
+          m_strand,
+          boost::beast::bind_front_handler(
+            &WebsocketSession::on_accept,
+            this->shared_from_this()
+          )
         )
       );
     }
@@ -362,6 +387,8 @@ namespace iqrf {
      * @param ec Accept error code
      */
     void on_accept(boost::beast::error_code ec) {
+      BOOST_ASSERT(m_strand.running_in_this_thread());
+
       if (ec) {
         TRC_WARNING(
           SESSION_LOG(m_id, m_address, m_port)
@@ -369,15 +396,18 @@ namespace iqrf {
           << BEAST_ERR_LOG(ec)
         );
         this->close(boost::beast::websocket::close_code::protocol_error);
-      } else {
-        if (this->onOpen) {
-          this->onOpen(m_id);
-        }
-        if (this->onAuth) {
-          this->init_auth_timeout();
-        }
-        this->read();
+        return;
       }
+      // execute onopen callback if provided
+      if (this->onOpen) {
+        this->onOpen(m_id);
+      }
+      // start authentication timer if auth is expected
+      if (this->onAuth) {
+        this->init_auth_timeout();
+      }
+      // start reading loop
+      this->read();
     }
 
     /**
@@ -386,9 +416,12 @@ namespace iqrf {
     void read() {
       m_stream.async_read(
         m_buffer,
-        boost::beast::bind_front_handler(
-          &WebsocketSession::on_read,
-          this->shared_from_this()
+        boost::asio::bind_executor(
+          m_strand,
+          boost::beast::bind_front_handler(
+            &WebsocketSession::on_read,
+            this->shared_from_this()
+          )
         )
       );
     }
@@ -412,12 +445,13 @@ namespace iqrf {
      * @param bytesRead Length of message data
      */
     void on_read(boost::beast::error_code ec, std::size_t bytesRead) {
+      BOOST_ASSERT(m_strand.running_in_this_thread());
+
       boost::ignore_unused(bytesRead);
 
       if (
         ec == boost::beast::websocket::error::closed ||
-        ec == boost::asio::error::not_connected ||
-        ec == boost::asio::error::operation_aborted
+        ec == boost::asio::error::not_connected
       ) {
         TRC_INFORMATION(
           SESSION_LOG(m_id, m_address, m_port)
@@ -427,6 +461,10 @@ namespace iqrf {
         // notify server close may be called twice in some scenarios
         // could store a variable which would check if onClose was already closed
         this->notify_server_close();
+        return;
+      }
+
+      if (ec == boost::asio::error::operation_aborted) {
         return;
       }
 
@@ -554,9 +592,12 @@ namespace iqrf {
     void init_auth_timeout() {
       m_authTimer.expires_after(m_authTimeout);
       m_authTimer.async_wait(
-        boost::beast::bind_front_handler(
-          &WebsocketSession::on_auth_timeout,
-          this->shared_from_this()
+        boost::asio::bind_executor(
+          m_strand,
+          boost::beast::bind_front_handler(
+            &WebsocketSession::on_auth_timeout,
+            this->shared_from_this()
+          )
         )
       );
     }
@@ -574,6 +615,8 @@ namespace iqrf {
      * @param ec Operation error code
      */
     void on_auth_timeout(boost::beast::error_code ec) {
+      BOOST_ASSERT(m_strand.running_in_this_thread());
+
       if (ec == boost::asio::error::operation_aborted) {
         // timer cancelled, auth successful
         return;
@@ -601,9 +644,9 @@ namespace iqrf {
      *
      * @param message Message to send
      */
-    void send_system(const std::string& message) {
+    void send_system(std::string message) {
       boost::asio::post(
-        m_stream.get_executor(),
+        m_strand,
         [self = this->shared_from_this(), message]() mutable {
           // clear queue of stale messages
           self->m_writeQueue.clear();
@@ -624,9 +667,12 @@ namespace iqrf {
       m_writing = true;
       m_stream.async_write(
         boost::asio::buffer(m_writeQueue.front()),
-        boost::beast::bind_front_handler(
-          &WebsocketSession::on_write,
-          this->shared_from_this()
+        boost::asio::bind_executor(
+          m_strand,
+          boost::beast::bind_front_handler(
+            &WebsocketSession::on_write,
+            this->shared_from_this()
+          )
         )
       );
     }
@@ -645,6 +691,8 @@ namespace iqrf {
      * @param bytesWritten Length of written message data
      */
     void on_write(boost::beast::error_code ec, std::size_t bytesWritten) {
+      BOOST_ASSERT(m_strand.running_in_this_thread());
+
       boost::ignore_unused(bytesWritten);
       if (ec) {
         TRC_WARNING(
@@ -655,13 +703,14 @@ namespace iqrf {
         m_writeQueue.clear();
         m_writing = false;
         this->close(boost::beast::websocket::close_code::internal_error);
+        return;
+      }
+
+      m_writeQueue.pop_front();
+      if (!m_writeQueue.empty()) {
+        this->write();
       } else {
-        m_writeQueue.pop_front();
-        if (!m_writeQueue.empty()) {
-          this->write();
-        } else {
-          m_writing = false;
-        }
+        m_writing = false;
       }
     }
 
@@ -671,15 +720,22 @@ namespace iqrf {
     void shutdown_transport() {
       if constexpr (std::is_same_v<StreamType, WsStreamTls>) {
         m_stream.next_layer().async_shutdown(
-          [self = this->shared_from_this()](boost::system::error_code tls_ec) {
-            boost::ignore_unused(tls_ec);
-            boost::beast::error_code ec;
-            self->m_stream.next_layer().lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-            self->m_stream.next_layer().lowest_layer().close(ec);
-            self->notify_server_close();
-          }
+          boost::asio::bind_executor(
+            m_strand,
+            [self = this->shared_from_this()](boost::system::error_code tls_ec) {
+              BOOST_ASSERT(self->m_strand.running_in_this_thread());
+              boost::ignore_unused(tls_ec);
+
+              boost::beast::error_code ec;
+              self->m_stream.next_layer().lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+              self->m_stream.next_layer().lowest_layer().close(ec);
+              self->notify_server_close();
+            }
+          )
         );
       } else {
+        BOOST_ASSERT(m_strand.running_in_this_thread());
+
         boost::beast::error_code ec;
         m_stream.next_layer().socket().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
         m_stream.next_layer().socket().close(ec);
