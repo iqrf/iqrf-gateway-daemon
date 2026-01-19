@@ -2,7 +2,7 @@
 	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
 	"self": {
 		"vendor": "com.iqrftech.self-desc",
-		"name": "schema__iqrf__ApiTokenService",
+		"name": "schema__iqrf__AuthService",
 		"format": "jsonschema",
 		"version": "1-0-0"
 	},
@@ -17,14 +17,14 @@
 			"type": "string",
 			"description": "Name of component.",
 			"enum": [
-				"iqrf::ApiTokenService"
+				"iqrf::AuthService"
 			]
 		},
 		"instance": {
 			"type": "string",
-			"description": "Recomended iqrf::ApiTokenService-(id)",
+			"description": "Recomended iqrf::AuthService-(id)",
 			"pattern": "^[^&]+$",
-			"default": "iqrf::ApiTokenService-default"
+			"default": "iqrf::AuthService-default"
 		}
 	}
 }

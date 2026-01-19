@@ -23,9 +23,9 @@
 namespace iqrf {
 
   /**
-   * API token service
+   * Authentication service
    */
-  class IApiTokenService {
+  class IAuthService {
   public:
 
     /**

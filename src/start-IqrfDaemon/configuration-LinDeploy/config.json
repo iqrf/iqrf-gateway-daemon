@@ -113,9 +113,9 @@
       "startlevel": 0
     },
     {
-      "name": "iqrf::ApiTokenService",
+      "name": "iqrf::AuthService",
       "libraryPath": "",
-      "libraryName": "ApiTokenService",
+      "libraryName": "AuthService",
       "enabled": true,
       "startlevel": 0
     },

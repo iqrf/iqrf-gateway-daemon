@@ -64,9 +64,9 @@
       "startlevel": 0
     },
     {
-      "name": "iqrf::ApiTokenService",
+      "name": "iqrf::AuthService",
       "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "ApiTokenService",
+      "libraryName": "AuthService",
       "enabled": true,
       "startlevel": 0
     },

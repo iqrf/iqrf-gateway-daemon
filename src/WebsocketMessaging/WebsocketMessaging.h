@@ -16,7 +16,7 @@
  */
 #pragma once
 
-#include "IApiTokenService.h"
+#include "IAuthService.h"
 #include "IMessagingService.h"
 #include "ILaunchService.h"
 #include "ITraceService.h"
@@ -94,16 +94,16 @@ namespace iqrf {
     void detachInterface(shape::ILaunchService *iface);
 
     /**
-     * Attaches API token service interface
-     * @param iface API token service interface
+     * Attaches authentication service interface
+     * @param iface Authentication service interface
      */
-    void attachInterface(IApiTokenService *iface);
+    void attachInterface(IAuthService *iface);
 
     /**
-     * Detaches API token service interface
-     * @param iface API token service interface
+     * Detaches authentication service interface
+     * @param iface Authentication service interface
      */
-    void detachInterface(IApiTokenService *iface);
+    void detachInterface(IAuthService *iface);
 
     /**
      * Attaches tracing service interface

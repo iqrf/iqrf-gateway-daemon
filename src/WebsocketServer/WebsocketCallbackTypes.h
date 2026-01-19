@@ -14,17 +14,7 @@
  *
  * @param `std::size_t` session ID
  */
-using WsServerOnOpen = std::function<void(std::size_t)>;
-
-/**
- * @brief Callback type for handling WebSocket connections closing.
- *
- * Used by the WebSocket server to notify application
- * code when a connection closes.
- *
- * @param `std::size_t` session ID
- */
-using WsServerOnClose = std::function<void(std::size_t)>;
+using WebSocketOpenHandler = std::function<void(std::size_t)>;
 
 /**
  * @brief Callback type for handling incoming WebSocket messages.
@@ -35,7 +25,7 @@ using WsServerOnClose = std::function<void(std::size_t)>;
  * @param `std::size_t` session ID
  * @param `std::string&` message payload
  */
-using WsServerOnMessage = std::function<void(const std::size_t, const std::string&)>;
+using WebSocketMessageHandler = std::function<void(const std::size_t, const std::string&)>;
 
 /**
  * @brief Callback type for handling incoming WebSocket auth requests.
@@ -48,4 +38,14 @@ using WsServerOnMessage = std::function<void(const std::size_t, const std::strin
  * @param `std::string&` key
  * @param `int64_t&` token expiration to populate
  */
-using WsServerOnAuth = std::function<boost::system::error_code(const std::size_t, const uint32_t, const std::string&, int64_t&)>;
+using WebSocketAuthHandler = std::function<boost::system::error_code(const std::size_t, const uint32_t, const std::string&, int64_t&)>;
+
+/**
+ * @brief Callback type for handling WebSocket connections closing.
+ *
+ * Used by the WebSocket server to notify application
+ * code when a connection closes.
+ *
+ * @param `std::size_t` session ID
+ */
+using WebSocketCloseHandler = std::function<void(std::size_t)>;

@@ -47,8 +47,8 @@ namespace iqrf {
   private:
     /// Launch service
     shape::ILaunchService *m_launchService = nullptr;
-    /// API token service
-    IApiTokenService *m_tokenService = nullptr;
+    /// Authentication service
+    IAuthService *m_authService = nullptr;
     /// Atomic variable for worker run
     bool m_tokenCheckRun;
     /// Token checking thread
@@ -206,13 +206,13 @@ namespace iqrf {
       }
     }
 
-    void attachInterface(IApiTokenService *iface) {
-      m_tokenService = iface;
+    void attachInterface(IAuthService *iface) {
+      m_authService= iface;
     }
 
-    void detachInterface(IApiTokenService *iface) {
-      if (m_tokenService == iface) {
-        m_tokenService = nullptr;
+    void detachInterface(IAuthService *iface) {
+      if (m_authService == iface) {
+        m_authService = nullptr;
       }
     }
 
@@ -243,7 +243,7 @@ namespace iqrf {
     }
 
     boost::system::error_code handleWebsocketSessionAuth(const std::size_t sessionId, const uint32_t id, const std::string& secret, int64_t& expiration) {
-      auto result = m_tokenService->authenticate(id, secret, expiration);
+      auto result = m_authService->authenticate(id, secret, expiration);
       if (!result.has_value()) {
         return make_error_code(auth_error::invalid_token);
       }
@@ -280,7 +280,7 @@ namespace iqrf {
           if (tokenMap.count(tokenId)) {
             revoked = tokenMap[tokenId];
           } else {
-            auto result = m_tokenService->isRevoked(tokenId);
+            auto result = m_authService->isRevoked(tokenId);
             if (!result.has_value()) {
               auto sessionId = itr->first;
               m_server->send(sessionId, create_auth_error_message(make_error_code(auth_error::invalid_token)));
@@ -360,11 +360,11 @@ namespace iqrf {
     impl_->detachInterface(iface);
   }
 
-  void WebsocketMessaging::attachInterface(IApiTokenService *iface) {
+  void WebsocketMessaging::attachInterface(IAuthService *iface) {
     impl_->attachInterface(iface);
   }
 
-  void WebsocketMessaging::detachInterface(IApiTokenService *iface) {
+  void WebsocketMessaging::detachInterface(IAuthService *iface) {
     impl_->detachInterface(iface);
   }
 

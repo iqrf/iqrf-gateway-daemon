@@ -13,11 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-project(ApiTokenService)
+project(AuthService)
 
-set(COMPONENT iqrf::ApiTokenService)
+set(COMPONENT iqrf::AuthService)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrf::IApiTokenService)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IAuthService)
 AddShapeRequiredInterface(${COMPONENT} shape::ILaunchService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
