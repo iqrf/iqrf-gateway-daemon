@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "ApiTokenService.h"
+#include "AuthService.h"
 #include "CryptoUtils.h"
 #include "DateTimeUtils.h"
 #include "MigrationManager.h"
@@ -29,18 +29,18 @@
 #endif
 #define TRC_CHANNEL 0
 
-#include "iqrf__ApiTokenService.hxx"
+#include "iqrf__AuthService.hxx"
 
-TRC_INIT_MODULE(iqrf::ApiTokenService);
+TRC_INIT_MODULE(iqrf::AuthService);
 
 namespace iqrf {
 
-  class ApiTokenService::Impl {
+  class AuthService::Impl {
   private:
     /**
      * @brief Shape launch service interface
      */
-    shape::ILaunchService *m_launchService = nullptr;
+    shape::ILaunchService *launchService_ = nullptr;
     /**
      * @brief Path to database file
      */
@@ -76,7 +76,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
-        "ApiTokenService instance activate" << std::endl <<
+        "AuthService instance activate" << std::endl <<
         "******************************"
       );
 
@@ -103,7 +103,7 @@ namespace iqrf {
 
       (void)props;
 
-      auto dbDir = m_launchService->getDataDir() + "/DB/";
+      auto dbDir = launchService_->getDataDir() + "/DB/";
       migrationDir_ = dbDir + "migrations/auth/";
       dbPath_ = dbDir + "IqrfAuthDb.db";
 
@@ -114,7 +114,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
-        "ApiTokenService instance deactivate" << std::endl <<
+        "AuthService instance deactivate" << std::endl <<
         "******************************"
       );
 
@@ -131,7 +131,7 @@ namespace iqrf {
 
     std::optional<ApiToken::Status> authenticate(const uint32_t id, const std::string& secret, int64_t& expiration) {
       {
-        // check if token was previously seen expired and revoked
+        // if we know the token is expired or revoked, no need to check database
         std::lock_guard<std::mutex> lock(tokenMapMtx_);
         auto it = tokenMap_.find(id);
         if (it != tokenMap_.end()) {
@@ -140,30 +140,29 @@ namespace iqrf {
       }
 
       std::unique_ptr<ApiToken> token;
-      // assume token is valid
       ApiToken::Status newStatus = ApiToken::Status::Valid;
       {
+        // run this in a transaction to ensure consistency of database
         std::lock_guard<std::mutex> lock(dbMutex_);
         SQLite::Transaction transaction(*db_);
         try {
           db::repos::ApiTokenRepository repo(db_);
           token = repo.get(id);
+          // if candidate token is not found, do nothing
           if (!token) {
-            // token does not exist, conclude transaction with no changes and return
             transaction.commit();
             return std::nullopt;
           }
 
           auto currentStatus = token->getStatus();
+          // if token is already expired or revoked in database, change nothing
           if (currentStatus == ApiToken::Status::Expired || currentStatus == ApiToken::Status::Revoked) {
-            // token in db expired or revoked, mark new status for map update and conclude transaction, no changes needed
             newStatus = currentStatus;
             transaction.commit();
           } else {
-            // token not expired in DB
             auto now = DateTimeUtils::get_current_timestamp();
+            // if token is not marked as expired in database, but should be
             if (now >= token->getExpiresAt()) {
-              // token needs to be expired in DB
               newStatus = ApiToken::Status::Expired;
               token->expire();
               repo.update(*token);
@@ -176,31 +175,33 @@ namespace iqrf {
         }
       }
 
+      // if token is expired, cache it
       if (newStatus == ApiToken::Status::Expired) {
-        // token
         std::lock_guard<std::mutex> lock(tokenMapMtx_);
+        // check if the token is not already cached as revoked
+        // maybe don't have to considering the condition at the top of this method
         if (tokenMap_.count(id) == 0 || tokenMap_[id] != ApiToken::Status::Revoked) {
           tokenMap_[id] = newStatus;
         }
         return newStatus;
       }
 
-      // check for correct hash
       auto salt = CryptoUtils::base64_decode_data(token->getSalt());
       auto hash = CryptoUtils::base64_decode_data(token->getHash());
       auto key = CryptoUtils::base64_decode_data(secret);
       auto candidate = CryptoUtils::sha256_hash_data(salt, key);
+      // if candidate token hash does not match hash stored in database, invalid
       if (hash != candidate) {
-        // hash mismatch, invalid token
         return std::nullopt;
       }
+      // set expiration
       expiration = token->getExpiresAt();
       return newStatus;
     }
 
     std::optional<bool> isRevoked(const uint32_t id) {
       {
-        // check token map first
+        // if we know the token is expired or revoked, no need to check database
         std::lock_guard<std::mutex> lock(tokenMapMtx_);
         if (tokenMap_.count(id)) {
           auto status = tokenMap_[id];
@@ -211,18 +212,17 @@ namespace iqrf {
       }
       bool revoked;
       {
-        // not found in map, get from database
         std::lock_guard<std::mutex> lock(dbMutex_);
         db::repos::ApiTokenRepository repo(db_);
         auto token = repo.get(id);
+        // token does not exist, cannot decide revoked
         if (!token) {
-          // token does not exist
           return std::nullopt;
         }
         revoked = token->getStatus() == ApiToken::Status::Revoked;
       }
+      // if token is revoked, cache it before returning
       if (revoked) {
-        // store revoked state before returning
         std::lock_guard<std::mutex> lock(tokenMapMtx_);
         tokenMap_.insert_or_assign(id, ApiToken::Status::Revoked);
       }
@@ -232,12 +232,12 @@ namespace iqrf {
     ///// Interface management /////
 
     void attachInterface(shape::ILaunchService *iface) {
-      m_launchService = iface;
+      launchService_ = iface;
     }
 
     void detachInterface(shape::ILaunchService *iface) {
-      if (m_launchService == iface) {
-        m_launchService = nullptr;
+      if (launchService_ == iface) {
+        launchService_ = nullptr;
       }
     }
   private:
@@ -245,60 +245,60 @@ namespace iqrf {
 
   ///// Object management
 
-  ApiTokenService::ApiTokenService(): impl_(std::make_unique<Impl>()) {
+  AuthService::AuthService(): impl_(std::make_unique<Impl>()) {
     TRC_FUNCTION_ENTER("");
     TRC_FUNCTION_LEAVE("");
   }
 
-  ApiTokenService::~ApiTokenService() {
+  AuthService::~AuthService() {
     TRC_FUNCTION_ENTER("");
     TRC_FUNCTION_LEAVE("");
   }
 
   ///// Component lifecycle /////
 
-  void ApiTokenService::activate(const shape::Properties *props) {
+  void AuthService::activate(const shape::Properties *props) {
     impl_->activate(props);
   }
 
-  void ApiTokenService::modify(const shape::Properties *props) {
+  void AuthService::modify(const shape::Properties *props) {
     impl_->modify(props);
   }
 
-  void ApiTokenService::deactivate() {
+  void AuthService::deactivate() {
     impl_->deactivate();
   }
 
   ///// Public API /////
 
-  std::unique_ptr<ApiToken> ApiTokenService::getApiToken(const uint32_t id) {
+  std::unique_ptr<ApiToken> AuthService::getApiToken(const uint32_t id) {
     return impl_->getApiToken(id);
   }
 
-  std::optional<ApiToken::Status> ApiTokenService::authenticate(const uint32_t id, const std::string& secret, int64_t& expiration) {
+  std::optional<ApiToken::Status> AuthService::authenticate(const uint32_t id, const std::string& secret, int64_t& expiration) {
     return impl_->authenticate(id, secret, expiration);
   }
 
-  std::optional<bool> ApiTokenService::isRevoked(const uint32_t id) {
+  std::optional<bool> AuthService::isRevoked(const uint32_t id) {
     return impl_->isRevoked(id);
   }
 
   ///// Interface management /////
 
-  void ApiTokenService::attachInterface(shape::ILaunchService *iface) {
+  void AuthService::attachInterface(shape::ILaunchService *iface) {
     impl_->attachInterface(iface);
   }
 
-  void ApiTokenService::detachInterface(shape::ILaunchService *iface) {
+  void AuthService::detachInterface(shape::ILaunchService *iface) {
     impl_->detachInterface(iface);
   }
 
-  void ApiTokenService::attachInterface(shape::ITraceService* iface)
+  void AuthService::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
   }
 
-  void ApiTokenService::detachInterface(shape::ITraceService* iface)
+  void AuthService::detachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().removeTracerService(iface);
   }

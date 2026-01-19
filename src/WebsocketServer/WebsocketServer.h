@@ -38,7 +38,12 @@ namespace iqrf {
     /**
      * Constructor with onMessage callback
      */
-    WebsocketServer(const WebsocketServerParams& params, WsServerOnMessage onMessage, WsServerOnAuth onAuth, WsServerOnClose onClose);
+    WebsocketServer(
+      const WebsocketServerParams& params,
+      WebSocketMessageHandler onMessage,
+      WebSocketAuthHandler onAuth,
+      WebSocketCloseHandler onClose
+    );
 
     /**
      * Destructor

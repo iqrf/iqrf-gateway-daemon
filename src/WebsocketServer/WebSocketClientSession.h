@@ -16,8 +16,6 @@
  */
 #pragma once
 
-#include "IWebsocketSession.h"
-
 #include <boost/beast/websocket.hpp>
 #include <boost/beast/websocket/ssl.hpp>
 #include <boost/asio/dispatch.hpp>
@@ -30,7 +28,7 @@
 #include <memory>
 #include <string>
 
-#include "IWebsocketSession.h"
+#include "IWebSocketClientSession.h"
 #include "CryptoUtils.h"
 #include "DateTimeUtils.h"
 #include "WebsocketServerUtils.h"
@@ -41,42 +39,46 @@
 
 namespace iqrf {
 
-  template <typename StreamType>
-  class WebsocketSession : public IWebsocketSession, public std::enable_shared_from_this<WebsocketSession<StreamType>> {
+  template <typename Stream>
+  class WebSocketClientSession : public IWebSocketClientSession, public std::enable_shared_from_this<WebSocketClientSession<Stream>> {
   private:
     /// Session ID
-    const std::size_t m_id;
-    /// IP address
-    std::string m_address;
-    /// Port number
-    uint16_t m_port;
-    /// Socket/stream
-    StreamType m_stream;
-    boost::asio::strand<boost::asio::io_context::executor_type> m_strand;
-    /// Receive buffer
-    boost::beast::flat_buffer m_buffer;
-    /// Writing queue
-    std::deque<std::string> m_writeQueue;
-    /// Writing in progress
-    bool m_writing;
-    /// On open callback
-    WsServerOnOpen onOpen;
-    /// On close callback
-    WsServerOnClose onClose;
-    /// On message callback
-    WsServerOnMessage onMessage;
-    /// On auth callback
-    WsServerOnAuth onAuth;
-    /// Authentication timeout
-    const std::chrono::seconds m_authTimeout;
+    const std::size_t sessionId_;
+    /// Stream
+    Stream stream_;
+    /// Boost ASIO stran
+    boost::asio::strand<boost::asio::io_context::executor_type> strand_;
     /// Authentication timer
-    boost::asio::steady_timer m_authTimer;
+    boost::asio::steady_timer authTimer_;
+    /// Authentication timeout
+    const std::chrono::seconds authTimeout_;
+    /// IP address
+    std::string address_;
+    /// Port number
+    uint16_t port_;
+    /// Buffer for incoming messages
+    boost::beast::flat_buffer readBuffer_;
+    /// Writing in progress
+    bool isWriting_;
+    /// Queue for writing messages to client
+    std::deque<std::string> writeQueue_;
+    /// On connection open callback
+    WebSocketOpenHandler connectionOpenCallback_;
+    /// On message received callback
+    WebSocketMessageHandler messageReceivedCallback_;
+    /// Authentication callback
+    WebSocketAuthHandler authCallback_;
+    /// On connection close callback
+    WebSocketCloseHandler connectionCloseCallback_;
     /// Session is authenticated
-    bool m_authenticated = false;
+    bool isAuthenticated_ = false;
     /// Token expiration
-    int64_t m_expiration = -1;
+    int64_t expirationTime_ = -1;
   public:
-    WebsocketSession() = delete;
+    /**
+     * Delete default constructor
+     */
+    WebSocketClientSession() = delete;
 
     /**
      * @brief Parameterized constructor
@@ -86,42 +88,48 @@ namespace iqrf {
      *
      * @param id Session ID
      * @param stream Session stream
+     * @param authTimeout Authentication timeout
      */
-    WebsocketSession(std::size_t id, StreamType&& stream, uint16_t authTimeout)
-    : m_id(id),
-      m_stream(std::move(stream)),
-      m_strand(
+    WebSocketClientSession(
+      std::size_t id,
+      Stream&& stream,
+      uint16_t authTimeout
+    ):
+      sessionId_(id),
+      stream_(std::move(stream)),
+      strand_(
         boost::asio::make_strand(
           static_cast<boost::asio::io_context&>(
-            boost::beast::get_lowest_layer(m_stream).get_executor().context()
+            boost::beast::get_lowest_layer(stream_).get_executor().context()
           )
         )
       ),
-      m_authTimeout(authTimeout),
-      m_authTimer(m_strand)
+      authTimer_(strand_),
+      authTimeout_(authTimeout)
     {
-      if constexpr (std::is_same_v<StreamType, WsStreamTls>) {
-        auto endpoint = m_stream.next_layer().lowest_layer().remote_endpoint();
-        m_address = endpoint.address().to_string();
-        m_port = endpoint.port();
+      // get client address and port depending on stream type
+      if constexpr (std::is_same_v<Stream, TlsWebSocketStream>) {
+        auto endpoint = stream_.next_layer().lowest_layer().remote_endpoint();
+        address_ = endpoint.address().to_string();
+        port_ = endpoint.port();
       } else {
-        auto endpoint = m_stream.next_layer().socket().remote_endpoint();
-        m_address = endpoint.address().to_string();
-        m_port = endpoint.port();
+        auto endpoint = stream_.next_layer().socket().remote_endpoint();
+        address_ = endpoint.address().to_string();
+        port_ = endpoint.port();
       }
     }
 
     /**
      * @brief Destructor
      */
-    virtual ~WebsocketSession() = default;
+    virtual ~WebSocketClientSession() = default;
 
     /**
      * @brief Get session ID
      * @return `std::size_t` Session ID
      */
     std::size_t getId() const override {
-      return m_id;
+      return sessionId_;
     };
 
     /**
@@ -129,7 +137,7 @@ namespace iqrf {
      * @return `std::string&` Server host
      */
     const std::string& getAddress() const override {
-      return m_address;
+      return address_;
     };
 
     /**
@@ -137,7 +145,7 @@ namespace iqrf {
      * @return `uint16_t` Server port
      */
     uint16_t getPort() const override {
-      return m_port;
+      return port_;
     };
 
     /**
@@ -152,60 +160,50 @@ namespace iqrf {
      *
      * @param message Message to send
      */
-    void send(std::string message) override {
+    void sendMessage(std::string message) override {
       boost::asio::post(
-        m_strand,
+        strand_,
         [self = this->shared_from_this(), message]() mutable {
-          if (self->onAuth) {
-            TRC_DEBUG("send(): authenticated=" << self->m_authenticated
-              << " expiration=" << self->m_expiration
-              << " now=" << DateTimeUtils::get_current_timestamp()
-            );
+          // need to check auth status
+          if (self->authCallback_) {
 
-            if (!self->m_authenticated) {
+            // not authenticated, exit
+            if (!self->isAuthenticated_) {
               return;
             }
 
+            // check if session expired
             auto now = DateTimeUtils::get_current_timestamp();
-            if (now >= self->m_expiration) {
+            if (now >= self->expirationTime_) {
               TRC_WARNING(
-                SESSION_LOG(self->m_id, self->m_address, self->m_port)
+                SESSION_LOG(self->sessionId_, self->address_, self->port_)
                 << "Session expired while processing request, closing session."
               );
-              self->m_authenticated = false;
-              self->m_expiration = -1;
-              self->m_writeQueue.clear();
-              self->m_writing = false;
-              self->m_writeQueue.push_back(
+              // mark unautenticated and reset expiration time
+              self->isAuthenticated_ = false;
+              self->expirationTime_ = -1;
+
+              // stop writing and clear message queue
+              self->isWriting_ = false;
+              self->writeQueue_.clear();
+
+              // send expired message
+              self->writeQueue_.push_back(
                 create_auth_error_message(
                   make_error_code(auth_error::expired_token)
                 )
               );
-              self->write();
-              self->close(boost::beast::websocket::close_code::policy_error);
+              self->doWrite();
+              self->closeSession(boost::beast::websocket::close_code::policy_error);
               return;
             }
           }
-          TRC_DEBUG(
-            SESSION_LOG(self->m_id, self->m_address, self->m_port)
-            << "before queue push len: " << self->m_writeQueue.size()
-          );
-          self->m_writeQueue.push_back(std::move(message));
-          TRC_DEBUG(
-            SESSION_LOG(self->m_id, self->m_address, self->m_port)
-            << "after queue push len: " << self->m_writeQueue.size()
-          );
-          if (!self->m_writing) {
-            TRC_DEBUG(
-              SESSION_LOG(self->m_id, self->m_address, self->m_port)
-              << "starting write loop"
-            );
-            self->write();
-          } else {
-            TRC_DEBUG(
-              SESSION_LOG(self->m_id, self->m_address, self->m_port)
-              << "already writing"
-            );
+
+          // push message to write queue
+          self->writeQueue_.push_back(std::move(message));
+          // start writing cycle if not active
+          if (!self->isWriting_) {
+            self->doWrite();
           }
         }
       );
@@ -214,13 +212,13 @@ namespace iqrf {
     /**
      * @brief Starts the session
      */
-    void run() override {
+    void startSession() override {
       boost::asio::dispatch(
-        m_stream.get_executor(),
+        stream_.get_executor(),
         boost::asio::bind_executor(
-          m_strand,
+          strand_,
           boost::beast::bind_front_handler(
-            &WebsocketSession::on_run,
+            &WebSocketClientSession::runCallback,
             this->shared_from_this()
           )
         )
@@ -232,28 +230,28 @@ namespace iqrf {
      *
      * @param cc Close code
      */
-    void close(boost::beast::websocket::close_code cc) override {
+    void closeSession(boost::beast::websocket::close_code cc) override {
       boost::asio::post(
-        m_strand,
+        strand_,
         [self = this->shared_from_this(), cc]() {
-          self->m_stream.async_close(
+          self->stream_.async_close(
             cc,
             boost::asio::bind_executor(
-              self->m_strand,
+              self->strand_,
               [self](boost::beast::error_code ec) {
                 if (ec) {
                   TRC_WARNING(
-                    SESSION_LOG(self->m_id, self->m_address, self->m_port)
+                    SESSION_LOG(self->sessionId_, self->address_, self->port_)
                       << "Failed to close WebSocket session gracefully: "
                       << BEAST_ERR_LOG(ec)
                   );
                 } else {
                   TRC_INFORMATION(
-                    SESSION_LOG(self->m_id, self->m_address, self->m_port)
+                    SESSION_LOG(self->sessionId_, self->address_, self->port_)
                       << "WebSocket session closed gracefully."
                   );
                 }
-                self->shutdown_transport();
+                self->shutdownSocket();
               }
             )
           );
@@ -262,64 +260,70 @@ namespace iqrf {
     }
 
     /**
-     * @brief Sets onOpen callback
+     * @brief Register on connection open callback
+     * @param onOpen On connection open callback
      */
-    void setOnOpen(WsServerOnOpen onOpen) override {
-      this->onOpen = onOpen;
+    void setOnOpen(WebSocketOpenHandler onOpen) override {
+      connectionOpenCallback_= onOpen;
     }
 
     /**
-     * @brief Sets onClose callback
+     * @brief Register on message received callback
+     * @param onMessage On message received callback
      */
-    void setOnClose(WsServerOnClose onClose) override {
-      this->onClose = onClose;
+    void setOnMessage(WebSocketMessageHandler onMessage) override {
+      messageReceivedCallback_ = onMessage;
+    };
+
+    /**
+     * @brief Registers authentication callback
+     * @param onAuth Authentication callback
+     */
+    void setAuthCallback(WebSocketAuthHandler onAuth) override {
+      authCallback_ = onAuth;
+    };
+
+    /**
+     * @brief Registers on connection close callback
+     * @param onClose On connection close callback
+     */
+    void setOnClose(WebSocketCloseHandler onClose) override {
+      connectionCloseCallback_= onClose;
     }
 
-    /**
-     * @brief Sets onMessage callback
-     */
-    void setOnMessage(WsServerOnMessage onMessage) override {
-      this->onMessage = onMessage;
-    };
-
-    /**
-     * @brief Sets onAuth callback
-     */
-    void setOnAuth(WsServerOnAuth onAuth) override {
-      this->onAuth = onAuth;
-    };
 
     /**
      * Checks if session is authenticated
      * @return `true` if session is authenticated, `false` otherwise
      */
     bool isAuthenticated() override {
-      return m_authenticated;
+      return isAuthenticated_;
     }
 
   private:
     /**
-     * @brief on_run callback
+     * @brief Run callback
      *
      * If session uses TLS stream, performs TLS handshake with a client,
      * otherwise the session can accept client handshake immediately.
      */
-    void on_run() {
-      boost::beast::get_lowest_layer(m_stream).expires_after(std::chrono::seconds(30));
+    void runCallback() {
+      boost::beast::get_lowest_layer(stream_)
+        .expires_after(std::chrono::seconds(30));
 
-      if constexpr (std::is_same_v<StreamType, WsStreamTls>) {
-        m_stream.next_layer().async_handshake(
+      if constexpr (std::is_same_v<Stream, TlsWebSocketStream>) {
+        stream_.next_layer().async_handshake(
           boost::asio::ssl::stream_base::server,
           boost::asio::bind_executor(
-            m_strand,
+            strand_,
             boost::beast::bind_front_handler(
-              &WebsocketSession::on_handshake,
+              &WebSocketClientSession::handshakeCallback,
               this->shared_from_this()
             )
           )
         );
       } else {
-        this->accept();
+        this->doAccept();
       }
     }
 
@@ -331,32 +335,34 @@ namespace iqrf {
      *
      * @param ec TLS handshake error code
      */
-    void on_handshake(boost::beast::error_code ec) {
-      BOOST_ASSERT(m_strand.running_in_this_thread());
+    void handshakeCallback(boost::beast::error_code ec) {
+      // ensure callback is running on the same strand
+      BOOST_ASSERT(strand_.running_in_this_thread());
 
       if (ec) {
         TRC_WARNING(
-          SESSION_LOG(m_id, m_address, m_port)
+          SESSION_LOG(sessionId_, address_, port_)
           << "Failed to complete handshake: "
           << BEAST_ERR_LOG(ec)
         );
-        this->close(boost::beast::websocket::close_code::protocol_error);
+        this->closeSession(boost::beast::websocket::close_code::protocol_error);
         return;
       }
 
-      this->accept();
+      this->doAccept();
     }
 
     /**
      * @brief Accepts client handshake request
      */
-    void accept() {
-      boost::beast::get_lowest_layer(m_stream).expires_never();
+    void doAccept() {
+      boost::beast::get_lowest_layer(stream_).expires_never();
 
-      m_stream.set_option(
+      // set server options
+      stream_.set_option(
         boost::beast::websocket::stream_base::timeout::suggested(boost::beast::role_type::server)
       );
-      m_stream.set_option(
+      stream_.set_option(
         boost::beast::websocket::stream_base::decorator(
           [](boost::beast::websocket::response_type& res) {
             res.set(
@@ -366,11 +372,12 @@ namespace iqrf {
           }
         )
       );
-      m_stream.async_accept(
+
+      stream_.async_accept(
         boost::asio::bind_executor(
-          m_strand,
+          strand_,
           boost::beast::bind_front_handler(
-            &WebsocketSession::on_accept,
+            &WebSocketClientSession::acceptCallback,
             this->shared_from_this()
           )
         )
@@ -386,40 +393,44 @@ namespace iqrf {
      *
      * @param ec Accept error code
      */
-    void on_accept(boost::beast::error_code ec) {
-      BOOST_ASSERT(m_strand.running_in_this_thread());
+    void acceptCallback(boost::beast::error_code ec) {
+      // ensure callback is running on the same strand
+      BOOST_ASSERT(strand_.running_in_this_thread());
 
       if (ec) {
         TRC_WARNING(
-          SESSION_LOG(m_id, m_address, m_port)
+          SESSION_LOG(sessionId_, address_, port_)
           << "Failed to accept client connection: "
           << BEAST_ERR_LOG(ec)
         );
-        this->close(boost::beast::websocket::close_code::protocol_error);
+        this->closeSession(boost::beast::websocket::close_code::protocol_error);
         return;
       }
-      // execute onopen callback if provided
-      if (this->onOpen) {
-        this->onOpen(m_id);
+
+      // session successfully connected, executed registered on connection open callback
+      if (connectionOpenCallback_) {
+        connectionOpenCallback_(sessionId_);
       }
-      // start authentication timer if auth is expected
-      if (this->onAuth) {
-        this->init_auth_timeout();
+
+      // if session should authenticate, start autentication timer
+      if (authCallback_) {
+        this->startAuthTimer();
       }
+
       // start reading loop
-      this->read();
+      this->doRead();
     }
 
     /**
      * @brief Begins reading from session stream.
      */
-    void read() {
-      m_stream.async_read(
-        m_buffer,
+    void doRead() {
+      stream_.async_read(
+        readBuffer_,
         boost::asio::bind_executor(
-          m_strand,
+          strand_,
           boost::beast::bind_front_handler(
-            &WebsocketSession::on_read,
+            &WebSocketClientSession::readCallback,
             this->shared_from_this()
           )
         )
@@ -433,7 +444,7 @@ namespace iqrf {
      * If a frame close message is read, the session notifies server object and reading loop ends.
      * If an error has occurred while reading message, the session is closed from server side and reading loop ends.
      *
-     * If session expects clients to authenticate (`onAuth` callback is passed),
+     * If session expects clients to authenticate,
      * the first received message should be an authentication message,
      * otherise the session will be closed with policy_error.
      *
@@ -444,74 +455,80 @@ namespace iqrf {
      * @param ec Read operation error code
      * @param bytesRead Length of message data
      */
-    void on_read(boost::beast::error_code ec, std::size_t bytesRead) {
-      BOOST_ASSERT(m_strand.running_in_this_thread());
+    void readCallback(boost::beast::error_code ec, std::size_t bytesRead) {
+      // ensure callback is running on the same strand
+      BOOST_ASSERT(strand_.running_in_this_thread());
 
       boost::ignore_unused(bytesRead);
 
+      // if connection is already closed, execute on connection close callback
       if (
         ec == boost::beast::websocket::error::closed ||
         ec == boost::asio::error::not_connected
       ) {
         TRC_INFORMATION(
-          SESSION_LOG(m_id, m_address, m_port)
+          SESSION_LOG(sessionId_, address_, port_)
           << "Connection closed: "
           << BEAST_ERR_LOG(ec)
         );
         // notify server close may be called twice in some scenarios
         // could store a variable which would check if onClose was already closed
-        this->notify_server_close();
+        this->executeServerCloseCallback();
         return;
       }
 
+      // if session was closed from this side, do nothing
       if (ec == boost::asio::error::operation_aborted) {
         return;
       }
 
+      // if an error has occurred on this side, close
       if (ec) {
         TRC_WARNING(
-          SESSION_LOG(m_id, m_address, m_port)
+          SESSION_LOG(sessionId_, address_, port_)
           << "Failed to read incoming message from stream: "
           << BEAST_ERR_LOG(ec)
         );
-        this->close(boost::beast::websocket::close_code::internal_error);
+        this->closeSession(boost::beast::websocket::close_code::internal_error);
         return;
       }
 
+      // get current timestamp for expiration check
       auto now = DateTimeUtils::get_current_timestamp();
-      std::string message = boost::beast::buffers_to_string(m_buffer.data());
-      m_buffer.consume(m_buffer.size());
+      // read message from buffer and clear it before next message is read
+      std::string message = boost::beast::buffers_to_string(readBuffer_.data());
+      readBuffer_.consume(readBuffer_.size());
 
       bool acceptMessage = false;
 
-      if (this->onAuth) {
-        // auth possible
-        if (!m_authenticated) {
-          // message arrived before timeout, cancel
-          m_authTimer.cancel();
-          // not authenticated, check for auth
-          auto ec = this->auth(message);
+      // if client should be authenticated
+      if (authCallback_) {
+        // session is not authenticated
+        if (!isAuthenticated_) {
+          authTimer_.cancel();
+
+          auto ec = this->authenticate(message);
+          // authentication failed, message contains invalid token or is not authentication message
           if (ec) {
-            // not auth message or auth failed, close
             this->send_system(create_auth_error_message(ec));
-            this->close(boost::beast::websocket::close_code::policy_error);
+            this->closeSession(boost::beast::websocket::close_code::policy_error);
             return;
           }
-          TRC_DEBUG("Auth expiration set to: " << m_expiration);
-          this->send(create_auth_success_message(m_expiration));
+
+          this->sendMessage(create_auth_success_message(expirationTime_));
         } else {
           // authenticated
-          if (m_expiration < now) {
+          if (expirationTime_ < now) {
             TRC_WARNING(
-              SESSION_LOG(m_id, m_address, m_port)
-              << "Session expired, cannot process request."
+              SESSION_LOG(sessionId_, address_, port_)
+              << "Session has expired, dropping message and closing session."
             );
             // token expired, message dropped
             auto ec = make_error_code(auth_error::expired_token);
-            m_authenticated = false;
-            m_expiration = -1;
+            isAuthenticated_ = false;
+            expirationTime_ = -1;
             this->send_system(create_auth_error_message(ec));
-            this->close(boost::beast::websocket::close_code::policy_error);
+            this->closeSession(boost::beast::websocket::close_code::policy_error);
             return;
           } else {
             // not expired, message accepted
@@ -522,10 +539,11 @@ namespace iqrf {
         acceptMessage = true;
       }
 
-      if (acceptMessage && this->onMessage) {
-        this->onMessage(m_id, message);
+      if (acceptMessage && messageReceivedCallback_) {
+        messageReceivedCallback_(sessionId_, message);
       }
-      this->read();
+
+      this->doRead();
     }
 
     /**
@@ -541,7 +559,7 @@ namespace iqrf {
      *
      * @param message Incoming message
      */
-    boost::beast::error_code auth(const std::string& message) {
+    boost::beast::error_code authenticate(const std::string& message) {
       nlohmann::json doc;
       try {
         doc = nlohmann::json::parse(message);
@@ -555,47 +573,49 @@ namespace iqrf {
       }
 
       auto token = doc["token"].get<std::string>();
-      uint32_t id;
-      std::string key;
+      uint32_t tokenId;
+      std::string secret;
       try {
-        CryptoUtils::parse_token(token, id, key);
+        CryptoUtils::parse_token(token, tokenId, secret);
       } catch (const std::exception &e) {
         TRC_WARNING(
-          SESSION_LOG(m_id, m_address, m_port)
+          SESSION_LOG(sessionId_, address_, port_)
           << "Failed to parse API token: "
           << e.what()
         );
         return make_error_code(auth_error::invalid_token);
       }
-      int64_t expiration = 0;
-      auto ec = this->onAuth(m_id, id, key, expiration);
+
+      // try to authenticate via passed callback and get expiration time
+      int64_t tokenExpiration = 0;
+      auto ec = authCallback_(sessionId_, tokenId, secret, tokenExpiration);
       if (ec) {
         TRC_WARNING(
-          SESSION_LOG(m_id, m_address, m_port)
-          << "Failed to authenticate session using key ID " << id << ": "
+          SESSION_LOG(sessionId_, address_, port_)
+          << "Failed to authenticate session using token ID " << tokenId << ": "
           << BEAST_ERR_LOG(ec)
         );
       } else {
         TRC_INFORMATION(
-          SESSION_LOG(m_id, m_address, m_port)
-          << "Session successfully authenticated using key ID " << id << "."
+          SESSION_LOG(sessionId_, address_, port_)
+          << "Session successfully authenticated using token ID " << tokenId << "."
         );
-        m_authenticated = true;
-        m_expiration = expiration;
+        isAuthenticated_ = true;
+        expirationTime_ = tokenExpiration;
       }
       return ec;
     }
 
     /**
-     * @brief Initializes and starts authentication timer.
+     * @brief Starts authentication timer.
      */
-    void init_auth_timeout() {
-      m_authTimer.expires_after(m_authTimeout);
-      m_authTimer.async_wait(
+    void startAuthTimer() {
+      authTimer_.expires_after(authTimeout_);
+      authTimer_.async_wait(
         boost::asio::bind_executor(
-          m_strand,
+          strand_,
           boost::beast::bind_front_handler(
-            &WebsocketSession::on_auth_timeout,
+            &WebSocketClientSession::authTimeoutCallback,
             this->shared_from_this()
           )
         )
@@ -614,22 +634,23 @@ namespace iqrf {
      *
      * @param ec Operation error code
      */
-    void on_auth_timeout(boost::beast::error_code ec) {
-      BOOST_ASSERT(m_strand.running_in_this_thread());
+    void authTimeoutCallback(boost::beast::error_code ec) {
+      // ensure callback runs in the same strand
+      BOOST_ASSERT(strand_.running_in_this_thread());
 
+      // if timer was cancelled, do nothing
       if (ec == boost::asio::error::operation_aborted) {
-        // timer cancelled, auth successful
         return;
       }
 
-      if (!m_authenticated) {
+      // if timer ran down and session is not authenticated, close
+      if (!isAuthenticated_) {
         TRC_WARNING(
-          SESSION_LOG(m_id, m_address, m_port)
+          SESSION_LOG(sessionId_, address_, port_)
           << "Authentication timed out, closing session."
         );
-        // session is not authenticated by the end of timeout
         this->send_system(create_auth_error_message(make_error_code(auth_error::auth_timeout)));
-        this->close(boost::beast::websocket::close_code::policy_error);
+        this->closeSession(boost::beast::websocket::close_code::policy_error);
       }
     }
 
@@ -646,15 +667,15 @@ namespace iqrf {
      */
     void send_system(std::string message) {
       boost::asio::post(
-        m_strand,
+        strand_,
         [self = this->shared_from_this(), message]() mutable {
-          // clear queue of stale messages
-          self->m_writeQueue.clear();
-          self->m_writing = false;
-          // write system message
-          self->m_writeQueue.push_back(std::move(message));
-          if (!self->m_writing) {
-            self->write();
+          // drop all otheer messages and send system message
+          self->isWriting_ = false;
+          self->writeQueue_.clear();
+
+          self->writeQueue_.push_back(std::move(message));
+          if (!self->isWriting_) {
+            self->doWrite();
           }
         }
       );
@@ -663,14 +684,14 @@ namespace iqrf {
     /**
      * @brief Pops the first message from queue and writes to stream.
      */
-    void write() {
-      m_writing = true;
-      m_stream.async_write(
-        boost::asio::buffer(m_writeQueue.front()),
+    void doWrite() {
+      isWriting_ = true;
+      stream_.async_write(
+        boost::asio::buffer(writeQueue_.front()),
         boost::asio::bind_executor(
-          m_strand,
+          strand_,
           boost::beast::bind_front_handler(
-            &WebsocketSession::on_write,
+            &WebSocketClientSession::writeCallback,
             this->shared_from_this()
           )
         )
@@ -690,67 +711,74 @@ namespace iqrf {
      * @param ec Write operation error code
      * @param bytesWritten Length of written message data
      */
-    void on_write(boost::beast::error_code ec, std::size_t bytesWritten) {
-      BOOST_ASSERT(m_strand.running_in_this_thread());
+    void writeCallback(boost::beast::error_code ec, std::size_t bytesWritten) {
+      // ensure callback runs in the same strand
+      BOOST_ASSERT(strand_.running_in_this_thread());
 
       boost::ignore_unused(bytesWritten);
+
+      // error writing message, clear queue and close
       if (ec) {
         TRC_WARNING(
-          SESSION_LOG(m_id, m_address, m_port)
+          SESSION_LOG(sessionId_, address_, port_)
           << "Failed to write message to stream: "
           << BEAST_ERR_LOG(ec)
         );
-        m_writeQueue.clear();
-        m_writing = false;
-        this->close(boost::beast::websocket::close_code::internal_error);
+
+        isWriting_ = false;
+        writeQueue_.clear();
+        this->closeSession(boost::beast::websocket::close_code::internal_error);
         return;
       }
 
-      m_writeQueue.pop_front();
-      if (!m_writeQueue.empty()) {
-        this->write();
+      // write until queue is empty
+      writeQueue_.pop_front();
+      if (!writeQueue_.empty()) {
+        this->doWrite();
       } else {
-        m_writing = false;
+        isWriting_ = false;
       }
     }
 
     /**
-     * Performs proper transport shutdown on TLS and socket layer.
+     * @brief Shuts down and closes underlying socket of stream.
      */
-    void shutdown_transport() {
-      if constexpr (std::is_same_v<StreamType, WsStreamTls>) {
-        m_stream.next_layer().async_shutdown(
+    void shutdownSocket() {
+      // shutdown and close socket depending on stream type
+      if constexpr (std::is_same_v<Stream, TlsWebSocketStream>) {
+        stream_.next_layer().async_shutdown(
           boost::asio::bind_executor(
-            m_strand,
+            strand_,
             [self = this->shared_from_this()](boost::system::error_code tls_ec) {
-              BOOST_ASSERT(self->m_strand.running_in_this_thread());
+              // ensure callback runs on the same strand
+              BOOST_ASSERT(self->strand_.running_in_this_thread());
               boost::ignore_unused(tls_ec);
 
               boost::beast::error_code ec;
-              self->m_stream.next_layer().lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-              self->m_stream.next_layer().lowest_layer().close(ec);
-              self->notify_server_close();
+              self->stream_.next_layer().lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+              self->stream_.next_layer().lowest_layer().close(ec);
+              self->executeServerCloseCallback();
             }
           )
         );
       } else {
-        BOOST_ASSERT(m_strand.running_in_this_thread());
+        BOOST_ASSERT(strand_.running_in_this_thread());
 
         boost::beast::error_code ec;
-        m_stream.next_layer().socket().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-        m_stream.next_layer().socket().close(ec);
-        notify_server_close();
+        stream_.next_layer().socket().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+        stream_.next_layer().socket().close(ec);
+        this->executeServerCloseCallback();
       }
     }
 
     /**
-     * @brief Attempts to notify the server of session close.
+     * @brief Attempt to execute on connection close callback
      *
-     * If the onClose callback was not passed, this function has no effect.
+     * If the callback was not passed, this function has no effect.
      */
-    void notify_server_close() {
-      if (this->onClose) {
-        this->onClose(m_id);
+    void executeServerCloseCallback() {
+      if (connectionCloseCallback_) {
+        connectionCloseCallback_(sessionId_);
       }
     }
   };

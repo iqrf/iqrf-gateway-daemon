@@ -1,4 +1,0 @@
-{
-    "component": "iqrf::ApiTokenService",
-    "instance": "iqrf::ApiTokenService-default"
-}

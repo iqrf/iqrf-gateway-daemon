@@ -17,7 +17,7 @@
 
 #include "Trace.h"
 #include "WebsocketServer.h"
-#include "WebsocketSession.h"
+#include "WebSocketClientSession.h"
 
 #include <atomic>
 #include <cstdint>
@@ -38,36 +38,36 @@ namespace iqrf {
 
   class WebsocketServer::Impl {
   private:
-        /// Websocket server parameters
-    WebsocketServerParams m_params;
-    /// Server address
-    boost::asio::ip::address m_address;
-    /// Thread
-    std::thread m_thread;
-    /// IO context
-    std::optional<boost::asio::io_context> m_ioc = std::nullopt;
-    /// SSL context
-    std::optional<boost::asio::ssl::context> m_ctx = std::nullopt;
-    /// TCP acceptor mutex
-    std::mutex m_acceptorMutex;
-    /// TCP acceptor
-    std::optional<boost::asio::ip::tcp::acceptor> m_acceptor;
-    /// IO context work guard
-    std::optional<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>> m_workGuard;
-    /// Session ID
-    std::atomic<std::size_t> m_sessionCounter{0};
-    /// Session registry mutex
-    std::mutex m_sessionMutex;
-    /// Session registry
-    std::unordered_map<size_t, std::shared_ptr<IWebsocketSession>> m_sessionRegistry;
+    /// Websocket server parameters
+    WebsocketServerParams wsParams_;
     /// On message handler
-    WsServerOnMessage m_onMessage;
+    WebSocketMessageHandler messageReceivedCallback_;
     /// On auth handler
-    WsServerOnAuth m_onAuth;
+    WebSocketAuthHandler authCallback_;
     /// On close handler
-    WsServerOnClose m_onClose;
+    WebSocketCloseHandler connectionClosedCallback_;
+    /// Server address
+    boost::asio::ip::address serverAddr_;
+    /// Thread
+    std::thread thread_;
+    /// IO context
+    std::optional<boost::asio::io_context> ioc_ = std::nullopt;
+    /// SSL context
+    std::optional<boost::asio::ssl::context> sslCtx_ = std::nullopt;
+    /// TCP acceptor mutex
+    std::mutex acceptorMtx_;
+    /// TCP acceptor
+    std::optional<boost::asio::ip::tcp::acceptor> acceptor_;
+    /// IO context work guard
+    std::optional<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>> workGuard_;
+    /// Session ID
+    std::atomic<std::size_t> sessionIdCounter_{0};
+    /// Session registry mutex
+    std::mutex sessionMtx_;
+    /// Session registry
+    std::unordered_map<size_t, std::shared_ptr<IWebSocketClientSession>> sessionStorage_;
   public:
-    Impl(const WebsocketServerParams& params): m_params(params) {
+    Impl(const WebsocketServerParams& params): wsParams_(params) {
       TRC_FUNCTION_ENTER("");
       initialize();
       TRC_FUNCTION_LEAVE("");
@@ -75,10 +75,15 @@ namespace iqrf {
 
     Impl(
       const WebsocketServerParams& params,
-      WsServerOnMessage onMessage,
-      WsServerOnAuth onAuth,
-      WsServerOnClose onClose
-    ): m_params(params), m_onMessage(onMessage), m_onAuth(onAuth), m_onClose(onClose) {
+      WebSocketMessageHandler onMessage,
+      WebSocketAuthHandler onAuth,
+      WebSocketCloseHandler onClose
+    ):
+      wsParams_(params),
+      messageReceivedCallback_(onMessage),
+      authCallback_(onAuth),
+      connectionClosedCallback_(onClose)
+    {
       TRC_FUNCTION_ENTER("");
       initialize();
       TRC_FUNCTION_LEAVE("");
@@ -87,119 +92,125 @@ namespace iqrf {
     ~Impl() {
       TRC_FUNCTION_ENTER("");
       stop();
-      m_workGuard.reset();
-      m_ioc->stop();
-      if (m_thread.joinable()) {
-        m_thread.join();
+
+      // reset work guard and stop event loop
+      workGuard_.reset();
+      ioc_->stop();
+
+      // join io context thread
+      if (thread_.joinable()) {
+        thread_.join();
       }
-      m_ctx.reset();
-      m_ioc.reset();
-      m_onMessage = nullptr;
-      m_onAuth = nullptr;
+
+      // cleanup ssl context and io context
+      sslCtx_.reset();
+      ioc_.reset();
+
+      // cleanup handlers
+      messageReceivedCallback_ = nullptr;
+      authCallback_ = nullptr;
       TRC_FUNCTION_LEAVE("");
     }
 
     ///// Public API /////
 
-    void registerMessageHandler(WsServerOnMessage handler) {
-      m_onMessage = handler;
-    }
-
-    void unregisterMessageHandler() {
-      m_onMessage = nullptr;
-    }
-
     void start() {
-      std::lock_guard<std::mutex> lock(m_acceptorMutex);
-      if (m_acceptor && m_acceptor->is_open()) {
+      std::lock_guard<std::mutex> lock(acceptorMtx_);
+      if (acceptor_.has_value() && acceptor_->is_open()) {
         // already running
         return;
       }
 
-      boost::asio::ip::tcp::endpoint endpoint(m_address, m_params.port);
-      m_acceptor.emplace(boost::asio::make_strand(*m_ioc));
+      boost::asio::ip::tcp::endpoint endpoint(serverAddr_, wsParams_.port);
+
+      // create acceptor
+      acceptor_.emplace(boost::asio::make_strand(*ioc_));
 
       boost::beast::error_code ec;
-      m_acceptor->open(endpoint.protocol(), ec);
+      acceptor_->open(endpoint.protocol(), ec);
       if (ec) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_params.instance, m_params.port) << "Failed to open acceptor: " << BEAST_ERR_LOG(ec)
+          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Failed to open acceptor: " << BEAST_ERR_LOG(ec)
         );
       }
 
-      m_acceptor->set_option(boost::asio::ip::v6_only(false), ec);
+      acceptor_->set_option(boost::asio::ip::v6_only(false), ec);
       if (ec) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_params.instance, m_params.port) << "Failed to disable IPv6 only connections." << BEAST_ERR_LOG(ec)
+          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Failed to disable IPv6 only connections." << BEAST_ERR_LOG(ec)
         )
       }
 
-      m_acceptor->set_option(boost::asio::socket_base::reuse_address(true), ec);
+      acceptor_->set_option(boost::asio::socket_base::reuse_address(true), ec);
       if (ec) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_params.instance, m_params.port) << "Failed to set address reuse: " << BEAST_ERR_LOG(ec)
+          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Failed to set address reuse: " << BEAST_ERR_LOG(ec)
         );
       }
 
-      m_acceptor->bind(endpoint, ec);
+      acceptor_->bind(endpoint, ec);
       if (ec) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_params.instance, m_params.port) << "Failed to bind acceptor to the server address: " << BEAST_ERR_LOG(ec)
+          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Failed to bind acceptor to the server address: " << BEAST_ERR_LOG(ec)
         );
       }
 
-      m_acceptor->listen(boost::asio::socket_base::max_listen_connections, ec);
+      acceptor_->listen(boost::asio::socket_base::max_listen_connections, ec);
       if (ec) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_params.instance, m_params.port) << "Failed to start listening for connections: " << BEAST_ERR_LOG(ec)
+          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Failed to start listening for connections: " << BEAST_ERR_LOG(ec)
         );
       }
 
-      accept();
+      doAccept();
 
-      m_thread = std::thread([&]() {
-        m_ioc->run();
+      // run IO context in a separate thread
+      thread_ = std::thread([&]() {
+        ioc_->run();
       });
     }
 
     bool isListening() {
-      std::lock_guard<std::mutex> lock(m_acceptorMutex);
-      return m_acceptor.has_value() && m_acceptor->is_open();
+      std::lock_guard<std::mutex> lock(acceptorMtx_);
+      return acceptor_.has_value() && acceptor_->is_open();
     }
 
     void closeSession(const std::size_t sessionId, const boost::beast::websocket::close_code ec) {
-      std::lock_guard<std::mutex> lock(m_acceptorMutex);
-      auto record = m_sessionRegistry.find(sessionId);
-      if (record != m_sessionRegistry.end()) {
-        record->second->close(ec);
+      std::lock_guard<std::mutex> lock(acceptorMtx_);
+      auto record = sessionStorage_.find(sessionId);
+      if (record != sessionStorage_.end()) {
+        record->second->closeSession(ec);
       }
     }
 
     void stop() {
-      std::lock_guard<std::mutex> lock(m_acceptorMutex);
-      m_acceptor.reset();
+      std::lock_guard<std::mutex> lock(acceptorMtx_);
+      acceptor_.reset();
       clearSessions();
     }
 
     void send(const std::string& message) {
-      std::lock_guard<std::mutex> lock(m_sessionMutex);
-      for (auto [_, session] : m_sessionRegistry) {
-        session->send(message);
+      std::lock_guard<std::mutex> lock(sessionMtx_);
+      for (auto [_, session] : sessionStorage_) {
+        session->sendMessage(message);
       }
     }
 
     void send(const std::size_t sessionId, const std::string& message) {
-      std::lock_guard<std::mutex> lock(m_sessionMutex);
-      auto record = m_sessionRegistry.find(sessionId);
-      if (record != m_sessionRegistry.end()) {
-        record->second->send(message);
+      std::lock_guard<std::mutex> lock(sessionMtx_);
+      auto record = sessionStorage_.find(sessionId);
+      if (record != sessionStorage_.end()) {
+        record->second->sendMessage(message);
       } else {
-        TRC_WARNING(SERVER_LOG(m_params.instance, m_params.port) << "Cannot send message, session ID " << sessionId << " not found");
+        TRC_WARNING(
+          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Cannot send message, session ID "
+          << sessionId << " not found"
+        );
       }
     }
 
@@ -210,7 +221,7 @@ namespace iqrf {
         boost::asio::ssl::context::no_sslv2 |
         boost::asio::ssl::context::no_sslv3 |
         boost::asio::ssl::context::single_dh_use;
-      switch (m_params.tlsMode) {
+      switch (wsParams_.tlsMode) {
         case TlsModes::MODERN:
           options |=
             boost::asio::ssl::context::no_tlsv1 |
@@ -230,7 +241,7 @@ namespace iqrf {
 
     std::string getSslCiphers() {
       std::string ciphers;
-      switch (m_params.tlsMode) {
+      switch (wsParams_.tlsMode) {
         case TlsModes::MODERN:
           break;
         case TlsModes::INTERMEDIATE:
@@ -278,138 +289,146 @@ namespace iqrf {
       return ciphers;
     }
 
-    void accept() {
-      m_acceptor->async_accept(
+    void doAccept() {
+      acceptor_->async_accept(
         [this](boost::beast::error_code ec, boost::asio::ip::tcp::socket socket) {
-          this->on_accept(std::move(ec), std::move(socket));
+          this->onAcceptCallback(std::move(ec), std::move(socket));
         }
       );
     }
 
-    void on_accept(boost::beast::error_code ec, boost::asio::ip::tcp::socket socket) {
+    void onAcceptCallback(boost::beast::error_code ec, boost::asio::ip::tcp::socket socket) {
+      // error accepting session
       if (ec) {
         TRC_WARNING(
-          SERVER_LOG(m_params.instance, m_params.port)
+          SERVER_LOG(wsParams_.instance, wsParams_.port)
           << "Failed to accept incoming connection: "
           << BEAST_ERR_LOG(ec)
         );
-      } else {
-        std::shared_ptr<IWebsocketSession> session = nullptr;
-        if (m_params.tls) {
-          auto stream = WsStreamTls(std::move(socket), *m_ctx);
-          session = std::make_shared<WebsocketSession<WsStreamTls>>(
-            m_sessionCounter++,
-            std::move(stream),
-            m_params.authTimeout
-          );
-        } else {
-          auto stream = WsStreamPlain(std::move(socket));
-          session = std::make_shared<WebsocketSession<WsStreamPlain>>(
-            m_sessionCounter++,
-            std::move(stream),
-            m_params.authTimeout
-          );
-        }
-        TRC_INFORMATION(
-          SERVER_LOG(m_params.instance, m_params.port)
-          << "Incoming connection from " << session->getAddress() << ':' << session->getPort()
-          << ", session ID " << session->getId()
-        );
-        // set callbacks
-        session->setOnClose(
-          [this](std::size_t sessionId) {
-            unregisterSession(sessionId);
-          }
-        );
-        session->setOnMessage(m_onMessage);
-        session->setOnAuth(m_onAuth);
-        // store session in server
-        registerSession(session);
-        session->run();
+        doAccept();
+        return;
       }
-      accept();
+
+
+      std::shared_ptr<IWebSocketClientSession> clientSession = nullptr;
+      if (wsParams_.tls) {
+        auto stream = TlsWebSocketStream(std::move(socket), *sslCtx_);
+        clientSession = std::make_shared<WebSocketClientSession<TlsWebSocketStream>>(
+          sessionIdCounter_++,
+          std::move(stream),
+          wsParams_.authTimeout
+        );
+      } else {
+        auto stream = PlainWebSocketStream(std::move(socket));
+        clientSession = std::make_shared<WebSocketClientSession<PlainWebSocketStream>>(
+          sessionIdCounter_++,
+          std::move(stream),
+          wsParams_.authTimeout
+        );
+      }
+      TRC_INFORMATION(
+        SERVER_LOG(wsParams_.instance, wsParams_.port)
+        << "Incoming connection from " << clientSession->getAddress() << ':' << clientSession->getPort()
+        << ", session ID " << clientSession->getId()
+      );
+      // set callbacks
+      clientSession->setOnMessage(messageReceivedCallback_);
+      clientSession->setAuthCallback(authCallback_);
+      clientSession->setOnClose(
+        [this](std::size_t sessionId) {
+          removeSession(sessionId);
+        }
+      );
+      // store session in server
+      addSession(clientSession);
+      // run session
+      clientSession->startSession();
+      // accept another client connection
+      doAccept();
     }
 
     void initialize() {
-      if (m_params.localhostOnly) {
-        m_address = boost::asio::ip::address_v6::loopback();
+      if (wsParams_.localhostOnly) {
+        serverAddr_ = boost::asio::ip::address_v6::loopback();
       } else {
-        m_address = boost::asio::ip::address_v6::any();
+        serverAddr_ = boost::asio::ip::address_v6::any();
       }
       initializeIoc();
-      if (m_params.tls) {
+      if (wsParams_.tls) {
         initializeSsl();
       }
     }
 
     void initializeIoc() {
-      m_ioc.emplace(1);
-      m_workGuard.emplace(boost::asio::make_work_guard(*m_ioc));
+      ioc_.emplace(1);
+      workGuard_.emplace(boost::asio::make_work_guard(*ioc_));
     }
 
     void initializeSsl() {
-      m_ctx.emplace(boost::asio::ssl::context::tls_server);
-      m_ctx->set_options(getSslContextOptions());
-      if (m_params.certPath.size() == 0) {
+      sslCtx_.emplace(boost::asio::ssl::context::tls_server);
+      sslCtx_->set_options(getSslContextOptions());
+      if (wsParams_.certPath.size() == 0) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_params.instance, m_params.port) << "Certificate file not specified."
+          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Certificate file not specified."
         );
       }
-      if (!std::filesystem::exists(m_params.certPath)) {
+      if (!std::filesystem::exists(wsParams_.certPath)) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_params.instance, m_params.port) << "Certificate file does not exist."
+          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Certificate file does not exist."
         )
       }
-      m_ctx->use_certificate_chain_file(m_params.certPath);
-      if (m_params.keyPath.size() == 0) {
+      sslCtx_->use_certificate_chain_file(wsParams_.certPath);
+      if (wsParams_.keyPath.size() == 0) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_params.instance, m_params.port) << "Private key file not specified."
+          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Private key file not specified."
         );
       }
-      if (!std::filesystem::exists(m_params.keyPath)) {
+      if (!std::filesystem::exists(wsParams_.keyPath)) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_params.instance, m_params.port) << "Private key file does not exist."
+          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Private key file does not exist."
         )
       }
-      m_ctx->use_private_key_file(m_params.keyPath, boost::asio::ssl::context_base::file_format::pem);
-      m_ctx->set_verify_mode(boost::asio::ssl::verify_none);
+      sslCtx_->use_private_key_file(wsParams_.keyPath, boost::asio::ssl::context_base::file_format::pem);
+      sslCtx_->set_verify_mode(boost::asio::ssl::verify_none);
       auto ciphers = getSslCiphers();
-      if (!ciphers.empty() && SSL_CTX_set_cipher_list(m_ctx->native_handle(), ciphers.c_str()) != 1) {
+      if (!ciphers.empty() && SSL_CTX_set_cipher_list(sslCtx_->native_handle(), ciphers.c_str()) != 1) {
         THROW_EXC_TRC_WAR(
           std::runtime_error,
-          SERVER_LOG(m_params.instance, m_params.port) << "Failed to configure SSL cipher suites."
+          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Failed to configure SSL cipher suites."
         );
       }
     }
 
-    void registerSession(std::shared_ptr<IWebsocketSession> session) {
-      std::lock_guard<std::mutex> lock(m_sessionMutex);
-      m_sessionRegistry[session->getId()] = session;
+    void addSession(std::shared_ptr<IWebSocketClientSession> session) {
+      std::lock_guard<std::mutex> lock(sessionMtx_);
+      sessionStorage_[session->getId()] = session;
+
       TRC_INFORMATION(
-        SERVER_LOG(m_params.instance, m_params.port)
+        SERVER_LOG(wsParams_.instance, wsParams_.port)
         << "New client session registered with ID " << session->getId()
       );
     }
 
-    void unregisterSession(const size_t sessionId) {
-      std::lock_guard<std::mutex> lock(m_sessionMutex);
-      auto record = m_sessionRegistry.find(sessionId);
-      if (record != m_sessionRegistry.end()) {
-        if (m_onClose) {
-          m_onClose(sessionId);
+    void removeSession(const size_t sessionId) {
+      std::lock_guard<std::mutex> lock(sessionMtx_);
+
+      auto record = sessionStorage_.find(sessionId);
+      if (record != sessionStorage_.end()) {
+        if (connectionClosedCallback_) {
+          connectionClosedCallback_(sessionId);
         }
-        m_sessionRegistry.erase(sessionId);
+        sessionStorage_.erase(sessionId);
         TRC_INFORMATION(
-          SERVER_LOG(m_params.instance, m_params.port)
+          SERVER_LOG(wsParams_.instance, wsParams_.port)
           << "Client session ID " << sessionId << " unregistered"
         );
       } else {
         TRC_WARNING(
-          SERVER_LOG(m_params.instance, m_params.port)
+          SERVER_LOG(wsParams_.instance, wsParams_.port)
           << "Cannot remove non-existent session with ID "
           << sessionId
         );
@@ -417,11 +436,11 @@ namespace iqrf {
     }
 
     void clearSessions() {
-      std::lock_guard<std::mutex> lock(m_sessionMutex);
-      for (auto [_, session] : m_sessionRegistry) {
-        session->close(boost::beast::websocket::close_code::normal);
+      std::lock_guard<std::mutex> lock(sessionMtx_);
+      for (auto [_, session] : sessionStorage_) {
+        session->closeSession(boost::beast::websocket::close_code::normal);
       }
-      m_sessionRegistry.clear();
+      sessionStorage_.clear();
     }
   };
 
@@ -429,9 +448,9 @@ namespace iqrf {
 
   WebsocketServer::WebsocketServer(
     const WebsocketServerParams& params,
-    WsServerOnMessage onMessage,
-    WsServerOnAuth onAuth,
-    WsServerOnClose onClose
+    WebSocketMessageHandler onMessage,
+    WebSocketAuthHandler onAuth,
+    WebSocketCloseHandler onClose
   ): impl_(std::make_unique<Impl>(params, onMessage, onAuth, onClose)) {}
 
   WebsocketServer::~WebsocketServer() = default;

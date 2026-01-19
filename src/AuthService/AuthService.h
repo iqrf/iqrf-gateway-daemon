@@ -17,23 +17,23 @@
 #pragma once
 
 #include "ILaunchService.h"
-#include "IApiTokenService.h"
+#include "IAuthService.h"
 #include "ITraceService.h"
 #include "ShapeProperties.h"
 
 namespace iqrf {
 
-  class ApiTokenService : public IApiTokenService {
+  class AuthService : public IAuthService {
   public:
     /**
      * Constructor
      */
-    ApiTokenService();
+    AuthService();
 
     /**
      * Destructor
      */
-    virtual ~ApiTokenService();
+    virtual ~AuthService();
 
     /**
      * Initializes component
