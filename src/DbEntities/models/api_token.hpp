@@ -186,6 +186,17 @@ public:
     return status_;
   }
 
+  Status getDisplayStatus(int64_t now) const {
+    if (status_ == Status::Valid && now >= expiresAt_) {
+      return Status::Expired;
+    }
+    return status_;
+  }
+
+  std::string_view getDisplayStatusString(int64_t now) const {
+    return toString(getDisplayStatus(now));
+  }
+
   void expire() {
     status_ = Status::Expired;
   }

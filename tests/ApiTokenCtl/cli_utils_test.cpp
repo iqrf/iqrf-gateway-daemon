@@ -69,8 +69,9 @@ TEST(cli_utils, get_token_id_invalid_range) {
   }
 }
 
-TEST_F(CliUtilsTest, token_to_json_value) {
-  auto doc = token_to_json(token);
+TEST_F(CliUtilsTest, token_to_json_valid) {
+  auto now = token.getExpiresAt() - 60;
+  auto doc = token_to_json(token, now);
   EXPECT_TRUE(doc.count("id"));
   EXPECT_EQ(id, doc["id"]);
   EXPECT_TRUE(doc.count("owner"));
@@ -85,9 +86,58 @@ TEST_F(CliUtilsTest, token_to_json_value) {
   EXPECT_FALSE(doc["service"]);
 }
 
-TEST_F(CliUtilsTest, token_to_json_string_value) {
+TEST_F(CliUtilsTest, token_to_json_marked_valid_expired) {
+  auto now = token.getExpiresAt() + 60;
+  auto doc = token_to_json(token, now);
+  EXPECT_TRUE(doc.count("id"));
+  EXPECT_EQ(id, doc["id"]);
+  EXPECT_TRUE(doc.count("owner"));
+  EXPECT_EQ(owner, doc["owner"]);
+  EXPECT_TRUE(doc.count("created_at"));
+  EXPECT_EQ(created_at, doc["created_at"]);
+  EXPECT_TRUE(doc.count("expires_at"));
+  EXPECT_EQ(expires_at, doc["expires_at"]);
+  EXPECT_TRUE(doc.count("status"));
+  EXPECT_EQ(static_cast<int>(iqrf::db::models::ApiToken::Status::Expired), doc["status"]);
+  EXPECT_TRUE(doc.count("service"));
+  EXPECT_FALSE(doc["service"]);
+}
+
+TEST_F(CliUtilsTest, token_to_json_revoked) {
+  token.revoke();
+  auto now = token.getExpiresAt() + 60;
+  auto doc = token_to_json(token, now);
+  EXPECT_TRUE(doc.count("id"));
+  EXPECT_EQ(id, doc["id"]);
+  EXPECT_TRUE(doc.count("owner"));
+  EXPECT_EQ(owner, doc["owner"]);
+  EXPECT_TRUE(doc.count("created_at"));
+  EXPECT_EQ(created_at, doc["created_at"]);
+  EXPECT_TRUE(doc.count("expires_at"));
+  EXPECT_EQ(expires_at, doc["expires_at"]);
+  EXPECT_TRUE(doc.count("status"));
+  EXPECT_EQ(static_cast<int>(iqrf::db::models::ApiToken::Status::Revoked), doc["status"]);
+  EXPECT_TRUE(doc.count("service"));
+  EXPECT_FALSE(doc["service"]);
+}
+
+TEST_F(CliUtilsTest, token_to_json_string_valid) {
+  auto now = token.getExpiresAt() - 60;
   std::string expected = "{\"created_at\":1730726400,\"expires_at\":1731590400,\"id\":1,\"owner\":\"test\",\"service\":false,\"status\":0}";
-  EXPECT_EQ(expected, token_to_json_string(token));
+  EXPECT_EQ(expected, token_to_json_string(token, now));
+}
+
+TEST_F(CliUtilsTest, token_to_json_string_marked_valid_expired) {
+  auto now = token.getExpiresAt() + 60;
+  std::string expected = "{\"created_at\":1730726400,\"expires_at\":1731590400,\"id\":1,\"owner\":\"test\",\"service\":false,\"status\":1}";
+  EXPECT_EQ(expected, token_to_json_string(token, now));
+}
+
+TEST_F(CliUtilsTest, token_to_json_string_revoked) {
+  token.revoke();
+  auto now = token.getExpiresAt() + 60;
+  std::string expected = "{\"created_at\":1730726400,\"expires_at\":1731590400,\"id\":1,\"owner\":\"test\",\"service\":false,\"status\":2}";
+  EXPECT_EQ(expected, token_to_json_string(token, now));
 }
 
 TEST(cli_utils, pad_end_shorter) {

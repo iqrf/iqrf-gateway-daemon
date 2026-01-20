@@ -10,7 +10,7 @@
 #define OUTPUT_ID_LEN 5
 #define MAX_OWNER_LEN 64
 #define OUTPUT_DT_LEN 10
-#define OUTPUT_REVOKED_LEN 7
+#define OUTPUT_STATUS_LEN 7
 #define OUTPUT_SERVICE_LEN 7
 
 /**
@@ -99,16 +99,18 @@ uint32_t get_token_id(boost::program_options::variables_map& vm);
 /**
  * @brief Serializes API token to JSON document
  * @param token API token
+ * @param now Current timestamp
  * @return JSON document representing token
  */
-nlohmann::json token_to_json(const iqrf::db::models::ApiToken& token);
+nlohmann::json token_to_json(const iqrf::db::models::ApiToken& token, int64_t now);
 
 /**
  * @brief Serializes API token to JSON string
  * @param token API token
+ * @param now Current timestamp
  * @return JSON-serialized token string
  */
-std::string token_to_json_string(const iqrf::db::models::ApiToken& token);
+std::string token_to_json_string(const iqrf::db::models::ApiToken& token, int64_t now);
 
 /**
  * @brief Pad string end with specified character up to maximum width
