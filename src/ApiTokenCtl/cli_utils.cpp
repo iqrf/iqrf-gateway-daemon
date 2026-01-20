@@ -1,6 +1,6 @@
 #include "cli_utils.h"
 
-#define LINE_LENGTH (OUTPUT_ID_LEN + MAX_OWNER_LEN + (OUTPUT_DT_LEN * 2) + OUTPUT_REVOKED_LEN + OUTPUT_SERVICE_LEN + 5 /*spacing*/ + 2 /*borders*/)
+#define LINE_LENGTH (OUTPUT_ID_LEN + MAX_OWNER_LEN + (OUTPUT_DT_LEN * 2) + OUTPUT_STATUS_LEN + OUTPUT_SERVICE_LEN + 5 /*spacing*/ + 2 /*borders*/)
 
 namespace bpo = boost::program_options;
 using json = nlohmann::json;
@@ -68,7 +68,7 @@ void print_list_header() {
     << pad_end("Owner", MAX_OWNER_LEN) << ' '
     << pad_end("Created at", OUTPUT_DT_LEN) << ' '
     << pad_end("Expires at", OUTPUT_DT_LEN) << ' '
-    << pad_end("Status", OUTPUT_REVOKED_LEN) << ' '
+    << pad_end("Status", OUTPUT_STATUS_LEN) << ' '
     << pad_end("Service", OUTPUT_SERVICE_LEN) << "|\n";
   print_table_horizontal_line();
 }
@@ -108,24 +108,24 @@ uint32_t get_token_id(bpo::variables_map& vm) {
   return static_cast<uint32_t>(id);
 }
 
-json token_to_json(const iqrf::db::models::ApiToken& token) {
+json token_to_json(const iqrf::db::models::ApiToken& token, int64_t now) {
   return json({
       {"id", token.getId()},
       {"owner", token.getOwner()},
       {"created_at", token.getCreatedAt()},
       {"expires_at", token.getExpiresAt()},
-      {"status", static_cast<int>(token.getStatus())},
+      {"status", static_cast<int>(token.getDisplayStatus(now))},
       {"service", token.canUseServiceMode()}
   });
 }
 
-std::string token_to_json_string(const iqrf::db::models::ApiToken& token) {
+std::string token_to_json_string(const iqrf::db::models::ApiToken& token, int64_t now) {
   return json({
       {"id", token.getId()},
       {"owner", token.getOwner()},
       {"created_at", token.getCreatedAt()},
       {"expires_at", token.getExpiresAt()},
-      {"status", static_cast<int>(token.getStatus())},
+      {"status", static_cast<int>(token.getDisplayStatus(now))},
       {"service", token.canUseServiceMode()}
   }).dump();
 }

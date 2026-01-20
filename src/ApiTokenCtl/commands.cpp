@@ -55,15 +55,17 @@ void get_token(uint32_t id, const SharedParams& params) {
   if (!token) {
     throw std::invalid_argument("API token record does not exist.");
   }
+
+  auto now = DateTimeUtils::get_current_timestamp();
   if (params.json_output) {
-    std::cout << token_to_json_string(*token) << '\n';
+    std::cout << token_to_json_string(*token, now) << '\n';
   } else {
     std::cout
       << "ID: " << std::to_string(token->getId()) << '\n'
       << "Owner: " << token->getOwner() << '\n'
       << "Created at: " << std::to_string(token->getCreatedAt()) << '\n'
       << "Expires at: " << std::to_string(token->getExpiresAt()) << '\n'
-      << "Status: " << ApiToken::toString(token->getStatus()) << '\n'
+      << "Status: " << ApiToken::toString(token->getDisplayStatus(now)) << '\n'
       << "Service mode: " << (token->canUseServiceMode() ? "YES" : "NO") << "\n";
   }
 }
@@ -74,18 +76,20 @@ void list_tokens(const SharedParams& params) {
     throw std::runtime_error("Table api_tokens does not exist in database.");
   }
 
+  auto now = DateTimeUtils::get_current_timestamp();
   iqrf::db::repos::ApiTokenRepository repo(db);
   auto tokens = repo.list();
   if (params.json_output) {
     json doc = json::array();
     for (const auto& token : tokens) {
       doc.push_back(
-        token_to_json(token)
+        token_to_json(token, now)
       );
     }
     std::cout << doc.dump() << '\n';
     return;
   }
+
   print_list_header();
   for (const auto& token : tokens) {
     std::cout << '|'
@@ -93,7 +97,7 @@ void list_tokens(const SharedParams& params) {
       << pad_end(token.getOwner(), MAX_OWNER_LEN) << ' '
       << pad_end(std::to_string(token.getCreatedAt()), OUTPUT_DT_LEN) << ' '
       << pad_end(std::to_string(token.getExpiresAt()), OUTPUT_DT_LEN) << ' '
-      << pad_end(std::string(ApiToken::toString(token.getStatus())), OUTPUT_REVOKED_LEN) << ' '
+      << pad_end(std::string(token.getDisplayStatusString(now)), OUTPUT_STATUS_LEN) << ' '
       << pad_end(token.canUseServiceMode() ? "YES" : "NO", OUTPUT_SERVICE_LEN)
       << "|\n";
   }
