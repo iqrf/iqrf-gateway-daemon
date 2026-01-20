@@ -47,6 +47,11 @@ remove_old_dirs() {
 	rm -f /lib/systemd/system/iqrfgd2.service
 }
 
+remove_old_db_files() {
+  rm -rf /usr/share/iqrf-gateway-daemon/DB/init
+  rm -f /usr/share/iqrf-gateway-daemon/DB/IqrfInfo.db
+}
+
 configure_gateway() {
 	bash /usr/bin/iqrfgd2-config-init "/etc/iqrf-gateway-daemon/"
 	sh /usr/bin/iqrfgd2-interface-init
@@ -56,6 +61,7 @@ configure_gateway() {
 if [ "$1" = "configure" ]; then
 	openssl_create_ca
 	remove_old_dirs
+  remove_old_db_files
 	configure_gateway
 fi
 
