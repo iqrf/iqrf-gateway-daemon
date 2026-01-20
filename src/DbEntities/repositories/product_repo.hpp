@@ -172,8 +172,8 @@ public:
     SQLite::Statement stmt(*m_db,
       R"(
       UPDATE product
-      SET hwpid = ?, hwpidVersion = ?, osBuild, osVersion, dpaVersion, handlerUrl, handlerHash, customDriver,
-        packageId, name
+      SET hwpid = ?, hwpidVersion = ?, osBuild = ?, osVersion = ?, dpaVersion = ?, handlerUrl = ?, handlerHash = ?, customDriver = ?,
+        packageId = ?, name = ?
       WHERE id = ?;
       )"
     );
