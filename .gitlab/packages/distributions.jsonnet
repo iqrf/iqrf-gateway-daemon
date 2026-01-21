@@ -8,7 +8,6 @@
 	{ name: 'debian', version: 'bullseye', arch: 'amd64' },
 	{ name: 'debian', version: 'bullseye', arch: 'arm64' },
 	{ name: 'debian', version: 'bullseye', arch: 'armhf' },
-	{ name: 'debian', version: 'bullseye', arch: 'armel' },
 	{ name: 'raspbian', version: 'trixie', arch: 'armhf' },
 	{ name: 'raspbian', version: 'bookworm', arch: 'armhf' },
 	{ name: 'raspbian', version: 'bullseye', arch: 'armhf' },
