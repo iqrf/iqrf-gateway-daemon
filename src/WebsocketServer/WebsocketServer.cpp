@@ -91,24 +91,12 @@ namespace iqrf {
 
     ~Impl() {
       TRC_FUNCTION_ENTER("");
-      stop();
-
-      // reset work guard and stop event loop
-      workGuard_.reset();
-      ioc_->stop();
-
-      // join io context thread
-      if (thread_.joinable()) {
-        thread_.join();
-      }
-
-      // cleanup ssl context and io context
-      sslCtx_.reset();
-      ioc_.reset();
-
       // cleanup handlers
       messageReceivedCallback_ = nullptr;
       authCallback_ = nullptr;
+
+      stop();
+      sslCtx_.reset();
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -121,11 +109,12 @@ namespace iqrf {
         return;
       }
 
-      boost::asio::ip::tcp::endpoint endpoint(serverAddr_, wsParams_.port);
-
-      // create acceptor
+      // setup objects
+      ioc_.emplace(1);
+      workGuard_.emplace(boost::asio::make_work_guard(*ioc_));
       acceptor_.emplace(boost::asio::make_strand(*ioc_));
 
+      boost::asio::ip::tcp::endpoint endpoint(serverAddr_, wsParams_.port);
       boost::beast::error_code ec;
       acceptor_->open(endpoint.protocol(), ec);
       if (ec) {
@@ -181,7 +170,7 @@ namespace iqrf {
     }
 
     void closeSession(const std::size_t sessionId, const boost::beast::websocket::close_code ec) {
-      std::lock_guard<std::mutex> lock(acceptorMtx_);
+      std::lock_guard<std::mutex> lock(sessionMtx_);
       auto record = sessionStorage_.find(sessionId);
       if (record != sessionStorage_.end()) {
         record->second->closeSession(ec);
@@ -190,8 +179,34 @@ namespace iqrf {
 
     void stop() {
       std::lock_guard<std::mutex> lock(acceptorMtx_);
+
+      // stop accepting new connections
+      if (acceptor_.has_value()) {
+        boost::beast::error_code ec;
+        acceptor_->close(ec);
+      }
+
+      // kill existing sessions
+      closeAllSessions();
+
+      // stop event loop
+      if (workGuard_.has_value()) {
+        workGuard_->reset();
+      }
+      if (ioc_.has_value()) {
+        ioc_->stop();
+      }
+
+      // join io context thread
+      if (thread_.joinable()) {
+        thread_.join();
+      }
+
+      // cleanup
+      sessionStorage_.clear();
       acceptor_.reset();
-      clearSessions();
+      workGuard_.reset();
+      ioc_.reset();
     }
 
     void send(const std::string& message) {
@@ -299,6 +314,18 @@ namespace iqrf {
 
     void onAcceptCallback(boost::beast::error_code ec, boost::asio::ip::tcp::socket socket) {
       // error accepting session
+      if (ec == boost::asio::error::operation_aborted ||
+          ec == boost::asio::error::bad_descriptor ||
+          ec == boost::asio::error::not_socket
+      ) {
+        TRC_WARNING(
+          SERVER_LOG(wsParams_.instance, wsParams_.port)
+          << "Received non-recovery error code: "
+          << BEAST_ERR_LOG(ec)
+        );
+        return;
+      }
+
       if (ec) {
         TRC_WARNING(
           SERVER_LOG(wsParams_.instance, wsParams_.port)
@@ -353,15 +380,9 @@ namespace iqrf {
       } else {
         serverAddr_ = boost::asio::ip::address_v6::any();
       }
-      initializeIoc();
       if (wsParams_.tls) {
         initializeSsl();
       }
-    }
-
-    void initializeIoc() {
-      ioc_.emplace(1);
-      workGuard_.emplace(boost::asio::make_work_guard(*ioc_));
     }
 
     void initializeSsl() {
@@ -435,12 +456,11 @@ namespace iqrf {
       }
     }
 
-    void clearSessions() {
+    void closeAllSessions() {
       std::lock_guard<std::mutex> lock(sessionMtx_);
       for (auto [_, session] : sessionStorage_) {
         session->closeSession(boost::beast::websocket::close_code::normal);
       }
-      sessionStorage_.clear();
     }
   };
 
