@@ -74,7 +74,11 @@ namespace iqrf {
     bool isAuthenticated_ = false;
     /// Token expiration
     int64_t expirationTime_ = -1;
+
+    /// Compile time TLS stream check
+    static constexpr bool usesTlsStream = std::is_same_v<Stream, TlsWebSocketStream>;
   public:
+
     /**
      * Delete default constructor
      */
@@ -108,7 +112,7 @@ namespace iqrf {
       authTimeout_(authTimeout)
     {
       // get client address and port depending on stream type
-      if constexpr (std::is_same_v<Stream, TlsWebSocketStream>) {
+      if constexpr (usesTlsStream) {
         auto endpoint = stream_.next_layer().lowest_layer().remote_endpoint();
         address_ = endpoint.address().to_string();
         port_ = endpoint.port();
@@ -311,7 +315,7 @@ namespace iqrf {
       boost::beast::get_lowest_layer(stream_)
         .expires_after(std::chrono::seconds(30));
 
-      if constexpr (std::is_same_v<Stream, TlsWebSocketStream>) {
+      if constexpr (usesTlsStream) {
         stream_.next_layer().async_handshake(
           boost::asio::ssl::stream_base::server,
           boost::asio::bind_executor(
@@ -462,10 +466,7 @@ namespace iqrf {
       boost::ignore_unused(bytesRead);
 
       // if connection is already closed, execute on connection close callback
-      if (
-        ec == boost::beast::websocket::error::closed ||
-        ec == boost::asio::error::not_connected
-      ) {
+      if (isRemoteCloseError(ec)) {
         TRC_INFORMATION(
           SESSION_LOG(sessionId_, address_, port_)
           << "Connection closed: "
@@ -745,7 +746,7 @@ namespace iqrf {
      */
     void shutdownSocket() {
       // shutdown and close socket depending on stream type
-      if constexpr (std::is_same_v<Stream, TlsWebSocketStream>) {
+      if constexpr (usesTlsStream) {
         stream_.next_layer().async_shutdown(
           boost::asio::bind_executor(
             strand_,
@@ -780,6 +781,35 @@ namespace iqrf {
       if (connectionCloseCallback_) {
         connectionCloseCallback_(sessionId_);
       }
+    }
+
+    /**
+     * @brief Checks if received error code is a close frame from the client side
+     *
+     * This function received error code to see if it is a should be
+     * considered a normal or graceful shutdown. This includes both plain and TLS connections.
+     *
+     * Since graceful TLS connection requires a specific steps that all clients may not
+     * always take, we should check for incorrectly closed TLS streams too.
+     *
+     * @param ec Error code
+     */
+    bool isRemoteCloseError(const boost::beast::error_code& ec) {
+      // Graceful close or client not connected anymore, which should be okay too
+      if (
+        ec == boost::beast::websocket::error::closed ||
+        ec == boost::asio::error::not_connected
+      ) {
+        return true;
+      }
+
+      // Check for incorrect TLS close that should be handled as normal
+      if constexpr (usesTlsStream) {
+        if (ec == boost::asio::ssl::error::stream_truncated) {
+          return true;
+        }
+      }
+      return false;
     }
   };
 
