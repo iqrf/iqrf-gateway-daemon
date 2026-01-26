@@ -1,0 +1,15 @@
+{
+  "mType": "mngService_TrInfo",
+  "data": {
+    "msgId": "0ea1fb03-5bba-418f-9a91-5a7d51374c84",
+    "rsp": {
+      "mid": 2164293634,
+      "osVersion": 70,
+      "osBuild": 2264,
+      "trMcuType": 180
+    },
+    "status": 0,
+    "statusStr": "Ok",
+    "insId": "iqrfgd2-default"
+  }
+}

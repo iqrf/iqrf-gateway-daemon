@@ -52,6 +52,14 @@ namespace iqrf {
     virtual std::optional<ApiToken::Status> authenticate(const uint32_t id, const std::string& secret, int64_t& expiration, bool& service) = 0;
 
     /**
+     * @brief Checks if token can use service mode
+     *
+     * @param id Token ID
+     * @return `true` if token has service mode permissions, `false` otherwise
+     */
+    virtual bool hasServiceModePermissions(const uint32_t id) = 0;
+
+    /**
      * @brief Check if token is revoked
      *
      * @param id Token ID

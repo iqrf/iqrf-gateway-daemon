@@ -29,7 +29,6 @@
 
 #include "Messages/MngBaseMsg.h"
 #include "Messages/MngExitMsg.h"
-#include "Messages/MngModeMsg.h"
 #include "Messages/MngUpdateCacheMsg.h"
 #include "Messages/MngVersionMsg.h"
 
@@ -70,12 +69,19 @@ namespace iqrf {
 		IMessagingSplitterService *m_iMessagingSplitterService = nullptr;
 		/// JsCache service
 		IJsCacheService *m_cacheService = nullptr;
-		/// UDP service
-		IUdpConnectorService *m_iUdpConnectorService = nullptr;
 		/// API message filters
 		std::vector<std::string> m_filters = {
-			"mngScheduler",
-			"mngDaemon"
+			"mngDaemon_Exit",
+			"mngDaemon_UpdateCache",
+			"mngDaemon_Version",
+			"mngScheduler_AddTask",
+			"mngScheduler_EditTask",
+			"mngScheduler_GetTask",
+			"mngScheduler_List",
+			"mngScheduler_RemoveAll",
+			"mngScheduler_RemoveTask",
+			"mngScheduler_StartTask",
+			"mngScheduler_StopTask"
 		};
 	public:
 		Imp() {}
@@ -95,8 +101,6 @@ namespace iqrf {
 			std::unique_ptr<MngBaseMsg> msg;
 			if (msgType.m_type == "mngDaemon_Exit") {
 				msg = std::make_unique<MngExitMsg>(MngExitMsg(doc, m_iSchedulerService));
-			} else if (msgType.m_type == "mngDaemon_Mode") {
-				msg = std::make_unique<MngModeMsg>(MngModeMsg(doc, m_iUdpConnectorService));
 			} else if (msgType.m_type == "mngDaemon_UpdateCache") {
 				msg = std::make_unique<MngUpdateCacheMsg>(MngUpdateCacheMsg(doc, m_dbService, m_cacheService));
 			} else if (msgType.m_type == "mngDaemon_Version") {
@@ -232,16 +236,6 @@ namespace iqrf {
 			}
 		}
 
-		void attachInterface(IUdpConnectorService *iface) {
-			m_iUdpConnectorService = iface;
-		}
-
-		void detachInterface(IUdpConnectorService *iface) {
-			if (m_iUdpConnectorService == iface) {
-				m_iUdpConnectorService = nullptr;
-			}
-		}
-
 		void attachInterface(IMessagingSplitterService *iface) {
 			m_iMessagingSplitterService = iface;
 		}
@@ -321,14 +315,6 @@ namespace iqrf {
 	}
 
 	void JsonMngApi::detachInterface(IJsCacheService *iface) {
-		m_imp->detachInterface(iface);
-	}
-
-	void JsonMngApi::attachInterface(IUdpConnectorService *iface) {
-		m_imp->attachInterface(iface);
-	}
-
-	void JsonMngApi::detachInterface(IUdpConnectorService *iface) {
 		m_imp->detachInterface(iface);
 	}
 

@@ -1,0 +1,12 @@
+{
+  "mType": "mngService_TrData",
+  "data": {
+    "msgId": "async",
+    "rsp": {
+      "packet": [0, 0, 6, 131, 4, 48, 0, 0]
+    },
+    "status": 0,
+    "statusStr": "Ok",
+    "insId": "iqrfgd2-default"
+  }
+}

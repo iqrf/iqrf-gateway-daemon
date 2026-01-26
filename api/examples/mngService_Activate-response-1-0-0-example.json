@@ -1,0 +1,9 @@
+{
+  "mType": "mngService_Activate",
+  "data": {
+    "msgId": "5dc5e30b-1b07-4fc2-8120-9e4edbca6ec4",
+    "status": 0,
+    "statusStr": "Ok",
+    "insId": "iqrfgd2-default"
+  }
+}

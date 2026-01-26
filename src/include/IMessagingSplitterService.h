@@ -43,16 +43,39 @@ namespace iqrf {
   public:
     class MsgType;
 
-    typedef std::function<void(const MessagingInstance& messaging, const MsgType& msgType, rapidjson::Document doc)> FilteredMessageHandlerFunc;
+    /// @brief Splitter message handler type alias
+    using FilteredMessageHandlerFunc = std::function<void(const MessagingInstance&, const MsgType&, rapidjson::Document)>;
+    /// @brief Service mode check handler type alias
+    using ServiceModeCheckHandler = std::function<bool(void)>;
 
     class MsgType {
     public:
-      MsgType(const std::string mtype, int major, int minor, int micro)
-        :m_type(mtype), m_major(major), m_minor(minor), m_micro(micro)
+      MsgType(
+        const std::string mtype,
+        int major,
+        int minor,
+        int micro
+      ):
+        m_type(mtype),
+        m_major(major),
+        m_minor(minor),
+        m_micro(micro)
       {}
-      MsgType(const std::string mtype, int major, int minor, int micro, const std::string& possibleDriverFunction)
-        :m_type(mtype), m_major(major), m_minor(minor), m_micro(micro), m_possibleDriverFunction(possibleDriverFunction)
+
+      MsgType(
+        const std::string mtype,
+        int major,
+        int minor,
+        int micro,
+        const std::string& possibleDriverFunction
+      ):
+        m_type(mtype),
+        m_major(major),
+        m_minor(minor),
+        m_micro(micro),
+        m_possibleDriverFunction(possibleDriverFunction)
       {}
+
       std::string m_type;
       int m_major = 1;
       int m_minor = 0;
@@ -71,6 +94,8 @@ namespace iqrf {
     virtual void sendMessage(const std::list<MessagingInstance>& messagings, rapidjson::Document doc) const = 0;
     virtual void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc) = 0;
     virtual void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters) = 0;
+    virtual void registerServiceModeCheckHandler(ServiceModeCheckHandler handler) = 0;
+    virtual void unregisterServiceModeCheckHandler() = 0;
     virtual int getManagementQueueLen() const = 0;
     virtual int getNetworkQueueLen() const = 0;
 

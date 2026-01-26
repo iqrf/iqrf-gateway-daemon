@@ -1,0 +1,4 @@
+{
+  "component": "iqrf::AuthService",
+  "instance": "iqrf::AuthService-default"
+}

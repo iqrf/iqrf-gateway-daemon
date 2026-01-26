@@ -26,6 +26,7 @@
 #include "api_token_repo.hpp"
 
 #include "gtest/gtest.h"
+#include "ApiTokenTestUtils.h"
 
 #include <boost/asio.hpp>
 #include <boost/beast/core.hpp>
@@ -239,47 +240,6 @@ namespace iqrf {
       ASSERT_TRUE(stmt.executeStep());
       ASSERT_STREQ("wal", stmt.getColumn(0).getText());
       ASSERT_TRUE(db->tableExists("api_tokens"));
-    }
-
-    void insertToken(db::models::ApiToken& token, int64_t created_at, int64_t expiration) {
-      SQLite::Statement stmt(*db,
-        R"(
-        INSERT OR IGNORE INTO api_tokens (id, owner, salt, hash, createdAt, expiresAt, status, service)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-        )"
-      );
-
-      stmt.bind(1, token.getId());
-      stmt.bind(2, token.getOwner());
-      stmt.bind(3, token.getSalt());
-      stmt.bind(4, token.getHash());
-      stmt.bind(5, created_at);
-      stmt.bind(6, expiration);
-      stmt.bind(7, static_cast<int>(token.getStatus()));
-      stmt.bind(8, token.canUseServiceMode());
-      try {
-        stmt.exec();
-      } catch (const std::exception &e) {
-        FAIL() << "Failed to insert API key to database." << e.what();
-      }
-    }
-
-    void revokeToken(uint32_t id) {
-      db::repos::ApiTokenRepository repo(db);
-      try {
-        repo.revoke(id);
-      } catch (const std::exception &e) {
-        FAIL() << "Failed to revoke API key." << e.what();
-      }
-    }
-
-    void removeToken(uint32_t id) {
-      db::repos::ApiTokenRepository repo(db);
-      try {
-        repo.remove(id);
-      } catch (const std::exception &e) {
-        FAIL() << "Failed to remove token." << e.what();
-      }
     }
   };
 
@@ -525,7 +485,10 @@ namespace iqrf {
     beast::error_code ec;
 
     auto timestamp = DateTimeUtils::get_current_timestamp();
-    insertToken(revoked_token, timestamp, timestamp + 31536000);
+    auto result = test_utils::api_token::insert(db, revoked_token, timestamp, timestamp + 31536000);
+    if (!result.status) {
+      FAIL() << "Failed to insert token: " << *result.error;
+    }
 
     json doc({
       {"type", "auth"},
@@ -556,7 +519,10 @@ namespace iqrf {
     beast::error_code ec;
 
     auto timestamp = DateTimeUtils::get_current_timestamp();
-    insertToken(expired_token, timestamp - 2592000, timestamp - 3600);
+    auto result = test_utils::api_token::insert(db, expired_token, timestamp - 2592000, timestamp - 3600);
+    if (!result.status) {
+      FAIL() << "Failed to insert token: " << *result.error;
+    }
 
     json doc({
       {"type", "auth"},
@@ -586,10 +552,16 @@ namespace iqrf {
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_success) {
     beast::error_code ec;
 
-    removeToken(valid_token.getId());
+    auto result = test_utils::api_token::remove(db, valid_token.getId());
+    if (!result.status) {
+      FAIL() << "Failed to remove token: " << *result.error;
+    }
     auto timestamp = DateTimeUtils::get_current_timestamp();
     auto expiration = timestamp + 31536000;
-    insertToken(valid_token, timestamp, expiration);
+    result = test_utils::api_token::insert(db, valid_token, timestamp, expiration);
+    if (!result.status) {
+      FAIL() << "Failed to insert token: " << *result.error;
+    }
     // do successful auth
     json doc({
       {"type", "auth"},
@@ -643,10 +615,16 @@ R"({
     TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_after_auth_success) {
     beast::error_code ec;
 
-    removeToken(valid_token.getId());
+    auto result = test_utils::api_token::remove(db, valid_token.getId());
+    if (!result.status) {
+      FAIL() << "Failed to remove token: " << *result.error;
+    }
     auto timestamp = DateTimeUtils::get_current_timestamp();
     auto expiration = timestamp + 31536000;
-    insertToken(valid_token, timestamp, expiration);
+    result = test_utils::api_token::insert(db, valid_token, timestamp, expiration);
+    if (!result.status) {
+      FAIL() << "Failed to insert token: " << *result.error;
+    }
     // do successful auth
     json doc({
       {"type", "auth"},
@@ -688,10 +666,16 @@ R"({
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_success_expired_before_client_request) {
     beast::error_code ec;
 
-    removeToken(valid_token.getId());
+    auto result = test_utils::api_token::remove(db, valid_token.getId());
+    if (!result.status) {
+      FAIL() << "Failed to remove token: " << *result.error;
+    }
     auto timestamp = DateTimeUtils::get_current_timestamp();
     auto expiration = timestamp + 5;
-    insertToken(valid_token, timestamp, expiration);
+    result = test_utils::api_token::insert(db, valid_token, timestamp, expiration);
+    if (!result.status) {
+      FAIL() << "Failed to insert token: " << *result.error;
+    }
     // do successful auth
     json doc({
       {"type", "auth"},
@@ -734,16 +718,25 @@ R"({
     ws.read(buffer, ec);
     EXPECT_EQ(ec, websocket::error::closed);
     EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
-    removeToken(valid_token.getId());
+    result = test_utils::api_token::remove(db, valid_token.getId());
+    if (!result.status) {
+      FAIL() << "Failed to remove token: " << *result.error;
+    }
   }
 
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_success_expired_during_client_request) {
     beast::error_code ec;
 
-    removeToken(valid_token.getId());
+    auto result = test_utils::api_token::remove(db, valid_token.getId());
+    if (!result.status) {
+      FAIL() << "Failed to remove token: " << *result.error;
+    }
     auto timestamp = DateTimeUtils::get_current_timestamp();
     auto expiration = timestamp + 5;
-    insertToken(valid_token, timestamp, expiration);
+    result = test_utils::api_token::insert(db, valid_token, timestamp, expiration);
+    if (!result.status) {
+      FAIL() << "Failed to insert token: " << *result.error;
+    }
     // do successful auth
     json doc({
       {"type", "auth"},
@@ -789,10 +782,16 @@ R"({
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_success_revoked_after) {
     beast::error_code ec;
 
-    removeToken(revoked_later_token.getId());
+    auto result = test_utils::api_token::remove(db, revoked_later_token.getId());
+    if (!result.status) {
+      FAIL() << "Failed to remove token: " << *result.error;
+    }
     auto timestamp = DateTimeUtils::get_current_timestamp();
     auto expiration = timestamp + 31536000;
-    insertToken(revoked_later_token, timestamp, expiration);
+    result = test_utils::api_token::insert(db, revoked_later_token, timestamp, expiration);
+    if (!result.status) {
+      FAIL() << "Failed to insert token: " << *result.error;
+    }
     // do successful auth
     json doc({
       {"type", "auth"},
@@ -845,7 +844,10 @@ R"({
     buffer.consume(buffer.size());
 
     // revoke token
-    revokeToken(revoked_later_token.getId());
+    result = test_utils::api_token::revoke(db, revoked_later_token.getId());
+    if (!result.status) {
+      FAIL() << "Failed to revoke token: " << *result.error;
+    }
     // Read revoked token message message
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
@@ -862,10 +864,16 @@ R"({
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_success_deleted_after) {
     beast::error_code ec;
 
-    removeToken(valid_token.getId());
+    auto result = test_utils::api_token::remove(db, valid_token.getId());
+    if (!result.status) {
+      FAIL() << "Failed to remove token: " << *result.error;
+    }
     auto timestamp = DateTimeUtils::get_current_timestamp();
     auto expiration = timestamp + 31536000;
-    insertToken(valid_token, timestamp, expiration);
+    result = test_utils::api_token::insert(db, valid_token, timestamp, expiration);
+    if (!result.status) {
+      FAIL() << "Failed to insert token: " << *result.error;
+    }
     // do successful auth
     json doc({
       {"type", "auth"},
@@ -914,8 +922,11 @@ R"({
     // clear buffer
     buffer.consume(buffer.size());
 
-    // revoke token
-    removeToken(valid_token.getId());
+    // remove token
+    result = test_utils::api_token::remove(db, valid_token.getId());
+    if (!result.status) {
+      FAIL() << "Failed to remove token: " << *result.error;
+    }
     // Read revoked token message message
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);

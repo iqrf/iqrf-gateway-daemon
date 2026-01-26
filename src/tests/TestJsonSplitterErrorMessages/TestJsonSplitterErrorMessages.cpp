@@ -23,11 +23,7 @@
 #include "HexStringCoversion.h"
 
 #include "gtest/gtest.h"
-
-#include "rapidjson/pointer.h"
-#include "rapidjson/istreamwrapper.h"
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/prettywriter.h"
+#include "JsonTestUtils.h"
 
 #include "iqrf__TestJsonSplitterErrorMessages.hxx"
 
@@ -187,16 +183,7 @@ namespace iqrf {
   }
 
   ////////////////////////////////////////////////////////
-  class JsonSplitterErrorMessagesTest : public ::testing::Test
-  {
-  protected:
-
-    rapidjson::Document parseResponse(const std::string& response) {
-      rapidjson::Document doc;
-      doc.Parse(response.c_str());
-      return doc;
-    }
-  };
+  class JsonSplitterErrorMessagesTest : public ::testing::Test {};
 
   TEST_F(JsonSplitterErrorMessagesTest, json_parse_error) {
     std::string request = R"({
@@ -206,7 +193,7 @@ namespace iqrf {
     // Send request and get error response
     Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(request);
     std::string response = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
-    auto doc = parseResponse(response);
+    auto doc = test_utils::json::parseJsonString(response);
     ASSERT_FALSE(doc.HasParseError());
 
     EXPECT_STREQ("messageError", Pointer("/mType").Get(doc)->GetString());
@@ -233,7 +220,7 @@ namespace iqrf {
     // Send request and get error response
     Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(request);
     std::string response = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
-    auto doc = parseResponse(response);
+    auto doc = test_utils::json::parseJsonString(response);
     ASSERT_FALSE(doc.HasParseError());
 
     EXPECT_STREQ("messageError", Pointer("/mType").Get(doc)->GetString());
@@ -257,7 +244,7 @@ namespace iqrf {
     // Send request and get error response
     Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(request);
     std::string response = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
-    auto doc = parseResponse(response);
+    auto doc = test_utils::json::parseJsonString(response);
     ASSERT_FALSE(doc.HasParseError());
 
     EXPECT_STREQ("messageError", Pointer("/mType").Get(doc)->GetString());
@@ -277,7 +264,7 @@ namespace iqrf {
     // Send request and get error response
     Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(request);
     std::string response = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
-    auto doc = parseResponse(response);
+    auto doc = test_utils::json::parseJsonString(response);
     ASSERT_FALSE(doc.HasParseError());
 
     EXPECT_STREQ("messageError", Pointer("/mType").Get(doc)->GetString());
@@ -285,5 +272,71 @@ namespace iqrf {
     EXPECT_STREQ("Received a duplicate or unexpected auth message.", Pointer("/data/rsp/error").Get(doc)->GetString());
     EXPECT_EQ(9, Pointer("/data/status").Get(doc)->GetInt());
     EXPECT_STREQ("Unexpected auth message.", Pointer("/data/statusStr").Get(doc)->GetString());
+  }
+
+  TEST_F(JsonSplitterErrorMessagesTest, service_mode_active_error) {
+    // enable service mode
+    std::string modeRequest = R"({
+      "mType": "mngDaemon_Mode",
+      "data": {
+        "msgId": "d6b05c55-408b-459d-bc25-f74c42fa0153",
+        "req": {
+          "operMode": "service"
+        },
+        "returnVerbose": true
+      }
+    })";
+    Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(modeRequest);
+    std::string modeResponse = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(100);
+    auto doc = test_utils::json::parseJsonString(modeResponse);
+    ASSERT_FALSE(doc.HasParseError());
+    // check success response
+    EXPECT_STREQ("mngDaemon_Mode", Pointer("/mType").Get(doc)->GetString());
+    EXPECT_STREQ("d6b05c55-408b-459d-bc25-f74c42fa0153", Pointer("/data/msgId").Get(doc)->GetString());
+    EXPECT_STREQ("service", Pointer("/data/rsp/operMode").Get(doc)->GetString());
+    EXPECT_EQ(0, Pointer("/data/status").Get(doc)->GetInt());
+    EXPECT_STREQ("ok", Pointer("/data/statusStr").Get(doc)->GetString());
+    // attempt non-service message
+    std::string rawRequest = R"({
+      "mType": "iqrfRaw",
+      "data": {
+        "msgId": "test_raw",
+        "timeout": 1000,
+        "req": {
+          "rData": "00.00.06.03.ff.ff"
+        },
+        "returnVerbose": true
+      }
+    })";
+    Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(rawRequest);
+    std::string rawResponse = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(100);
+    doc = test_utils::json::parseJsonString(rawResponse);
+    ASSERT_FALSE(doc.HasParseError());
+    // check error response
+    EXPECT_STREQ("messageError", Pointer("/mType").Get(doc)->GetString());
+    EXPECT_STREQ("test_raw", Pointer("/data/msgId").Get(doc)->GetString());
+    EXPECT_EQ(10, Pointer("/data/status").Get(doc)->GetInt());
+    EXPECT_STREQ("Service mode is active.", Pointer("/data/statusStr").Get(doc)->GetString());
+    // disable service mode
+    modeRequest = R"({
+      "mType": "mngDaemon_Mode",
+      "data": {
+        "msgId": "d6b05c55-408b-459d-bc25-f74c42fa0153",
+        "req": {
+          "operMode": "operational"
+        },
+        "returnVerbose": true
+      }
+    })";
+    Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(modeRequest);
+    modeResponse = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(100);
+    doc = test_utils::json::parseJsonString(modeResponse);
+    ASSERT_FALSE(doc.HasParseError());
+    // check success response
+    EXPECT_STREQ("mngDaemon_Mode", Pointer("/mType").Get(doc)->GetString());
+    EXPECT_STREQ("d6b05c55-408b-459d-bc25-f74c42fa0153", Pointer("/data/msgId").Get(doc)->GetString());
+    EXPECT_STREQ("operational", Pointer("/data/rsp/operMode").Get(doc)->GetString());
+    EXPECT_EQ(0, Pointer("/data/status").Get(doc)->GetInt());
+    EXPECT_STREQ("ok", Pointer("/data/statusStr").Get(doc)->GetString());
   }
 }

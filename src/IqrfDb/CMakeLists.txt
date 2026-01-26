@@ -41,17 +41,17 @@ add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 find_package(OpenSSL REQUIRED)
 
 if (NOT OPENSSL_FOUND)
-	message(FATAL_ERROR "OpenSSL library not found.")
+  message(FATAL_ERROR "OpenSSL library not found.")
 endif()
 
 if(SHAPE_STATIC_LIBS)
-	add_library(${PROJECT_NAME} STATIC
+  add_library(${PROJECT_NAME} STATIC
     ${_HDRFILES}
     ${_SRCFILES}
     $<TARGET_OBJECTS:MigrationManager>
   )
 else()
-	add_library(${PROJECT_NAME} SHARED
+  add_library(${PROJECT_NAME} SHARED
     ${_HDRFILES}
     ${_SRCFILES}
     $<TARGET_OBJECTS:MigrationManager>
@@ -62,8 +62,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   SQLiteCpp
   DbEntities
   MigrationManager
-	nlohmann_json::nlohmann_json
-	OpenSSL::Crypto
+  nlohmann_json::nlohmann_json
+  OpenSSL::Crypto
 )
 
 DeployShapeComponent(${PROJECT_NAME})

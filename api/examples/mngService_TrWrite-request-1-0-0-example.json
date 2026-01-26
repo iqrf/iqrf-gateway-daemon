@@ -1,0 +1,10 @@
+{
+  "mType": "mngService_TrWrite",
+  "data": {
+    "msgId": "ace0aa4c-cb23-4d0f-9504-6b46c919bd06",
+    "req": {
+      "packet": [0, 0, 6, 3, 255, 255]
+    },
+    "returnVerbose": true
+  }
+}

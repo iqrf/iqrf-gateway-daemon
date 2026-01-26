@@ -1,0 +1,7 @@
+{
+  "mType": "mngService_Deactivate",
+  "data": {
+    "msgId": "45b8c983-e15f-4eca-80a1-e60af92a5a51",
+    "returnVerbose": true
+  }
+}

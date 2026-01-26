@@ -18,6 +18,7 @@
 
 #include "IAuthService.h"
 #include "IMessagingService.h"
+#include "IModeService.h"
 #include "ILaunchService.h"
 #include "ITraceService.h"
 #include "ShapeProperties.h"
@@ -104,6 +105,18 @@ namespace iqrf {
      * @param iface Authentication service interface
      */
     void detachInterface(IAuthService *iface);
+
+    /**
+     * Attaches mode service interface
+     * @param iface Mode service interface
+     */
+    void attachInterface(IModeService *iface);
+
+    /**
+     * Detaches mode service interface
+     * @param iface Mode service interface
+     */
+    void detachInterface(IModeService *iface);
 
     /**
      * Attaches tracing service interface

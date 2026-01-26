@@ -15,6 +15,8 @@
 
 project(MigrationManager)
 
+find_package(SQLite3 REQUIRED)
+
 add_library(${PROJECT_NAME} OBJECT
   MigrationManager.cpp
 )
@@ -24,6 +26,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
+  SQLite::SQLite3
   SQLiteCpp
   DbEntities
 )

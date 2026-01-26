@@ -1,0 +1,15 @@
+{
+  "mType": "mngService_GwIdentification",
+  "data": {
+    "msgId": "3e4d43b5-96e1-4a4d-bc56-b05c2e32766d",
+    "rsp": {
+      "name": "iqrf-gateway-daemon",
+      "hostname": "N/A",
+      "osBuild": 2264,
+      "osVersion": 70
+    },
+    "status": 0,
+    "statusStr": "Ok",
+    "insId": "iqrfgd2-default"
+  }
+}

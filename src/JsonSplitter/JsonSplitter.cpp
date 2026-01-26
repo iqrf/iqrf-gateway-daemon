@@ -37,17 +37,16 @@
 #include "TaskQueue.h"
 #include "Trace.h"
 
-#include <dirent.h>
-#include <sys/stat.h>
-#include <mutex>
-#include <fstream>
-#include <filesystem>
 #include <algorithm>
-#include <vector>
-#include <map>
-#include <unordered_map>
-#include <set>
+#include <dirent.h>
+#include <filesystem>
+#include <fstream>
 #include <locale>
+#include <map>
+#include <mutex>
+#include <unordered_map>
+#include <vector>
+#include <sys/stat.h>
 
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
@@ -116,7 +115,7 @@ namespace iqrf {
     /// Launch service interface
     shape::ILaunchService* m_iLaunchService = nullptr;
     /// Management queue message whitelist
-    const std::set<std::string> m_managementQueueWhitelist = {
+    static constexpr std::array<std::string_view, 33> MANAGEMENT_QUEUE_WHITELIST = {
       "cfgDaemon_Component",
       "iqrfDb_GetBinaryOutputs",
       "iqrfDb_GetDevice",
@@ -144,8 +143,25 @@ namespace iqrf {
       "mngScheduler_RemoveTask",
       "mngScheduler_StartTask",
       "mngScheduler_StopTask",
+      "mngService_Activate",
+      "mngService_Deactivate",
+      "mngService_GwIdentification",
+      "mngService_TrInfo",
+      "mngService_TrWrite",
       "ntfDaemon_InvokeMonitor"
     };
+    /// Service mode check handler
+    ServiceModeCheckHandler m_serviceModeCheck = nullptr;
+    /// Service mode message whitelist
+    static constexpr std::array<std::string_view, 6> SERVICE_MODE_WHITELIST = {
+      "mngDaemon_Mode",
+      "mngService_Activate",
+      "mngService_Deactivate",
+      "mngService_GwIdentification",
+      "mngService_TrInfo",
+      "mngService_TrWrite"
+    };
+
   public:
     static bool isAuthMessage(const rapidjson::Document& doc) {
       auto typeItr = doc.FindMember("type");
@@ -236,7 +252,7 @@ namespace iqrf {
       } else {
         // Service or splitter messaging list not empty
         std::list<MessagingInstance> messagings = messagingList.empty() ? m_messagingList : messagingList;
-        // Filter duplicates
+        // Filter duplicat
         messagings.sort();
         messagings.unique();
 
@@ -290,6 +306,16 @@ namespace iqrf {
       for (const auto & ft : msgTypeFilters) {
         m_filterMessageHandlerFuncMap.erase(ft);
       }
+    }
+
+    void registerServiceModeCheckHandler(ServiceModeCheckHandler handler) {
+      // TODO: register with token, only once
+      m_serviceModeCheck = handler;
+    }
+
+    void unregisterServiceModeCheckHandler() {
+      // TODO: unregister with token
+      m_serviceModeCheck = nullptr;
     }
 
     int getManagementQueueLen() const {
@@ -379,7 +405,18 @@ namespace iqrf {
           return;
         }
 
-        if (m_managementQueueWhitelist.find(msgType.m_type) != m_managementQueueWhitelist.end()) {
+        // Check if service mode is active
+        if (
+          m_serviceModeCheck != nullptr &&
+          m_serviceModeCheck() &&
+          !std::binary_search(SERVICE_MODE_WHITELIST.begin(), SERVICE_MODE_WHITELIST.end(), msgType.m_type)
+        ) {
+          TRC_WARNING("Received message not supported by service mode.");
+          sendMessage(messaging, ServiceModeMsg::createMessage(msgId, msgType.m_type));
+          return;
+        }
+
+        if (std::binary_search(MANAGEMENT_QUEUE_WHITELIST.begin(), MANAGEMENT_QUEUE_WHITELIST.end(), msgType.m_type)) {
           handleManagementMessageFromMessaging(messaging, message, msgType.m_type, msgId);
         } else {
           handleNetworkMessageFromMessaging(messaging, message, msgType.m_type, msgId);
@@ -782,6 +819,14 @@ namespace iqrf {
   void JsonSplitter::unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters)
   {
     m_imp->unregisterFilteredMsgHandler(msgTypeFilters);
+  }
+
+  void JsonSplitter::registerServiceModeCheckHandler(ServiceModeCheckHandler handler) {
+    m_imp->registerServiceModeCheckHandler(handler);
+  }
+
+  void JsonSplitter::unregisterServiceModeCheckHandler() {
+    m_imp->unregisterServiceModeCheckHandler();
   }
 
   int JsonSplitter::getManagementQueueLen() const {

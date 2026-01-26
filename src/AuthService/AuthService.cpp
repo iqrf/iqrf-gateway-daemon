@@ -178,6 +178,24 @@ namespace iqrf {
       return newStatus;
     }
 
+    bool hasServiceModePermissions(const uint32_t id) {
+      std::lock_guard<std::mutex> lock(dbMutex_);
+      db::repos::ApiTokenRepository repo(db_);
+      try {
+        auto token = repo.get(id);
+        if (!token) {
+          return false;
+        }
+        auto now = DateTimeUtils::get_current_timestamp();
+        return token->getStatus() == ApiToken::Status::Valid &&
+          token->getExpiresAt() > now &&
+          token->canUseServiceMode();
+      } catch (const std::exception &e) {
+        TRC_WARNING("Failed to fetch token ID " << id << " from database: " << e.what());
+        return false;
+      }
+    }
+
     std::optional<bool> isRevoked(const uint32_t id) {
       std::lock_guard<std::mutex> lock(dbMutex_);
       db::repos::ApiTokenRepository repo(db_);
@@ -237,6 +255,10 @@ namespace iqrf {
 
   std::optional<ApiToken::Status> AuthService::authenticate(const uint32_t id, const std::string& secret, int64_t& expiration, bool& service) {
     return impl_->authenticate(id, secret, expiration, service);
+  }
+
+  bool AuthService::hasServiceModePermissions(const uint32_t id) {
+    return impl_->hasServiceModePermissions(id);
   }
 
   std::optional<bool> AuthService::isRevoked(const uint32_t id) {

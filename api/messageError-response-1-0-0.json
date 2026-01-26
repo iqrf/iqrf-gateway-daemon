@@ -139,7 +139,7 @@
         },
         {
           "properties": {
-            "status": {"const": 9},
+            "status": {"enum": [9, 10]},
             "rsp": {
               "required": ["error"],
               "not": {"required": ["message", "offset", "ignoredMessage", "capacity"]}

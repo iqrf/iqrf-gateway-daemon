@@ -22,7 +22,7 @@
 #include "IIqrfDpaService.h"
 #include "IIqrfSensorData.h"
 #include "IMessagingSplitterService.h"
-#include "IUdpConnectorService.h"
+#include "IModeService.h"
 #include "ILaunchService.h"
 #include "ITraceService.h"
 #include "Trace.h"
@@ -142,16 +142,16 @@ namespace iqrf {
     void detachInterface(iqrf::IMessagingSplitterService* iface);
 
     /**
-     * Attaches UDP connector service interface
-     * @param iface UDP connector service interface
+     * Attaches mode service interface
+     * @param iface Mode service interface
      */
-    void attachInterface(iqrf::IUdpConnectorService* iface);
+    void attachInterface(iqrf::IModeService* iface);
 
     /**
-     * Detaches UDP connector service interface
-     * @param iface UDP connector service interface
+     * Detaches mode service interface
+     * @param iface Mode service interface
      */
-    void detachInterface(iqrf::IUdpConnectorService* iface);
+    void detachInterface(iqrf::IModeService* iface);
 
     /**
      * Attaches launch service interface
@@ -213,8 +213,8 @@ namespace iqrf {
     IIqrfSensorData *m_sensorDataService = nullptr;
     /// Splitter service interface
     IMessagingSplitterService *m_splitterService = nullptr;
-    /// UDP connector service
-    IUdpConnectorService *m_udpConnectorService = nullptr;
+    /// Mode service interface
+    IModeService *m_modeService = nullptr;
     /// WebSocket server interface
     std::unique_ptr<WebsocketServer> m_server = nullptr;
     /// Monitoring notification worker thread
