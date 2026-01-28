@@ -17,8 +17,8 @@ TEST(WebsocketServerUtilsTest, is_auth_message_invalid) {
 }
 
 TEST(WebsocketServerUtilsTest, create_auth_success_message_ok) {
-  std::string expected = R"({"expiration":1764756999,"type":"auth_success"})";
-  EXPECT_EQ(expected, create_auth_success_message(1764756999));
+  std::string expected = R"({"expiration":1764756999,"service":true,"type":"auth_success"})";
+  EXPECT_EQ(expected, create_auth_success_message(1764756999, true));
 }
 
 TEST(WebsocketServerUtilsTest, create_auth_error_message_ok) {

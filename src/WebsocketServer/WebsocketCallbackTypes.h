@@ -38,7 +38,7 @@ using WebSocketMessageHandler = std::function<void(const std::size_t, const std:
  * @param `std::string&` key
  * @param `int64_t&` token expiration to populate
  */
-using WebSocketAuthHandler = std::function<boost::system::error_code(const std::size_t, const uint32_t, const std::string&, int64_t&)>;
+using WebSocketAuthHandler = std::function<boost::system::error_code(const std::size_t, const uint32_t, const std::string&, int64_t&, bool&)>;
 
 /**
  * @brief Callback type for handling WebSocket connections closing.

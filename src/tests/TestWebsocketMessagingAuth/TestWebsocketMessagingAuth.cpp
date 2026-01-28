@@ -217,7 +217,7 @@ namespace iqrf {
       0,
       0,
       ApiToken::Status::Valid,
-      false,
+      true,
     };
     const std::string valid_token_string = "iqrfgd2;1;zDrcvQaXWopzJ+DbfkpGq3Tn00wkt3n6fExj8iUsYio=";
     const std::string revoked_token_string = "iqrfgd2;2;E75vLfBqxutkVuHl16nqLHPplttSly2nmZ82YRrvd0E=";
@@ -601,7 +601,7 @@ namespace iqrf {
     beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"service\":false,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -658,7 +658,7 @@ R"({
     beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"service\":false,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -703,7 +703,7 @@ R"({
     beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"service\":false,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -755,7 +755,7 @@ R"({
     beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"service\":false,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     buffer.consume(buffer.size());
     EXPECT_EQ(expected, received);
@@ -804,7 +804,7 @@ R"({
     beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"service\":true,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
