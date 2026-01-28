@@ -17,7 +17,6 @@
 
 #define IMessagingService_EXPORTS
 
-#include "CryptoUtils.h"
 #include "WebsocketMessaging.h"
 #include "WebsocketServer.h"
 #include "WebsocketServerUtils.h"
@@ -91,8 +90,8 @@ namespace iqrf {
         [&](const std::size_t sessionId, const std::string& msg) {
           return handleMessageFromWebsocket(sessionId, msg);
         },
-        [&](const std::size_t sessionId, const uint32_t id, const std::string& key, int64_t& expiration) {
-          return handleWebsocketSessionAuth(sessionId, id, key, expiration);
+        [&](const std::size_t sessionId, const uint32_t id, const std::string& key, int64_t& expiration, bool& service) {
+          return handleWebsocketSessionAuth(sessionId, id, key, expiration, service);
         },
         [&](const std::size_t sessionId) {
           return handleSessionClosed(sessionId);
@@ -242,8 +241,8 @@ namespace iqrf {
       return 0;
     }
 
-    boost::system::error_code handleWebsocketSessionAuth(const std::size_t sessionId, const uint32_t id, const std::string& secret, int64_t& expiration) {
-      auto result = m_authService->authenticate(id, secret, expiration);
+    boost::system::error_code handleWebsocketSessionAuth(const std::size_t sessionId, const uint32_t id, const std::string& secret, int64_t& expiration, bool& service) {
+      auto result = m_authService->authenticate(id, secret, expiration, service);
       if (!result.has_value()) {
         return make_error_code(auth_error::invalid_token);
       }

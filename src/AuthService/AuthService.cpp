@@ -121,7 +121,7 @@ namespace iqrf {
       return repo.get(id);
     }
 
-    std::optional<ApiToken::Status> authenticate(const uint32_t id, const std::string& secret, int64_t& expiration) {
+    std::optional<ApiToken::Status> authenticate(const uint32_t id, const std::string& secret, int64_t& expiration, bool& service) {
       std::unique_ptr<ApiToken> token;
       ApiToken::Status newStatus = ApiToken::Status::Valid;
       {
@@ -173,6 +173,8 @@ namespace iqrf {
       }
       // set expiration
       expiration = token->getExpiresAt();
+      // set service mode permissions
+      service = token->canUseServiceMode();
       return newStatus;
     }
 
@@ -233,8 +235,8 @@ namespace iqrf {
     return impl_->getApiToken(id);
   }
 
-  std::optional<ApiToken::Status> AuthService::authenticate(const uint32_t id, const std::string& secret, int64_t& expiration) {
-    return impl_->authenticate(id, secret, expiration);
+  std::optional<ApiToken::Status> AuthService::authenticate(const uint32_t id, const std::string& secret, int64_t& expiration, bool& service) {
+    return impl_->authenticate(id, secret, expiration, service);
   }
 
   std::optional<bool> AuthService::isRevoked(const uint32_t id) {

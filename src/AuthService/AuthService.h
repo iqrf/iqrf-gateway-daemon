@@ -70,9 +70,10 @@ namespace iqrf {
      * @param id Token ID
      * @param secret Secret
      * @param expiration Token expiration
+     * @param service Service mode permissions
      * @return Token status if token exists, nullopt if token does not exist, or if the token is invalid
      */
-    std::optional<ApiToken::Status> authenticate(const uint32_t id, const std::string& secret, int64_t& expiration) override;
+    std::optional<ApiToken::Status> authenticate(const uint32_t id, const std::string& secret, int64_t& expiration, bool &service) override;
 
     /**
      * @brief Check if token is revoked

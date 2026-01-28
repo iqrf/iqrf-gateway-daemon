@@ -18,9 +18,6 @@
 
 #include "WebsocketCallbackTypes.h"
 #include "WebsocketServerParams.h"
-#include "ILaunchService.h"
-#include "ShapeProperties.h"
-#include "ITraceService.h"
 
 #include <boost/beast/websocket.hpp>
 

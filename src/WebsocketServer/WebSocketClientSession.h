@@ -74,6 +74,8 @@ namespace iqrf {
     bool isAuthenticated_ = false;
     /// Token expiration
     int64_t expirationTime_ = -1;
+    /// Can use service mode
+    bool service_ = false;
 
     /// Compile time TLS stream check
     static constexpr bool usesTlsStream = std::is_same_v<Stream, TlsWebSocketStream>;
@@ -186,6 +188,7 @@ namespace iqrf {
               // mark unautenticated and reset expiration time
               self->isAuthenticated_ = false;
               self->expirationTime_ = -1;
+              self->service_ = false;
 
               // stop writing and clear message queue
               self->isWriting_ = false;
@@ -516,7 +519,7 @@ namespace iqrf {
             return;
           }
 
-          this->sendMessage(create_auth_success_message(expirationTime_));
+          this->sendMessage(create_auth_success_message(expirationTime_, service_));
         } else {
           // authenticated
           if (expirationTime_ < now) {
@@ -528,6 +531,7 @@ namespace iqrf {
             auto ec = make_error_code(auth_error::expired_token);
             isAuthenticated_ = false;
             expirationTime_ = -1;
+            service_ = false;
             this->send_system(create_auth_error_message(ec));
             this->closeSession(boost::beast::websocket::close_code::policy_error);
             return;
@@ -589,7 +593,8 @@ namespace iqrf {
 
       // try to authenticate via passed callback and get expiration time
       int64_t tokenExpiration = 0;
-      auto ec = authCallback_(sessionId_, tokenId, secret, tokenExpiration);
+      bool service = false;
+      auto ec = authCallback_(sessionId_, tokenId, secret, tokenExpiration, service);
       if (ec) {
         TRC_WARNING(
           SESSION_LOG(sessionId_, address_, port_)
@@ -603,6 +608,7 @@ namespace iqrf {
         );
         isAuthenticated_ = true;
         expirationTime_ = tokenExpiration;
+        service_ = service;
       }
       return ec;
     }
