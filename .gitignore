@@ -1,6 +1,7 @@
 # build
 [Bb]uild/
 .vscode
+.clangd
 
 # ci build
 shape
