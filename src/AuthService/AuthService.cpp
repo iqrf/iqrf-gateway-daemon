@@ -20,9 +20,9 @@
 #include "DateTimeUtils.h"
 #include "MigrationManager.h"
 #include "Trace.h"
+#include "api_token.hpp"
 
 #include <mutex>
-#include <unordered_map>
 
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
@@ -57,14 +57,6 @@ namespace iqrf {
      * @brief Database connection pointer
      */
     std::shared_ptr<SQLite::Database> db_ = nullptr;
-    /**
-     * @brief Map storing revoked or expired token IDs
-     */
-    std::unordered_map<uint32_t, ApiToken::Status> tokenMap_;
-    /**
-     * @brief Map access mutex
-     */
-    std::mutex tokenMapMtx_;
   public:
     Impl() {}
 
@@ -130,15 +122,6 @@ namespace iqrf {
     }
 
     std::optional<ApiToken::Status> authenticate(const uint32_t id, const std::string& secret, int64_t& expiration) {
-      {
-        // if we know the token is expired or revoked, no need to check database
-        std::lock_guard<std::mutex> lock(tokenMapMtx_);
-        auto it = tokenMap_.find(id);
-        if (it != tokenMap_.end()) {
-          return it->second;
-        }
-      }
-
       std::unique_ptr<ApiToken> token;
       ApiToken::Status newStatus = ApiToken::Status::Valid;
       {
@@ -175,14 +158,8 @@ namespace iqrf {
         }
       }
 
-      // if token is expired, cache it
-      if (newStatus == ApiToken::Status::Expired) {
-        std::lock_guard<std::mutex> lock(tokenMapMtx_);
-        // check if the token is not already cached as revoked
-        // maybe don't have to considering the condition at the top of this method
-        if (tokenMap_.count(id) == 0 || tokenMap_[id] != ApiToken::Status::Revoked) {
-          tokenMap_[id] = newStatus;
-        }
+      // if token is expired or revoked, cannot authenticate
+      if (newStatus != ApiToken::Status::Valid) {
         return newStatus;
       }
 
@@ -200,33 +177,14 @@ namespace iqrf {
     }
 
     std::optional<bool> isRevoked(const uint32_t id) {
-      {
-        // if we know the token is expired or revoked, no need to check database
-        std::lock_guard<std::mutex> lock(tokenMapMtx_);
-        if (tokenMap_.count(id)) {
-          auto status = tokenMap_[id];
-          if (status == ApiToken::Status::Revoked) {
-            return true;
-          }
-        }
+      std::lock_guard<std::mutex> lock(dbMutex_);
+      db::repos::ApiTokenRepository repo(db_);
+      auto token = repo.get(id);
+      // token does not exist, cannot decide revoked
+      if (!token) {
+        return std::nullopt;
       }
-      bool revoked;
-      {
-        std::lock_guard<std::mutex> lock(dbMutex_);
-        db::repos::ApiTokenRepository repo(db_);
-        auto token = repo.get(id);
-        // token does not exist, cannot decide revoked
-        if (!token) {
-          return std::nullopt;
-        }
-        revoked = token->getStatus() == ApiToken::Status::Revoked;
-      }
-      // if token is revoked, cache it before returning
-      if (revoked) {
-        std::lock_guard<std::mutex> lock(tokenMapMtx_);
-        tokenMap_.insert_or_assign(id, ApiToken::Status::Revoked);
-      }
-      return revoked;
+      return token->getStatus() == ApiToken::Status::Revoked;
     }
 
     ///// Interface management /////
