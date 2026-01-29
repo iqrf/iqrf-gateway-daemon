@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include <boost/asio/error.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/beast/websocket/ssl.hpp>
 #include <boost/asio/dispatch.hpp>
@@ -804,6 +805,7 @@ namespace iqrf {
       // Graceful close or client not connected anymore, which should be okay too
       if (
         ec == boost::beast::websocket::error::closed ||
+        ec == boost::asio::error::eof ||
         ec == boost::asio::error::not_connected
       ) {
         return true;
