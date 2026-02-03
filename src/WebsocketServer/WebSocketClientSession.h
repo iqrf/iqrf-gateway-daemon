@@ -60,7 +60,7 @@ namespace iqrf {
     /// Buffer for incoming messages
     boost::beast::flat_buffer readBuffer_;
     /// Writing in progress
-    bool isWriting_;
+    bool isWriting_ = false;
     /// Queue for writing messages to client
     std::deque<std::string> writeQueue_;
     /// On connection open callback
