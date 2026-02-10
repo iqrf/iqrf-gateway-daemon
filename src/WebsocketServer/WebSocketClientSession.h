@@ -171,42 +171,6 @@ namespace iqrf {
       boost::asio::post(
         strand_,
         [self = this->shared_from_this(), message]() mutable {
-          // need to check auth status
-          if (self->authCallback_) {
-
-            // not authenticated, exit
-            if (!self->isAuthenticated_) {
-              return;
-            }
-
-            // check if session expired
-            auto now = DateTimeUtils::get_current_timestamp();
-            if (now >= self->expirationTime_) {
-              TRC_WARNING(
-                SESSION_LOG(self->sessionId_, self->address_, self->port_)
-                << "Session expired while processing request, closing session."
-              );
-              // mark unautenticated and reset expiration time
-              self->isAuthenticated_ = false;
-              self->expirationTime_ = -1;
-              self->service_ = false;
-
-              // stop writing and clear message queue
-              self->isWriting_ = false;
-              self->writeQueue_.clear();
-
-              // send expired message
-              self->writeQueue_.push_back(
-                create_auth_error_message(
-                  make_error_code(auth_error::expired_token)
-                )
-              );
-              self->doWrite();
-              self->closeSession(boost::beast::websocket::close_code::policy_error);
-              return;
-            }
-          }
-
           // push message to write queue
           self->writeQueue_.push_back(std::move(message));
           // start writing cycle if not active

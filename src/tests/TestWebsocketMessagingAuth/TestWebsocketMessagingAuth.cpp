@@ -737,55 +737,6 @@ R"({
     removeToken(valid_token.getId());
   }
 
-  TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_success_expired_during_client_request) {
-    beast::error_code ec;
-
-    removeToken(valid_token.getId());
-    auto timestamp = DateTimeUtils::get_current_timestamp();
-    auto expiration = timestamp + 5;
-    insertToken(valid_token, timestamp, expiration);
-    // do successful auth
-    json doc({
-      {"type", "auth"},
-      {"token", valid_token_string}
-    });
-    ws.write(net::buffer(doc.dump()), ec);
-    ASSERT_FALSE(ec);
-    // read auth success
-    beast::flat_buffer buffer;
-    ws.read(buffer, ec);
-    ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"service\":false,\"type\":\"auth_success\"}";
-    std::string received = beast::buffers_to_string(buffer.data());
-    buffer.consume(buffer.size());
-    EXPECT_EQ(expected, received);
-    // attempt to communicate after auth successful
-    std::string test_request = R"({
-      "mType": "iqrfRaw",
-      "data": {
-        "msgId": "auth_success_test",
-        "timeout": 10000,
-        "req": {
-          "rData": "00.00.06.03.ff.ff"
-        }
-      }
-    })";
-    ws.write(net::buffer(test_request), ec);
-    ASSERT_FALSE(ec);
-    // simulate response from network
-    Imp::get().m_iTestSimulationIqrfChannel->pushOutgoingMessage("00.00.06.83.00.00.00.44", 6000);
-    ws.read(buffer, ec);
-    ASSERT_FALSE(ec);
-    received = beast::buffers_to_string(buffer.data());
-    EXPECT_EQ(received, R"({"code":5,"error":"Expired token","type":"auth_error"})");
-    // clear buffer
-    buffer.consume(buffer.size());
-    // Read close frame and check close reason
-    ws.read(buffer, ec);
-    EXPECT_EQ(ec, websocket::error::closed);
-    EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
-  }
-
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_success_revoked_after) {
     beast::error_code ec;
 
