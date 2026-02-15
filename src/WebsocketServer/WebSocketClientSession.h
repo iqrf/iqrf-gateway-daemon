@@ -16,7 +16,10 @@
  */
 #pragma once
 
+#include <boost/asio/bind_executor.hpp>
 #include <boost/asio/error.hpp>
+#include <boost/beast/core/bind_handler.hpp>
+#include <boost/beast/core/error.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/beast/websocket/ssl.hpp>
 #include <boost/asio/dispatch.hpp>
@@ -32,6 +35,7 @@
 #include "IWebSocketClientSession.h"
 #include "CryptoUtils.h"
 #include "DateTimeUtils.h"
+#include "TraceMacros.h"
 #include "WebsocketServerUtils.h"
 #include "Trace.h"
 
@@ -47,8 +51,6 @@ namespace iqrf {
     const std::size_t sessionId_;
     /// Stream
     Stream stream_;
-    /// Boost ASIO stran
-    boost::asio::strand<boost::asio::io_context::executor_type> strand_;
     /// Authentication timer
     boost::asio::steady_timer authTimer_;
     /// Authentication timeout
@@ -104,14 +106,7 @@ namespace iqrf {
     ):
       sessionId_(id),
       stream_(std::move(stream)),
-      strand_(
-        boost::asio::make_strand(
-          static_cast<boost::asio::io_context&>(
-            boost::beast::get_lowest_layer(stream_).get_executor().context()
-          )
-        )
-      ),
-      authTimer_(strand_),
+      authTimer_(stream_.get_executor()),
       authTimeout_(authTimeout)
     {
       // get client address and port depending on stream type
@@ -161,15 +156,11 @@ namespace iqrf {
      * If session does not require authentication, the message is added to write queue.
      * If writing is not currently in progress, a write cycle is started.
      *
-     * If session does require authentication, and is authenticated, the message is added to write queue,
-     * otherwise the message queue is cleared, a session expiration message is sent to client,
-     * the session is marked unauthenticated, and a new authentication timer is started.
-     *
      * @param message Message to send
      */
     void sendMessage(std::string message) override {
       boost::asio::post(
-        strand_,
+        stream_.get_executor(),
         [self = this->shared_from_this(), message]() mutable {
           // push message to write queue
           self->writeQueue_.push_back(std::move(message));
@@ -187,12 +178,9 @@ namespace iqrf {
     void startSession() override {
       boost::asio::dispatch(
         stream_.get_executor(),
-        boost::asio::bind_executor(
-          strand_,
-          boost::beast::bind_front_handler(
-            &WebSocketClientSession::runCallback,
-            this->shared_from_this()
-          )
+        boost::beast::bind_front_handler(
+          &WebSocketClientSession::runCallback,
+          this->shared_from_this()
         )
       );
     }
@@ -204,12 +192,12 @@ namespace iqrf {
      */
     void closeSession(boost::beast::websocket::close_code cc) override {
       boost::asio::post(
-        strand_,
+        stream_.get_executor(),
         [self = this->shared_from_this(), cc]() {
           self->stream_.async_close(
             cc,
             boost::asio::bind_executor(
-              self->strand_,
+              self->stream_.get_executor(),
               [self](boost::beast::error_code ec) {
                 if (ec) {
                   TRC_WARNING(
@@ -287,7 +275,7 @@ namespace iqrf {
         stream_.next_layer().async_handshake(
           boost::asio::ssl::stream_base::server,
           boost::asio::bind_executor(
-            strand_,
+            stream_.get_executor(),
             boost::beast::bind_front_handler(
               &WebSocketClientSession::handshakeCallback,
               this->shared_from_this()
@@ -308,9 +296,6 @@ namespace iqrf {
      * @param ec TLS handshake error code
      */
     void handshakeCallback(boost::beast::error_code ec) {
-      // ensure callback is running on the same strand
-      BOOST_ASSERT(strand_.running_in_this_thread());
-
       if (ec) {
         TRC_WARNING(
           SESSION_LOG(sessionId_, address_, port_)
@@ -347,7 +332,7 @@ namespace iqrf {
 
       stream_.async_accept(
         boost::asio::bind_executor(
-          strand_,
+          stream_.get_executor(),
           boost::beast::bind_front_handler(
             &WebSocketClientSession::acceptCallback,
             this->shared_from_this()
@@ -360,15 +345,12 @@ namespace iqrf {
      * @brief Handles client handshake accept result
      *
      * If the accept call succeeded, the session can start reading messages from stream.
-     * If `onOpen` callback has been passed to session object, it is executed before reading data from stream.
-     * If `onAuth` callback has been passed to session object, authentication timeout is started before reading data from stream.
+     * If `connectionOpenCallback_` callback has been passed to session object, it is executed before starting read loop.
+     * If `authCallback_` callback has been passed to session object, authentication timeout is started before starting read loop.
      *
      * @param ec Accept error code
      */
     void acceptCallback(boost::beast::error_code ec) {
-      // ensure callback is running on the same strand
-      BOOST_ASSERT(strand_.running_in_this_thread());
-
       if (ec) {
         TRC_WARNING(
           SESSION_LOG(sessionId_, address_, port_)
@@ -400,7 +382,7 @@ namespace iqrf {
       stream_.async_read(
         readBuffer_,
         boost::asio::bind_executor(
-          strand_,
+          stream_.get_executor(),
           boost::beast::bind_front_handler(
             &WebSocketClientSession::readCallback,
             this->shared_from_this()
@@ -428,9 +410,6 @@ namespace iqrf {
      * @param bytesRead Length of message data
      */
     void readCallback(boost::beast::error_code ec, std::size_t bytesRead) {
-      // ensure callback is running on the same strand
-      BOOST_ASSERT(strand_.running_in_this_thread());
-
       boost::ignore_unused(bytesRead);
 
       // if connection is already closed, execute on connection close callback
@@ -585,7 +564,7 @@ namespace iqrf {
       authTimer_.expires_after(authTimeout_);
       authTimer_.async_wait(
         boost::asio::bind_executor(
-          strand_,
+          stream_.get_executor(),
           boost::beast::bind_front_handler(
             &WebSocketClientSession::authTimeoutCallback,
             this->shared_from_this()
@@ -607,9 +586,6 @@ namespace iqrf {
      * @param ec Operation error code
      */
     void authTimeoutCallback(boost::beast::error_code ec) {
-      // ensure callback runs in the same strand
-      BOOST_ASSERT(strand_.running_in_this_thread());
-
       // if timer was cancelled, do nothing
       if (ec == boost::asio::error::operation_aborted) {
         return;
@@ -639,7 +615,7 @@ namespace iqrf {
      */
     void send_system(std::string message) {
       boost::asio::post(
-        strand_,
+        stream_.get_executor(),
         [self = this->shared_from_this(), message]() mutable {
           // drop all otheer messages and send system message
           self->isWriting_ = false;
@@ -661,7 +637,7 @@ namespace iqrf {
       stream_.async_write(
         boost::asio::buffer(writeQueue_.front()),
         boost::asio::bind_executor(
-          strand_,
+          stream_.get_executor(),
           boost::beast::bind_front_handler(
             &WebSocketClientSession::writeCallback,
             this->shared_from_this()
@@ -684,12 +660,31 @@ namespace iqrf {
      * @param bytesWritten Length of written message data
      */
     void writeCallback(boost::beast::error_code ec, std::size_t bytesWritten) {
-      // ensure callback runs in the same strand
-      BOOST_ASSERT(strand_.running_in_this_thread());
-
       boost::ignore_unused(bytesWritten);
 
-      // error writing message, clear queue and close
+      // session was closed from remote side
+      if (
+        isRemoteCloseError(ec) ||
+        ec == boost::asio::error::broken_pipe
+      ) {
+        TRC_INFORMATION(
+          SESSION_LOG(sessionId_, address_, port_)
+          << "Connection closed, message not sent."
+          << BEAST_ERR_LOG(ec)
+        );
+        isWriting_ = false;
+        writeQueue_.clear();
+        return;
+      }
+
+      // if session was closed from this side, do nothing
+      if (ec == boost::asio::error::operation_aborted) {
+        isWriting_ = false;
+        writeQueue_.clear();
+        return;
+      }
+
+      // an error ocurred
       if (ec) {
         TRC_WARNING(
           SESSION_LOG(sessionId_, address_, port_)
@@ -720,10 +715,8 @@ namespace iqrf {
       if constexpr (usesTlsStream) {
         stream_.next_layer().async_shutdown(
           boost::asio::bind_executor(
-            strand_,
+            stream_.get_executor(),
             [self = this->shared_from_this()](boost::system::error_code tls_ec) {
-              // ensure callback runs on the same strand
-              BOOST_ASSERT(self->strand_.running_in_this_thread());
               boost::ignore_unused(tls_ec);
 
               boost::beast::error_code ec;
@@ -734,8 +727,6 @@ namespace iqrf {
           )
         );
       } else {
-        BOOST_ASSERT(strand_.running_in_this_thread());
-
         boost::beast::error_code ec;
         stream_.next_layer().socket().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
         stream_.next_layer().socket().close(ec);
