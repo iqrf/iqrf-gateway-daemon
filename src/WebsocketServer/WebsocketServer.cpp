@@ -20,6 +20,8 @@
 #include "WebSocketClientSession.h"
 
 #include <atomic>
+#include <boost/asio/strand.hpp>
+#include <boost/beast/core/bind_handler.hpp>
 #include <cstdint>
 #include <filesystem>
 #include <iostream>
@@ -112,7 +114,7 @@ namespace iqrf {
       // setup objects
       ioc_.emplace(1);
       workGuard_.emplace(boost::asio::make_work_guard(*ioc_));
-      acceptor_.emplace(boost::asio::make_strand(*ioc_));
+      acceptor_.emplace(*ioc_);
 
       boost::asio::ip::tcp::endpoint endpoint(serverAddr_, wsParams_.port);
       boost::beast::error_code ec;
@@ -306,6 +308,7 @@ namespace iqrf {
 
     void doAccept() {
       acceptor_->async_accept(
+        boost::asio::make_strand(*ioc_),
         [this](boost::beast::error_code ec, boost::asio::ip::tcp::socket socket) {
           this->onAcceptCallback(std::move(ec), std::move(socket));
         }
