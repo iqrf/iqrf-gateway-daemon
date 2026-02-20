@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <stdexcept>
 
 #include <gtest/gtest.h>
 #include <DatabaseUtils.h>
@@ -19,7 +20,7 @@ TEST_F(DatabaseUtilsTest, create_database_connection_no_create_nonexistent) {
   try {
     create_database_connetion("nonexistent_path_to_db.db", false);
     FAIL() << "Expected std::invalid_argument to be thrown, but no exception was thrown.";
-  } catch (const std::invalid_argument &e) {
+  } catch (const std::runtime_error &e) {
     EXPECT_STREQ("Database file does not exist.", e.what());
   } catch (...) {
     FAIL() << "Expected std::invalid_argument to be thrown, but a different exception was thrown.";

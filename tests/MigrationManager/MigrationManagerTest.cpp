@@ -1,5 +1,6 @@
-#include <gtest/gtest.h>
 #include <memory>
+
+#include <gtest/gtest.h>
 #include <SQLiteCpp/SQLiteCpp.h>
 #include "MigrationManager.h"
 
@@ -16,7 +17,7 @@ protected:
   static void SetUpTestSuite() {
     db = std::make_shared<SQLite::Database>(
       ":memory:",
-      SQLite::OPEN_READWRITE| SQLite::OPEN_CREATE
+      SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE
     );
   }
 
