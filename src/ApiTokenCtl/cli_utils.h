@@ -3,7 +3,6 @@
 #include <api_token.hpp>
 
 #include <cstdint>
-#include <iostream>
 #include <boost/program_options.hpp>
 #include <nlohmann/json.hpp>
 

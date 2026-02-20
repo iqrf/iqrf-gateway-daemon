@@ -1,5 +1,7 @@
 #include "cli_utils.h"
 
+#include <iostream>
+
 #define LINE_LENGTH (OUTPUT_ID_LEN + MAX_OWNER_LEN + (OUTPUT_DT_LEN * 2) + OUTPUT_STATUS_LEN + OUTPUT_SERVICE_LEN + 5 /*spacing*/ + 2 /*borders*/)
 
 namespace bpo = boost::program_options;
