@@ -1,5 +1,9 @@
 #include "cli_utils.h"
 #include "commands.h"
+#include "exceptions.h"
+#include "status_codes.h"
+
+#include <iostream>
 
 namespace bpo = boost::program_options;
 
@@ -87,6 +91,9 @@ int main(int argc, char** argv) {
 
       auto id = get_token_id(vm);
       get_token(id, make_shared_params(vm));
+    } catch (const token_not_found &e) {
+      std::cerr << e.what() << "\n";
+      return static_cast<int>(StatusCodes::TOKEN_NOT_FOUND);
     } catch (const std::exception &e) {
       std::cerr << e.what() << "\n";
       return EXIT_FAILURE;
@@ -109,6 +116,9 @@ int main(int argc, char** argv) {
 
       auto id = get_token_id(vm);
       revoke_token(id, make_shared_params(vm));
+    } catch (const token_not_found &e) {
+      std::cerr << e.what() << "\n";
+      return static_cast<int>(StatusCodes::TOKEN_NOT_FOUND);
     } catch (const std::exception &e) {
       std::cerr << e.what() << "\n";
       return EXIT_FAILURE;
@@ -131,13 +141,16 @@ int main(int argc, char** argv) {
 
       auto id = get_token_id(vm);
       rotate_token(id, make_shared_params(vm));
+    } catch (const token_not_found &e) {
+      std::cerr << e.what() << "\n";
+      return static_cast<int>(StatusCodes::TOKEN_NOT_FOUND);
     } catch (const std::exception &e) {
       std::cerr << e.what() << "\n";
       return EXIT_FAILURE;
     }
   } else {
     std::cerr << "Unknown or unsupported commnad.\n";
-    return EXIT_FAILURE;
+    return static_cast<int>(StatusCodes::UNKNOWN_COMMAND);
   }
   return EXIT_SUCCESS;
 }

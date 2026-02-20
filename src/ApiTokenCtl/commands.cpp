@@ -1,11 +1,14 @@
 #include "cli_utils.h"
 #include "commands.h"
+#include "exceptions.h"
 
 #include "CryptoUtils.h"
 #include "DatabaseUtils.h"
 #include "DateTimeUtils.h"
 
 #include <api_token_repo.hpp>
+
+#include <iostream>
 
 using json = nlohmann::json;
 
@@ -53,7 +56,7 @@ void get_token(uint32_t id, const SharedParams& params) {
   iqrf::db::repos::ApiTokenRepository repo(db);
   auto token = repo.get(id);
   if (!token) {
-    throw std::invalid_argument("API token record does not exist.");
+    throw token_not_found("API token record does not exist.");
   }
 
   auto now = DateTimeUtils::get_current_timestamp();
@@ -113,7 +116,7 @@ void revoke_token(uint32_t id, const SharedParams& params) {
   iqrf::db::repos::ApiTokenRepository repo(db);
   auto token = repo.get(id);
   if (!token) {
-    throw std::runtime_error("API token does not exist.");
+    throw token_not_found("API token record does not exist.");
   }
   if (token->getStatus() == ApiToken::Status::Revoked) {
     std::cout << "API token ID " << std::to_string(id) << " is already revoked.\n";
@@ -135,7 +138,7 @@ void rotate_token(const uint32_t id, const SharedParams& params) {
   iqrf::db::repos::ApiTokenRepository repo(db);
   auto token = repo.get(id);
   if (!token) {
-    throw std::runtime_error("API token does not exist.");
+    throw token_not_found("API token record does not exist.");
   }
   auto status = token->getStatus();
   if (status == ApiToken::Status::Expired || status == ApiToken::Status::Revoked) {
