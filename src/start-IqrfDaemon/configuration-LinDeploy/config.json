@@ -151,14 +151,14 @@
       "name": "iqrf::UdpMessaging",
       "libraryPath": "",
       "libraryName": "UdpMessaging",
-      "enabled": true,
+      "enabled": false,
       "startlevel": 10
     },
     {
       "name": "iqrf::IdeCounterpart",
       "libraryPath": "",
       "libraryName": "IdeCounterpart",
-      "enabled": true,
+      "enabled": false,
       "startlevel": 0
     },
     {
