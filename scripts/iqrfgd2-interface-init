@@ -18,21 +18,14 @@
 if [ -f /etc/iqrf-gateway.json ]
 then
 	propertyExists=$(jq 'has("gwInterface")' /etc/iqrf-gateway.json)
-	(($propertyExists)) && interface=$(jq -r '.gwInterface' /etc/iqrf-gateway.json) || interface='spi'
+	(($propertyExists)) && interface=$(jq -r '.gwInterface' /etc/iqrf-gateway.json) || interface='uart'
 	case $interface in
 		cdc)
 			sed -i '0,/"{cdc}"/ s//true/' /etc/iqrf-gateway-daemon/config.json
-			sed -i '0,/"{spi}"/ s//false/' /etc/iqrf-gateway-daemon/config.json
 			sed -i '0,/"{uart}"/ s//false/' /etc/iqrf-gateway-daemon/config.json
 			break;;
-		spi)
+		uart|spi)
 			sed -i '0,/"{cdc}"/ s//false/' /etc/iqrf-gateway-daemon/config.json
-			sed -i '0,/"{spi}"/ s//true/' /etc/iqrf-gateway-daemon/config.json
-			sed -i '0,/"{uart}"/ s//false/' /etc/iqrf-gateway-daemon/config.json
-			break;;
-		uart)
-			sed -i '0,/"{cdc}"/ s//false/' /etc/iqrf-gateway-daemon/config.json
-			sed -i '0,/"{spi}"/ s//false/' /etc/iqrf-gateway-daemon/config.json
 			sed -i '0,/"{uart}"/ s//true/' /etc/iqrf-gateway-daemon/config.json
 			break;;
 		*)
@@ -40,6 +33,5 @@ then
 	esac
 else
 	sed -i '0,/"{cdc}"/ s//false/' /etc/iqrf-gateway-daemon/config.json
-	sed -i '0,/"{spi}"/ s//true/' /etc/iqrf-gateway-daemon/config.json
-	sed -i '0,/"{uart}"/ s//false/' /etc/iqrf-gateway-daemon/config.json
+	sed -i '0,/"{uart}"/ s//true/' /etc/iqrf-gateway-daemon/config.json
 fi

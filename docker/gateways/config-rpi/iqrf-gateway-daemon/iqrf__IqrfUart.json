@@ -1,0 +1,13 @@
+{
+  "component": "iqrf::IqrfUart",
+  "instance": "iqrf::IqrfUart-/dev/ttyAMA3",
+  "IqrfInterface": "/dev/ttyAMA3",
+  "baudRate": 57600,
+  "powerEnableGpioPin": 23,
+  "busEnableGpioPin": -1,
+  "uartEnableGpioPin": 6,
+  "spiEnableGpioPin": 7,
+  "i2cEnableGpioPin": 18,
+  "pgmSwitchGpioPin": -1,
+  "uartReset": true
+}

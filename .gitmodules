@@ -4,9 +4,6 @@
 [submodule "libraries/clibcdc"]
 	path = libraries/clibcdc
 	url = https://github.com/iqrfsdk/clibcdc.git
-[submodule "libraries/clibspi"]
-	path = libraries/clibspi
-	url = https://github.com/iqrfsdk/clibspi.git
 [submodule "libraries/sqlite_modern_cpp"]
 	path = libraries/sqlite_modern_cpp
 	url = https://github.com/SqliteModernCpp/sqlite_modern_cpp.git

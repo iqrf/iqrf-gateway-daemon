@@ -32,7 +32,7 @@ add_custom_target(iqrfgd2-cache-update
     SOURCES ${PROJECT_SOURCES}
 )
 
-list(APPEND CfgList "LinCdc" "LinSpi" "LinUart" "LinDeploy")
+list(APPEND CfgList "LinCdc" "LinUart" "LinDeploy")
 
 foreach(cfg ${CfgList})
 	DeployShapeConfiguration(iqrfgd2-${cfg}

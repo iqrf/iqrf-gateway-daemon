@@ -50,7 +50,7 @@ target_link_libraries(${PROJECT_NAME}
 
 DeployShapeComponent(${PROJECT_NAME})
 
-list(APPEND CfgList "LinCdc" "LinSpi" "LinUart" "LinDeploy")
+list(APPEND CfgList "LinCdc" "LinUart" "LinDeploy")
 
 foreach(cfg ${CfgList})
   DeployShapeConfiguration(${PROJECT_NAME}-${cfg}
