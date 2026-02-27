@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include <cstdint>
 #include <memory>
 
 namespace iqrf
@@ -128,7 +129,7 @@ namespace iqrf
       private:
         uint32_t m_mid;
         uint16_t m_hwpid;
-      
+
       public:
 
         NodeMidHwpid(uint32_t mid, uint16_t hwpid): m_mid(mid), m_hwpid(hwpid) {}
