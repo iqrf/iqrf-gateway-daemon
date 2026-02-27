@@ -167,6 +167,8 @@ namespace iqrf {
 
     if (m_udpConnectorService) {
       operMode = m_udpConnectorService->getMode();
+    } else {
+      operMode = IUdpConnectorService::Mode::Operational;
     }
 
     auto ts = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
