@@ -177,7 +177,8 @@ namespace iqrf {
       std::string message(msg.begin(), msg.end());
 
       if (!messaging.hasClientSession<std::size_t>()) {
-        TRC_WARNING("Cannot send message via [" << messaging.to_string() << "]: Client session ID missing.");
+        TRC_WARNING("No client session specified, sending to all " << messaging.to_string() << " clients.");
+        m_server->send(message);
         return;
       }
 
