@@ -15,10 +15,10 @@
 
 project(MqttMessaging)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
-FIND_PACKAGE(paho REQUIRED)
-message(STATUS "Found paho: ${paho_FOUND}")
-message(STATUS "PAHO_INCLUDE_DIRS: ${PAHO_INCLUDE_DIRS}")
+find_package(eclipse-paho-mqtt-c REQUIRED)
+find_package(OpenSSL REQUIRED)
+message(STATUS "Found paho: ${eclipse-paho-mqtt-c_FOUND}")
+message(STATUS "PAHO_INCLUDE_DIRS: ${eclipse-paho-mqtt-c_INCLUDE_DIRS}")
 
 set(COMPONENT iqrf::MqttMessaging)
 DeclareShapeComponent(${COMPONENT})
@@ -43,7 +43,8 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME}
-  paho-mqtt3as
+  eclipse-paho-mqtt-c::paho-mqtt3as
+  OpenSSL::SSL
 )
 
 DeployShapeComponent(${PROJECT_NAME})
