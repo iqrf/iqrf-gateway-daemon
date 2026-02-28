@@ -32,6 +32,7 @@
 #include <fstream>
 #include <exception>
 #include <iostream>
+#include <algorithm>
 #include <zip.h>
 
 #ifdef TRC_CHANNEL
@@ -92,7 +93,7 @@ namespace iqrf {
 					downloadCache();
 				} catch (const std::exception &e) {
 					TRC_WARNING("[IQRF Repository cache] Failed to download remote cache: " << e.what());
-					std::cerr << "[IQRF Repository cache] Failed to downlaod remote cache: " << e.what() << std::endl;
+					std::cerr << "[IQRF Repository cache] Failed to download remote cache: " << e.what() << std::endl;
 					fail = true;
 				}
 				if (!fail) {
@@ -137,7 +138,7 @@ namespace iqrf {
 					downloadCache();
 				} catch (const std::exception &e) {
 					TRC_WARNING("[IQRF Repository cache] Failed to download remote cache: " << e.what());
-					std::cerr << "[IQRF Repository cache] Failed to downlaod remote cache: " << e.what() << std::endl;
+					std::cerr << "[IQRF Repository cache] Failed to download remote cache: " << e.what() << std::endl;
 					fail = true;
 				}
 				if (!fail) {
@@ -194,7 +195,6 @@ namespace iqrf {
 		TRC_FUNCTION_ENTER("");
 
 		using namespace rapidjson;
-		const std::string CHECK_CACHE("checkCache");
 		const Document &doc = props->getAsJson();
 
 		const Value *v = Pointer("/instance").Get(doc);
@@ -314,13 +314,13 @@ namespace iqrf {
 
 	///// API /////
 
-	std::shared_ptr<IJsCacheService::StdDriver> JsCache::getDriver(int id, double ver) const {
+	std::shared_ptr<IJsCacheService::StdDriver> JsCache::getDriver(const int id, const double ver) const {
 		TRC_FUNCTION_ENTER(PAR(id) << std::fixed << std::setprecision(2) << PAR(ver));
 		std::shared_ptr<StdDriver> driver = nullptr;
-		auto foundDrv = m_standardMap.find(id);
+		const auto foundDrv = m_standardMap.find(id);
 		if (foundDrv != m_standardMap.end()) {
 			const StdItem &stdItem = foundDrv->second;
-			auto foundVer = stdItem.m_drivers.find(ver);
+			const auto foundVer = stdItem.m_drivers.find(ver);
 			if (foundVer != stdItem.m_drivers.end()) {
 				driver = std::make_shared<StdDriver>(foundVer->second);
 			}
@@ -329,16 +329,16 @@ namespace iqrf {
 		return driver;
 	}
 
-	std::shared_ptr<IJsCacheService::StdDriver> JsCache::getLatestDriver(int id) const {
+	std::shared_ptr<IJsCacheService::StdDriver> JsCache::getLatestDriver(const int id) const {
 		TRC_FUNCTION_ENTER(PAR(id));
 		std::shared_ptr<StdDriver> driver = nullptr;
-		auto found = m_standardMap.find(id);
+		const auto found = m_standardMap.find(id);
 		if (found != m_standardMap.end()) {
 			const StdItem &stdItem = found->second;
 			double highestVersion = 0;
-			for (auto &item : stdItem.m_drivers) {
-				if (item.first > highestVersion) {
-					highestVersion = item.first;
+			for (const auto &[driverVersion, _driver] : stdItem.m_drivers) {
+				if (driverVersion > highestVersion) {
+					highestVersion = driverVersion;
 				}
 			}
 			driver = std::make_shared<StdDriver>(stdItem.m_drivers.at(highestVersion));
@@ -353,39 +353,44 @@ namespace iqrf {
 		std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
 		std::shared_ptr<Manufacturer> manufacturer = nullptr;
-		auto found = m_productMap.find(hwpid);
+		const auto found = m_productMap.find(hwpid);
 		if (found != m_productMap.end()) {
-			int manufacturerId = found->second.m_manufacturerId;
-			auto foundManuf = m_manufacturerMap.find(manufacturerId);
+			const unsigned int manufacturerId = found->second.m_manufacturerId;
+			const auto foundManuf = m_manufacturerMap.find(manufacturerId);
 			if (foundManuf != m_manufacturerMap.end()) {
 				manufacturer = std::make_shared<Manufacturer>(foundManuf->second);
 			}
 		}
 
-		int manufacturerId = manufacturer == nullptr ? -1 : manufacturer->m_manufacturerId;
+		const int manufacturerId = manufacturer == nullptr ? -1 : static_cast<int>(manufacturer->m_manufacturerId);
 
 		TRC_FUNCTION_LEAVE(PAR(manufacturerId));
 		return manufacturer;
 	}
 
-	std::shared_ptr<IJsCacheService::Product> JsCache::getProduct(uint16_t hwpid) const {
+	std::shared_ptr<IJsCacheService::Product> JsCache::getProduct(const uint16_t hwpid) const {
 		TRC_FUNCTION_ENTER(PAR(hwpid));
 
 		std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
 		std::shared_ptr<Product> product = nullptr;
-		auto found = m_productMap.find(hwpid);
+		const auto found = m_productMap.find(hwpid);
 		if (found != m_productMap.end()) {
 			product = std::make_shared<Product>(found->second);
 		}
 
-		int productId = product == nullptr ? -1 : product->m_manufacturerId;
+		const int productId = product == nullptr ? -1 : static_cast<int>(product->m_manufacturerId);
 
 		TRC_FUNCTION_LEAVE(PAR(productId));
 		return product;
 	}
 
-	std::shared_ptr<IJsCacheService::Package> JsCache::getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string &os, const std::string &dpa) const {
+	std::shared_ptr<IJsCacheService::Package> JsCache::getPackage(
+		const uint16_t hwpid,
+		const uint16_t hwpidVer,
+		const std::string &os,
+		const std::string &dpa
+	) const {
 		TRC_FUNCTION_ENTER(PAR(hwpid) << PAR(hwpidVer) << PAR(os) << PAR(dpa));
 
 		std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
@@ -398,7 +403,7 @@ namespace iqrf {
 			}
 		}
 
-		int packageId = package == nullptr ? -1 : package->m_packageId;
+		const int packageId = package == nullptr ? -1 : static_cast<int>(package->m_packageId);
 
 		TRC_FUNCTION_LEAVE(PAR(packageId));
 		return package;
@@ -432,11 +437,11 @@ namespace iqrf {
 		std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
 		std::ostringstream ostr;
-		for (const auto &pck : m_packageMap) {
-			const Package &p = pck.second;
+		for (const auto &[id, package] : m_packageMap) {
+			const Package &p = package;
 			if (p.m_os == os && p.m_dpa == dpa) {
 				for (const auto &drv : p.m_stdDriverVect) {
-					map2[drv.getId()][drv.getVersion()].push_back(std::make_pair(p.m_hwpid, p.m_hwpidVer));
+					map2[drv.getId()][drv.getVersion()].emplace_back(p.m_hwpid, p.m_hwpidVer);
 					ostr << '[' << drv.getId() << ',' << std::fixed << std::setprecision(2) << drv.getVersion() << "] ";
 				}
 			}
@@ -455,8 +460,8 @@ namespace iqrf {
 
 		std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-		for (const auto &pck : m_packageMap) {
-			const Package &p = pck.second;
+		for (const auto &[id, package] : m_packageMap) {
+			const Package &p = package;
 			if (p.m_os == os && p.m_dpa == dpa) {
 				if (!p.m_driver.empty() && p.m_driver.size() > 20) {
 					map2[p.m_hwpid].insert(std::make_pair(p.m_hwpidVer, p.m_driver));
@@ -475,11 +480,11 @@ namespace iqrf {
 
 		std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-		for (auto it : m_osDpaMap) {
+		for (const auto& [id, osDpa] : m_osDpaMap) {
 			int os = 0;
 			int dpa = 0;
-			std::string osStr = it.second.m_os;
-			std::string dpaStr = it.second.m_dpa;
+			std::string osStr = osDpa.m_os;
+			std::string dpaStr = osDpa.m_dpa;
 			try {
 				os = std::stoi(osStr, nullptr, 16);
 				dpa = std::stoi(dpaStr, nullptr, 16);
@@ -494,18 +499,18 @@ namespace iqrf {
 		return retval;
 	}
 
-	std::shared_ptr<IJsCacheService::OsDpa> JsCache::getOsDpa(int id) const {
+	std::shared_ptr<IJsCacheService::OsDpa> JsCache::getOsDpa(const int id) const {
 		TRC_FUNCTION_ENTER(PAR(id));
 
 		std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
 		std::shared_ptr<OsDpa> osDpa;
-		auto found = m_osDpaMap.find(id);
+		const auto found = m_osDpaMap.find(id);
 		if (found != m_osDpaMap.end()) {
 			osDpa = std::make_shared<OsDpa>(found->second);
 		}
 
-		int osDpaId = osDpa == nullptr ? -1 : osDpa->m_osdpaId;
+		const int osDpaId = osDpa == nullptr ? -1 : static_cast<int>(osDpa->m_osdpaId);
 
 		TRC_FUNCTION_LEAVE(PAR(osDpaId));
 		return osDpa;
@@ -524,7 +529,7 @@ namespace iqrf {
 			}
 		}
 
-		int osDpaId = osDpa == nullptr ? -1 : osDpa->m_osdpaId;
+		const int osDpaId = osDpa == nullptr ? -1 : static_cast<int>(osDpa->m_osdpaId);
 
 		TRC_FUNCTION_LEAVE(PAR(osDpaId));
 		return osDpa;
@@ -536,12 +541,12 @@ namespace iqrf {
 		std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
 		std::shared_ptr<Quantity> quantity;
-		auto found = m_quantityMap.find(type);
+		const auto found = m_quantityMap.find(type);
 		if (found != m_quantityMap.end()) {
 			quantity = std::make_shared<Quantity>(found->second);
 		}
 
-		int quantityId = quantity == nullptr ? -1 : quantity->m_type;
+		const int quantityId = quantity == nullptr ? -1 : quantity->m_type;
 		TRC_FUNCTION_LEAVE(PAR(quantityId));
 		return quantity;
 	}
@@ -584,9 +589,9 @@ namespace iqrf {
 		return std::make_tuple(status, errorStr);
 	}
 
-	void JsCache::registerCacheReloadedHandler(const std::string &clientId, CacheReloadedFunc hndl) {
+	void JsCache::registerCacheReloadedHandler(const std::string &clientId, CacheReloadedFunc handler) {
 		std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
-		m_cacheReloadedHndlMap[clientId] = hndl;
+		m_cacheReloadedHndlMap[clientId] = handler;
 	}
 
 	void JsCache::unregisterCacheReloadedHandler(const std::string &clientId) {
@@ -638,15 +643,15 @@ namespace iqrf {
 		std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
 		std::shared_ptr<StdDriver> stdDriver = nullptr;
-		auto found = m_standardMap.find(standardId);
+		const auto found = m_standardMap.find(standardId);
 		if (found != m_standardMap.end()) {
-			auto foundVer = found->second.m_drivers.find(version);
+			const auto foundVer = found->second.m_drivers.find(version);
 			if (foundVer != found->second.m_drivers.end()) {
 				stdDriver = std::make_shared<StdDriver>(foundVer->second);
 			}
 		}
 
-		unsigned int stdDriverId = stdDriver == nullptr ? -1 : stdDriver->getId();
+		const int stdDriverId = stdDriver == nullptr ? -1 : static_cast<int>(stdDriver->getId());
 
 		TRC_FUNCTION_LEAVE(PAR(stdDriverId));
 		return stdDriver;
@@ -831,7 +836,7 @@ namespace iqrf {
 							ProfilePower powerSupply(mainsPower, accuPower, batteryPower, minVoltage);
 							// profile
 							profiles.emplace_back(
-								MetadataProfile(hwpidVer, powerSupply, routing, beaming, repeater, frcAggregation, iqarosCompatible, iqrfSensors, binouts)
+								hwpidVer, powerSupply, routing, beaming, repeater, frcAggregation, iqarosCompatible, iqrfSensors, binouts
 							);
 						}
 
@@ -906,9 +911,9 @@ namespace iqrf {
 			THROW_EXC_TRC_WAR(std::logic_error, "Standards information file does not exist. " << PAR(fileName));
 		}
 
-		std::ifstream file(fileName);
 		json doc;
 		try {
+			std::ifstream file(fileName);
 			doc = json::parse(file);
 		} catch (const json::parse_error &e) {
 			THROW_EXC_TRC_WAR(std::logic_error, "Failed to parse standards information file: [" << e.byte << "] " << e.what());
@@ -940,9 +945,9 @@ namespace iqrf {
 				THROW_EXC_TRC_WAR(std::logic_error, "Standard file does not exist: " << PAR(fileName));
 			}
 
-			std::ifstream file(fileName);
 			json standardDoc;
 			try {
+				std::ifstream file(fileName);
 				standardDoc = json::parse(file);
 			} catch (const json::parse_error &e) {
 				THROW_EXC_TRC_WAR(std::logic_error, "Failed to parse standard file: [" << e.byte << "] " << e.what());
@@ -1002,14 +1007,15 @@ namespace iqrf {
 		}
 
 		std::vector<std::string> vstr;
-		for (std::vector<std::filesystem::directory_entry>::const_iterator it = v.begin(); it != v.end(); ++it) {
-			vstr.push_back((*it).path().string() + "/data.json");
-		}
+		std::transform(v.begin(), v.end(), std::back_inserter(vstr), // cppcheck-suppress useStlAlgorithm
+		[](const std::filesystem::directory_entry& it) {
+			return it.path().string() + "/data.json";
+		});
 
 		std::ostringstream auxtrc;
 		std::map<unsigned int, Package> packageMap;
 
-		for (auto pkgFile : vstr) {
+		for (const auto& pkgFile : vstr) {
 			std::ifstream file(pkgFile);
 			json doc;
 			try {
@@ -1121,35 +1127,35 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	std::string JsCache::getTmpPath(const std::string &path) {
+	std::string JsCache::getTmpPath(const std::string &path) const {
 		return m_tmpDir + path;
 	}
 
-	std::string JsCache::getTmpCachePath(const std::string &path) {
+	std::string JsCache::getTmpCachePath(const std::string &path) const {
 		return m_tmpDir + "cache/" + path;
 	}
 
-	std::string JsCache::getTmpCacheDataFilePath(const std::string &relativeDir) {
+	std::string JsCache::getTmpCacheDataFilePath(const std::string &relativeDir) const {
 		return m_tmpDir + "cache/" + relativeDir + "/data.json";
 	}
 
-	std::string JsCache::getSchemaFilePath(const std::string &path) {
+	std::string JsCache::getSchemaFilePath(const std::string &path) const {
 		return m_schemaDir + '/' + path;
 	}
 
-	std::string JsCache::getCachePath(const std::string &path) {
+	std::string JsCache::getCachePath(const std::string &path) const {
 		std::ostringstream os;
 		os << m_cacheDir << '/' << path;
 		return os.str();
 	}
 
-	std::string JsCache::getCacheDataFilePath(const std::string &relativeDir) {
+	std::string JsCache::getCacheDataFilePath(const std::string &relativeDir) const {
 		std::ostringstream os;
 		os << m_cacheDir << '/' << relativeDir << "/data.json";
 		return os.str();
 	}
 
-	std::string JsCache::getAbsoluteUrl(const std::string &relativeUrl) {
+	std::string JsCache::getAbsoluteUrl(const std::string &relativeUrl) const {
 		std::ostringstream os;
 		os << m_urlRepo << '/' << relativeUrl;
 		return os.str();
@@ -1165,8 +1171,8 @@ namespace iqrf {
 		}
 	}
 
-	bool JsCache::cacheExists() {
-		std::string filename = getCacheDataFilePath(SERVER_DIR);
+	bool JsCache::cacheExists() const {
+		const std::string filename = getCacheDataFilePath(SERVER_DIR);
 		return std::filesystem::exists(filename);
 	}
 
@@ -1182,7 +1188,7 @@ namespace iqrf {
 		CurlUtils::downloadFile(
 			getAbsoluteUrl(SERVER_URL),
 			tmpServerStatePath,
-      {{"accept", "application/json"}}
+			{{"accept", "application/json"}}
 		);
 		ServerState remoteServerState = getCacheServer(tmpServerStatePath);
 
@@ -1224,17 +1230,20 @@ namespace iqrf {
 		zip_t *zipArch = nullptr;
 		zip_file_t *zipFile = nullptr;
 		int err;
-		const zip_uint64_t BUF_SIZE = 8196;
+		constexpr zip_uint64_t BUF_SIZE = 8196;
 		char buf[BUF_SIZE];
 
-		if ((zipArch = zip_open(tmpArchivePath.c_str(), 0, &err)) == NULL) {
-			zip_error_to_str(buf, sizeof(buf), err, errno);
-			THROW_EXC_TRC_WAR(std::logic_error, "Can't open zip archive: " << buf);
+		if ((zipArch = zip_open(tmpArchivePath.c_str(), 0, &err)) == nullptr) {
+			zip_error_t error;
+			zip_error_init_with_code(&error, err);
+			const char *errorMessage = zip_error_strerror(&error);
+			zip_error_fini(&error);
+			THROW_EXC_TRC_WAR(std::logic_error, "Can't open zip archive: " << errorMessage);
 		}
 
 		zip_int64_t num_entries = zip_get_num_entries(zipArch, 0);
 
-		for (zip_uint64_t i = 0; i < (zip_uint64_t)num_entries; i++) {
+		for (zip_uint64_t i = 0; i < static_cast<zip_uint64_t>(num_entries); i++) {
 			std::string name = zip_get_name(zipArch, i, 0);
 			std::string extractedPath = getTmpCachePath(name);
 			createDirectory(std::filesystem::path(extractedPath).parent_path());
@@ -1281,7 +1290,7 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("")
 	}
 
-	void JsCache::updateCacheFiles() {
+	void JsCache::updateCacheFiles() const {
 		TRC_FUNCTION_ENTER("");
 
 		TRC_INFORMATION("[IQRF Repository cache] Updating cache files...");
@@ -1332,8 +1341,8 @@ namespace iqrf {
 	}
 
 	void JsCache::logSchemaViolations(const std::vector<std::string> &errors) {
-		for (auto itr = errors.begin(); itr != errors.end(); ++itr) {
-			TRC_WARNING("[IQRF Repository cache] " << *itr << std::endl);
+		for (const auto & error : errors) {
+			TRC_WARNING("[IQRF Repository cache] " << error << std::endl);
 		}
 	}
 
@@ -1379,7 +1388,7 @@ namespace iqrf {
 			schemaPath,
 			[&schemaDir = m_schemaDir](const std::string &uri) -> const json* {
 				json *doc = new json();
-				std::string path = schemaDir + '/' + uri;
+				const std::string path = schemaDir + '/' + uri;
 				if (!valijson::utils::loadDocument(path, *doc)) {
 					return nullptr;
 				}
@@ -1444,7 +1453,6 @@ namespace iqrf {
 			}
 		}
 
-		valijson::ValidationResults errors;
 		for (const auto &dir : dirs) {
 			auto standardVersionFilePath = dir.string() + "/data.json";
 			valijson::ValidationResults errors;
@@ -1482,7 +1490,7 @@ namespace iqrf {
 			schemaPath,
 			[&schemaDir = m_schemaDir](const std::string &uri) -> const json* {
 				json *doc = new json();
-				std::string path = schemaDir + '/' + uri;
+				const std::string path = schemaDir + '/' + uri;
 				if (!valijson::utils::loadDocument(path, *doc)) {
 					return nullptr;
 				}

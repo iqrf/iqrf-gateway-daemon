@@ -5,7 +5,7 @@ project(iqrfgd2-cache-updater)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS ON)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
 find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(LIBZIP REQUIRED)

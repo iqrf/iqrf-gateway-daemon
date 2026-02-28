@@ -20,7 +20,7 @@ const std::string DEV_API_URL = "https://devrepo.iqrfalliance.org/api";
 
 static const json* fetch_document(const std::string &uri) {
   json *doc = new json();
-  auto path = (uri == "definitions.json") ? "schemas/metadataVersions/" + uri : "schemas/" + uri;
+  const auto path = (uri == "definitions.json") ? "schemas/metadataVersions/" + uri : "schemas/" + uri;
   if (!valijson::utils::loadDocument(path, *doc)) {
     return nullptr;
   }
@@ -55,12 +55,16 @@ void download_cache(const std::string &url) {
   std::ofstream file("cache.zip", std::ios::binary);
   file << rsp.text;
   // extract
-  const zip_uint64_t BUF_SIZE = 8196;
+  constexpr zip_uint64_t BUF_SIZE = 8196;
   char buf[BUF_SIZE];
   int err = 0;
   zip_t *archive = zip_open("cache.zip", 0, &err);
   if (archive == nullptr) {
-    throw std::logic_error("Cannot open zip archive, error: " + std::to_string(err));
+    zip_error_t error;
+    zip_error_init_with_code(&error, err);
+    const std::string errorMessage = zip_error_strerror(&error);
+    zip_error_fini(&error);
+    throw std::logic_error("Cannot open zip archive, error: " + errorMessage);
   }
   if (std::filesystem::exists("cache")) {
     std::filesystem::remove_all("cache");
@@ -70,7 +74,7 @@ void download_cache(const std::string &url) {
   }
   zip_int64_t num_entries = zip_get_num_entries(archive, 0);
   auto current_path = std::filesystem::current_path();
-  for (zip_uint64_t i = 0; i < (zip_uint64_t)num_entries; ++i) {
+  for (zip_uint64_t i = 0; i < static_cast<zip_uint64_t>(num_entries); ++i) {
     std::string name = zip_get_name(archive, i, 0);
 
     zip_stat_t zip_stat;
@@ -116,8 +120,8 @@ void populate_schema(valijson::Schema &schema, const std::string &schema_path) {
   try {
     parser.populateSchema(schemaAdapter, schema, fetch_document, free_document);
   } catch (const std::exception &e) {
-    std::cerr << "Failed to parse companies jsonschema";
-    throw e;
+    std::cerr << "Failed to parse companies jsonschema, error: " << e.what() << std::endl;
+    throw;
   }
 }
 
@@ -136,9 +140,8 @@ void validate_companies_file() {
     std::cerr << "Errors found when validating companies data file." << std::endl;
     while (errors.popError(error)) {
       std::string context;
-      std::vector<std::string>::iterator itr = error.context.begin();
-      for (; itr != error.context.end(); ++itr) {
-        context += *itr;
+      for (const auto & itr : error.context) {
+        context += itr;
       }
       std::cerr << "Violating member: " << context << ". Violation: " << error.description << std::endl;
     }
@@ -161,9 +164,8 @@ void validate_manufacturers_file() {
     valijson::ValidationResults::Error error;
     while (errors.popError(error)) {
       std::string context;
-      std::vector<std::string>::iterator itr = error.context.begin();
-      for (; itr != error.context.end(); ++itr) {
-        context += *itr;
+      for (const auto & itr : error.context) {
+        context += itr;
       }
       std::cerr << "Violating member: " << context << ". Violation: " << error.description << std::endl;
     }
@@ -186,9 +188,8 @@ void validate_products_file() {
     valijson::ValidationResults::Error error;
     while (errors.popError(error)) {
       std::string context;
-      std::vector<std::string>::iterator itr = error.context.begin();
-      for (; itr != error.context.end(); ++itr) {
-        context += *itr;
+      for (const auto & itr : error.context) {
+        context += itr;
       }
       std::cerr << "Violating member: " << context << ". Violation: " << error.description << std::endl;
     }
@@ -211,9 +212,8 @@ void validate_osdpa_file() {
     valijson::ValidationResults::Error error;
     while (errors.popError(error)) {
       std::string context;
-      std::vector<std::string>::iterator itr = error.context.begin();
-      for (; itr != error.context.end(); ++itr) {
-        context += *itr;
+      for (const auto & itr : error.context) {
+        context += itr;
       }
       std::cerr << "Violating member: " << context << ". Violation: " << error.description << std::endl;
     }
@@ -236,9 +236,8 @@ void validate_standards_list_file() {
     valijson::ValidationResults::Error error;
     while (errors.popError(error)) {
       std::string context;
-      std::vector<std::string>::iterator itr = error.context.begin();
-      for (; itr != error.context.end(); ++itr) {
-        context += *itr;
+      for (const auto & itr : error.context) {
+        context += itr;
       }
       std::cerr << "Violating member: " << context << ". Violation: " << error.description << std::endl;
     }
@@ -271,9 +270,8 @@ void validate_standards_versions() {
       valijson::ValidationResults::Error error;
       while (errors.popError(error)) {
         std::string context;
-        std::vector<std::string>::iterator itr = error.context.begin();
-        for (; itr != error.context.end(); ++itr) {
-          context += *itr;
+      for (const auto & itr : error.context) {
+          context += itr;
         }
         std::cerr << "Violating member: " << context << ". Violation: " << error.description << std::endl;
       }
@@ -299,9 +297,8 @@ void validate_standards_versions() {
         valijson::ValidationResults::Error error;
         while (errors.popError(error)) {
           std::string context;
-          std::vector<std::string>::iterator itr = error.context.begin();
-          for (; itr != error.context.end(); ++itr) {
-            context += *itr;
+          for (const auto & itr : error.context) {
+            context += itr;
           }
           std::cerr << "Violating member: " << context << ". Violation: " << error.description << std::endl;
         }
@@ -336,9 +333,8 @@ void validate_package_files() {
       valijson::ValidationResults::Error error;
       while (errors.popError(error)) {
         std::string context;
-        std::vector<std::string>::iterator itr = error.context.begin();
-        for (; itr != error.context.end(); ++itr) {
-          context += *itr;
+      for (const auto & itr : error.context) {
+          context += itr;
         }
         std::cerr << "Violating member: " << context << ". Violation: " << error.description << std::endl;
       }
@@ -362,9 +358,8 @@ void validate_quantities_file() {
     valijson::ValidationResults::Error error;
     while (errors.popError(error)) {
       std::string context;
-      std::vector<std::string>::iterator itr = error.context.begin();
-      for (; itr != error.context.end(); ++itr) {
-        context += *itr;
+      for (const auto & itr : error.context) {
+        context += itr;
       }
       std::cerr << "Violating member: " << context << ". Violation: " << error.description << std::endl;
     }
@@ -396,12 +391,12 @@ int main(int argc, char** argv) {
       std::cout << opts << std::endl;
       return EXIT_SUCCESS;
     }
-    std::string path = vm["path"].as<std::string>();
+    const std::string path = vm["path"].as<std::string>();
     if (!std::filesystem::exists(path)) {
       std::filesystem::create_directories(path);
     }
     std::filesystem::current_path(std::filesystem::path(path));
-    std::string url = dev ? DEV_API_URL : API_URL;
+    const std::string url = dev ? DEV_API_URL : API_URL;
     get_server_check(url);
     download_cache(url);
     validate_companies_file();

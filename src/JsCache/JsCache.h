@@ -237,9 +237,9 @@ namespace iqrf {
 		/**
 		 * Registers cache reload handler function
 		 * @param clientId Component ID
-		 * @param hndl Handler function
+		 * @param handler Handler function
 		 */
-		void registerCacheReloadedHandler(const std::string &clientId, CacheReloadedFunc hndl) override;
+		void registerCacheReloadedHandler(const std::string &clientId, CacheReloadedFunc handler) override;
 
 		/**
 		 * Unregisters cache reload handler
@@ -308,49 +308,49 @@ namespace iqrf {
 		 * @param path Directory name
 		 * @return std::string Absolute path to tmp cache directory
 		 */
-		std::string getTmpPath(const std::string &path);
+		std::string getTmpPath(const std::string &path) const;
 
 		/**
 		 * Returns absolute path to tmp cache file
 		 * @param path Relative path to file
 		 * @return std::string Absolute path to tmp cache file
 		 */
-		std::string getTmpCachePath(const std::string &path);
+		std::string getTmpCachePath(const std::string &path) const;
 
 		/**
 		 * Returns absolute path to tmp cache directory data file
 		 * @param relativeDir Relative directory path
 		 * @return std::string Absolute path to tmp cache directory data file
 		 */
-		std::string getTmpCacheDataFilePath(const std::string &relativeDir);
+		std::string getTmpCacheDataFilePath(const std::string &relativeDir) const;
 
 		/**
 		 * Returns absolute path to cache directory
 		 * @param path Directory name
 		 * @return std::string Absolute path to cache directory
 		 */
-		std::string getCachePath(const std::string &path);
+		std::string getCachePath(const std::string &path) const;
 
 		/**
 		 * Returns absolute path to cache schema file
 		 * @param path Relative path to schema file
 		 * @return std::string Absolute path to cache schema file
 		 */
-		std::string getSchemaFilePath(const std::string &path);
+		std::string getSchemaFilePath(const std::string &path) const;
 
 		/**
 		 * Returns absolute path to cache directory data file
 		 * @param relativeDir Directory name
 		 * @return std::string Absolute path to cache directory data file
 		 */
-		std::string getCacheDataFilePath(const std::string &relativeDir);
+		std::string getCacheDataFilePath(const std::string &relativeDir) const;
 
 		/**
 		 * Returns absolute repository URL from relative URL
 		 * @param relativeUrl Relative URL
 		 * @return std::string Absolute repository URL
 		 */
-		std::string getAbsoluteUrl(const std::string &relativeUrl);
+		std::string getAbsoluteUrl(const std::string &relativeUrl) const;
 
 		void createDirectory(const std::string& path);
 
@@ -359,7 +359,7 @@ namespace iqrf {
 		 * @return true
 		 * @return false
 		 */
-		bool cacheExists();
+		bool cacheExists() const;
 
 		/**
 		 * Checks if local and remote cache match and updates cache status
@@ -374,7 +374,7 @@ namespace iqrf {
 		/**
 		 * Replace cache files from tmp file after validation
 		 */
-		void updateCacheFiles();
+		void updateCacheFiles() const;
 
 		/**
 		 * Validates downloaded cache
