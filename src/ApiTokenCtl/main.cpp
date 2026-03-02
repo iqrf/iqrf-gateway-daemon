@@ -117,8 +117,14 @@ int main(int argc, char** argv) {
       auto id = get_token_id(vm);
       revoke_token(id, make_shared_params(vm));
     } catch (const token_not_found &e) {
-      std::cerr << e.what() << "\n";
+      std::cerr << e.what();
       return static_cast<int>(StatusCodes::TOKEN_NOT_FOUND);
+    } catch (const token_expired &e) {
+      std::cerr << e.what();
+      return static_cast<int>(StatusCodes::TOKEN_EXPIRED);
+    } catch (const token_revoked &e) {
+      std::cerr << e.what();
+      return static_cast<int>(StatusCodes::TOKEN_REVOKED);
     } catch (const std::exception &e) {
       std::cerr << e.what() << "\n";
       return EXIT_FAILURE;
@@ -142,8 +148,14 @@ int main(int argc, char** argv) {
       auto id = get_token_id(vm);
       rotate_token(id, make_shared_params(vm));
     } catch (const token_not_found &e) {
-      std::cerr << e.what() << "\n";
+      std::cerr << e.what();
       return static_cast<int>(StatusCodes::TOKEN_NOT_FOUND);
+    } catch (const token_expired &e) {
+      std::cerr << e.what();
+      return static_cast<int>(StatusCodes::TOKEN_EXPIRED);
+    } catch (const token_revoked &e) {
+      std::cerr << e.what();
+      return static_cast<int>(StatusCodes::TOKEN_REVOKED);
     } catch (const std::exception &e) {
       std::cerr << e.what() << "\n";
       return EXIT_FAILURE;
