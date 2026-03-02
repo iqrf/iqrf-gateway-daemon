@@ -149,6 +149,7 @@ std::string construct_shareable_token(uint32_t id, const std::string& key, bool 
   std::string token("iqrfgd2;" + std::to_string(id) + ';' + key);
   if (json_output) {
     json doc = {
+      {"id", id},
       {"token", token}
     };
     return doc.dump();
