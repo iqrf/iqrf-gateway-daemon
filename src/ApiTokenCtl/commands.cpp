@@ -1,3 +1,4 @@
+#include "api_token.hpp"
 #include "cli_utils.h"
 #include "commands.h"
 #include "exceptions.h"
@@ -116,11 +117,18 @@ void revoke_token(uint32_t id, const SharedParams& params) {
   iqrf::db::repos::ApiTokenRepository repo(db);
   auto token = repo.get(id);
   if (!token) {
-    throw token_not_found("API token record does not exist.");
+    throw token_not_found("API token record does not exist.\n");
   }
-  if (token->getStatus() == ApiToken::Status::Revoked) {
-    std::cout << "API token ID " << std::to_string(id) << " is already revoked.\n";
-    return;
+  auto status = token->getStatus();
+  if (status == ApiToken::Status::Expired) {
+    throw token_expired("API token ID " + std::to_string(id) + " is expired.\n");
+  }
+  if (status == ApiToken::Status::Revoked) {
+    throw token_revoked("API token ID " + std::to_string(id) + " is already revoked.\n");
+  }
+  int64_t now = DateTimeUtils::get_current_timestamp();
+  if (now >= token->getExpiresAt()) {
+    throw token_expired("API token ID " + std::to_string(id) + " is expired.\n");
   }
   auto success = repo.revoke(id);
   if (!success) {
@@ -138,16 +146,18 @@ void rotate_token(const uint32_t id, const SharedParams& params) {
   iqrf::db::repos::ApiTokenRepository repo(db);
   auto token = repo.get(id);
   if (!token) {
-    throw token_not_found("API token record does not exist.");
+    throw token_not_found("API token record does not exist.\n");
   }
   auto status = token->getStatus();
-  if (status == ApiToken::Status::Expired || status == ApiToken::Status::Revoked) {
-    throw std::runtime_error("Expired and revoked tokens cannot be rotated.");
+  if (status == ApiToken::Status::Expired) {
+    throw token_expired("API token ID " + std::to_string(id) + " is expired.\n");
+  }
+  if (status == ApiToken::Status::Revoked) {
+    throw token_revoked("API token ID " + std::to_string(id) + " is revoked.\n");
   }
   int64_t now = DateTimeUtils::get_current_timestamp();
   if (now >= token->getExpiresAt()) {
-    // TODO: maybe mark expired here and persist?
-    throw std::runtime_error("Token is expired.");
+    throw token_expired("API token ID " + std::to_string(id) + " is expired.\n");
   }
   auto ttl = token->getExpiresAt() - token->getCreatedAt();
   SQLite::Transaction transaction(*db);
