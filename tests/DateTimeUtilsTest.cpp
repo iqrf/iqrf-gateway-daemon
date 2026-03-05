@@ -1,3 +1,5 @@
+#include <chrono>
+#include <date/date.h>
 #include <gtest/gtest.h>
 #include "DateTimeUtils.h"
 
@@ -46,31 +48,56 @@ TEST(DateTimeUtilsTest, get_current_timestamp_delay) {
   EXPECT_GE(after_epoch, ts);
 }
 
-TEST(DateTimeUtilsTest, parse_expiration_unix_timestamp_valid) {
-  EXPECT_EQ(1762281501, DateTimeUtils::parse_expiration("1762281501", 1762281415));
+TEST(DateTimeUtilsTest, parse_expiration_timestamp_valid) {
+  std::chrono::system_clock::time_point tp =
+    date::sys_days{date::year{2025}/11/4} +
+    std::chrono::hours(6) +
+    std::chrono::minutes(36) +
+    std::chrono::seconds(55);
+  std::chrono::system_clock::time_point expiration =
+    date::sys_days{date::year{2025}/11/4} +
+    std::chrono::hours(6) +
+    std::chrono::minutes(38) +
+    std::chrono::seconds(21);
+  EXPECT_EQ(expiration, DateTimeUtils::parse_expiration("2025-11-04T06:38:21Z", tp));
+  EXPECT_EQ(expiration, DateTimeUtils::parse_expiration("2025-11-04T06:38:21+00:00", tp));
+  EXPECT_EQ(expiration, DateTimeUtils::parse_expiration("2025-11-04T07:38:21+01:00", tp));
+  EXPECT_EQ(expiration, DateTimeUtils::parse_expiration("2025-11-04T11:38:21+05:00", tp));
+  EXPECT_EQ(expiration, DateTimeUtils::parse_expiration("2025-11-04T08:08:21+01:30", tp));
 }
 
-TEST(DateTimeUtilsTest, parse_expiration_unix_timestamp_past) {
+TEST(DateTimeUtilsTest, parse_expiration_timestamp_past) {
+  std::chrono::system_clock::time_point now =
+    date::sys_days{date::year{2025}/11/4} +
+    std::chrono::hours(6) +
+    std::chrono::minutes(36) +
+    std::chrono::seconds(55);
   try {
-    DateTimeUtils::parse_expiration("1762281501", 1762282475);
+    DateTimeUtils::parse_expiration("2025-11-04T07:36:55+01:00", now);
     FAIL() << "Expected std::invalid_argument to be thrown, but no exception was thrown.";
   } catch (const std::invalid_argument& e) {
-    EXPECT_STREQ("Expiration unix timestamp is in the past.", e.what());
+    EXPECT_STREQ("Expiration timestamp is in the past.", e.what());
   } catch (...) {
     FAIL() << "Expected std::invalid_argument to be thrown, but a different exception type was thrown instead.";
   }
 }
 
 TEST(DateTimeUtilsTest, parse_expiration_relative_valid) {
-  EXPECT_EQ(1731590400, DateTimeUtils::parse_expiration("10d", 1730726400));
-  EXPECT_EQ(1731331200, DateTimeUtils::parse_expiration("1w", 1730726400));
-  EXPECT_EQ(1738502400, DateTimeUtils::parse_expiration("3m", 1730726400));
-  EXPECT_EQ(1793798400, DateTimeUtils::parse_expiration("2y", 1730726400));
+  auto now = std::chrono::system_clock::now();
+  auto expiration = now + std::chrono::hours(24 * 10);
+  EXPECT_EQ(expiration, DateTimeUtils::parse_expiration("10d", now));
+  expiration = now + std::chrono::hours(24 * 7);
+  EXPECT_EQ(expiration, DateTimeUtils::parse_expiration("1w", now));
+  expiration = now + std::chrono::hours(24 * 90);
+  EXPECT_EQ(expiration, DateTimeUtils::parse_expiration("3m", now));
+  expiration = now + std::chrono::hours(24 * 365 * 2);
+  EXPECT_EQ(expiration, DateTimeUtils::parse_expiration("2y", now));
 }
 
 TEST(DateTimeUtilsTest, parse_exception_relative_nonpositive) {
+  auto now = std::chrono::system_clock::now();
   try {
-    DateTimeUtils::parse_expiration("0y", 1762282475);
+    DateTimeUtils::parse_expiration("0y", now);
     FAIL() << "Expected std::invalid_argument to be thrown, but no exception was thrown.";
   } catch (const std::invalid_argument& e) {
     EXPECT_STREQ("Unit count should be a positive integer.", e.what());
@@ -80,8 +107,9 @@ TEST(DateTimeUtilsTest, parse_exception_relative_nonpositive) {
 }
 
 TEST(DateTimeUtilsTest, parse_expiration_invalid) {
+  auto now = std::chrono::system_clock::now();
   try {
-    DateTimeUtils::parse_expiration("-30d", 1762282475);
+    DateTimeUtils::parse_expiration("-30d", now);
     FAIL() << "Expected std::invalid_argument to be thrown, but no exception was thrown.";
   } catch (const std::invalid_argument& e) {
     EXPECT_STREQ("Invalid expiration time argument.", e.what());
@@ -89,7 +117,7 @@ TEST(DateTimeUtilsTest, parse_expiration_invalid) {
     FAIL() << "Expected std::invalid_argument to be thrown, but a different exception type was thrown instead.";
   }
   try {
-    DateTimeUtils::parse_expiration("70n", 1762282475);
+    DateTimeUtils::parse_expiration("70n", now);
     FAIL() << "Expected std::invalid_argument to be thrown, but no exception was thrown.";
   } catch (const std::invalid_argument& e) {
     EXPECT_STREQ("Invalid expiration time argument.", e.what());
@@ -97,7 +125,7 @@ TEST(DateTimeUtilsTest, parse_expiration_invalid) {
     FAIL() << "Expected std::invalid_argument to be thrown, but a different exception type was thrown instead.";
   }
   try {
-    DateTimeUtils::parse_expiration("1762d282475m", 1762282475);
+    DateTimeUtils::parse_expiration("2026 01 01 10:00:00", now);
     FAIL() << "Expected std::invalid_argument to be thrown, but no exception was thrown.";
   } catch (const std::invalid_argument& e) {
     EXPECT_STREQ("Invalid expiration time argument.", e.what());
@@ -105,7 +133,39 @@ TEST(DateTimeUtilsTest, parse_expiration_invalid) {
     FAIL() << "Expected std::invalid_argument to be thrown, but a different exception type was thrown instead.";
   }
   try {
-    DateTimeUtils::parse_expiration("", 1762282475);
+    DateTimeUtils::parse_expiration("2026_01_01T10:00:00", now);
+    FAIL() << "Expected std::invalid_argument to be thrown, but no exception was thrown.";
+  } catch (const std::invalid_argument& e) {
+    EXPECT_STREQ("Invalid expiration time argument.", e.what());
+  } catch (...) {
+    FAIL() << "Expected std::invalid_argument to be thrown, but a different exception type was thrown instead.";
+  }
+  try {
+    DateTimeUtils::parse_expiration("2026-01-01 10:00:00", now);
+    FAIL() << "Expected std::invalid_argument to be thrown, but no exception was thrown.";
+  } catch (const std::invalid_argument& e) {
+    EXPECT_STREQ("Invalid expiration time argument.", e.what());
+  } catch (...) {
+    FAIL() << "Expected std::invalid_argument to be thrown, but a different exception type was thrown instead.";
+  }
+  try {
+    DateTimeUtils::parse_expiration("2026-01-01", now);
+    FAIL() << "Expected std::invalid_argument to be thrown, but no exception was thrown.";
+  } catch (const std::invalid_argument& e) {
+    EXPECT_STREQ("Invalid expiration time argument.", e.what());
+  } catch (...) {
+    FAIL() << "Expected std::invalid_argument to be thrown, but a different exception type was thrown instead.";
+  }
+  try {
+    DateTimeUtils::parse_expiration("2026-01-01T10:00:00", now);
+    FAIL() << "Expected std::invalid_argument to be thrown, but no exception was thrown.";
+  } catch (const std::invalid_argument& e) {
+    EXPECT_STREQ("Invalid expiration time argument.", e.what());
+  } catch (...) {
+    FAIL() << "Expected std::invalid_argument to be thrown, but a different exception type was thrown instead.";
+  }
+  try {
+    DateTimeUtils::parse_expiration("", now);
     FAIL() << "Expected std::invalid_argument to be thrown, but no exception was thrown.";
   } catch (const std::invalid_argument& e) {
     EXPECT_STREQ("Invalid expiration time argument.", e.what());

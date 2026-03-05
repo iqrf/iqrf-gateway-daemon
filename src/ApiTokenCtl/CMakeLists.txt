@@ -19,6 +19,7 @@ SET(DB_HEADERS
   ${CMAKE_SOURCE_DIR}/src/DbEntities/models/api_token.hpp
   ${CMAKE_SOURCE_DIR}/src/DbEntities/repositories/api_token_repo.hpp
 )
+include_directories(${CMAKE_SOURCE_DIR}/libraries/date/include)
 add_library(${LIB_NAME} ${LIB_SOURCES} ${DB_HEADERS})
 target_include_directories(${LIB_NAME} PUBLIC
   ${CMAKE_SOURCE_DIR}/src/ApiTokenCtl

@@ -19,6 +19,7 @@ find_package(Boost REQUIRED COMPONENTS system)
 find_package(OpenSSL REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}/libraries/date/include)
 
 add_library(${PROJECT_NAME} OBJECT
   WebsocketServer.cpp

@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include <chrono>
 #include <optional>
 
 #include "repositories/api_token_repo.hpp"
@@ -49,7 +50,12 @@ namespace iqrf {
      * @param service Service mode permissions
      * @return Token status if token exists, nullopt if token does not exist, or if the token is invalid
      */
-    virtual std::optional<ApiToken::Status> authenticate(const uint32_t id, const std::string& secret, int64_t& expiration, bool& service) = 0;
+    virtual std::optional<ApiToken::Status> authenticate(
+      const uint32_t id,
+      const std::string& secret,
+      std::chrono::system_clock::time_point& expiration,
+      bool& service
+    ) = 0;
 
     /**
      * @brief Check if token is revoked

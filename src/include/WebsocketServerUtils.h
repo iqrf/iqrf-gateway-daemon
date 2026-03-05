@@ -72,7 +72,7 @@ inline bool is_auth_message(const nlohmann::json& doc) {
     (doc.contains("token") && doc["token"].is_string());
 }
 
-inline std::string create_auth_success_message(int64_t expiration, bool service) {
+inline std::string create_auth_success_message(const std::string& expiration, bool service) {
   return nlohmann::json({
     {"type", "auth_success"},
     {"expiration", expiration},
