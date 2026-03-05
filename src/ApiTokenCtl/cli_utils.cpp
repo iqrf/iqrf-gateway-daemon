@@ -1,8 +1,10 @@
 #include "cli_utils.h"
+#include "TimeConversion.h"
 
+#include <chrono>
 #include <iostream>
 
-#define LINE_LENGTH (OUTPUT_ID_LEN + MAX_OWNER_LEN + (OUTPUT_DT_LEN * 2) + OUTPUT_STATUS_LEN + OUTPUT_SERVICE_LEN + 5 /*spacing*/ + 2 /*borders*/)
+#define LINE_LENGTH (OUTPUT_ID_LEN + MAX_OWNER_LEN + (OUTPUT_DT_LEN * 3) + OUTPUT_STATUS_LEN + OUTPUT_SERVICE_LEN + 6 /*spacing*/ + 2 /*borders*/)
 
 namespace bpo = boost::program_options;
 using json = nlohmann::json;
@@ -71,7 +73,8 @@ void print_list_header() {
     << pad_end("Created at", OUTPUT_DT_LEN) << ' '
     << pad_end("Expires at", OUTPUT_DT_LEN) << ' '
     << pad_end("Status", OUTPUT_STATUS_LEN) << ' '
-    << pad_end("Service", OUTPUT_SERVICE_LEN) << "|\n";
+    << pad_end("Service", OUTPUT_SERVICE_LEN) << ' '
+    << pad_end("Invalidated at", OUTPUT_DT_LEN) << "|\n";
   print_table_horizontal_line();
 }
 
@@ -110,26 +113,38 @@ uint32_t get_token_id(bpo::variables_map& vm) {
   return static_cast<uint32_t>(id);
 }
 
-json token_to_json(const iqrf::db::models::ApiToken& token, int64_t now) {
-  return json({
+json token_to_json(const iqrf::db::models::ApiToken& token, const std::chrono::system_clock::time_point& now) {
+  auto invalidated_at = token.getInvalidatedAt();
+  json doc = {
       {"id", token.getId()},
       {"owner", token.getOwner()},
-      {"created_at", token.getCreatedAt()},
-      {"expires_at", token.getExpiresAt()},
+      {"created_at", TimeConversion::getISO8601TimestampSafe(token.getCreatedAt())},
+      {"expires_at", TimeConversion::getISO8601TimestampSafe(token.getExpiresAt())},
       {"status", static_cast<int>(token.getDisplayStatus(now))},
-      {"service", token.canUseServiceMode()}
-  });
+      {"service", token.canUseServiceMode()},
+      {"invalidated_at", nullptr}
+  };
+  if (invalidated_at.has_value()) {
+    doc["invalidated_at"] = TimeConversion::getISO8601TimestampSafe(invalidated_at.value());
+  }
+  return doc;
 }
 
-std::string token_to_json_string(const iqrf::db::models::ApiToken& token, int64_t now) {
-  return json({
+std::string token_to_json_string(const iqrf::db::models::ApiToken& token, const std::chrono::system_clock::time_point& now) {
+  auto invalidated_at = token.getInvalidatedAt();
+  json doc = {
       {"id", token.getId()},
       {"owner", token.getOwner()},
-      {"created_at", token.getCreatedAt()},
-      {"expires_at", token.getExpiresAt()},
+      {"created_at", TimeConversion::getISO8601TimestampSafe(token.getCreatedAt())},
+      {"expires_at", TimeConversion::getISO8601TimestampSafe(token.getExpiresAt())},
       {"status", static_cast<int>(token.getDisplayStatus(now))},
-      {"service", token.canUseServiceMode()}
-  }).dump();
+      {"service", token.canUseServiceMode()},
+      {"invalidated_at", nullptr}
+  };
+  if (invalidated_at.has_value()) {
+    doc["invalidated_at"] = TimeConversion::getISO8601TimestampSafe(invalidated_at.value());
+  }
+  return doc.dump();
 }
 
 std::string pad_end(const std::string& text, std::size_t max_width, char pad_character) {

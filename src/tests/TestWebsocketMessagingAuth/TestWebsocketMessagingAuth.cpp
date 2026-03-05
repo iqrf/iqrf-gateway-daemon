@@ -15,6 +15,9 @@
  * limitations under the License.
  */
 
+#include "TimeConversion.h"
+#include <chrono>
+#include <optional>
 #define IIqrfChannelService_EXPORTS
 
 #include "TestWebsocketMessagingAuth.h"
@@ -184,40 +187,44 @@ namespace iqrf {
       "valid_test",
       "Km94ufh80JgJAW5ryvTmXw==",
       "OZjVJ/KYRfJ9FALd3VCY7+z3zsyDDa6kGVvP1K0unL0=",
-      0,
-      0,
+      std::chrono::system_clock::time_point::min(),
+      std::chrono::system_clock::time_point::min(),
       ApiToken::Status::Valid,
-      false
+      false,
+      std::nullopt,
     };
     db::models::ApiToken revoked_token{
       2,
       "revoked_test",
       "S1pu3+64CglEyzR+s7+Evw==",
       "zsRbb+1AYkZi+DooboxUrvejyay4YJ7jJbny9xN8xH8=",
-      0,
-      0,
+      std::chrono::system_clock::time_point::min(),
+      std::chrono::system_clock::time_point::min(),
       ApiToken::Status::Revoked,
-      false
+      false,
+      std::nullopt
     };
     db::models::ApiToken expired_token{
       3,
       "expired_test",
       "0QDdubRFO5ex0gDbbzxwHg==",
       "/LPYJ33UI9fZzY2b4+hOGf9lcreR9gmM9cHdPLZkEbg=",
-      0,
-      0,
+      std::chrono::system_clock::time_point::min(),
+      std::chrono::system_clock::time_point::min(),
       ApiToken::Status::Expired,
-      false
+      false,
+      std::nullopt
     };
     db::models::ApiToken revoked_later_token{
       4,
       "revoked_later_token",
       "60qpNwDAGdCuuWcutV4gtg==",
       "uohKt+Eg2DYDZfAMYp2ic9bJKDoyibMZqhBisrNH+bI=",
-      0,
-      0,
+      std::chrono::system_clock::time_point::min(),
+      std::chrono::system_clock::time_point::min(),
       ApiToken::Status::Valid,
       true,
+      std::nullopt
     };
     const std::string valid_token_string = "iqrfgd2;1;zDrcvQaXWopzJ+DbfkpGq3Tn00wkt3n6fExj8iUsYio=";
     const std::string revoked_token_string = "iqrfgd2;2;E75vLfBqxutkVuHl16nqLHPplttSly2nmZ82YRrvd0E=";
@@ -241,7 +248,11 @@ namespace iqrf {
       ASSERT_TRUE(db->tableExists("api_tokens"));
     }
 
-    void insertToken(db::models::ApiToken& token, int64_t created_at, int64_t expiration) {
+    void insertToken(
+      db::models::ApiToken& token,
+      std::chrono::system_clock::time_point created_at,
+      std::chrono::system_clock::time_point expires_at
+    ) {
       SQLite::Statement stmt(*db,
         R"(
         INSERT OR IGNORE INTO api_tokens (id, owner, salt, hash, createdAt, expiresAt, status, service)
@@ -253,8 +264,8 @@ namespace iqrf {
       stmt.bind(2, token.getOwner());
       stmt.bind(3, token.getSalt());
       stmt.bind(4, token.getHash());
-      stmt.bind(5, created_at);
-      stmt.bind(6, expiration);
+      stmt.bind(5, TimeConversion::getISO8601TimestampSafe(created_at));
+      stmt.bind(6, TimeConversion::getISO8601TimestampSafe(expires_at));
       stmt.bind(7, static_cast<int>(token.getStatus()));
       stmt.bind(8, token.canUseServiceMode());
       try {
@@ -267,7 +278,7 @@ namespace iqrf {
     void revokeToken(uint32_t id) {
       db::repos::ApiTokenRepository repo(db);
       try {
-        repo.revoke(id);
+        repo.revoke(id, std::chrono::system_clock::now());
       } catch (const std::exception &e) {
         FAIL() << "Failed to revoke API key." << e.what();
       }
@@ -524,8 +535,8 @@ namespace iqrf {
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_revoked_token) {
     beast::error_code ec;
 
-    auto timestamp = DateTimeUtils::get_current_timestamp();
-    insertToken(revoked_token, timestamp, timestamp + 31536000);
+    auto timestamp = std::chrono::system_clock::now();
+    insertToken(revoked_token, timestamp, timestamp + std::chrono::hours(24 * 365));
 
     json doc({
       {"type", "auth"},
@@ -555,8 +566,8 @@ namespace iqrf {
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_expired_token) {
     beast::error_code ec;
 
-    auto timestamp = DateTimeUtils::get_current_timestamp();
-    insertToken(expired_token, timestamp - 2592000, timestamp - 3600);
+    auto timestamp = std::chrono::system_clock::now();
+    insertToken(expired_token, timestamp - std::chrono::hours(24 * 30), timestamp - std::chrono::hours(1));
 
     json doc({
       {"type", "auth"},
@@ -587,8 +598,8 @@ namespace iqrf {
     beast::error_code ec;
 
     removeToken(valid_token.getId());
-    auto timestamp = DateTimeUtils::get_current_timestamp();
-    auto expiration = timestamp + 31536000;
+    auto timestamp = std::chrono::system_clock::now();
+    auto expiration = timestamp + std::chrono::hours(365 * 24);
     insertToken(valid_token, timestamp, expiration);
     // do successful auth
     json doc({
@@ -601,7 +612,7 @@ namespace iqrf {
     beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"service\":false,\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -644,8 +655,8 @@ R"({
     beast::error_code ec;
 
     removeToken(valid_token.getId());
-    auto timestamp = DateTimeUtils::get_current_timestamp();
-    auto expiration = timestamp + 31536000;
+    auto timestamp = std::chrono::system_clock::now();
+    auto expiration = timestamp + std::chrono::hours(365 * 24);
     insertToken(valid_token, timestamp, expiration);
     // do successful auth
     json doc({
@@ -658,7 +669,7 @@ R"({
     beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"service\":false,\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -689,8 +700,8 @@ R"({
     beast::error_code ec;
 
     removeToken(valid_token.getId());
-    auto timestamp = DateTimeUtils::get_current_timestamp();
-    auto expiration = timestamp + 5;
+    auto timestamp = std::chrono::system_clock::now();
+    auto expiration = timestamp + std::chrono::seconds(5);
     insertToken(valid_token, timestamp, expiration);
     // do successful auth
     json doc({
@@ -703,7 +714,7 @@ R"({
     beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"service\":false,\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -741,8 +752,8 @@ R"({
     beast::error_code ec;
 
     removeToken(revoked_later_token.getId());
-    auto timestamp = DateTimeUtils::get_current_timestamp();
-    auto expiration = timestamp + 31536000;
+    auto timestamp = std::chrono::system_clock::now();
+    auto expiration = timestamp + std::chrono::hours(365 * 24);
     insertToken(revoked_later_token, timestamp, expiration);
     // do successful auth
     json doc({
@@ -755,7 +766,7 @@ R"({
     beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":" + std::to_string(expiration) + ",\"service\":true,\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":true,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -814,8 +825,8 @@ R"({
     beast::error_code ec;
 
     removeToken(valid_token.getId());
-    auto timestamp = DateTimeUtils::get_current_timestamp();
-    auto expiration = timestamp + 31536000;
+    auto timestamp = std::chrono::system_clock::now();
+    auto expiration = timestamp + std::chrono::hours(365 * 24);
     insertToken(valid_token, timestamp, expiration);
     // do successful auth
     json doc({

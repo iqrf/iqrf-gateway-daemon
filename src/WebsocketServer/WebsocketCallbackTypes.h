@@ -2,6 +2,7 @@
 
 #include "boost/beast/core/error.hpp"
 
+#include <chrono>
 #include <cstdint>
 #include <functional>
 #include <string>
@@ -36,9 +37,9 @@ using WebSocketMessageHandler = std::function<void(const std::size_t, const std:
  * @param `std::size_t` session ID
  * @param `uint32_t` token ID
  * @param `std::string&` key
- * @param `int64_t&` token expiration to populate
+ * @param `std::chrono::system_clock::time_point&` token expiration to populate
  */
-using WebSocketAuthHandler = std::function<boost::system::error_code(const std::size_t, const uint32_t, const std::string&, int64_t&, bool&)>;
+using WebSocketAuthHandler = std::function<boost::system::error_code(const std::size_t, const uint32_t, const std::string&, std::chrono::system_clock::time_point&, bool&)>;
 
 /**
  * @brief Callback type for handling WebSocket connections closing.

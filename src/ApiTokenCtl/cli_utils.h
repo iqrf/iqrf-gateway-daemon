@@ -2,13 +2,14 @@
 
 #include <api_token.hpp>
 
+#include <chrono>
 #include <cstdint>
 #include <boost/program_options.hpp>
 #include <nlohmann/json.hpp>
 
 #define OUTPUT_ID_LEN 5
 #define MAX_OWNER_LEN 64
-#define OUTPUT_DT_LEN 10
+#define OUTPUT_DT_LEN 20
 #define OUTPUT_STATUS_LEN 7
 #define OUTPUT_SERVICE_LEN 7
 
@@ -101,7 +102,7 @@ uint32_t get_token_id(boost::program_options::variables_map& vm);
  * @param now Current timestamp
  * @return JSON document representing token
  */
-nlohmann::json token_to_json(const iqrf::db::models::ApiToken& token, int64_t now);
+nlohmann::json token_to_json(const iqrf::db::models::ApiToken& token, const std::chrono::system_clock::time_point& now);
 
 /**
  * @brief Serializes API token to JSON string
@@ -109,7 +110,7 @@ nlohmann::json token_to_json(const iqrf::db::models::ApiToken& token, int64_t no
  * @param now Current timestamp
  * @return JSON-serialized token string
  */
-std::string token_to_json_string(const iqrf::db::models::ApiToken& token, int64_t now);
+std::string token_to_json_string(const iqrf::db::models::ApiToken& token, const std::chrono::system_clock::time_point& now);
 
 /**
  * @brief Pad string end with specified character up to maximum width

@@ -118,9 +118,10 @@ public:
    * The function uses thread-safe gmtime_r.
    *
    * @param timePoint Time point
+   * @param withMillis Include milliseconds
    * @return Datetime string timestamp
    */
-  static std::string getISO8601TimestampSafe(const std::chrono::time_point<std::chrono::system_clock>& timePoint, bool withMillis = true) {
+  static std::string getISO8601TimestampSafe(const std::chrono::time_point<std::chrono::system_clock>& timePoint, bool withMillis = false) {
     std::time_t t = std::chrono::system_clock::to_time_t(timePoint);
     auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(timePoint.time_since_epoch()) % 1000;
     std::tm utc{};

@@ -31,11 +31,11 @@ TEST_F(TimeConversionTest, get_epoch_timestamp) {
 }
 
 TEST_F(TimeConversionTest, get_iso8601_timestamp_safe_sec) {
-  EXPECT_EQ("2025-12-11T10:20:30Z", TimeConversion::getISO8601TimestampSafe(tpSec, false));
+  EXPECT_EQ("2025-12-11T10:20:30Z", TimeConversion::getISO8601TimestampSafe(tpSec));
 }
 
 TEST_F(TimeConversionTest, get_iso8601_timestamp_safe_millis) {
-  EXPECT_EQ("2025-12-11T10:20:30.337Z", TimeConversion::getISO8601TimestampSafe(tpMillis));
+  EXPECT_EQ("2025-12-11T10:20:30.337Z", TimeConversion::getISO8601TimestampSafe(tpMillis, true));
 }
 
 }

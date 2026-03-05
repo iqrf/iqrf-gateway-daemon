@@ -24,17 +24,20 @@
 #include <boost/beast/websocket/ssl.hpp>
 #include <boost/asio/dispatch.hpp>
 #include <boost/asio/strand.hpp>
+#include <chrono>
 #include <nlohmann/json.hpp>
 
 #include <cstdint>
 #include <deque>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "IWebSocketClientSession.h"
 #include "CryptoUtils.h"
 #include "DateTimeUtils.h"
+#include "TimeConversion.h"
 #include "TraceMacros.h"
 #include "WebsocketServerUtils.h"
 #include "Trace.h"
@@ -76,7 +79,7 @@ namespace iqrf {
     /// Session is authenticated
     bool isAuthenticated_ = false;
     /// Token expiration
-    int64_t expirationTime_ = -1;
+    std::optional<std::chrono::system_clock::time_point> expirationTime_ = std::nullopt;
     /// Can use service mode
     bool service_ = false;
 
@@ -442,7 +445,7 @@ namespace iqrf {
       }
 
       // get current timestamp for expiration check
-      auto now = DateTimeUtils::get_current_timestamp();
+      auto now = std::chrono::system_clock::now();
       // read message from buffer and clear it before next message is read
       std::string message = boost::beast::buffers_to_string(readBuffer_.data());
       readBuffer_.consume(readBuffer_.size());
@@ -463,7 +466,12 @@ namespace iqrf {
             return;
           }
 
-          this->sendMessage(create_auth_success_message(expirationTime_, service_));
+          this->sendMessage(
+            create_auth_success_message(
+              TimeConversion::getISO8601TimestampSafe(expirationTime_.value()),
+              service_
+            )
+          );
         } else {
           // authenticated
           if (expirationTime_ < now) {
@@ -474,7 +482,7 @@ namespace iqrf {
             // token expired, message dropped
             auto ec = make_error_code(auth_error::expired_token);
             isAuthenticated_ = false;
-            expirationTime_ = -1;
+            expirationTime_ = std::nullopt;
             service_ = false;
             this->send_system(create_auth_error_message(ec));
             this->closeSession(boost::beast::websocket::close_code::policy_error);
@@ -536,7 +544,7 @@ namespace iqrf {
       }
 
       // try to authenticate via passed callback and get expiration time
-      int64_t tokenExpiration = 0;
+      std::chrono::system_clock::time_point tokenExpiration;
       bool service = false;
       auto ec = authCallback_(sessionId_, tokenId, secret, tokenExpiration, service);
       if (ec) {

@@ -1,7 +1,9 @@
 #pragma once
 
+#include "DatetimeParser.h"
 #include <algorithm>
 #include <chrono>
+#include <optional>
 #include <stdexcept>
 #include <string>
 
@@ -29,23 +31,30 @@ public:
   }
 
   /**
-   * @brief Parse an expiration time string into a Unix timestamp.
+   * @brief Parse an expiration time string into a time point.
    *
    * Supports:
    *    relative format (e.g. "30d" = 30 days from now)
-   *    Unix timestamp (e.g. "1700000000")
+   *    ISO8601 datetime timestamp (e.g. "2024-05-05T10:20:30+01:00")
    * @param input Input time string
-   * @param created_at Created at timestamp for computing expiration
-   * @return Expiration Unix timestamp
+   * @param created_at Created at time point for computing expiration
+   * @return `std::chrono::system_clock::time_point` Expiration time point
    */
-  static int64_t parse_expiration(const std::string& input, int64_t created_at) {
+  static std::chrono::system_clock::time_point parse_expiration(const std::string& input, const std::chrono::system_clock::time_point& created_at) {
     // numerical, input as unix epoch timestamp
-    if (!input.empty() && std::all_of(input.begin(), input.end(), ::isdigit)) {
-      auto candidate = std::stoll(input);
-      if (candidate <= created_at) {
-        throw std::invalid_argument("Expiration unix timestamp is in the past.");
+    if (!input.empty()) {
+      std::optional<std::chrono::system_clock::time_point> candidate;
+      try {
+        candidate.emplace(DatetimeParser::parse_to_timepoint(input));
+      } catch (const std::invalid_argument &e) {
+        // invalid string, catch to allow to attempt parsing relative
       }
-      return candidate;
+      if (candidate.has_value()) {
+        if (candidate.value() <= created_at) {
+          throw std::invalid_argument("Expiration timestamp is in the past.");
+        }
+        return candidate.value();
+      }
     }
 
     // relative
@@ -56,27 +65,26 @@ public:
       if (numerical < 1) {
         throw std::invalid_argument("Unit count should be a positive integer.");
       }
-      auto value = std::chrono::hours(1);
+      auto offset = std::chrono::hours(1);
       switch (unit) {
       case 'd':
-        value *= 24;
+        offset *= 24;
         break;
       case 'w':
-        value *= 24 * 7;
+        offset *= 24 * 7;
         break;
       case 'm':
-        value *= 24 * 30;
+        offset *= 24 * 30;
         break;
       case 'y':
-        value *= 24 * 365;
+        offset *= 24 * 365;
         break;
       default:
         break;
       }
       // mutliply unit by count
-      value *= numerical;
-      auto diff = std::chrono::duration_cast<std::chrono::seconds>(value).count();
-      return created_at + diff;
+      offset *= numerical;
+      return created_at + offset;
     }
     throw std::invalid_argument("Invalid expiration time argument.");
   }

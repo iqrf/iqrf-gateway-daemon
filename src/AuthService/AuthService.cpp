@@ -17,11 +17,11 @@
 
 #include "AuthService.h"
 #include "CryptoUtils.h"
-#include "DateTimeUtils.h"
 #include "MigrationManager.h"
 #include "Trace.h"
 #include "api_token.hpp"
 
+#include <chrono>
 #include <mutex>
 
 #ifdef TRC_CHANNEL
@@ -121,7 +121,7 @@ namespace iqrf {
       return repo.get(id);
     }
 
-    std::optional<ApiToken::Status> authenticate(const uint32_t id, const std::string& secret, int64_t& expiration, bool& service) {
+    std::optional<ApiToken::Status> authenticate(const uint32_t id, const std::string& secret, std::chrono::system_clock::time_point& expiration, bool& service) {
       std::unique_ptr<ApiToken> token;
       ApiToken::Status newStatus = ApiToken::Status::Valid;
       {
@@ -143,11 +143,11 @@ namespace iqrf {
             newStatus = currentStatus;
             transaction.commit();
           } else {
-            auto now = DateTimeUtils::get_current_timestamp();
+            auto now = std::chrono::system_clock::now();
             // if token is not marked as expired in database, but should be
             if (now >= token->getExpiresAt()) {
               newStatus = ApiToken::Status::Expired;
-              token->expire();
+              token->expire(now);
               repo.update(*token);
             }
             transaction.commit();
@@ -235,7 +235,7 @@ namespace iqrf {
     return impl_->getApiToken(id);
   }
 
-  std::optional<ApiToken::Status> AuthService::authenticate(const uint32_t id, const std::string& secret, int64_t& expiration, bool& service) {
+  std::optional<ApiToken::Status> AuthService::authenticate(const uint32_t id, const std::string& secret, std::chrono::system_clock::time_point& expiration, bool& service) {
     return impl_->authenticate(id, secret, expiration, service);
   }
 
