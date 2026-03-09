@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include <chrono>
 #define IMessagingService_EXPORTS
 
 #include "WebsocketMessaging.h"
@@ -90,7 +91,7 @@ namespace iqrf {
         [&](const std::size_t sessionId, const std::string& msg) {
           return handleMessageFromWebsocket(sessionId, msg);
         },
-        [&](const std::size_t sessionId, const uint32_t id, const std::string& key, int64_t& expiration, bool& service) {
+        [&](const std::size_t sessionId, const uint32_t id, const std::string& key, std::chrono::system_clock::time_point& expiration, bool& service) {
           return handleWebsocketSessionAuth(sessionId, id, key, expiration, service);
         },
         [&](const std::size_t sessionId) {
@@ -242,7 +243,7 @@ namespace iqrf {
       return 0;
     }
 
-    boost::system::error_code handleWebsocketSessionAuth(const std::size_t sessionId, const uint32_t id, const std::string& secret, int64_t& expiration, bool& service) {
+    boost::system::error_code handleWebsocketSessionAuth(const std::size_t sessionId, const uint32_t id, const std::string& secret, std::chrono::system_clock::time_point& expiration, bool& service) {
       auto result = m_authService->authenticate(id, secret, expiration, service);
       if (!result.has_value()) {
         return make_error_code(auth_error::invalid_token);

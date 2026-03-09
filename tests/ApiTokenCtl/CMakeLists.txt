@@ -2,6 +2,8 @@ project(ApiTokenCtlTest)
 
 file(GLOB TEST_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
+include_directories(${CMAKE_SOURCE_DIR}/libraries/date/include)
+
 add_executable(${PROJECT_NAME} ${TEST_FILES})
 add_test(NAME ${PROJECT_NAME} COMMAND ApiTokenCtlTest)
 

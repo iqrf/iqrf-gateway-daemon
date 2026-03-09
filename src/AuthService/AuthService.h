@@ -20,6 +20,7 @@
 #include "IAuthService.h"
 #include "ITraceService.h"
 #include "ShapeProperties.h"
+#include <chrono>
 
 namespace iqrf {
 
@@ -73,7 +74,7 @@ namespace iqrf {
      * @param service Service mode permissions
      * @return Token status if token exists, nullopt if token does not exist, or if the token is invalid
      */
-    std::optional<ApiToken::Status> authenticate(const uint32_t id, const std::string& secret, int64_t& expiration, bool &service) override;
+    std::optional<ApiToken::Status> authenticate(const uint32_t id, const std::string& secret, std::chrono::system_clock::time_point& expiration, bool &service) override;
 
     /**
      * @brief Check if token is revoked
