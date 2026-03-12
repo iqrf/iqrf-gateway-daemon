@@ -22,9 +22,9 @@
 #include <atomic>
 #include <boost/asio/strand.hpp>
 #include <boost/beast/core/bind_handler.hpp>
-#include <cstdint>
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <mutex>
 #include <optional>
 #include <thread>
@@ -339,7 +339,7 @@ namespace iqrf {
         return;
       }
 
-
+      // accept connection and create session as normal
       std::shared_ptr<IWebSocketClientSession> clientSession = nullptr;
       if (wsParams_.tls) {
         auto stream = TlsWebSocketStream(std::move(socket), *sslCtx_);

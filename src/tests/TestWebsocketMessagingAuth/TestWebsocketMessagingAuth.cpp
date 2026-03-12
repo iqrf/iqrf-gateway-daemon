@@ -16,8 +16,19 @@
  */
 
 #include "TimeConversion.h"
+#include <boost/asio/buffer.hpp>
+#include <boost/asio/error.hpp>
+#include <boost/beast/core/error.hpp>
+#include <boost/beast/websocket/error.hpp>
+#include <boost/beast/websocket/rfc6455.hpp>
+#include <boost/beast/websocket/stream.hpp>
 #include <chrono>
+#include <cstddef>
+#include <iostream>
+#include <memory>
 #include <optional>
+#include <random>
+#include <string>
 #define IIqrfChannelService_EXPORTS
 
 #include "TestWebsocketMessagingAuth.h"
@@ -25,7 +36,6 @@
 #include "GTestStaticRunner.h"
 #include "CryptoUtils.h"
 #include "DatabaseUtils.h"
-#include "DateTimeUtils.h"
 #include "api_token_repo.hpp"
 
 #include "gtest/gtest.h"
@@ -240,6 +250,7 @@ namespace iqrf {
       ASSERT_FALSE(ec);
       ws.handshake("localhost", "/", ec);
       ASSERT_FALSE(ec);
+      ASSERT_TRUE(ws.is_open());
       auto path = Imp::get().m_iLaunchService->getConfigurationDir() + "/DB/IqrfAuthDb.db";
       db = create_database_connetion(path, false, 500, true);
       SQLite::Statement stmt(*db, "PRAGMA journal_mode;");
@@ -292,6 +303,26 @@ namespace iqrf {
         FAIL() << "Failed to remove token." << e.what();
       }
     }
+
+    std::string generateRandomPrintable(std::size_t len) {
+      static const char charset[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz"
+        "!@#$%^&*()-_=+[]{};:,.<>/?";
+
+      static thread_local std::mt19937 generator{std::random_device{}()};
+      static thread_local std::uniform_int_distribution<std::size_t> distribution(0, sizeof(charset) - 2);
+
+      std::string data;
+      data.reserve(len);
+
+      for (std::size_t i{}; i < len; ++i) {
+        data.push_back(charset[distribution(generator)]);
+      }
+
+      return data;
+    }
   };
 
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messsaging_invalid_message_type) {
@@ -315,6 +346,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     EXPECT_EQ(ec, websocket::error::closed);
     EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
+    EXPECT_FALSE(ws.is_open());
   }
 
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_not_auth_messsage) {
@@ -342,6 +374,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     EXPECT_EQ(ec, websocket::error::closed);
     EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
+    EXPECT_FALSE(ws.is_open());
   }
 
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_timeout) {
@@ -362,6 +395,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     EXPECT_EQ(ec, websocket::error::closed);
     EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
+    EXPECT_FALSE(ws.is_open());
   }
 
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_invalid_token_format) {
@@ -390,6 +424,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     EXPECT_EQ(ec, websocket::error::closed);
     EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
+    EXPECT_FALSE(ws.is_open());
   }
 
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_unsupported_api_token) {
@@ -418,6 +453,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     EXPECT_EQ(ec, websocket::error::closed);
     EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
+    EXPECT_FALSE(ws.is_open());
   }
 
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_nonnumeric_api_token_id) {
@@ -446,6 +482,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     EXPECT_EQ(ec, websocket::error::closed);
     EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
+    EXPECT_FALSE(ws.is_open());
   }
 
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_invalid_secret_len) {
@@ -474,6 +511,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     EXPECT_EQ(ec, websocket::error::closed);
     EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
+    EXPECT_FALSE(ws.is_open());
   }
 
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_invalid_secret_characters) {
@@ -502,6 +540,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     EXPECT_EQ(ec, websocket::error::closed);
     EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
+    EXPECT_FALSE(ws.is_open());
   }
 
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_nonexistent_token) {
@@ -530,6 +569,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     EXPECT_EQ(ec, websocket::error::closed);
     EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
+    EXPECT_FALSE(ws.is_open());
   }
 
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_revoked_token) {
@@ -561,6 +601,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     EXPECT_EQ(ec, websocket::error::closed);
     EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
+    EXPECT_FALSE(ws.is_open());
   }
 
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_expired_token) {
@@ -592,6 +633,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     EXPECT_EQ(ec, websocket::error::closed);
     EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
+    EXPECT_FALSE(ws.is_open());
   }
 
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_success) {
@@ -745,6 +787,7 @@ R"({
     ws.read(buffer, ec);
     EXPECT_EQ(ec, websocket::error::closed);
     EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
+    EXPECT_FALSE(ws.is_open());
     removeToken(valid_token.getId());
   }
 
@@ -819,6 +862,7 @@ R"({
     ws.read(buffer, ec);
     EXPECT_EQ(ec, websocket::error::closed);
     EXPECT_EQ(ws.reason().code, websocket::close_code::policy_error);
+    EXPECT_FALSE(ws.is_open());
   }
 
   TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_auth_success_deleted_after) {
@@ -889,6 +933,50 @@ R"({
     ws.read(buffer, ec);
     EXPECT_EQ(ec, websocket::error::closed);
     EXPECT_EQ(ws.reason().code, websocket::close_code::internal_error);
+    EXPECT_FALSE(ws.is_open());
+  }
+
+  TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_client_payload_too_large) {
+    beast::error_code ec;
+
+    removeToken(valid_token.getId());
+    auto timestamp = std::chrono::system_clock::now();
+    auto expiration = timestamp + std::chrono::hours(365 * 24);
+    insertToken(valid_token, timestamp, expiration);
+    // do successful auth
+    json doc({
+      {"type", "auth"},
+      {"token", valid_token_string}
+    });
+    ws.write(net::buffer(doc.dump()), ec);
+    ASSERT_FALSE(ec);
+    // read auth success
+    beast::flat_buffer buffer;
+    ws.read(buffer, ec);
+    ASSERT_FALSE(ec);
+    std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
+    std::string received = beast::buffers_to_string(buffer.data());
+    EXPECT_EQ(expected, received);
+    buffer.consume(buffer.size());
+    // send message exceeding accepted received message size limit
+    ws.write(
+      net::buffer(generateRandomPrintable(100000)),
+      ec
+    );
+    ASSERT_FALSE(ec);
+    // receive close frame and check close reason - too big
+    ws.read(buffer, ec);
+    std::cout << ec.category().name() << ' ' << ec.value() << std::endl;
+    EXPECT_TRUE(
+      ec == websocket::error::closed ||
+      ec == boost::asio::error::eof ||
+      ec == boost::asio::error::connection_reset ||
+      ec == boost::asio::error::broken_pipe ||
+      ec == boost::asio::error::not_connected
+    );
+    EXPECT_EQ(ws.reason().code, websocket::close_code::too_big);
+    EXPECT_FALSE(ws.is_open());
+    buffer.consume(buffer.size());
   }
 
 }

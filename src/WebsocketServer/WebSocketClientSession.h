@@ -21,6 +21,7 @@
 #include <boost/beast/core/bind_handler.hpp>
 #include <boost/beast/core/error.hpp>
 #include <boost/beast/websocket.hpp>
+#include <boost/beast/websocket/error.hpp>
 #include <boost/beast/websocket/ssl.hpp>
 #include <boost/asio/dispatch.hpp>
 #include <boost/asio/strand.hpp>
@@ -36,7 +37,6 @@
 
 #include "IWebSocketClientSession.h"
 #include "CryptoUtils.h"
-#include "DateTimeUtils.h"
 #include "TimeConversion.h"
 #include "TraceMacros.h"
 #include "WebsocketServerUtils.h"
@@ -85,6 +85,8 @@ namespace iqrf {
 
     /// Compile time TLS stream check
     static constexpr bool usesTlsStream = std::is_same_v<Stream, TlsWebSocketStream>;
+    /// Maximum receive payload size
+    static constexpr int MAX_RECV_SIZE = 64 * 1024;
   public:
 
     /**
@@ -194,6 +196,8 @@ namespace iqrf {
      * @param cc Close code
      */
     void closeSession(boost::beast::websocket::close_code cc) override {
+      this->resetAuthTimer();
+
       boost::asio::post(
         stream_.get_executor(),
         [self = this->shared_from_this(), cc]() {
@@ -332,6 +336,8 @@ namespace iqrf {
           }
         )
       );
+      // set maximum request length
+      stream_.read_message_max(MAX_RECV_SIZE);
 
       stream_.async_accept(
         boost::asio::bind_executor(
@@ -423,13 +429,25 @@ namespace iqrf {
           << BEAST_ERR_LOG(ec)
         );
         // notify server close may be called twice in some scenarios
-        // could store a variable which would check if onClose was already closed
+        // could store a variable which would check if onClose was already called
+        this->resetAuthTimer();
         this->executeServerCloseCallback();
         return;
       }
 
       // if session was closed from this side, do nothing
       if (ec == boost::asio::error::operation_aborted) {
+        return;
+      }
+
+      // if client sends too large payload, close
+      if (ec == boost::beast::websocket::error::message_too_big) {
+        TRC_WARNING(
+          SESSION_LOG(sessionId_, address_, port_)
+          << "Payload from client too large: "
+          << BEAST_ERR_LOG(ec)
+        );
+        this->closeSession(boost::beast::websocket::close_code::too_big);
         return;
       }
 
@@ -456,7 +474,7 @@ namespace iqrf {
       if (authCallback_) {
         // session is not authenticated
         if (!isAuthenticated_) {
-          authTimer_.cancel();
+          this->resetAuthTimer();
 
           auto ec = this->authenticate(message);
           // authentication failed, message contains invalid token or is not authentication message
@@ -582,6 +600,15 @@ namespace iqrf {
     }
 
     /**
+     * @brief Resets any scheduled auth timer events
+     *
+     * If no event is scheduled to fire, cancelling the timer has no effect.
+     */
+    void resetAuthTimer() {
+      authTimer_.cancel();
+    }
+
+    /**
      * @brief Authentication timeout handler
      *
      * If the timer was cancelled, no other action needs to be taken
@@ -680,6 +707,7 @@ namespace iqrf {
           << "Connection closed, message not sent."
           << BEAST_ERR_LOG(ec)
         );
+        this->resetAuthTimer();
         isWriting_ = false;
         writeQueue_.clear();
         return;
