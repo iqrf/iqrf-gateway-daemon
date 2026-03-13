@@ -20,6 +20,7 @@
 #include "WebSocketClientSession.h"
 
 #include <atomic>
+#include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/beast/core/bind_handler.hpp>
 #include <filesystem>
@@ -68,6 +69,8 @@ namespace iqrf {
     std::mutex sessionMtx_;
     /// Session registry
     std::unordered_map<size_t, std::shared_ptr<IWebSocketClientSession>> sessionStorage_;
+    /// Maximum number of clients concurrently
+    static constexpr int MAX_CLIENTS = 50;
   public:
     Impl(const WebsocketServerParams& params): wsParams_(params) {
       TRC_FUNCTION_ENTER("");
@@ -339,6 +342,21 @@ namespace iqrf {
         return;
       }
 
+      // lock before accessing session storage
+      std::unique_lock<std::mutex> lock(sessionMtx_);
+      bool canAccept = sessionStorage_.size() < MAX_CLIENTS;
+      if (!canAccept) {
+        TRC_WARNING(
+          SERVER_LOG(wsParams_.instance, wsParams_.port)
+          << "Server at client capacity, closing socket."
+        );
+        socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+        socket.close();
+        lock.unlock();
+        doAccept();
+        return;
+      }
+
       // accept connection and create session as normal
       std::shared_ptr<IWebSocketClientSession> clientSession = nullptr;
       if (wsParams_.tls) {
@@ -371,6 +389,8 @@ namespace iqrf {
       );
       // store session in server
       addSession(clientSession);
+      // unlock after updating session map
+      lock.unlock();
       // run session
       clientSession->startSession();
       // accept another client connection
@@ -428,7 +448,6 @@ namespace iqrf {
     }
 
     void addSession(std::shared_ptr<IWebSocketClientSession> session) {
-      std::lock_guard<std::mutex> lock(sessionMtx_);
       sessionStorage_[session->getId()] = session;
 
       TRC_INFORMATION(
