@@ -1,15 +1,44 @@
 #pragma once
 
 #include <cstdint>
-#include <functional>
-#include <optional>
 #include <string>
 #include <stdexcept>
 
 #define DEFAULT_PORT 80
+#define DEFAULT_TLS_PORT 443
 #define DEFAULT_AUTH_TIMEOUT 30
 
 namespace iqrf {
+
+  /**
+   * @enum class TransportModes
+   * @brief Transport mode options for protocols / security
+   */
+  enum class TransportModes {
+    PLAIN = 0,
+    TLS = 1,
+    BOTH = 2,
+  };
+
+  /**
+   * @brief Constructs TransportModes enum class member from integer alue
+   * @param value Transport mode value
+   * @return `TransportModes` TransportModes representation
+   *
+   * @throws `std::invalid_argument` If TransportModes enum does not include value
+   */
+  inline TransportModes transportModeFromValue(unsigned int value) {
+    switch (value) {
+      case 0:
+        return TransportModes::PLAIN;
+      case 1:
+        return TransportModes::TLS;
+      case 2:
+        return TransportModes::BOTH;
+      default:
+        throw std::invalid_argument("Unknown or unsupported transport mode value.");
+    }
+  }
 
   /**
    * @enum class TlsModes
@@ -63,15 +92,21 @@ namespace iqrf {
      */
     bool localhostOnly;
     /**
-     * @brief Accept only TLS-secured connections
+     * @brief Transport mode
+     *
+     * Available modes (plain, tls, both)
      */
-    bool tls;
+    TransportModes transportMode;
     /**
      * @brief TLS mode
      *
      * Available modes (modern, intermediate, old).
      */
     TlsModes tlsMode;
+    /**
+     * @brief TLS port which the server listens on.
+     */
+    uint16_t tlsPort;
     /**
      * @brief Path to certificate file
      *
@@ -92,12 +127,12 @@ namespace iqrf {
     /**
      * @brief Default constructor
      *
-     * Initializes the websocket server params with: instance default, port 80, localhostOnly false, tls false,
-     * tlsMode intermediate, empty certificate and key path and authentication timeout of 30 seconds
+     * Initializes the websocket server params with: instance default, port 80, localhostOnly false, transportMode plain,
+     * tlsMode intermediate, tls port 443, empty certificate and key path and authentication timeout of 30 seconds
      */
     WebsocketServerParams()
-      : instance("default"), port(DEFAULT_PORT), localhostOnly(false), tls(false),
-        tlsMode(TlsModes::INTERMEDIATE), certPath(""), keyPath(""), authTimeout(DEFAULT_AUTH_TIMEOUT) {}
+      : instance("default"), port(DEFAULT_PORT), localhostOnly(false), transportMode(TransportModes::PLAIN),
+        tlsMode(TlsModes::INTERMEDIATE), tlsPort(DEFAULT_TLS_PORT), certPath(""), keyPath(""), authTimeout(DEFAULT_AUTH_TIMEOUT) {}
 
     /**
      * @brief Parameterized constructor
@@ -107,16 +142,17 @@ namespace iqrf {
      * @param instance Instance name
      * @param port Port number
      * @param localhostOnly Only accept connections from localhost
-     * @param tls Require TLS connections
+     * @param transportMode Transport mode
      * @param tlsMode TLS configuration
+     * @param tlsPort TLS port number
      * @param certPath Path to certificate file
      * @param keyPath Path to private key file
      * @param authTimeout Authentication timeout in seconds
      */
-    WebsocketServerParams(const std::string& instance, uint16_t port, bool localhostOnly, bool tls,
-      TlsModes tlsMode, const std::string& cert, const std::string& key, uint16_t authTimeout)
-      : instance(instance), port(port), localhostOnly(localhostOnly), tls(tls),
-        tlsMode(tlsMode), certPath(cert), keyPath(key), authTimeout(authTimeout) {}
+    WebsocketServerParams(const std::string& instance, uint16_t port, bool localhostOnly, TransportModes transportMode,
+      TlsModes tlsMode, uint16_t tlsPort, const std::string& cert, const std::string& key, uint16_t authTimeout)
+      : instance(instance), port(port), localhostOnly(localhostOnly), transportMode(transportMode),
+        tlsMode(tlsMode), tlsPort(tlsPort), certPath(cert), keyPath(key), authTimeout(authTimeout) {}
   };
 }
 

@@ -3,10 +3,11 @@
   "instance": "WebsocketMessaging",
   "acceptAsyncMsg": true,
   "port": 1338,
+  "transportMode": 2,
   "acceptOnlyLocalhost": false,
-  "tlsEnabled": false,
   "tlsMode": 1,
-  "cert": "",
-  "privKey": "",
+  "tlsPort": 8338,
+  "cert": "cert.pem",
+  "privKey": "privkey.pem",
   "authTimeout": 15
 }

@@ -16,6 +16,7 @@
  */
 #include "MonitorService.h"
 
+#include "WebsocketServerParams.h"
 #include "iqrf__MonitorService.hxx"
 
 TRC_INIT_MODULE(iqrf::MonitorService)
@@ -89,16 +90,18 @@ namespace iqrf {
     std::string instance = rapidjson::Pointer("/instance").Get(doc)->GetString();
     uint16_t port = static_cast<uint16_t>(rapidjson::Pointer("/port").Get(doc)->GetUint());
     bool acceptOnlyLocalhost = rapidjson::Pointer("/acceptOnlyLocalhost").Get(doc)->GetBool();
-    bool tlsEnabled = rapidjson::Pointer("/tlsEnabled").Get(doc)->GetBool();
+    TransportModes transportMode = transportModeFromValue(rapidjson::Pointer("/transportMode").Get(doc)->GetUint());
     TlsModes tlsMode = tlsModeFromValue(rapidjson::Pointer("/tlsMode").Get(doc)->GetUint());
+    uint16_t tlsPort = static_cast<uint16_t>(Pointer("/tlsPort").Get(doc)->GetUint());
     std::string certPath = getCertPath(rapidjson::Pointer("/cert").Get(doc)->GetString());
     std::string keyPath = getCertPath(rapidjson::Pointer("/privKey").Get(doc)->GetString());
     m_params = WebsocketServerParams(
       instance,
       port,
       acceptOnlyLocalhost,
-      tlsEnabled,
+      transportMode,
       tlsMode,
+      tlsPort,
       certPath,
       keyPath,
       DEFAULT_AUTH_TIMEOUT

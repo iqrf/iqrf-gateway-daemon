@@ -4,8 +4,9 @@
     "acceptAsyncMsg": true,
     "port": 1338,
     "acceptOnlyLocalhost": false,
-    "tlsEnabled": false,
+    "transportMode": 0,
     "tlsMode": 1,
+    "tlsPort": 8338,
     "cert": "",
     "privKey": "",
     "authTimeout": 30

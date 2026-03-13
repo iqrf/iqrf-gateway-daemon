@@ -24,6 +24,7 @@ include_directories(${CMAKE_SOURCE_DIR}/libraries/date/include)
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 
 find_package(SQLite3 REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 if(SHAPE_STATIC_LIBS)
   add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES} ${_SRCCONFIG})
@@ -32,6 +33,7 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME}
+  OpenSSL::SSL
   SQLite::SQLite3
   SQLiteCpp
   GTestStaticRunner

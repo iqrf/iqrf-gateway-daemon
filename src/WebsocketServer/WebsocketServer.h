@@ -53,11 +53,6 @@ namespace iqrf {
     void start();
 
     /**
-     * Checks if server is listening and accepting connections
-     */
-    bool isListening();
-
-    /**
      * Closes session with specified ID
      * @param sessionId Session ID
      * @param ec Error code
