@@ -966,7 +966,6 @@ R"({
     ASSERT_FALSE(ec);
     // receive close frame and check close reason - too big
     ws.read(buffer, ec);
-    std::cout << ec.category().name() << ' ' << ec.value() << std::endl;
     EXPECT_TRUE(
       ec == websocket::error::closed ||
       ec == boost::asio::error::eof ||
@@ -977,6 +976,58 @@ R"({
     EXPECT_EQ(ws.reason().code, websocket::close_code::too_big);
     EXPECT_FALSE(ws.is_open());
     buffer.consume(buffer.size());
+  }
+
+  TEST_F(WebsocketMessagingAuthTest, test_websocket_messaging_client_capacity) {
+    beast::error_code ec;
+
+    ws.close(beast::websocket::close_code::normal, ec);
+    ASSERT_FALSE(ec);
+
+    removeToken(revoked_later_token.getId());
+    auto timestamp = std::chrono::system_clock::now();
+    auto expiration = timestamp + std::chrono::hours(365 * 24);
+    insertToken(revoked_later_token, timestamp, expiration);
+
+    // create streams within capacity
+    auto const resolved = resolver.resolve("localhost", "1338", ec);
+    ASSERT_FALSE(ec);
+
+    json doc({
+      {"type", "auth"},
+      {"token", valid_token_string}
+    });
+
+    std::vector<std::shared_ptr<websocket::stream<tcp::socket>>> streams = {};
+    for (std::size_t i{}; i < 50; ++i) {
+      auto stream = std::make_shared<websocket::stream<tcp::socket>>(io_context);
+      net::connect(stream->next_layer(), resolved, ec);
+      ASSERT_FALSE(ec);
+      stream->handshake("localhost", "/", ec);
+      ASSERT_FALSE(ec);
+      ASSERT_TRUE(stream->is_open());
+
+      // do successful auth
+      stream->write(net::buffer(doc.dump()), ec);
+      ASSERT_FALSE(ec);
+      streams.push_back(stream);
+    }
+
+    auto stream = websocket::stream<tcp::socket>{io_context};
+    net::connect(stream.next_layer(), resolved, ec);
+    ASSERT_FALSE(ec);
+    beast::flat_buffer buffer;
+    stream.read(buffer, ec);
+    ASSERT_TRUE(ec);
+    ASSERT_FALSE(stream.is_open());
+
+    for (std::size_t i{}; i < 50; ++i) {
+      auto stream = streams.back();
+      streams.pop_back();
+
+      stream->close(beast::websocket::close_code::normal, ec);
+      ASSERT_FALSE(ec);
+    }
   }
 
 }
