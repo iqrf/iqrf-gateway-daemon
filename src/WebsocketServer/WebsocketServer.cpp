@@ -15,14 +15,22 @@
  * limitations under the License.
  */
 
+#include "IWebSocketClientSession.h"
 #include "Trace.h"
 #include "WebsocketServer.h"
+#include "TraceMacros.h"
 #include "WebSocketClientSession.h"
+#include "WebsocketServerParams.h"
 
 #include <atomic>
+#include <boost/asio/ip/address.hpp>
+#include <boost/asio/ip/address_v4.hpp>
+#include <boost/asio/ip/address_v6.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ssl/stream_base.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/beast/core/bind_handler.hpp>
+#include <boost/beast/core/error.hpp>
 #include <filesystem>
 #include <iostream>
 #include <memory>
@@ -34,6 +42,7 @@
 #include <boost/asio/ip/v6_only.hpp>
 #include <rapidjson/pointer.h>
 #include <openssl/ssl.h>
+#include <utility>
 
 #define SERVER_LOG(instance, port) "[" << instance << ":" << port << "] "
 
@@ -41,6 +50,11 @@ namespace iqrf {
 
   class WebsocketServer::Impl {
   private:
+    struct Listener {
+      std::shared_ptr<boost::asio::ip::tcp::acceptor> acceptor = nullptr;
+      bool tls = false;
+    };
+
     /// Websocket server parameters
     WebsocketServerParams wsParams_;
     /// On message handler
@@ -49,8 +63,6 @@ namespace iqrf {
     WebSocketAuthHandler authCallback_;
     /// On close handler
     WebSocketCloseHandler connectionClosedCallback_;
-    /// Server address
-    boost::asio::ip::address serverAddr_;
     /// Thread
     std::thread thread_;
     /// IO context
@@ -60,7 +72,7 @@ namespace iqrf {
     /// TCP acceptor mutex
     std::mutex acceptorMtx_;
     /// TCP acceptor
-    std::optional<boost::asio::ip::tcp::acceptor> acceptor_;
+    std::vector<Listener> listeners_;
     /// IO context work guard
     std::optional<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>> workGuard_;
     /// Session ID
@@ -74,7 +86,9 @@ namespace iqrf {
   public:
     Impl(const WebsocketServerParams& params): wsParams_(params) {
       TRC_FUNCTION_ENTER("");
-      initialize();
+      if (wsParams_.transportMode != TransportModes::PLAIN) {
+        initializeSsl();
+      }
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -90,7 +104,9 @@ namespace iqrf {
       connectionClosedCallback_(onClose)
     {
       TRC_FUNCTION_ENTER("");
-      initialize();
+      if (wsParams_.transportMode != TransportModes::PLAIN) {
+        initializeSsl();
+      }
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -109,7 +125,7 @@ namespace iqrf {
 
     void start() {
       std::lock_guard<std::mutex> lock(acceptorMtx_);
-      if (acceptor_.has_value() && acceptor_->is_open()) {
+      if (!listeners_.empty()) {
         // already running
         return;
       }
@@ -117,61 +133,29 @@ namespace iqrf {
       // setup objects
       ioc_.emplace(1);
       workGuard_.emplace(boost::asio::make_work_guard(*ioc_));
-      acceptor_.emplace(*ioc_);
 
-      boost::asio::ip::tcp::endpoint endpoint(serverAddr_, wsParams_.port);
-      boost::beast::error_code ec;
-      acceptor_->open(endpoint.protocol(), ec);
-      if (ec) {
-        THROW_EXC_TRC_WAR(
-          std::runtime_error,
-          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Failed to open acceptor: " << BEAST_ERR_LOG(ec)
-        );
+      // add listeners depending on params
+      if (wsParams_.transportMode == TransportModes::PLAIN) {
+        addListener(false, wsParams_.port, wsParams_.localhostOnly, false);
+        addListener(true, wsParams_.port, wsParams_.localhostOnly, false);
+      } else if (wsParams_.transportMode == TransportModes::TLS) {
+        addListener(false, wsParams_.tlsPort, wsParams_.localhostOnly, true);
+        addListener(true, wsParams_.tlsPort, wsParams_.localhostOnly, true);
+      } else {
+        addListener(false, wsParams_.port, wsParams_.localhostOnly, false);
+        addListener(true, wsParams_.port, wsParams_.localhostOnly, false);
+        addListener(false, wsParams_.tlsPort, wsParams_.localhostOnly, true);
+        addListener(true, wsParams_.tlsPort, wsParams_.localhostOnly, true);
       }
 
-      acceptor_->set_option(boost::asio::ip::v6_only(false), ec);
-      if (ec) {
-        THROW_EXC_TRC_WAR(
-          std::runtime_error,
-          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Failed to disable IPv6 only connections." << BEAST_ERR_LOG(ec)
-        )
+      for (auto& listener : listeners_) {
+        doAccept(listener);
       }
-
-      acceptor_->set_option(boost::asio::socket_base::reuse_address(true), ec);
-      if (ec) {
-        THROW_EXC_TRC_WAR(
-          std::runtime_error,
-          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Failed to set address reuse: " << BEAST_ERR_LOG(ec)
-        );
-      }
-
-      acceptor_->bind(endpoint, ec);
-      if (ec) {
-        THROW_EXC_TRC_WAR(
-          std::runtime_error,
-          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Failed to bind acceptor to the server address: " << BEAST_ERR_LOG(ec)
-        );
-      }
-
-      acceptor_->listen(boost::asio::socket_base::max_listen_connections, ec);
-      if (ec) {
-        THROW_EXC_TRC_WAR(
-          std::runtime_error,
-          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Failed to start listening for connections: " << BEAST_ERR_LOG(ec)
-        );
-      }
-
-      doAccept();
 
       // run IO context in a separate thread
       thread_ = std::thread([&]() {
         ioc_->run();
       });
-    }
-
-    bool isListening() {
-      std::lock_guard<std::mutex> lock(acceptorMtx_);
-      return acceptor_.has_value() && acceptor_->is_open();
     }
 
     void closeSession(const std::size_t sessionId, const boost::beast::websocket::close_code ec) {
@@ -186,9 +170,9 @@ namespace iqrf {
       std::lock_guard<std::mutex> lock(acceptorMtx_);
 
       // stop accepting new connections
-      if (acceptor_.has_value()) {
-        boost::beast::error_code ec;
-        acceptor_->close(ec);
+      boost::beast::error_code ec;
+      for (auto& listener : listeners_) {
+        listener.acceptor->close(ec);
       }
 
       // kill existing sessions
@@ -209,7 +193,7 @@ namespace iqrf {
 
       // cleanup
       sessionStorage_.clear();
-      acceptor_.reset();
+      listeners_.clear();
       workGuard_.reset();
       ioc_.reset();
     }
@@ -235,6 +219,98 @@ namespace iqrf {
     }
 
   private:
+    /**
+     * Creates a boost asio ip adress object for binding from parameters
+     *
+     * @param ipv6 Use IPv6
+     * @param localhost Localhost address
+     * @return `boost::asio::ip::address` Boost asio address object for binding
+     */
+    boost::asio::ip::address makeAddress(bool ipv6, bool localhost) {
+      if (ipv6) {
+        return localhost
+          ? boost::asio::ip::address_v6::loopback()
+          : boost::asio::ip::address_v6::any();
+      } else {
+        return localhost
+          ? boost::asio::ip::address_v4::loopback()
+          : boost::asio::ip::address_v4::any();
+      }
+    }
+
+    /**
+     * Creates a new listener with acceptor and stores is in listeners vector for later use.
+     *
+     * A new listener object is created according to specified parameters and stored in listeners vector.
+     * These listeners are then used to accept incoming connections.
+     *
+     * IPv6 is used, acceptor is configured to not steal connections from IPv4 ports.
+     *
+     * @param ipv6 Use IPv6
+     * @param port Port number
+     * @param localhost Use localhost address
+     * @param tls Requires TLS
+     */
+    void addListener(bool ipv6, uint16_t port, bool localhost, bool tls) {
+      boost::beast::error_code ec;
+
+      auto address = makeAddress(ipv6, localhost);
+      boost::asio::ip::tcp::endpoint endpoint(address, port);
+      auto acceptor = std::make_shared<boost::asio::ip::tcp::acceptor>(*ioc_);
+
+      // open acceptor
+      acceptor->open(endpoint.protocol(), ec);
+      if (ec) {
+        THROW_EXC_TRC_WAR(
+          std::runtime_error,
+          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Failed to open acceptor: " << BEAST_ERR_LOG(ec)
+        );
+      }
+
+      // disable ipv6 dual stack
+      if (ipv6) {
+        acceptor->set_option(boost::asio::ip::v6_only(true), ec);
+        if (ec) {
+          THROW_EXC_TRC_WAR(
+            std::runtime_error,
+            SERVER_LOG(wsParams_.instance, wsParams_.port) << "Failed to disable IPv6 only connections." << BEAST_ERR_LOG(ec)
+          )
+        }
+      }
+
+      // reuse address
+      acceptor->set_option(boost::asio::socket_base::reuse_address(true), ec);
+      if (ec) {
+        THROW_EXC_TRC_WAR(
+          std::runtime_error,
+          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Failed to set address reuse: " << BEAST_ERR_LOG(ec)
+        );
+      }
+
+      // bind to address
+      acceptor->bind(endpoint, ec);
+      if (ec) {
+        THROW_EXC_TRC_WAR(
+          std::runtime_error,
+          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Failed to bind acceptor to the server address: " << BEAST_ERR_LOG(ec)
+        );
+      }
+
+      // listen for connections
+      acceptor->listen(boost::asio::socket_base::max_listen_connections, ec);
+      if (ec) {
+        THROW_EXC_TRC_WAR(
+          std::runtime_error,
+          SERVER_LOG(wsParams_.instance, wsParams_.port) << "Failed to start listening for connections: " << BEAST_ERR_LOG(ec)
+        );
+      }
+
+      listeners_.push_back(Listener{
+        .acceptor = acceptor,
+        .tls = tls
+      });
+    }
+
     boost::asio::ssl::context::options getSslContextOptions() {
       boost::asio::ssl::context::options options =
         boost::asio::ssl::context::default_workarounds |
@@ -309,36 +385,112 @@ namespace iqrf {
       return ciphers;
     }
 
-    void doAccept() {
-      acceptor_->async_accept(
+    void doAccept(Listener& listener) {
+      listener.acceptor->async_accept(
         boost::asio::make_strand(*ioc_),
-        [this](boost::beast::error_code ec, boost::asio::ip::tcp::socket socket) {
-          this->onAcceptCallback(std::move(ec), std::move(socket));
+        [this, &listener](boost::beast::error_code ec, boost::asio::ip::tcp::socket socket) {
+          // error accepting session
+          if (ec == boost::asio::error::operation_aborted ||
+              ec == boost::asio::error::bad_descriptor ||
+              ec == boost::asio::error::not_socket
+          ) {
+            TRC_WARNING(
+              SERVER_LOG(wsParams_.instance, wsParams_.port)
+              << "Received non-recovery accept error code: "
+              << BEAST_ERR_LOG(ec)
+            );
+            return;
+          }
+
+          if (listener.tls) {
+            this->onAcceptTlsCallback(std::move(ec), std::move(socket));
+          } else {
+            this->onAcceptPlainCallback(std::move(ec), std::move(socket));
+          }
+          doAccept(listener);
         }
       );
     }
 
-    void onAcceptCallback(boost::beast::error_code ec, boost::asio::ip::tcp::socket socket) {
-      // error accepting session
-      if (ec == boost::asio::error::operation_aborted ||
-          ec == boost::asio::error::bad_descriptor ||
-          ec == boost::asio::error::not_socket
-      ) {
-        TRC_WARNING(
-          SERVER_LOG(wsParams_.instance, wsParams_.port)
-          << "Received non-recovery error code: "
-          << BEAST_ERR_LOG(ec)
-        );
-        return;
-      }
-
+    void onAcceptTlsCallback(boost::beast::error_code ec, boost::asio::ip::tcp::socket socket) {
       if (ec) {
         TRC_WARNING(
           SERVER_LOG(wsParams_.instance, wsParams_.port)
           << "Failed to accept incoming connection: "
           << BEAST_ERR_LOG(ec)
         );
-        doAccept();
+        return;
+      }
+
+      // accept connection and create session as normal
+      auto stream = std::make_shared<TlsWebSocketStream>(std::move(socket), *sslCtx_);
+      stream->next_layer().async_handshake(
+        boost::asio::ssl::stream_base::server,
+        [this, stream](boost::beast::error_code ec) {
+          if (ec) {
+            TRC_WARNING(
+              SERVER_LOG(wsParams_.instance, wsParams_.port)
+              << "Failed to complete TLS handshake: "
+              << BEAST_ERR_LOG(ec)
+            );
+            stream->next_layer().lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+            stream->next_layer().lowest_layer().close();
+            return;
+          }
+
+          // lock before accessing session storage
+          std::unique_lock<std::mutex> lock(sessionMtx_);
+          bool canAccept = sessionStorage_.size() < MAX_CLIENTS;
+          if (!canAccept) {
+            TRC_WARNING(
+              SERVER_LOG(wsParams_.instance, wsParams_.port)
+              << "Server at client capacity, closing socket."
+            );
+            stream->next_layer().lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+            stream->next_layer().lowest_layer().close();
+            lock.unlock();
+            return;
+          }
+
+          auto clientSession = std::make_shared<WebSocketClientSession<TlsWebSocketStream>>(
+            sessionIdCounter_++,
+            std::move(*stream),
+            wsParams_.authTimeout
+          );
+
+          TRC_INFORMATION(
+            SERVER_LOG(wsParams_.instance, wsParams_.port)
+            << "Incoming connection from " << clientSession->getAddress() << ':' << clientSession->getPort()
+            << ", session ID " << clientSession->getId()
+          );
+
+          // set callbacks
+          clientSession->setOnMessage(messageReceivedCallback_);
+          clientSession->setAuthCallback(authCallback_);
+          clientSession->setOnClose(
+            [this](std::size_t sessionId) {
+              removeSession(sessionId);
+            }
+          );
+          // store session in server
+          addSession(clientSession);
+          // unlock after updating session map
+          lock.unlock();
+          // run session
+          clientSession->startSession();
+        }
+      );
+    }
+
+    void onAcceptPlainCallback(boost::beast::error_code ec, boost::asio::ip::tcp::socket socket) {
+      if (ec) {
+        TRC_WARNING(
+          SERVER_LOG(wsParams_.instance, wsParams_.port)
+          << "Failed to accept incoming connection: "
+          << BEAST_ERR_LOG(ec)
+        );
+        socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+        socket.close();
         return;
       }
 
@@ -353,27 +505,17 @@ namespace iqrf {
         socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
         socket.close();
         lock.unlock();
-        doAccept();
         return;
       }
 
       // accept connection and create session as normal
-      std::shared_ptr<IWebSocketClientSession> clientSession = nullptr;
-      if (wsParams_.tls) {
-        auto stream = TlsWebSocketStream(std::move(socket), *sslCtx_);
-        clientSession = std::make_shared<WebSocketClientSession<TlsWebSocketStream>>(
-          sessionIdCounter_++,
-          std::move(stream),
-          wsParams_.authTimeout
-        );
-      } else {
-        auto stream = PlainWebSocketStream(std::move(socket));
-        clientSession = std::make_shared<WebSocketClientSession<PlainWebSocketStream>>(
-          sessionIdCounter_++,
-          std::move(stream),
-          wsParams_.authTimeout
-        );
-      }
+      auto stream = PlainWebSocketStream(std::move(socket));
+      auto clientSession = std::make_shared<WebSocketClientSession<PlainWebSocketStream>>(
+        sessionIdCounter_++,
+        std::move(stream),
+        wsParams_.authTimeout
+      );
+
       TRC_INFORMATION(
         SERVER_LOG(wsParams_.instance, wsParams_.port)
         << "Incoming connection from " << clientSession->getAddress() << ':' << clientSession->getPort()
@@ -393,19 +535,6 @@ namespace iqrf {
       lock.unlock();
       // run session
       clientSession->startSession();
-      // accept another client connection
-      doAccept();
-    }
-
-    void initialize() {
-      if (wsParams_.localhostOnly) {
-        serverAddr_ = boost::asio::ip::address_v6::loopback();
-      } else {
-        serverAddr_ = boost::asio::ip::address_v6::any();
-      }
-      if (wsParams_.tls) {
-        initializeSsl();
-      }
     }
 
     void initializeSsl() {
@@ -501,10 +630,6 @@ namespace iqrf {
 
   void WebsocketServer::start() {
     impl_->start();
-  }
-
-  bool WebsocketServer::isListening() {
-    return impl_->isListening();
   }
 
   void WebsocketServer::closeSession(const std::size_t sessionId, const boost::beast::websocket::close_code ec) {

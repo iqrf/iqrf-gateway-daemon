@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include "WebsocketServerParams.h"
 #include <chrono>
 #define IMessagingService_EXPORTS
 
@@ -25,7 +26,6 @@
 
 #include <rapidjson/pointer.h>
 
-#include <algorithm>
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -117,8 +117,9 @@ namespace iqrf {
       uint16_t port = static_cast<uint16_t>(Pointer("/port").Get(doc)->GetUint());
       m_acceptAsyncMsg = Pointer("/acceptAsyncMsg").Get(doc)->GetBool();
       bool acceptOnlyLocalhost = Pointer("/acceptOnlyLocalhost").Get(doc)->GetBool();
-      bool tlsEnabled = Pointer("/tlsEnabled").Get(doc)->GetBool();
+      TransportModes transportMode = transportModeFromValue(Pointer("/transportMode").Get(doc)->GetUint());
       TlsModes tlsMode = tlsModeFromValue(Pointer("/tlsMode").Get(doc)->GetUint());
+      uint16_t tlsPort = static_cast<uint16_t>(Pointer("/tlsPort").Get(doc)->GetUint());
       std::string certPath = getCertPath(Pointer("/cert").Get(doc)->GetString());
       std::string keyPath = getCertPath(Pointer("/privKey").Get(doc)->GetString());
       uint16_t authTimeout = static_cast<uint16_t>(Pointer("/authTimeout").Get(doc)->GetUint());
@@ -126,8 +127,9 @@ namespace iqrf {
         instance,
         port,
         acceptOnlyLocalhost,
-        tlsEnabled,
+        transportMode,
         tlsMode,
+        tlsPort,
         certPath,
         keyPath,
         authTimeout

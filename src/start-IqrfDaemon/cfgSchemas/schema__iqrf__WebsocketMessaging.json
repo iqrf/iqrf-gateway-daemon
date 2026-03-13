@@ -13,8 +13,9 @@
         "port",
         "acceptAsyncMsg",
         "acceptOnlyLocalhost",
-        "tlsEnabled",
+        "transportMode",
         "tlsMode",
+        "tlsPort",
         "cert",
         "privKey",
         "authTimeout"
@@ -49,14 +50,22 @@
             "type": "boolean",
             "description": "Only accept localhost connections"
         },
-        "tlsEnabled": {
-            "type": "boolean",
-            "description": "Enable TLS"
+        "transportMode": {
+            "type": "integer",
+            "description": "Transport mode (0 - plain, 1 - tls, 2 - both)",
+            "enum": [0, 1, 2]
         },
         "tlsMode": {
             "type": "integer",
             "description": "TLS configuration (0 - modern, 1 - intermediate, 2 - old)",
             "enum": [0, 1, 2]
+        },
+        "tlsPort":  {
+            "type": "integer",
+            "description": "Server TLS port number",
+            "default": 8338,
+            "minimum": 1024,
+            "maximum": 65535
         },
         "cert": {
             "type": "string",

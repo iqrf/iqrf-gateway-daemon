@@ -67,15 +67,15 @@ namespace iqrf {
     /// Writing in progress
     bool isWriting_ = false;
     /// Queue for writing messages to client
-    std::deque<std::string> writeQueue_;
+    std::deque<std::string> writeQueue_ = {};
     /// On connection open callback
-    WebSocketOpenHandler connectionOpenCallback_;
+    WebSocketOpenHandler connectionOpenCallback_ = nullptr;
     /// On message received callback
-    WebSocketMessageHandler messageReceivedCallback_;
+    WebSocketMessageHandler messageReceivedCallback_ = nullptr;
     /// Authentication callback
-    WebSocketAuthHandler authCallback_;
+    WebSocketAuthHandler authCallback_ = nullptr;
     /// On connection close callback
-    WebSocketCloseHandler connectionCloseCallback_;
+    WebSocketCloseHandler connectionCloseCallback_ = nullptr;
     /// Session is authenticated
     bool isAuthenticated_ = false;
     /// Token expiration
@@ -183,10 +183,9 @@ namespace iqrf {
     void startSession() override {
       boost::asio::dispatch(
         stream_.get_executor(),
-        boost::beast::bind_front_handler(
-          &WebSocketClientSession::runCallback,
-          this->shared_from_this()
-        )
+        [self = this->shared_from_this()] {
+          self->doAccept();
+        }
       );
     }
 
@@ -268,54 +267,6 @@ namespace iqrf {
     }
 
   private:
-    /**
-     * @brief Run callback
-     *
-     * If session uses TLS stream, performs TLS handshake with a client,
-     * otherwise the session can accept client handshake immediately.
-     */
-    void runCallback() {
-      boost::beast::get_lowest_layer(stream_)
-        .expires_after(std::chrono::seconds(30));
-
-      if constexpr (usesTlsStream) {
-        stream_.next_layer().async_handshake(
-          boost::asio::ssl::stream_base::server,
-          boost::asio::bind_executor(
-            stream_.get_executor(),
-            boost::beast::bind_front_handler(
-              &WebSocketClientSession::handshakeCallback,
-              this->shared_from_this()
-            )
-          )
-        );
-      } else {
-        this->doAccept();
-      }
-    }
-
-    /**
-     * @brief Handles TLS handshake result
-     *
-     * If TLS handshake succeeds, the client handshake request can be accepted,
-     * otherwise the session is closed with protocol_error code.
-     *
-     * @param ec TLS handshake error code
-     */
-    void handshakeCallback(boost::beast::error_code ec) {
-      if (ec) {
-        TRC_WARNING(
-          SESSION_LOG(sessionId_, address_, port_)
-          << "Failed to complete handshake: "
-          << BEAST_ERR_LOG(ec)
-        );
-        this->closeSession(boost::beast::websocket::close_code::protocol_error);
-        return;
-      }
-
-      this->doAccept();
-    }
-
     /**
      * @brief Accepts client handshake request
      */

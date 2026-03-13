@@ -3,9 +3,10 @@
     "instance": "iqrf::MonitorService",
     "reportPeriod": 10,
     "port": 1438,
+    "transportMode": 0,
     "acceptOnlyLocalhost": false,
-    "tlsEnabled": false,
     "tlsMode": 1,
+    "tlsPort": 8438,
     "cert": "",
     "privKey": ""
 }

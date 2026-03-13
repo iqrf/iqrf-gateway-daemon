@@ -4,8 +4,9 @@
     "acceptAsyncMsg": false,
     "port": 1338,
     "acceptOnlyLocalhost": true,
-    "tlsEnabled": false,
+    "transportMode": 2,
     "tlsMode": 1,
+    "tlsPort": 8338,
     "cert": "/etc/iqrf-gateway-daemon/certs/core/cert.pem",
     "privKey": "/etc/iqrf-gateway-daemon/certs/core/privkey.pem",
     "authTimeout": 30
