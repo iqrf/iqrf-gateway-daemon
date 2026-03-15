@@ -1,13 +1,20 @@
 #pragma once
 
+#include <atomic>
 #include <boost/asio/ssl.hpp>
 #include <boost/beast/core.hpp>
 #include "boost/beast/core/error.hpp"
 #include "boost/beast/websocket/stream.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <memory>
+#include <mutex>
 #include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 #include "WebsocketCallbackTypes.h"
 
 namespace iqrf {
@@ -92,5 +99,135 @@ namespace iqrf {
      */
     virtual bool isAuthenticated() = 0;
 
+  };
+
+  /// @brief Session call type
+  using SessionHandler = std::function<void(std::shared_ptr<IWebSocketClientSession>)>;
+
+  /**
+   * @brief Session manager class
+   *
+   * This class holds a map of sessions, intended for use with websocket server class.
+   * When a new session is created, the session registry reference is passed into the session,
+   * so that if the session can be accepted, it can register itself, and unregister on termination.
+   *
+   * The session manager also maintains session ID counter, that allows callers to fetch next session ID
+   * and the internal counter is incremented. The used counter is atomic, to prevent race conditions.
+   *
+   * Session is created with a capacity, specifying number of concurrent sessions (connected clients).
+   */
+  class SessionManager {
+  private:
+    /// Atomic session ID counter
+    std::atomic_size_t sessionIdCounter_{0};
+    /// Maximum client session count
+    std::size_t capacity_{50};
+    /// Map of stored sessions
+    std::unordered_map<std::size_t, std::weak_ptr<IWebSocketClientSession>> sessionStorage_;
+    /// Session map access mutex
+    mutable std::mutex mutex_;
+  public:
+    /**
+     * Constructs a session manager with capacity
+     * @param capacity Session manager capacity
+     */
+    explicit SessionManager(std::size_t capacity) : capacity_(capacity) {}
+
+    /**
+     * Returns next session ID and updates the counter
+     * @return `std::size_t` Next session ID
+     */
+    std::size_t getNextSessionId() {
+      return sessionIdCounter_.fetch_add(1, std::memory_order_relaxed);
+    }
+
+    /**
+     * Registers session with ID
+     *
+     * The method checks if session storage is full (against the capacity),
+     * and if there is no more space for the new client, returns false.
+     *
+     * If the session can be accepted, it is stored and the method returns true.
+     *
+     * @param id Session ID
+     * @param session Session to store
+     * @return `true` if session can be accepted, `false` otherwise
+     */
+    bool registerSession(std::size_t id, std::shared_ptr<IWebSocketClientSession> session) {
+      std::lock_guard<std::mutex> lock(mutex_);
+
+      if (sessionStorage_.size() >= capacity_) {
+        return false;
+      }
+
+      // TODO: if ID exists, do not add, do not override session map
+
+      sessionStorage_[id] = session;
+      return true;
+    }
+
+    /**
+     * Finds a session by ID and returns pointer to it
+     *
+     * The method returns a temporary shared pointer to session that should be destroyed
+     * once the session pointer is no longer needed, no further actions need to be performed
+     * on the session.
+     *
+     * @param id Session ID
+     * @return Shared pointer to session object or null pointer if session does not exist
+     */
+    std::shared_ptr<IWebSocketClientSession> getSession(std::size_t id) {
+      std::lock_guard<std::mutex> lock(mutex_);
+      auto record = sessionStorage_.find(id);
+      if (record == sessionStorage_.end()) {
+        return nullptr;
+      }
+      auto session = record->second.lock();
+      if (!session) {
+        return nullptr;
+      }
+      return session;
+    }
+
+    /**
+     * Pass a function to call on every available session
+     *
+     * This method is useful for actions to be performed on all sessions
+     * such as broadcasting a message, or closing all sessions at once.
+     *
+     * @param handler Function to call
+     */
+    template<class SessionHandler>
+    void forEachSession(SessionHandler&& handler) {
+      std::vector<std::shared_ptr<IWebSocketClientSession>> sessions;
+
+      {
+        std::lock_guard<std::mutex> lock(mutex_);
+        sessions.reserve(sessionStorage_.size());
+        for (auto [_, session] : sessionStorage_) {
+          if (auto sessionPointer = session.lock()) {
+            sessions.push_back(std::move(sessionPointer));
+          }
+        }
+      }
+
+      for (auto& session : sessions) {
+        handler(session);
+      }
+    }
+
+    /**
+     * Unregister session by ID
+     * @param id Session ID
+     * @return `true` if session existed and was removed from storage, `false` otherwise
+     */
+    bool unregisterSession(std::size_t id) {
+      std::lock_guard<std::mutex> lock(mutex_);
+      if (sessionStorage_.count(id)) {
+        sessionStorage_.erase(id);
+        return true;
+      }
+      return false;
+    }
   };
 }

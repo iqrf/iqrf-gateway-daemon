@@ -22,7 +22,6 @@
 #include "WebSocketClientSession.h"
 #include "WebsocketServerParams.h"
 
-#include <atomic>
 #include <boost/asio/ip/address.hpp>
 #include <boost/asio/ip/address_v4.hpp>
 #include <boost/asio/ip/address_v6.hpp>
@@ -32,12 +31,10 @@
 #include <boost/beast/core/bind_handler.hpp>
 #include <boost/beast/core/error.hpp>
 #include <filesystem>
-#include <iostream>
 #include <memory>
 #include <mutex>
 #include <optional>
 #include <thread>
-#include <unordered_map>
 
 #include <boost/asio/ip/v6_only.hpp>
 #include <rapidjson/pointer.h>
@@ -75,16 +72,12 @@ namespace iqrf {
     std::vector<Listener> listeners_;
     /// IO context work guard
     std::optional<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>> workGuard_;
-    /// Session ID
-    std::atomic<std::size_t> sessionIdCounter_{0};
-    /// Session registry mutex
-    std::mutex sessionMtx_;
-    /// Session registry
-    std::unordered_map<size_t, std::shared_ptr<IWebSocketClientSession>> sessionStorage_;
+    ///
+    SessionManager sessionManager_;
     /// Maximum number of clients concurrently
     static constexpr int MAX_CLIENTS = 50;
   public:
-    Impl(const WebsocketServerParams& params): wsParams_(params) {
+    Impl(const WebsocketServerParams& params): wsParams_(params), sessionManager_(MAX_CLIENTS) {
       TRC_FUNCTION_ENTER("");
       if (wsParams_.transportMode != TransportModes::PLAIN) {
         initializeSsl();
@@ -101,7 +94,8 @@ namespace iqrf {
       wsParams_(params),
       messageReceivedCallback_(onMessage),
       authCallback_(onAuth),
-      connectionClosedCallback_(onClose)
+      connectionClosedCallback_(onClose),
+      sessionManager_(MAX_CLIENTS)
     {
       TRC_FUNCTION_ENTER("");
       if (wsParams_.transportMode != TransportModes::PLAIN) {
@@ -159,10 +153,9 @@ namespace iqrf {
     }
 
     void closeSession(const std::size_t sessionId, const boost::beast::websocket::close_code ec) {
-      std::lock_guard<std::mutex> lock(sessionMtx_);
-      auto record = sessionStorage_.find(sessionId);
-      if (record != sessionStorage_.end()) {
-        record->second->closeSession(ec);
+      auto session = sessionManager_.getSession(sessionId);
+      if (session) {
+        session->closeSession(ec);
       }
     }
 
@@ -192,24 +185,23 @@ namespace iqrf {
       }
 
       // cleanup
-      sessionStorage_.clear();
       listeners_.clear();
       workGuard_.reset();
       ioc_.reset();
     }
 
     void send(const std::string& message) {
-      std::lock_guard<std::mutex> lock(sessionMtx_);
-      for (auto [_, session] : sessionStorage_) {
-        session->sendMessage(message);
-      }
+      sessionManager_.forEachSession(
+        [message](std::shared_ptr<IWebSocketClientSession> session) {
+          session->sendMessage(message);
+        }
+      );
     }
 
     void send(const std::size_t sessionId, const std::string& message) {
-      std::lock_guard<std::mutex> lock(sessionMtx_);
-      auto record = sessionStorage_.find(sessionId);
-      if (record != sessionStorage_.end()) {
-        record->second->sendMessage(message);
+      auto session = sessionManager_.getSession(sessionId);
+      if (session) {
+        session->sendMessage(message);
       } else {
         TRC_WARNING(
           SERVER_LOG(wsParams_.instance, wsParams_.port) << "Cannot send message, session ID "
@@ -401,88 +393,13 @@ namespace iqrf {
             );
             return;
           }
-
-          if (listener.tls) {
-            this->onAcceptTlsCallback(std::move(ec), std::move(socket));
-          } else {
-            this->onAcceptPlainCallback(std::move(ec), std::move(socket));
-          }
+          onAcceptCallback(ec, std::move(socket), listener.tls);
           doAccept(listener);
         }
       );
     }
 
-    void onAcceptTlsCallback(boost::beast::error_code ec, boost::asio::ip::tcp::socket socket) {
-      if (ec) {
-        TRC_WARNING(
-          SERVER_LOG(wsParams_.instance, wsParams_.port)
-          << "Failed to accept incoming connection: "
-          << BEAST_ERR_LOG(ec)
-        );
-        return;
-      }
-
-      // accept connection and create session as normal
-      auto stream = std::make_shared<TlsWebSocketStream>(std::move(socket), *sslCtx_);
-      stream->next_layer().async_handshake(
-        boost::asio::ssl::stream_base::server,
-        [this, stream](boost::beast::error_code ec) {
-          if (ec) {
-            TRC_WARNING(
-              SERVER_LOG(wsParams_.instance, wsParams_.port)
-              << "Failed to complete TLS handshake: "
-              << BEAST_ERR_LOG(ec)
-            );
-            stream->next_layer().lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-            stream->next_layer().lowest_layer().close();
-            return;
-          }
-
-          // lock before accessing session storage
-          std::unique_lock<std::mutex> lock(sessionMtx_);
-          bool canAccept = sessionStorage_.size() < MAX_CLIENTS;
-          if (!canAccept) {
-            TRC_WARNING(
-              SERVER_LOG(wsParams_.instance, wsParams_.port)
-              << "Server at client capacity, closing socket."
-            );
-            stream->next_layer().lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-            stream->next_layer().lowest_layer().close();
-            lock.unlock();
-            return;
-          }
-
-          auto clientSession = std::make_shared<WebSocketClientSession<TlsWebSocketStream>>(
-            sessionIdCounter_++,
-            std::move(*stream),
-            wsParams_.authTimeout
-          );
-
-          TRC_INFORMATION(
-            SERVER_LOG(wsParams_.instance, wsParams_.port)
-            << "Incoming connection from " << clientSession->getAddress() << ':' << clientSession->getPort()
-            << ", session ID " << clientSession->getId()
-          );
-
-          // set callbacks
-          clientSession->setOnMessage(messageReceivedCallback_);
-          clientSession->setAuthCallback(authCallback_);
-          clientSession->setOnClose(
-            [this](std::size_t sessionId) {
-              removeSession(sessionId);
-            }
-          );
-          // store session in server
-          addSession(clientSession);
-          // unlock after updating session map
-          lock.unlock();
-          // run session
-          clientSession->startSession();
-        }
-      );
-    }
-
-    void onAcceptPlainCallback(boost::beast::error_code ec, boost::asio::ip::tcp::socket socket) {
+    void onAcceptCallback(boost::beast::error_code ec, boost::asio::ip::tcp::socket socket, bool tls) {
       if (ec) {
         TRC_WARNING(
           SERVER_LOG(wsParams_.instance, wsParams_.port)
@@ -494,45 +411,51 @@ namespace iqrf {
         return;
       }
 
-      // lock before accessing session storage
-      std::unique_lock<std::mutex> lock(sessionMtx_);
-      bool canAccept = sessionStorage_.size() < MAX_CLIENTS;
-      if (!canAccept) {
-        TRC_WARNING(
-          SERVER_LOG(wsParams_.instance, wsParams_.port)
-          << "Server at client capacity, closing socket."
-        );
-        socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-        socket.close();
-        lock.unlock();
-        return;
-      }
-
       // accept connection and create session as normal
-      auto stream = PlainWebSocketStream(std::move(socket));
-      auto clientSession = std::make_shared<WebSocketClientSession<PlainWebSocketStream>>(
-        sessionIdCounter_++,
-        std::move(stream),
-        wsParams_.authTimeout
-      );
+      std::shared_ptr<IWebSocketClientSession> clientSession = nullptr;
+      if (tls) {
+        auto stream = std::make_shared<TlsWebSocketStream>(std::move(socket), *sslCtx_);
+        clientSession = std::make_shared<WebSocketClientSession<TlsWebSocketStream>>(
+          sessionManager_.getNextSessionId(),
+          std::move(*stream),
+          wsParams_.authTimeout,
+          sessionManager_
+        );
+      } else {
+        auto stream = std::make_shared<PlainWebSocketStream>(std::move(socket));
+        clientSession = std::make_shared<WebSocketClientSession<PlainWebSocketStream>>(
+          sessionManager_.getNextSessionId(),
+          std::move(*stream),
+          wsParams_.authTimeout,
+          sessionManager_
+        );
+      }
 
       TRC_INFORMATION(
         SERVER_LOG(wsParams_.instance, wsParams_.port)
         << "Incoming connection from " << clientSession->getAddress() << ':' << clientSession->getPort()
         << ", session ID " << clientSession->getId()
       );
+
       // set callbacks
+      clientSession->setOnOpen(
+        [this](std::size_t sessionId) {
+          TRC_INFORMATION(
+            SERVER_LOG(wsParams_.instance, wsParams_.port)
+            << "Client session ID " << sessionId << " registered"
+          )
+        }
+      );
       clientSession->setOnMessage(messageReceivedCallback_);
       clientSession->setAuthCallback(authCallback_);
       clientSession->setOnClose(
         [this](std::size_t sessionId) {
-          removeSession(sessionId);
+          TRC_INFORMATION(
+            SERVER_LOG(wsParams_.instance, wsParams_.port)
+            << "Client session ID " << sessionId << " unregistered"
+          );
         }
       );
-      // store session in server
-      addSession(clientSession);
-      // unlock after updating session map
-      lock.unlock();
       // run session
       clientSession->startSession();
     }
@@ -576,42 +499,12 @@ namespace iqrf {
       }
     }
 
-    void addSession(std::shared_ptr<IWebSocketClientSession> session) {
-      sessionStorage_[session->getId()] = session;
-
-      TRC_INFORMATION(
-        SERVER_LOG(wsParams_.instance, wsParams_.port)
-        << "New client session registered with ID " << session->getId()
-      );
-    }
-
-    void removeSession(const size_t sessionId) {
-      std::lock_guard<std::mutex> lock(sessionMtx_);
-
-      auto record = sessionStorage_.find(sessionId);
-      if (record != sessionStorage_.end()) {
-        if (connectionClosedCallback_) {
-          connectionClosedCallback_(sessionId);
-        }
-        sessionStorage_.erase(sessionId);
-        TRC_INFORMATION(
-          SERVER_LOG(wsParams_.instance, wsParams_.port)
-          << "Client session ID " << sessionId << " unregistered"
-        );
-      } else {
-        TRC_WARNING(
-          SERVER_LOG(wsParams_.instance, wsParams_.port)
-          << "Cannot remove non-existent session with ID "
-          << sessionId
-        );
-      }
-    }
-
     void closeAllSessions() {
-      std::lock_guard<std::mutex> lock(sessionMtx_);
-      for (auto [_, session] : sessionStorage_) {
-        session->closeSession(boost::beast::websocket::close_code::normal);
-      }
+      sessionManager_.forEachSession(
+        [](std::shared_ptr<IWebSocketClientSession> session) {
+          session->closeSession(boost::beast::websocket::close_code::normal);
+        }
+      );
     }
   };
 
