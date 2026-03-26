@@ -104,7 +104,8 @@ namespace iqrf {
       tlsPort,
       certPath,
       keyPath,
-      DEFAULT_AUTH_TIMEOUT
+      DEFAULT_AUTH_TIMEOUT,
+      DEFAULT_MAX_CLIENTS
     );
 
     TRC_FUNCTION_LEAVE("");

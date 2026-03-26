@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2025 IQRF Tech s.r.o.
- * Copyright 2019-2025 MICRORISC s.r.o.
+ * Copyright 2015-2026 IQRF Tech s.r.o.
+ * Copyright 2019-2026 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,12 +72,10 @@ namespace iqrf {
     std::vector<Listener> listeners_;
     /// IO context work guard
     std::optional<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>> workGuard_;
-    ///
+    /// Session manager
     SessionManager sessionManager_;
-    /// Maximum number of clients concurrently
-    static constexpr int MAX_CLIENTS = 50;
   public:
-    Impl(const WebsocketServerParams& params): wsParams_(params), sessionManager_(MAX_CLIENTS) {
+    Impl(const WebsocketServerParams& params): wsParams_(params), sessionManager_(wsParams_.maxClients) {
       TRC_FUNCTION_ENTER("");
       if (wsParams_.transportMode != TransportModes::PLAIN) {
         initializeSsl();
@@ -95,7 +93,7 @@ namespace iqrf {
       messageReceivedCallback_(onMessage),
       authCallback_(onAuth),
       connectionClosedCallback_(onClose),
-      sessionManager_(MAX_CLIENTS)
+      sessionManager_(wsParams_.maxClients)
     {
       TRC_FUNCTION_ENTER("");
       if (wsParams_.transportMode != TransportModes::PLAIN) {

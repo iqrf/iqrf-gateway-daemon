@@ -18,7 +18,8 @@
         "tlsPort",
         "cert",
         "privKey",
-        "authTimeout"
+        "authTimeout",
+        "maxClients"
     ],
     "additionalProperties": false,
     "properties": {
@@ -80,6 +81,12 @@
             "description": "Authentication timeout for clients",
             "minimum": 10,
             "maximum": 60
+        },
+        "maxClients": {
+            "type": "integer",
+            "description": "Maximum number of connected clients",
+            "minimum": 0,
+            "default": 50
         }
     }
 }

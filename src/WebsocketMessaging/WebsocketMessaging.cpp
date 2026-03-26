@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2025 IQRF Tech s.r.o.
- * Copyright 2019-2025 MICRORISC s.r.o.
+ * Copyright 2015-2026 IQRF Tech s.r.o.
+ * Copyright 2019-2026 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 #include "WebsocketServerParams.h"
 #include <chrono>
+#include <cstddef>
 #define IMessagingService_EXPORTS
 
 #include "WebsocketMessaging.h"
@@ -123,6 +124,7 @@ namespace iqrf {
       std::string certPath = getCertPath(Pointer("/cert").Get(doc)->GetString());
       std::string keyPath = getCertPath(Pointer("/privKey").Get(doc)->GetString());
       uint16_t authTimeout = static_cast<uint16_t>(Pointer("/authTimeout").Get(doc)->GetUint());
+      std::size_t maxClients = static_cast<std::size_t>(Pointer("/maxClients").Get(doc)->GetUint64());
       m_params = WebsocketServerParams(
         instance,
         port,
@@ -132,7 +134,8 @@ namespace iqrf {
         tlsPort,
         certPath,
         keyPath,
-        authTimeout
+        authTimeout,
+        maxClients
       );
 
       m_messagingInstance.instance = instance;
