@@ -9,5 +9,6 @@
     "tlsPort": 8338,
     "cert": "/etc/iqrf-gateway-daemon/certs/core/cert.pem",
     "privKey": "/etc/iqrf-gateway-daemon/certs/core/privkey.pem",
-    "authTimeout": 30
+    "authTimeout": 30,
+    "maxClients": 50
 }

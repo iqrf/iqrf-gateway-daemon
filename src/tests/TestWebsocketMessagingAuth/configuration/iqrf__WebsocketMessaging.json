@@ -9,5 +9,6 @@
   "tlsPort": 8338,
   "cert": "cert.pem",
   "privKey": "privkey.pem",
-  "authTimeout": 15
+  "authTimeout": 15,
+  "maxClients": 50
 }
