@@ -3,9 +3,9 @@
     "instance": "iqrf::MonitorService",
     "reportPeriod": 10,
     "port": 1438,
-    "transportMode": 0,
     "acceptOnlyLocalhost": false,
-    "tlsMode": 1,
+    "transportMode": "plain",
+    "tlsMode": "intermediate",
     "tlsPort": 8438,
     "cert": "",
     "privKey": ""

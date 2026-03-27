@@ -50,14 +50,22 @@
             "description": "Only accept localhost connections"
         },
         "transportMode": {
-            "type": "integer",
-            "description": "Transport mode (0 - plain, 1 - tls, 2 - both)",
-            "enum": [0, 1, 2]
+            "type": "string",
+            "description": "Transport mode",
+            "enum": [
+                "plain",
+                "tls",
+                "both"
+            ]
         },
         "tlsMode": {
-            "type": "integer",
-            "description": "TLS configuration (0 - modern, 1 - intermediate, 2 - old)",
-            "enum": [0, 1, 2]
+            "type": "string",
+            "description": "TLS configuration",
+            "enum": [
+                "modern",
+                "intermediate",
+                "old"
+            ]
         },
         "tlsPort":  {
             "type": "integer",
