@@ -15,12 +15,12 @@ protected:
   std::string owner = "test";
   std::string salt = "G51ubXO8K+NIBjms7zRarw==";
   std::string hash = "JzDeC2H1D8+rG0/Z9QABWz3APZ++lfmC2tzwTOgaIC8=";
-  std::string created_at_str = "2024-11-04T01:20:00Z";
+  std::string created_at_str = "2024-11-04T01:20:00.000Z";
   std::chrono::system_clock::time_point created_at =
     date::sys_days{date::year(2024)/11/4} +
     std::chrono::hours(1) +
     std::chrono::minutes(20);
-  std::string expires_at_str = "2024-11-14T01:20:00Z";
+  std::string expires_at_str = "2024-11-14T01:20:00.000Z";
   std::chrono::system_clock::time_point expires_at =
     date::sys_days{date::year(2024)/11/14} +
     std::chrono::hours(1) +
@@ -142,18 +142,18 @@ TEST_F(CliUtilsTest, token_to_json_revoked) {
   EXPECT_TRUE(doc.count("service"));
   EXPECT_FALSE(doc["service"]);
   EXPECT_TRUE(doc.count("invalidated_at"));
-  EXPECT_EQ("2024-11-05T16:24:55Z", doc["invalidated_at"]);
+  EXPECT_EQ("2024-11-05T16:24:55.000Z", doc["invalidated_at"]);
 }
 
 TEST_F(CliUtilsTest, token_to_json_string_valid) {
   auto now = token.getExpiresAt() - std::chrono::seconds(60);
-  std::string expected = R"({"created_at":"2024-11-04T01:20:00Z","expires_at":"2024-11-14T01:20:00Z","id":1,"invalidated_at":null,"owner":"test","service":false,"status":0})";
+  std::string expected = R"({"created_at":"2024-11-04T01:20:00.000Z","expires_at":"2024-11-14T01:20:00.000Z","id":1,"invalidated_at":null,"owner":"test","service":false,"status":0})";
   EXPECT_EQ(expected, token_to_json_string(token, now));
 }
 
 TEST_F(CliUtilsTest, token_to_json_string_marked_valid_expired) {
   auto now = token.getExpiresAt() + std::chrono::seconds(60);
-  std::string expected = R"({"created_at":"2024-11-04T01:20:00Z","expires_at":"2024-11-14T01:20:00Z","id":1,"invalidated_at":null,"owner":"test","service":false,"status":1})";
+  std::string expected = R"({"created_at":"2024-11-04T01:20:00.000Z","expires_at":"2024-11-14T01:20:00.000Z","id":1,"invalidated_at":null,"owner":"test","service":false,"status":1})";
   EXPECT_EQ(expected, token_to_json_string(token, now));
 }
 
@@ -165,7 +165,7 @@ TEST_F(CliUtilsTest, token_to_json_string_revoked) {
     std::chrono::seconds{55};
   token.revoke(revoked_at);
   auto now = token.getExpiresAt() + std::chrono::seconds(60);
-  std::string expected = R"({"created_at":"2024-11-04T01:20:00Z","expires_at":"2024-11-14T01:20:00Z","id":1,"invalidated_at":"2024-11-05T16:24:55Z","owner":"test","service":false,"status":2})";
+  std::string expected = R"({"created_at":"2024-11-04T01:20:00.000Z","expires_at":"2024-11-14T01:20:00.000Z","id":1,"invalidated_at":"2024-11-05T16:24:55.000Z","owner":"test","service":false,"status":2})";
   EXPECT_EQ(expected, token_to_json_string(token, now));
 }
 

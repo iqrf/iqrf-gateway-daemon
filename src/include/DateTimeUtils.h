@@ -23,14 +23,6 @@ public:
   }
 
   /**
-   * @brief Get current time as Unix epoch timestamp
-   * @return Current time in seconds since epoch
-   */
-  static int64_t get_current_timestamp() {
-    return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-  }
-
-  /**
    * @brief Parse an expiration time string into a time point.
    *
    * Supports:
@@ -45,7 +37,7 @@ public:
     if (!input.empty()) {
       std::optional<std::chrono::system_clock::time_point> candidate;
       try {
-        candidate.emplace(DatetimeParser::parse_to_timepoint(input));
+        candidate.emplace(DatetimeParser::parseISO8601(input));
       } catch (const std::invalid_argument &e) {
         // invalid string, catch to allow to attempt parsing relative
       }

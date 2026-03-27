@@ -347,13 +347,13 @@ public:
     auto owner = stmt.getColumn(1).getString();
     auto salt = stmt.getColumn(2).getString();
     auto hash = stmt.getColumn(3).getString();
-    auto createdAt = DatetimeParser::parse_to_timepoint(stmt.getColumn(4).getString());
-    auto expiresAt = DatetimeParser::parse_to_timepoint(stmt.getColumn(5).getString());
+    auto createdAt = DatetimeParser::parseISO8601(stmt.getColumn(4).getString());
+    auto expiresAt = DatetimeParser::parseISO8601(stmt.getColumn(5).getString());
     auto status = stmt.getColumn(6).getInt();
     bool service = stmt.getColumn(7).getUInt() != 0;
     std::optional<std::chrono::system_clock::time_point> invalidatedAt = std::nullopt;
     if (!stmt.getColumn(8).isNull()) {
-      invalidatedAt = DatetimeParser::parse_to_timepoint(stmt.getColumn(8).getString());
+      invalidatedAt = DatetimeParser::parseISO8601(stmt.getColumn(8).getString());
     }
     return ApiToken(id, owner, salt, hash, createdAt, expiresAt, status, service, invalidatedAt);
   }

@@ -1,4 +1,3 @@
-#include "TimeConversion.h"
 #include "api_token.hpp"
 #include "cli_utils.h"
 #include "commands.h"
@@ -72,11 +71,11 @@ void get_token(uint32_t id, const SharedParams& params) {
     std::cout
       << "ID: " << std::to_string(token->getId()) << '\n'
       << "Owner: " << token->getOwner() << '\n'
-      << "Created at: " << TimeConversion::getISO8601TimestampSafe(token->getCreatedAt()) << '\n'
-      << "Expires at: " << TimeConversion::getISO8601TimestampSafe(token->getExpiresAt()) << '\n'
+      << "Created at: " << DatetimeParser::toISO8601(token->getCreatedAt()) << '\n'
+      << "Expires at: " << DatetimeParser::toISO8601(token->getExpiresAt()) << '\n'
       << "Status: " << ApiToken::toString(token->getDisplayStatus(now)) << '\n'
       << "Service mode: " << (token->canUseServiceMode() ? "YES" : "NO") << '\n'
-      << "Invalidated at: " << (invalidated_at.has_value() ? TimeConversion::getISO8601TimestampSafe(invalidated_at.value()) : "--") << '\n';
+      << "Invalidated at: " << (invalidated_at.has_value() ? DatetimeParser::toISO8601(invalidated_at.value()) : "--") << '\n';
   }
 }
 
@@ -106,11 +105,11 @@ void list_tokens(const SharedParams& params) {
     std::cout << '|'
       << pad_end(std::to_string(token.getId()), OUTPUT_ID_LEN) << ' '
       << pad_end(token.getOwner(), MAX_OWNER_LEN) << ' '
-      << pad_end(TimeConversion::getISO8601TimestampSafe(token.getCreatedAt()), OUTPUT_DT_LEN) << ' '
-      << pad_end(TimeConversion::getISO8601TimestampSafe(token.getExpiresAt()), OUTPUT_DT_LEN) << ' '
+      << pad_end(DatetimeParser::toISO8601(token.getCreatedAt()), OUTPUT_DT_LEN) << ' '
+      << pad_end(DatetimeParser::toISO8601(token.getExpiresAt()), OUTPUT_DT_LEN) << ' '
       << pad_end(std::string(token.getDisplayStatusString(now)), OUTPUT_STATUS_LEN) << ' '
       << pad_end(token.canUseServiceMode() ? "YES" : "NO", OUTPUT_SERVICE_LEN) << ' '
-      << pad_end(invalidated_at.has_value() ? TimeConversion::getISO8601TimestampSafe(invalidated_at.value()) : "--", OUTPUT_DT_LEN)
+      << pad_end(invalidated_at.has_value() ? DatetimeParser::toISO8601(invalidated_at.value()) : "--", OUTPUT_DT_LEN)
       << "|\n";
   }
   print_table_horizontal_line();

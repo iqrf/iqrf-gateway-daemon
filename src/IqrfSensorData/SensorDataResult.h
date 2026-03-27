@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "DatetimeParser.h"
 #include "JsDriverSensor.h"
 #include "rapidjson/document.h"
 #include "ServiceResultBase.h"
@@ -138,7 +139,7 @@ namespace iqrf {
 		void createStartMessage(Document &doc) {
 			ServiceResultBase::setResponseMetadata(doc);
 			auto tp = std::chrono::system_clock::now();
-			Pointer("/data/rsp/dateTime").Set(doc, TimeConversion::getISO8601TimestampSafe(tp));
+			Pointer("/data/rsp/dateTime").Set(doc, DatetimeParser::toISO8601(tp));
 			Pointer("/data/rsp/unixTime").Set(doc, TimeConversion::getEpochTimestamp(tp));
 			Pointer("/data/rsp/reportNum").Set(doc, m_reportNum);
 			Pointer("/data/rsp/reading").Set(doc, true);
@@ -207,7 +208,7 @@ namespace iqrf {
 				}
 				Pointer("/data/rsp/devices").Set(doc, array, allocator);
 				auto tp = std::chrono::system_clock::now();
-				Pointer("/data/rsp/dateTime").Set(doc, TimeConversion::getISO8601TimestampSafe(tp));
+				Pointer("/data/rsp/dateTime").Set(doc, DatetimeParser::toISO8601(tp));
 				Pointer("/data/rsp/unixTime").Set(doc, TimeConversion::getEpochTimestamp(tp));
 				Pointer("/data/rsp/reportNum").Set(doc, m_reportNum);
 				Pointer("/data/rsp/reading").Set(doc, false);

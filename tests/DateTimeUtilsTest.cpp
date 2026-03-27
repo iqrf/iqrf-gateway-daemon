@@ -22,32 +22,6 @@ TEST(DateTimeUtilsTest, is_time_unit_invalid) {
   EXPECT_FALSE(DateTimeUtils::is_time_unit('Y'));
 }
 
-TEST(DateTimeUtilsTest, get_current_timestamp_no_delay) {
-  auto before = std::chrono::system_clock::now();
-  auto ts = DateTimeUtils::get_current_timestamp();
-  auto after = std::chrono::system_clock::now();
-
-  auto before_epoch = std::chrono::duration_cast<std::chrono::seconds>(before.time_since_epoch()).count();
-  auto after_epoch = std::chrono::duration_cast<std::chrono::seconds>(after.time_since_epoch()).count();
-
-  EXPECT_LE(before_epoch, ts);
-  EXPECT_GE(after_epoch, ts);
-}
-
-TEST(DateTimeUtilsTest, get_current_timestamp_delay) {
-  auto before = std::chrono::system_clock::now();
-  std::this_thread::sleep_for(std::chrono::seconds(1));
-  auto ts = DateTimeUtils::get_current_timestamp();
-  std::this_thread::sleep_for(std::chrono::seconds(1));
-  auto after = std::chrono::system_clock::now();
-
-  auto before_epoch = std::chrono::duration_cast<std::chrono::seconds>(before.time_since_epoch()).count();
-  auto after_epoch = std::chrono::duration_cast<std::chrono::seconds>(after.time_since_epoch()).count();
-
-  EXPECT_LE(before_epoch, ts);
-  EXPECT_GE(after_epoch, ts);
-}
-
 TEST(DateTimeUtilsTest, parse_expiration_timestamp_valid) {
   std::chrono::system_clock::time_point tp =
     date::sys_days{date::year{2025}/11/4} +

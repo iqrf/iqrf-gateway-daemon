@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "TimeConversion.h"
+#include "DatetimeParser.h"
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/connect.hpp>
 #include <boost/asio/error.hpp>
@@ -270,8 +270,8 @@ namespace iqrf {
       stmt.bind(2, token.getOwner());
       stmt.bind(3, token.getSalt());
       stmt.bind(4, token.getHash());
-      stmt.bind(5, TimeConversion::getISO8601TimestampSafe(created_at));
-      stmt.bind(6, TimeConversion::getISO8601TimestampSafe(expires_at));
+      stmt.bind(5, DatetimeParser::toISO8601(created_at));
+      stmt.bind(6, DatetimeParser::toISO8601(expires_at));
       stmt.bind(7, static_cast<int>(token.getStatus()));
       stmt.bind(8, token.canUseServiceMode());
       try {
@@ -714,7 +714,7 @@ namespace iqrf {
     beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":\"" + DatetimeParser::toISO8601(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -771,7 +771,7 @@ R"({
     beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":\"" + DatetimeParser::toISO8601(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -816,7 +816,7 @@ R"({
     beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":\"" + DatetimeParser::toISO8601(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -869,7 +869,7 @@ R"({
     beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":true,\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":\"" + DatetimeParser::toISO8601(expiration) + "\",\"service\":true,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -1014,7 +1014,7 @@ R"({
     beast::flat_buffer buffer;
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":\"" + DatetimeParser::toISO8601(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -1045,10 +1045,10 @@ R"({
     ws.close(beast::websocket::close_code::normal, ec);
     ASSERT_FALSE(ec);
 
-    removeToken(revoked_later_token.getId());
+    removeToken(valid_token.getId());
     auto timestamp = std::chrono::system_clock::now();
     auto expiration = timestamp + std::chrono::hours(365 * 24);
-    insertToken(revoked_later_token, timestamp, expiration);
+    insertToken(valid_token, timestamp, expiration);
 
     // create streams within capacity
     auto const resolved = resolver.resolve("localhost", "1338", ec);
@@ -1074,7 +1074,7 @@ R"({
       // read auth success
       stream->read(buffer, ec);
       ASSERT_FALSE(ec);
-      std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
+      std::string expected = "{\"expiration\":\"" + DatetimeParser::toISO8601(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
       std::string received = beast::buffers_to_string(buffer.data());
       EXPECT_EQ(expected, received);
       buffer.consume(buffer.size());
@@ -1427,7 +1427,7 @@ R"({
     beast::flat_buffer buffer;
     ws->read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":\"" + DatetimeParser::toISO8601(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -1484,7 +1484,7 @@ R"({
     beast::flat_buffer buffer;
     ws->read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":\"" + DatetimeParser::toISO8601(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -1529,7 +1529,7 @@ R"({
     beast::flat_buffer buffer;
     ws->read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":\"" + DatetimeParser::toISO8601(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -1582,7 +1582,7 @@ R"({
     beast::flat_buffer buffer;
     ws->read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":true,\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":\"" + DatetimeParser::toISO8601(expiration) + "\",\"service\":true,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -1727,7 +1727,7 @@ R"({
     beast::flat_buffer buffer;
     ws->read(buffer, ec);
     ASSERT_FALSE(ec);
-    std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
+    std::string expected = "{\"expiration\":\"" + DatetimeParser::toISO8601(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
     std::string received = beast::buffers_to_string(buffer.data());
     EXPECT_EQ(expected, received);
     buffer.consume(buffer.size());
@@ -1763,10 +1763,10 @@ R"({
     ASSERT_FALSE(ec);
     ASSERT_FALSE(ws->is_open());
 
-    removeToken(revoked_later_token.getId());
+    removeToken(valid_token.getId());
     auto timestamp = std::chrono::system_clock::now();
     auto expiration = timestamp + std::chrono::hours(365 * 24);
-    insertToken(revoked_later_token, timestamp, expiration);
+    insertToken(valid_token, timestamp, expiration);
 
     // create streams within capacity
     auto const resolved = resolver.resolve("localhost", "8338", ec);
@@ -1795,7 +1795,7 @@ R"({
       // read auth success
       stream->read(buffer, ec);
       ASSERT_FALSE(ec);
-      std::string expected = "{\"expiration\":\"" + TimeConversion::getISO8601TimestampSafe(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
+      std::string expected = "{\"expiration\":\"" + DatetimeParser::toISO8601(expiration) + "\",\"service\":false,\"type\":\"auth_success\"}";
       std::string received = beast::buffers_to_string(buffer.data());
       EXPECT_EQ(expected, received);
       buffer.consume(buffer.size());

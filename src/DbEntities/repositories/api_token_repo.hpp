@@ -1,6 +1,5 @@
 #pragma once
 
-#include "TimeConversion.h"
 #include <chrono>
 #include <vector>
 
@@ -82,8 +81,8 @@ public:
     stmt.bind(1, apiToken.getOwner());
     stmt.bind(2, apiToken.getSalt());
     stmt.bind(3, apiToken.getHash());
-    stmt.bind(4, TimeConversion::getISO8601TimestampSafe(apiToken.getCreatedAt()));
-    stmt.bind(5, TimeConversion::getISO8601TimestampSafe(apiToken.getExpiresAt()));
+    stmt.bind(4, DatetimeParser::toISO8601(apiToken.getCreatedAt()));
+    stmt.bind(5, DatetimeParser::toISO8601(apiToken.getExpiresAt()));
     stmt.bind(6, static_cast<int>(apiToken.getStatus()));
     stmt.bind(7, apiToken.canUseServiceMode());
     try {
@@ -119,8 +118,8 @@ public:
     stmt.bind(2, apiToken.getOwner());
     stmt.bind(3, apiToken.getSalt());
     stmt.bind(4, apiToken.getHash());
-    stmt.bind(5, TimeConversion::getISO8601TimestampSafe(apiToken.getCreatedAt()));
-    stmt.bind(6, TimeConversion::getISO8601TimestampSafe(apiToken.getExpiresAt()));
+    stmt.bind(5, DatetimeParser::toISO8601(apiToken.getCreatedAt()));
+    stmt.bind(6, DatetimeParser::toISO8601(apiToken.getExpiresAt()));
     stmt.bind(7, static_cast<int>(apiToken.getStatus()));
     stmt.bind(8, apiToken.canUseServiceMode());
     try {
@@ -154,7 +153,7 @@ public:
     );
     auto invalidated_at = token.getInvalidatedAt();
     stmt.bind(1, static_cast<int>(token.getStatus()));
-    stmt.bind(2, invalidated_at.has_value() ? TimeConversion::getISO8601TimestampSafe(invalidated_at.value()) : nullptr);
+    stmt.bind(2, invalidated_at.has_value() ? DatetimeParser::toISO8601(invalidated_at.value()) : nullptr);
     stmt.bind(3, token.getId());
     try {
       stmt.exec();
@@ -183,7 +182,7 @@ public:
       )"
     );
     stmt.bind(1, static_cast<int>(ApiToken::Status::Revoked));
-    stmt.bind(2, TimeConversion::getISO8601TimestampSafe(now));
+    stmt.bind(2, DatetimeParser::toISO8601(now));
     stmt.bind(3, id);
     try {
       auto changes = stmt.exec();

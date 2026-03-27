@@ -36,9 +36,9 @@
 #include <optional>
 #include <string>
 
+#include "DatetimeParser.h"
 #include "IWebSocketClientSession.h"
 #include "CryptoUtils.h"
-#include "TimeConversion.h"
 #include "TraceMacros.h"
 #include "WebsocketServerUtils.h"
 #include "Trace.h"
@@ -514,7 +514,7 @@ namespace iqrf {
 
           this->sendMessage(
             create_auth_success_message(
-              TimeConversion::getISO8601TimestampSafe(expirationTime_.value()),
+              DatetimeParser::toISO8601(expirationTime_.value()),
               service_
             )
           );

@@ -1,5 +1,5 @@
 #include "cli_utils.h"
-#include "TimeConversion.h"
+#include "DatetimeParser.h"
 
 #include <chrono>
 #include <iostream>
@@ -118,14 +118,14 @@ json token_to_json(const iqrf::db::models::ApiToken& token, const std::chrono::s
   json doc = {
       {"id", token.getId()},
       {"owner", token.getOwner()},
-      {"created_at", TimeConversion::getISO8601TimestampSafe(token.getCreatedAt())},
-      {"expires_at", TimeConversion::getISO8601TimestampSafe(token.getExpiresAt())},
+      {"created_at", DatetimeParser::toISO8601(token.getCreatedAt())},
+      {"expires_at", DatetimeParser::toISO8601(token.getExpiresAt())},
       {"status", static_cast<int>(token.getDisplayStatus(now))},
       {"service", token.canUseServiceMode()},
       {"invalidated_at", nullptr}
   };
   if (invalidated_at.has_value()) {
-    doc["invalidated_at"] = TimeConversion::getISO8601TimestampSafe(invalidated_at.value());
+    doc["invalidated_at"] = DatetimeParser::toISO8601(invalidated_at.value());
   }
   return doc;
 }
@@ -135,14 +135,14 @@ std::string token_to_json_string(const iqrf::db::models::ApiToken& token, const 
   json doc = {
       {"id", token.getId()},
       {"owner", token.getOwner()},
-      {"created_at", TimeConversion::getISO8601TimestampSafe(token.getCreatedAt())},
-      {"expires_at", TimeConversion::getISO8601TimestampSafe(token.getExpiresAt())},
+      {"created_at", DatetimeParser::toISO8601(token.getCreatedAt())},
+      {"expires_at", DatetimeParser::toISO8601(token.getExpiresAt())},
       {"status", static_cast<int>(token.getDisplayStatus(now))},
       {"service", token.canUseServiceMode()},
       {"invalidated_at", nullptr}
   };
   if (invalidated_at.has_value()) {
-    doc["invalidated_at"] = TimeConversion::getISO8601TimestampSafe(invalidated_at.value());
+    doc["invalidated_at"] = DatetimeParser::toISO8601(invalidated_at.value());
   }
   return doc.dump();
 }
