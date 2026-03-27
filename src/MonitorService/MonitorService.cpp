@@ -90,8 +90,8 @@ namespace iqrf {
     std::string instance = rapidjson::Pointer("/instance").Get(doc)->GetString();
     uint16_t port = static_cast<uint16_t>(rapidjson::Pointer("/port").Get(doc)->GetUint());
     bool acceptOnlyLocalhost = rapidjson::Pointer("/acceptOnlyLocalhost").Get(doc)->GetBool();
-    TransportModes transportMode = transportModeFromValue(rapidjson::Pointer("/transportMode").Get(doc)->GetUint());
-    TlsModes tlsMode = tlsModeFromValue(rapidjson::Pointer("/tlsMode").Get(doc)->GetUint());
+    TransportModes transportMode = transportModeFromValue(rapidjson::Pointer("/transportMode").Get(doc)->GetString());
+    TlsModes tlsMode = tlsModeFromValue(rapidjson::Pointer("/tlsMode").Get(doc)->GetString());
     uint16_t tlsPort = static_cast<uint16_t>(Pointer("/tlsPort").Get(doc)->GetUint());
     std::string certPath = getCertPath(rapidjson::Pointer("/cert").Get(doc)->GetString());
     std::string keyPath = getCertPath(rapidjson::Pointer("/privKey").Get(doc)->GetString());

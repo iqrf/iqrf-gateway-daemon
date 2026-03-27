@@ -118,8 +118,8 @@ namespace iqrf {
       uint16_t port = static_cast<uint16_t>(Pointer("/port").Get(doc)->GetUint());
       m_acceptAsyncMsg = Pointer("/acceptAsyncMsg").Get(doc)->GetBool();
       bool acceptOnlyLocalhost = Pointer("/acceptOnlyLocalhost").Get(doc)->GetBool();
-      TransportModes transportMode = transportModeFromValue(Pointer("/transportMode").Get(doc)->GetUint());
-      TlsModes tlsMode = tlsModeFromValue(Pointer("/tlsMode").Get(doc)->GetUint());
+      TransportModes transportMode = transportModeFromValue(Pointer("/transportMode").Get(doc)->GetString());
+      TlsModes tlsMode = tlsModeFromValue(Pointer("/tlsMode").Get(doc)->GetString());
       uint16_t tlsPort = static_cast<uint16_t>(Pointer("/tlsPort").Get(doc)->GetUint());
       std::string certPath = getCertPath(Pointer("/cert").Get(doc)->GetString());
       std::string keyPath = getCertPath(Pointer("/privKey").Get(doc)->GetString());

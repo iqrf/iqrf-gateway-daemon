@@ -3,9 +3,9 @@
     "instance": "iqrf::MonitorService",
     "reportPeriod": 10,
     "port": 1438,
-    "transportMode": 0,
     "acceptOnlyLocalhost": true,
-    "tlsMode": 1,
+    "transportMode": "plain",
+    "tlsMode": "intermediate",
     "tlsPort": 8438,
     "cert": "/etc/iqrf-gateway-daemon/certs/core/cert.pem",
     "privKey": "/etc/iqrf-gateway-daemon/certs/core/privkey.pem"

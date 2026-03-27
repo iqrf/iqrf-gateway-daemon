@@ -33,29 +33,29 @@ namespace iqrf {
    * @brief Transport mode options for protocols / security
    */
   enum class TransportModes {
-    PLAIN = 0,
-    TLS = 1,
-    BOTH = 2,
+    PLAIN = 0,    ///< Plain connections
+    TLS = 1,      ///< TLS connections
+    BOTH = 2,     ///< Plain and TLS connections
   };
 
   /**
-   * @brief Constructs TransportModes enum class member from integer alue
+   * @brief Constructs TransportModes enum class member from string alue
    * @param value Transport mode value
    * @return `TransportModes` TransportModes representation
    *
    * @throws `std::invalid_argument` If TransportModes enum does not include value
    */
-  inline TransportModes transportModeFromValue(unsigned int value) {
-    switch (value) {
-      case 0:
-        return TransportModes::PLAIN;
-      case 1:
-        return TransportModes::TLS;
-      case 2:
-        return TransportModes::BOTH;
-      default:
-        throw std::invalid_argument("Unknown or unsupported transport mode value.");
+  inline TransportModes transportModeFromValue(const std::string& value) {
+    if (value == "plain") {
+      return TransportModes::PLAIN;
     }
+    if (value == "tls") {
+      return TransportModes::TLS;
+    }
+    if (value == "both") {
+      return TransportModes::BOTH;
+    }
+    throw std::invalid_argument("Unknown or unsupported transport mode value.");
   }
 
   /**
@@ -69,23 +69,23 @@ namespace iqrf {
   };
 
   /**
-   * @brief Constructs TlsModes enum class member from integer value
+   * @brief Constructs TlsModes enum class member from string value
    * @param value TLS mode value
    * @return TlsModes representation
    *
    * @throws `std::invalid_argument` If TlsModes enum does not include value
    */
-  inline TlsModes tlsModeFromValue(unsigned int value) {
-    switch (value) {
-      case 0:
-        return TlsModes::MODERN;
-      case 1:
-        return TlsModes::INTERMEDIATE;
-      case 2:
-        return TlsModes::OLD;
-      default:
-        throw std::invalid_argument("Unknown or unsupported TLS mode value.");
+  inline TlsModes tlsModeFromValue(const std::string& value) {
+    if (value == "modern") {
+      return TlsModes::MODERN;
     }
+    if (value == "intermediate") {
+      return TlsModes::INTERMEDIATE;
+    }
+    if (value == "old") {
+      return TlsModes::OLD;
+    }
+    throw std::invalid_argument("Unknown or unsupported TLS mode value.");
   }
 
   /**
