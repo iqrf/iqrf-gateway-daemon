@@ -40,7 +40,7 @@
             "type": "integer",
             "description": "Server port number",
             "default": 1338,
-            "minimum": 1024,
+            "minimum": 1,
             "maximum": 65535
         },
         "acceptAsyncMsg": {
@@ -73,7 +73,7 @@
             "type": "integer",
             "description": "Server TLS port number",
             "default": 8338,
-            "minimum": 1024,
+            "minimum": 1,
             "maximum": 65535
         },
         "cert": {
