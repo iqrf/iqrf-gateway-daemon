@@ -153,13 +153,13 @@ namespace iqrf {
 	std::unique_ptr<Device> IqrfDb::getDeviceByAddress(const uint8_t address) {
 		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceRepository deviceRepo(m_db);
-		return std::move(deviceRepo.getByAddress(address));
+		return deviceRepo.getByAddress(address);
 	}
 
 	std::unique_ptr<Device> IqrfDb::getDeviceByMid(const uint32_t mid) {
 		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceRepository deviceRepo(m_db);
-		return std::move(deviceRepo.getByMid(mid));
+		return deviceRepo.getByMid(mid);
 	}
 
 	std::vector<std::pair<Device, Product>> IqrfDb::getDevices(const std::vector<uint8_t>& requestedDevices) {
@@ -363,7 +363,7 @@ namespace iqrf {
 	std::unique_ptr<Product> IqrfDb::getProduct(const uint32_t productId) {
 		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::ProductRepository productRepo(m_db);
-		return std::move(productRepo.get(productId));
+		return productRepo.get(productId);
 	}
 
 	///// SENSOR API
@@ -548,9 +548,9 @@ namespace iqrf {
 			)
 		);
 		try {
-      MigrationManager manager(m_migrationDir);
+			MigrationManager manager(m_migrationDir);
 			manager.migrate(m_db);
-      m_db->exec("PRAGMA foreign_keys = ON;");
+			m_db->exec("PRAGMA foreign_keys = ON;");
 		} catch (const std::exception &e) {
 			THROW_EXC_TRC_WAR(std::logic_error, "[IqrfDb] Failed to migrate database to latest version: " << e.what());
 		}
@@ -690,20 +690,20 @@ namespace iqrf {
 					TRC_DEBUG("DPA has exclusive access.");
 				}
 				clearAuxBuffers();
-        if (!m_enumRun && !m_enumThreadRun) {
-          break;
-        }
+				if (!m_enumRun && !m_enumThreadRun) {
+					break;
+				}
 			}
 
 			// wait until next enumeration invocation
 			std::unique_lock<std::mutex> lock(m_enumMutex);
-      if (m_enumRepeat) {
-        TRC_DEBUG("Enumeration failed, repeating enumeration.");
-        m_enumCv.wait_for(lock, std::chrono::seconds(3));
-      } else {
-        TRC_DEBUG("Waiting until next enumeration is invoked.");
-        m_enumCv.wait(lock);
-      }
+			if (m_enumRepeat) {
+				TRC_DEBUG("Enumeration failed, repeating enumeration.");
+				m_enumCv.wait_for(lock, std::chrono::seconds(3));
+			} else {
+				TRC_DEBUG("Waiting until next enumeration is invoked.");
+				m_enumCv.wait(lock);
+			}
 		}
 		TRC_FUNCTION_LEAVE("");
 	}

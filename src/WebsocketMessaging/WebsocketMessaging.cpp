@@ -374,13 +374,11 @@ namespace iqrf {
     impl_->detachInterface(iface);
   }
 
-  void WebsocketMessaging::attachInterface(shape::ITraceService* iface)
-  {
+  void WebsocketMessaging::attachInterface(shape::ITraceService* iface) {
     shape::Tracer::get().addTracerService(iface);
   }
 
-  void WebsocketMessaging::detachInterface(shape::ITraceService* iface)
-  {
+  void WebsocketMessaging::detachInterface(shape::ITraceService* iface) {
     shape::Tracer::get().removeTracerService(iface);
   }
 }
