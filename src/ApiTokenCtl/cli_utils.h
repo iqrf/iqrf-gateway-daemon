@@ -25,7 +25,7 @@
 
 #define OUTPUT_ID_LEN 5
 #define MAX_OWNER_LEN 64
-#define OUTPUT_DT_LEN 20
+#define OUTPUT_DT_LEN 24
 #define OUTPUT_STATUS_LEN 7
 #define OUTPUT_SERVICE_LEN 7
 
