@@ -1,0 +1,14 @@
+{
+    "component": "iqrf::WebsocketMessaging",
+    "instance": "WebsocketMessaging",
+    "acceptAsyncMsg": false,
+    "port": 1338,
+    "acceptOnlyLocalhost": true,
+    "transportMode": "both",
+    "tlsMode": "intermediate",
+    "tlsPort": 8338,
+    "cert": "/etc/iqrf-gateway-daemon/certs/core/cert.pem",
+    "privKey": "/etc/iqrf-gateway-daemon/certs/core/privkey.pem",
+    "authTimeout": 30,
+    "maxClients": 50
+}

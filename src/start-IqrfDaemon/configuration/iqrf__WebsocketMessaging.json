@@ -1,13 +1,14 @@
 {
-  "component": "iqrf::WebsocketMessaging",
-  "instance": "WebsocketMessaging",
-  "acceptAsyncMsg": true,
-  "RequiredInterfaces": [
-    {
-      "name": "shape::IWebsocketService",
-      "target": {
-        "WebsocketPort": 1338
-      }
-    }
-  ]
+    "component": "iqrf::WebsocketMessaging",
+    "instance": "WebsocketMessaging",
+    "acceptAsyncMsg": true,
+    "port": 1338,
+    "acceptOnlyLocalhost": false,
+    "transportMode": "plain",
+    "tlsMode": "intermediate",
+    "tlsPort": 8338,
+    "cert": "",
+    "privKey": "",
+    "authTimeout": 30,
+    "maxClients": 50
 }

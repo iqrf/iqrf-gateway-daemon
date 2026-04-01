@@ -189,6 +189,11 @@ namespace iqrf {
 		 */
 		virtual void reloadDrivers() = 0;
 
+		/**
+		 * Reloads coordinator drivers on demand
+		 */
+		virtual void reloadCoordinatorDrivers() = 0;
+
 		///// BINARY OUTPUT API
 
 		/**

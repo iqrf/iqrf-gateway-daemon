@@ -15,12 +15,16 @@
 
 project(DbEntities)
 
+find_package(SQLite3 REQUIRED)
+
+include_directories(${CMAKE_SOURCE_DIR}/libraries/date/include)
 add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME} INTERFACE
-	${CMAKE_CURRENT_SOURCE_DIR}/repositories
-	${CMAKE_CURRENT_SOURCE_DIR}/models
+  ${CMAKE_CURRENT_SOURCE_DIR}/repositories
+  ${CMAKE_CURRENT_SOURCE_DIR}/models
 )
 
 target_link_libraries(${PROJECT_NAME} INTERFACE
-	SQLiteCpp
+  SQLite::SQLite3
+  SQLiteCpp
 )

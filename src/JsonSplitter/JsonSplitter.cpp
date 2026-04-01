@@ -147,6 +147,13 @@ namespace iqrf {
       "ntfDaemon_InvokeMonitor"
     };
   public:
+    static bool isAuthMessage(const rapidjson::Document& doc) {
+      auto typeItr = doc.FindMember("type");
+      auto tokenItr = doc.FindMember("token");
+      return doc.IsObject() && doc.MemberCount() == 2 &&
+        (typeItr != doc.MemberEnd() && typeItr->value.IsString() && std::string(typeItr->value.GetString()) == "auth") &&
+        (tokenItr != doc.MemberEnd() && tokenItr->value.IsString());
+    }
 
     // for logging only
     static std::string JsonToStr(const rapidjson::Document& doc) {
@@ -347,6 +354,12 @@ namespace iqrf {
           return;
         }
 
+        if (isAuthMessage(doc)) {
+          TRC_WARNING("Received unexpected websocket authentication message.");
+          sendMessage(messaging, UnexpectedAuthMsg::createMessage());
+          return;
+        }
+
         msgId = Pointer("/data/msgId").GetWithDefault(doc, "unknown").GetString();
 
         // Check for missing mType
@@ -412,7 +425,6 @@ namespace iqrf {
       }
       TRC_FUNCTION_LEAVE(PAR(queueLen))
     }
-
 
     void handleMessageFromSplitterQueue(const MessagingInstance& messaging, const std::vector<uint8_t>& message) const {
       using namespace rapidjson;

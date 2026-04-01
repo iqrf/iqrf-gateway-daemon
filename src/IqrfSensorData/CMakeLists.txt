@@ -15,7 +15,6 @@
 
 project(IqrfSensorData)
 
-set(CMAKE_CXX_STANDARD 17)
 set(COMPONENT iqrf::IqrfSensorData)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IIqrfSensorData)
@@ -42,14 +41,15 @@ include_directories(${CMAKE_SOURCE_DIR}/src/DpaParser)
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 
 if(SHAPE_STATIC_LIBS)
-	add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
 else()
-	add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-	nlohmann_json::nlohmann_json
-	DbEntities
+  nlohmann_json::nlohmann_json
+  DbEntities
+  date::date
 )
 
 DeployShapeComponent(${PROJECT_NAME})

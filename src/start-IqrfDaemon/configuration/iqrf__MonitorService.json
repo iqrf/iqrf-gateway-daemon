@@ -1,13 +1,12 @@
 {
-  "component": "iqrf::MonitorService",
-  "instance": "iqrf::MonitorService",
-  "reportPeriod": 10,
-  "RequiredInterfaces": [
-    {
-      "name": "shape::IWebsocketService",
-      "target": {
-        "WebsocketPort": 1438
-      }
-    }
-  ]
+    "component": "iqrf::MonitorService",
+    "instance": "iqrf::MonitorService",
+    "reportPeriod": 10,
+    "port": 1438,
+    "acceptOnlyLocalhost": false,
+    "transportMode": "plain",
+    "tlsMode": "intermediate",
+    "tlsPort": 8438,
+    "cert": "",
+    "privKey": ""
 }

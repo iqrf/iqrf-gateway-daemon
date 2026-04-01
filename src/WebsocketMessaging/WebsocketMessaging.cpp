@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2025 IQRF Tech s.r.o.
- * Copyright 2019-2025 MICRORISC s.r.o.
+ * Copyright 2015-2026 IQRF Tech s.r.o.
+ * Copyright 2019-2026 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,236 +15,370 @@
  * limitations under the License.
  */
 
+#include "WebsocketServerParams.h"
+#include <chrono>
+#include <cstddef>
 #define IMessagingService_EXPORTS
 
 #include "WebsocketMessaging.h"
+#include "WebsocketServer.h"
+#include "WebsocketServerUtils.h"
 #include "Trace.h"
+
+#include <rapidjson/pointer.h>
+
+#include <condition_variable>
+#include <mutex>
+#include <thread>
 #include <vector>
-#include <algorithm>
 
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
 #endif
 #define TRC_CHANNEL 0
+#define TOKEN_CHECK_PERIOD 60
 
 #include "iqrf__WebsocketMessaging.hxx"
 
 TRC_INIT_MODULE(iqrf::WebsocketMessaging)
 
-const unsigned IQRF_MQ_BUFFER_SIZE = 64 * 1024;
-
 namespace iqrf {
 
-	////////////////////////////////////
-	// class WebsocketMessaging::Imp
-	////////////////////////////////////
-	class WebsocketMessaging::Imp
-	{
-	private:
-		shape::IWebsocketService* m_iWebsocketService = nullptr;
-		typedef std::pair<MessagingInstance, std::vector<uint8_t>> ConnMsg;
-		TaskQueue<ConnMsg>* m_toMqMessageQueue = nullptr;
-		bool m_acceptAsyncMsg = false;
-		MessagingInstance m_messagingInstance = MessagingInstance(MessagingType::WS);
-		IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
+  class WebsocketMessaging::Impl {
+  private:
+    /// Launch service
+    shape::ILaunchService *m_launchService = nullptr;
+    /// Authentication service
+    IAuthService *m_authService = nullptr;
+    /// Atomic variable for worker run
+    bool m_tokenCheckRun;
+    /// Token checking thread
+    std::thread m_tokenCheckThread;
+    /// Token check mutex
+    std::mutex m_tokenMtx;
+    /// Condition variable
+    std::condition_variable m_tokenCv;
+    /// Websocket server parameters
+    WebsocketServerParams m_params;
+    /// Websocket server
+    std::unique_ptr<WebsocketServer> m_server = nullptr;
+    /// Handler for incoming messages
+    IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
+    /// Accept asynchronous messages
+    bool m_acceptAsyncMsg = false;
+    /// Messaging instance
+    MessagingInstance m_messagingInstance = MessagingInstance(MessagingType::WS);
+    /// Map of session IDs and IDs of authentication tokens
+    std::unordered_map<std::size_t, uint32_t> m_sessionTokenMap;
+  public:
+    Impl() {}
 
-		int handleMessageFromWebsocket(const std::vector<uint8_t>& message, const std::string& connId)
-		{
-			TRC_DEBUG("==================================" << std::endl <<
-				"Received from Websocket: " << PAR(connId) << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
+    ~Impl() {}
 
-			if (m_messageHandlerFunc) {
-				auto auxMessaging = m_messagingInstance;
-				auxMessaging.instance += '/' + connId;
-				m_messageHandlerFunc(auxMessaging, message);
-			}
+    ///// Component lifecycle /////
 
-			return 0;
-		}
+    void activate(const shape::Properties *props) {
+      TRC_FUNCTION_ENTER("");
+      TRC_INFORMATION(std::endl <<
+        "******************************" << std::endl <<
+        "WebsocketMessaging instance activate" << std::endl <<
+        "******************************"
+      );
 
-	public:
-		Imp()
-		{
-		}
+      modify(props);
 
-		~Imp()
-		{
-		}
+      m_server = std::make_unique<WebsocketServer>(
+        m_params,
+        [&](const std::size_t sessionId, const std::string& msg) {
+          return handleMessageFromWebsocket(sessionId, msg);
+        },
+        [&](const std::size_t sessionId, const uint32_t id, const std::string& key, std::chrono::system_clock::time_point& expiration, bool& service) {
+          return handleWebsocketSessionAuth(sessionId, id, key, expiration, service);
+        },
+        [&](const std::size_t sessionId) {
+          return handleSessionClosed(sessionId);
+        }
+      );
+      m_server->start();
+      m_tokenCheckRun = true;
+      m_tokenCheckThread = std::thread([&]() {
+        tokenCheckWorker();
+      });
 
-		void registerMessageHandler(MessageHandlerFunc hndl)
-		{
-			TRC_FUNCTION_ENTER("");
-			m_messageHandlerFunc = hndl;
-			TRC_FUNCTION_LEAVE("")
-		}
+      TRC_FUNCTION_LEAVE("")
+    }
 
-		void unregisterMessageHandler()
-		{
-			TRC_FUNCTION_ENTER("");
-			m_messageHandlerFunc = IMessagingService::MessageHandlerFunc();
-			TRC_FUNCTION_LEAVE("")
-		}
+    void modify(const shape::Properties *props) {
+      TRC_FUNCTION_ENTER("");
 
-		void sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg)
-		{
-			TRC_FUNCTION_ENTER("");
-			TRC_DEBUG(MEM_HEX_CHAR(msg.data(), msg.size()));
-			m_toMqMessageQueue->pushToQueue(std::make_pair(messaging, std::vector<uint8_t>(msg.data(), msg.data() + msg.size())));
-			TRC_FUNCTION_LEAVE("")
-		}
+      using namespace rapidjson;
 
-		bool acceptAsyncMsg() const
-		{
-			return m_acceptAsyncMsg;
-		}
+      const Document& doc = props->getAsJson();
+      std::string instance = Pointer("/instance").Get(doc)->GetString();
+      uint16_t port = static_cast<uint16_t>(Pointer("/port").Get(doc)->GetUint());
+      m_acceptAsyncMsg = Pointer("/acceptAsyncMsg").Get(doc)->GetBool();
+      bool acceptOnlyLocalhost = Pointer("/acceptOnlyLocalhost").Get(doc)->GetBool();
+      TransportModes transportMode = transportModeFromValue(Pointer("/transportMode").Get(doc)->GetString());
+      TlsModes tlsMode = tlsModeFromValue(Pointer("/tlsMode").Get(doc)->GetString());
+      uint16_t tlsPort = static_cast<uint16_t>(Pointer("/tlsPort").Get(doc)->GetUint());
+      std::string certPath = getCertPath(Pointer("/cert").Get(doc)->GetString());
+      std::string keyPath = getCertPath(Pointer("/privKey").Get(doc)->GetString());
+      uint16_t authTimeout = static_cast<uint16_t>(Pointer("/authTimeout").Get(doc)->GetUint());
+      std::size_t maxClients = static_cast<std::size_t>(Pointer("/maxClients").Get(doc)->GetUint64());
+      m_params = WebsocketServerParams(
+        instance,
+        port,
+        acceptOnlyLocalhost,
+        transportMode,
+        tlsMode,
+        tlsPort,
+        certPath,
+        keyPath,
+        authTimeout,
+        maxClients
+      );
 
-		const MessagingInstance& getMessagingInstance() const {
-			return m_messagingInstance;
-		}
+      m_messagingInstance.instance = instance;
 
-		void activate(const shape::Properties *props)
-		{
-			TRC_FUNCTION_ENTER("");
-			TRC_INFORMATION(std::endl <<
-				"******************************" << std::endl <<
-				"WebsocketMessaging instance activate" << std::endl <<
-				"******************************"
-			);
+      TRC_FUNCTION_LEAVE("");
+    }
 
-			std::string instanceName;
+    void deactivate() {
+      TRC_FUNCTION_ENTER("");
+      TRC_INFORMATION(std::endl <<
+        "******************************" << std::endl <<
+        "WebsocketMessaging instance deactivate" << std::endl <<
+        "******************************"
+      );
 
-			props->getMemberAsString("instance", instanceName);
-			props->getMemberAsBool("acceptAsyncMsg", m_acceptAsyncMsg);
+      {
+        std::lock_guard<std::mutex> lock(m_tokenMtx);
+        m_tokenCheckRun = false;
+      }
+      m_tokenCv.notify_all();
+      if (m_tokenCheckThread.joinable()) {
+        m_tokenCheckThread.join();
+      }
 
-			m_messagingInstance.instance = instanceName;
+      TRC_FUNCTION_LEAVE("")
+    }
 
-			m_toMqMessageQueue = shape_new TaskQueue<ConnMsg>([&](ConnMsg conMsg) {
-				std::string messagingId2(conMsg.first.instance);
-				std::string connId;
-				if (std::string::npos != messagingId2.find_first_of('/')) {
-					//preparse messageId to remove possible optional appended topic
-					//we need just clean massaging name to find in map
-					std::string buf(messagingId2);
-					std::replace(buf.begin(), buf.end(), '/', ' ');
-					std::istringstream is(buf);
-					is >> messagingId2 >> connId;
-				}
+    ///// Public API /////
 
-				m_iWebsocketService->sendMessage(conMsg.second, connId);
-			});
+    void registerMessageHandler(MessageHandlerFunc handler) {
+      TRC_FUNCTION_ENTER("");
+      m_messageHandlerFunc = handler;
+      TRC_FUNCTION_LEAVE("")
+    }
 
-			TRC_DEBUG("Assigned port: " << PAR(m_iWebsocketService->getPort()));
-			m_iWebsocketService->registerMessageHandler([&](const std::vector<uint8_t>& msg, const std::string& connId ) -> int {
-				return handleMessageFromWebsocket(msg, connId); });
+    void unregisterMessageHandler() {
+      TRC_FUNCTION_ENTER("");
+      m_messageHandlerFunc = IMessagingService::MessageHandlerFunc();
+      TRC_FUNCTION_LEAVE("")
+    }
 
-			TRC_FUNCTION_LEAVE("")
-		}
+    void sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t>& msg) {
+      TRC_FUNCTION_ENTER("");
 
-		void deactivate()
-		{
-			TRC_FUNCTION_ENTER("");
+      std::string message(msg.begin(), msg.end());
 
-			m_iWebsocketService->unregisterMessageHandler();
-			delete m_toMqMessageQueue;
+      if (!messaging.hasClientSession<std::size_t>()) {
+        TRC_WARNING("No client session specified, sending to all " << messaging.to_string() << " clients.");
+        m_server->send(message);
+        return;
+      }
 
-			TRC_INFORMATION(std::endl <<
-				"******************************" << std::endl <<
-				"WebsocketMessaging instance deactivate" << std::endl <<
-				"******************************"
-			);
-			TRC_FUNCTION_LEAVE("")
-		}
+      m_server->send(messaging.getClientSession<std::size_t>(), message);
+      TRC_FUNCTION_LEAVE("")
+    }
 
-		void modify(const shape::Properties *props)
-		{
-			(void)props; //silence -Wunused-parameter
-		}
+    bool acceptAsyncMsg() const {
+      return m_acceptAsyncMsg;
+    }
 
-		void attachInterface(shape::IWebsocketService* iface)
-		{
-			m_iWebsocketService = iface;
-		}
+    const MessagingInstance& getMessagingInstance() const {
+      return m_messagingInstance;
+    }
 
-		void detachInterface(shape::IWebsocketService* iface)
-		{
-			if (m_iWebsocketService == iface) {
-				m_iWebsocketService = nullptr;
-			}
-		}
+    ///// Interface management /////
 
-	};
+    void attachInterface(shape::ILaunchService *iface) {
+      m_launchService = iface;
+    }
 
-	////////////////////////////////////
-	// class WebsocketMessaging
-	////////////////////////////////////
-	WebsocketMessaging::WebsocketMessaging()
-	{
-		m_imp = shape_new Imp();
-	}
+    void detachInterface(shape::ILaunchService *iface) {
+      if (m_launchService == iface) {
+        m_launchService = nullptr;
+      }
+    }
 
-	WebsocketMessaging::~WebsocketMessaging()
-	{
-		delete m_imp;
-	}
+    void attachInterface(IAuthService *iface) {
+      m_authService= iface;
+    }
 
-	void WebsocketMessaging::registerMessageHandler(MessageHandlerFunc hndl)
-	{
-		m_imp->registerMessageHandler(hndl);
-	}
+    void detachInterface(IAuthService *iface) {
+      if (m_authService == iface) {
+        m_authService = nullptr;
+      }
+    }
 
-	void WebsocketMessaging::unregisterMessageHandler()
-	{
-		m_imp->unregisterMessageHandler();
-	}
+  private:
+    std::string getCertPath(const std::string& path) {
+      if (path.size() == 0 || path.at(0) == '/') {
+        return path;
+      }
+      return m_launchService->getConfigurationDir() + "/certs/" + path;
+    }
 
-	void WebsocketMessaging::sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg)
-	{
-		m_imp->sendMessage(messaging, msg);
-	}
+    int handleMessageFromWebsocket(const std::size_t sessionId, const std::string& msg) {
+      TRC_DEBUG(
+        "==================================" << std::endl
+        << "Received from Websocket: " << PAR(sessionId) << std::endl
+        << MEM_HEX_CHAR(msg.data(), msg.size())
+      );
 
-	bool WebsocketMessaging::acceptAsyncMsg() const
-	{
-		return m_imp->acceptAsyncMsg();
-	}
+      std::vector<uint8_t> message(msg.begin(), msg.end());
 
-	const MessagingInstance& WebsocketMessaging::getMessagingInstance() const {
-		return m_imp->getMessagingInstance();
-	}
+      if (m_messageHandlerFunc) {
+        auto auxMessaging = m_messagingInstance;
+        auxMessaging.setClientSession<std::size_t>(sessionId);
+        m_messageHandlerFunc(auxMessaging, message);
+      }
 
-	//////////////////////////////////////
-	void WebsocketMessaging::activate(const shape::Properties *props)
-	{
-		m_imp->activate(props);
-	}
+      return 0;
+    }
 
-	void WebsocketMessaging::deactivate()
-	{
-		m_imp->deactivate();
-	}
+    boost::system::error_code handleWebsocketSessionAuth(const std::size_t sessionId, const uint32_t id, const std::string& secret, std::chrono::system_clock::time_point& expiration, bool& service) {
+      auto result = m_authService->authenticate(id, secret, expiration, service);
+      if (!result.has_value()) {
+        return make_error_code(auth_error::invalid_token);
+      }
+      if (result.value() == ApiToken::Status::Revoked) {
+        return make_error_code(auth_error::revoked_token);
+      }
 
-	void WebsocketMessaging::modify(const shape::Properties *props)
-	{
-		m_imp->modify(props);
-	}
+      if (result.value() == ApiToken::Status::Expired) {
+        return make_error_code(auth_error::expired_token);
+      }
+      std::lock_guard<std::mutex> lock(m_tokenMtx);
+      m_sessionTokenMap[sessionId] = id;
+      return make_error_code(auth_error::success);
+    }
 
-	void WebsocketMessaging::attachInterface(shape::IWebsocketService* iface)
-	{
-		m_imp->attachInterface(iface);
-	}
+    void handleSessionClosed(const std::size_t sessionId) {
+      std::lock_guard<std::mutex> lock(m_tokenMtx);
+      m_sessionTokenMap.erase(sessionId);
+    }
 
-	void WebsocketMessaging::detachInterface(shape::IWebsocketService* iface)
-	{
-		m_imp->detachInterface(iface);
-	}
+    void tokenCheckWorker() {
+      std::unique_lock<std::mutex> lock(m_tokenMtx);
+      while (m_tokenCheckRun) {
+        m_tokenCv.wait_for(lock, std::chrono::seconds(TOKEN_CHECK_PERIOD));
 
-	void WebsocketMessaging::attachInterface(shape::ITraceService* iface)
-	{
-		shape::Tracer::get().addTracerService(iface);
-	}
+        if (!m_tokenCheckRun) {
+          break;
+        }
 
-	void WebsocketMessaging::detachInterface(shape::ITraceService* iface)
-	{
-		shape::Tracer::get().removeTracerService(iface);
-	}
+        std::unordered_map<uint32_t, bool> tokenMap;
+        for (auto itr = m_sessionTokenMap.begin(); itr != m_sessionTokenMap.end(); ) {
+          bool revoked = false;
+          auto tokenId = itr->second;
+          if (tokenMap.count(tokenId)) {
+            revoked = tokenMap[tokenId];
+          } else {
+            auto result = m_authService->isRevoked(tokenId);
+            if (!result.has_value()) {
+              auto sessionId = itr->first;
+              m_server->send(sessionId, create_auth_error_message(make_error_code(auth_error::invalid_token)));
+              m_server->closeSession(sessionId, boost::beast::websocket::close_code::internal_error);
+              itr = m_sessionTokenMap.erase(itr);
+              continue;
+            }
+            revoked = result.value();
+            tokenMap[tokenId] = revoked;
+          }
+          if (revoked) {
+            auto sessionId = itr->first;
+            m_server->send(sessionId, create_auth_error_message(make_error_code(auth_error::revoked_token)));
+            m_server->closeSession(sessionId, boost::beast::websocket::close_code::policy_error);
+            itr = m_sessionTokenMap.erase(itr);
+          } else {
+            ++itr;
+          }
+        }
+      }
+    }
+  };
 
+  WebsocketMessaging::WebsocketMessaging(): impl_(std::make_unique<Impl>()) {
+    TRC_FUNCTION_ENTER("");
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  WebsocketMessaging::~WebsocketMessaging() {
+    TRC_FUNCTION_ENTER("");
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  ///// Component lifecycle /////
+
+  void WebsocketMessaging::activate(const shape::Properties *props) {
+    impl_->activate(props);
+  }
+
+  void WebsocketMessaging::modify(const shape::Properties *props) {
+    impl_->modify(props);
+  }
+
+  void WebsocketMessaging::deactivate() {
+    impl_->deactivate();
+  }
+
+  ///// Public API /////
+
+  void WebsocketMessaging::registerMessageHandler(MessageHandlerFunc handler) {
+    impl_->registerMessageHandler(handler);
+  }
+
+  void WebsocketMessaging::unregisterMessageHandler() {
+    impl_->unregisterMessageHandler();
+  }
+
+  void WebsocketMessaging::sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t>& msg) {
+    impl_->sendMessage(messaging, msg);
+  }
+
+  bool WebsocketMessaging::acceptAsyncMsg() const {
+    return impl_->acceptAsyncMsg();
+  }
+
+  const MessagingInstance& WebsocketMessaging::getMessagingInstance() const {
+    return impl_->getMessagingInstance();
+  }
+
+  ///// Interface management /////
+
+  void WebsocketMessaging::attachInterface(shape::ILaunchService *iface) {
+    impl_->attachInterface(iface);
+  }
+
+  void WebsocketMessaging::detachInterface(shape::ILaunchService *iface) {
+    impl_->detachInterface(iface);
+  }
+
+  void WebsocketMessaging::attachInterface(IAuthService *iface) {
+    impl_->attachInterface(iface);
+  }
+
+  void WebsocketMessaging::detachInterface(IAuthService *iface) {
+    impl_->detachInterface(iface);
+  }
+
+  void WebsocketMessaging::attachInterface(shape::ITraceService* iface) {
+    shape::Tracer::get().addTracerService(iface);
+  }
+
+  void WebsocketMessaging::detachInterface(shape::ITraceService* iface) {
+    shape::Tracer::get().removeTracerService(iface);
+  }
 }

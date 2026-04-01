@@ -34,7 +34,7 @@ namespace iqrf {
   ) : m_clientId(clientId), m_taskId(taskId), m_exactTime(true), m_startTime(startTime), m_persist(persist), m_enabled(enabled)
   {
     TimeConversion::fixTimestamp(m_startTime);
-    m_startTimePoint = DatetimeParser::parse_to_timepoint(m_startTime);
+    m_startTimePoint = DatetimeParser::parseISO8601(m_startTime);
     init(task);
   }
 
@@ -262,7 +262,7 @@ namespace iqrf {
     m_startTime = Pointer("/startTime").Get(m_timeSpec)->GetString();
     if (m_startTime.length() > 0) {
       TimeConversion::fixTimestamp(m_startTime);
-      m_startTimePoint = DatetimeParser::parse_to_timepoint(m_startTime);
+      m_startTimePoint = DatetimeParser::parseISO8601(m_startTime);
     }
   }
 

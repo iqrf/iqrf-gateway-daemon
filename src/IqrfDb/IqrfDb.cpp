@@ -16,6 +16,7 @@
  */
 
 #include "IqrfDb.h"
+#include "MigrationManager.h"
 
 #include "iqrf__IqrfDb.hxx"
 
@@ -152,13 +153,13 @@ namespace iqrf {
 	std::unique_ptr<Device> IqrfDb::getDeviceByAddress(const uint8_t address) {
 		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceRepository deviceRepo(m_db);
-		return std::move(deviceRepo.getByAddress(address));
+		return deviceRepo.getByAddress(address);
 	}
 
 	std::unique_ptr<Device> IqrfDb::getDeviceByMid(const uint32_t mid) {
 		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceRepository deviceRepo(m_db);
-		return std::move(deviceRepo.getByMid(mid));
+		return deviceRepo.getByMid(mid);
 	}
 
 	std::vector<std::pair<Device, Product>> IqrfDb::getDevices(const std::vector<uint8_t>& requestedDevices) {
@@ -362,7 +363,7 @@ namespace iqrf {
 	std::unique_ptr<Product> IqrfDb::getProduct(const uint32_t productId) {
 		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::ProductRepository productRepo(m_db);
-		return std::move(productRepo.get(productId));
+		return productRepo.get(productId);
 	}
 
 	///// SENSOR API
@@ -547,76 +548,11 @@ namespace iqrf {
 			)
 		);
 		try {
-			migrateDatabase();
-      m_db->exec("PRAGMA foreign_keys = ON;");
+			MigrationManager manager(m_migrationDir);
+			manager.migrate(m_db);
+			m_db->exec("PRAGMA foreign_keys = ON;");
 		} catch (const std::exception &e) {
 			THROW_EXC_TRC_WAR(std::logic_error, "[IqrfDb] Failed to migrate database to latest version: " << e.what());
-		}
-	}
-
-	void IqrfDb::migrateDatabase() {
-		// find all migrations
-		std::string migrationDir = m_dbDirPath + "migrations/";
-		std::vector<std::string> migrations;
-		for (const auto &file : std::filesystem::directory_iterator(migrationDir)) {
-			if (file.is_regular_file()) {
-				migrations.push_back(file.path().stem());
-			}
-		}
-		std::sort(migrations.begin(), migrations.end());
-		std::vector<std::string> migrationsToExecute;
-		std::set<std::string> executedMigrations;
-		if (m_db->tableExists("migrations")) {
-			db::repos::MigrationRepository migrationRepo(m_db);
-			executedMigrations = migrationRepo.getExecutedVersions();
-		}
-		// determine executed migrations and migrations to execute
-		for (auto &migration : migrations) {
-			if (executedMigrations.count(migration) == 0) {
-				migrationsToExecute.push_back(migration);
-			}
-		}
-		try {
-			// execute missing migrations
-			for (const auto &migration : migrationsToExecute) {
-				executeMigration(migrationDir + migration + ".sql");
-			}
-		} catch (const std::exception &e) {
-			THROW_EXC_TRC_WAR(std::logic_error, e.what());
-		}
-	}
-
-	void IqrfDb::executeMigration(const std::string &migration) {
-		std::vector<std::string> statements;
-		// try to access migration file
-		std::ifstream migrationFile(migration);
-		if (!migrationFile.is_open()) {
-			THROW_EXC_TRC_WAR(std::logic_error, "Unable to read migration file: " << migration);
-		}
-		std::string line;
-		std::stringstream statementStream;
-		// remove comments and empty lines
-		while (std::getline(migrationFile, line)) {
-			if (line.empty() || line.rfind("--", 0) == 0) {
-				continue;
-			}
-			statementStream << line;
-		}
-		// split into separate statements
-		while (std::getline(statementStream, line, ';')) {
-			statements.push_back(line);
-		}
-		// check for empty file
-		if (statements.size() == 0) {
-			THROW_EXC_TRC_WAR(std::logic_error, "Empty migration file: " << migration);
-		}
-		try {
-			// execute migration statements
-			for (auto &statement : statements) {
-				m_db->exec(statement);
-			}
-		} catch (const std::exception &e) {
-			THROW_EXC_TRC_WAR(std::logic_error, e.what());
 		}
 	}
 
@@ -754,20 +690,20 @@ namespace iqrf {
 					TRC_DEBUG("DPA has exclusive access.");
 				}
 				clearAuxBuffers();
-        if (!m_enumRun && !m_enumThreadRun) {
-          break;
-        }
+				if (!m_enumRun && !m_enumThreadRun) {
+					break;
+				}
 			}
 
 			// wait until next enumeration invocation
 			std::unique_lock<std::mutex> lock(m_enumMutex);
-      if (m_enumRepeat) {
-        TRC_DEBUG("Enumeration failed, repeating enumeration.");
-        m_enumCv.wait_for(lock, std::chrono::seconds(3));
-      } else {
-        TRC_DEBUG("Waiting until next enumeration is invoked.");
-        m_enumCv.wait(lock);
-      }
+			if (m_enumRepeat) {
+				TRC_DEBUG("Enumeration failed, repeating enumeration.");
+				m_enumCv.wait_for(lock, std::chrono::seconds(3));
+			} else {
+				TRC_DEBUG("Waiting until next enumeration is invoked.");
+				m_enumCv.wait(lock);
+			}
 		}
 		TRC_FUNCTION_LEAVE("");
 	}
@@ -2078,10 +2014,10 @@ namespace iqrf {
 	void IqrfDb::modify(const shape::Properties *props) {
 		TRC_FUNCTION_ENTER("");
 		using namespace rapidjson;
-		//
-		m_dbDirPath = m_launchService->getDataDir() + "/DB/";
-		// path to db file
-		m_dbPath = m_dbDirPath + "IqrfDb.db";
+		// database directory
+		auto dbDir = m_launchService->getDataDir() + "/DB/";
+		m_migrationDir = dbDir + "migrations/iqrfdb/";
+		m_dbPath = dbDir + "IqrfDb.db";
 		// read configuration parameters
 		const Document &doc = props->getAsJson();
 		m_instance = Pointer("/instance").Get(doc)->GetString();

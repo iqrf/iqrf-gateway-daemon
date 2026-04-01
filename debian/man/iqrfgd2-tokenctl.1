@@ -1,0 +1,84 @@
+.TH IQRFGD2-TOKENCTL 1 2026-01-28 "IQRF Gateway Daemon Token Control" "IQRF GW Manual"
+.SH NAME
+iqrfgd2-tokenctl \- manage IQRF Gateway Daemon API tokens
+.SH DESCRIPTION
+The \fBiqrfgd2-tokenctl\fP command allows for managing and listing of API tokens used for WebSocket authentication.
+.SH SYNOPSIS
+\fBiqrfgd2-tokenctl\fP [\fBcommand\fP] [\fIoptions\fP...]
+.SH COMMANDS
+.nf
+.TP
+.BR help\fP
+Shows the help message and usage.
+.TP
+.BR list\fP " [\-p, \-\-path <PATH>]"
+Outputs a list of API tokens. The output does not contain hashed secret or salt.
+.TP
+.BR get\fP " [\-i, \-\-id <TOKEN ID>] [\-p, \-\-path <PATH>]"
+Outputs a token specified by ID. The output does not contain hashed secret or salt.
+.TP
+.BR create\fP " [\-o, \-\-owner <OWNER>] [\-e, \-\-expiration <EXPIRATION>] [\-s, \-\-service] [\-p, \-\-path <PATH>]"
+Creates a new API token with owner, expiration and optionally permissions for service mode.
+If service mode permissions are not desired, the option can simply be omitted.
+.TP
+.BR rotate\fP " [\-i, \-\-id <TOKEN ID>] [\-p, \-\-path <PATH>]"
+Performs a token rotation. Rotating a token means its revocation, and a new token is created to be used instead.
+If a token is already expired or revoked, rotation is not performed.
+.TP
+.BR revoke\fP " [\-i, \-\-id <TOKEN ID>] [\-p, \-\-path <PATH>]"
+Revokes a token.
+.SH OPTIONS
+.nf
+.TP
+.BR "General options"
+.TQ
+.BR \-h ", " \-\-help
+Shows the help message and usage of a command.
+.TP
+.BR \-j ", " \-\-json
+Format output to stdout as JSON if applicable to the command.
+.TP
+.BR \-p ", " \-\-path
+Specifies path to authentication database file.
+.TP
+.BR "Command options"
+.TQ
+.BR \-i ", " \-\-id
+Token ID. Integer value coresponding to rowid of record in database.
+.TP
+.BR \-o ", " \-\-owner
+Owner of the token. A string value representing intended user, client or application.
+.TP
+.BR \-e ", " \-\-expiration
+Token expiration. Expiration can either be defined as unix epoch in seconds, or as relative time from the moment of invocation.
+The format of relative expiration is defined by time unit and count. The format is \fBcount\fP\funit\fP.
+Available units are:
+.RS
+.IP \[bu] 2
+d - day
+.IP \[bu] 2
+w \- week
+.IP \[bu] 2
+m \- month
+.IP \[bu] 2
+y \- year
+.TP
+.RE
+Example relative expiration: 30d \- token expires in 30 days.
+.SH EXAMPLES
+.TP
+.BR "iqrfgd2-tokenctl list -j -p database.db"
+Outputs a list of tokens in database serialized into JSON.
+.TP
+.BR "iqrfgd2-tokenctl -o user -e 30d -s -p database.db"
+Creates a token with owner set as "user", that expires in 30 days and has service mode permissions.
+.TP
+.BR "iqrfgd2-tokenctl -i 5 rotate -p database.db"
+Rotates a token with ID 5.
+.SH LICENCE
+This program is licensed under Apache License version 2.0.
+.SH COPYRIGHT
+.nf
+Copyright 2015\-2026 IQRF Tech s.r.o.
+Copyright 2019\-2026 MICRORISC s.r.o.
+.fi

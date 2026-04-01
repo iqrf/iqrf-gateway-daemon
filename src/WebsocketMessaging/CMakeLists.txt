@@ -20,7 +20,8 @@ FIND_PACKAGE(shapeware REQUIRED)
 set(COMPONENT iqrf::WebsocketMessaging)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IMessagingService)
-AddShapeRequiredInterface(${COMPONENT} shape::IWebsocketService MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} shape::ILaunchService MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IAuthService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
@@ -30,14 +31,29 @@ file(GLOB_RECURSE _SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 source_group("Header Files" FILES ${_HDRFILES})
 source_group("Source Files" FILES ${_SRCFILES})
 
-#include_directories(${shapeware_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${clibdpa_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}/src/DpaParser)
+include_directories(${CMAKE_SOURCE_DIR}/libraries/date/include)
 
 if(SHAPE_STATIC_LIBS)
-    add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} STATIC
+    ${_HDRFILES}
+    ${_SRCFILES}
+    $<TARGET_OBJECTS:WebsocketServer>
+  )
 else()
-    add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} SHARED
+    ${_HDRFILES}
+    ${_SRCFILES}
+    $<TARGET_OBJECTS:WebsocketServer>
+  )
 endif()
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  DbEntities
+  WebsocketServer
+)
 
 DeployShapeComponent(${PROJECT_NAME})

@@ -46,7 +46,7 @@
       "name": "shape::WebsocketCppService",
       "libraryPath": "shapeware/bin",
       "libraryName": "WebsocketCppService",
-      "enabled": true,
+      "enabled": false,
       "startlevel": 0
     },
     {

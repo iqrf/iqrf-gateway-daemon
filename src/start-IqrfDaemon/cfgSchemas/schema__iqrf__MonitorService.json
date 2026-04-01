@@ -7,6 +7,19 @@
         "version": "1-0-0"
     },
     "type": "object",
+    "required": [
+        "component",
+        "instance",
+        "reportPeriod",
+        "port",
+        "acceptOnlyLocalhost",
+        "transportMode",
+        "tlsMode",
+        "tlsPort",
+        "cert",
+        "privKey"
+    ],
+    "additionalProperties": false,
     "properties": {
         "component": {
             "type": "string",
@@ -25,30 +38,49 @@
             "description": "report period in seconds",
             "default": 10
         },
-        "RequiredInterfaces": {
-            "type": "array",
-            "description": "Array of required interfaces.",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "default": "shape::IWebsocketService",
-                        "description": "selected ws instance"
-                    },
-                    "target": {
-                        "type": "object"
-                    }
-                },
-                "required": [
-                    "name",
-                    "target"
-                ]
-            }
+        "port":  {
+            "type": "integer",
+            "description": "Server port number",
+            "default": 1438,
+            "minimum": 1,
+            "maximum": 65535
+        },
+        "acceptOnlyLocalhost": {
+            "type": "boolean",
+            "description": "Only accept localhost connections"
+        },
+        "transportMode": {
+            "type": "string",
+            "description": "Transport mode",
+            "enum": [
+                "plain",
+                "tls",
+                "both"
+            ]
+        },
+        "tlsMode": {
+            "type": "string",
+            "description": "TLS configuration",
+            "enum": [
+                "modern",
+                "intermediate",
+                "old"
+            ]
+        },
+        "tlsPort":  {
+            "type": "integer",
+            "description": "Server TLS port number",
+            "default": 8438,
+            "minimum": 1,
+            "maximum": 65535
+        },
+        "cert": {
+            "type": "string",
+            "description": "Certificate file"
+        },
+        "privKey": {
+            "type": "string",
+            "description": "Private key file"
         }
-    },
-    "required": [
-        "component",
-        "instance"
-    ]
+    }
 }

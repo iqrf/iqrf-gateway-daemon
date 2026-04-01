@@ -16,6 +16,7 @@
  */
 #include "MonitorService.h"
 
+#include "WebsocketServerParams.h"
 #include "iqrf__MonitorService.hxx"
 
 TRC_INIT_MODULE(iqrf::MonitorService)
@@ -62,6 +63,8 @@ namespace iqrf {
     );
 
     modify(props);
+    m_server = std::make_unique<WebsocketServer>(m_params);
+    m_server->start();
 
     m_runThread = true;
     m_workerThread = std::thread([&]() {
@@ -84,6 +87,26 @@ namespace iqrf {
       }
       m_instanceId = Pointer("/instance").Get(doc)->GetString();
     }
+    std::string instance = rapidjson::Pointer("/instance").Get(doc)->GetString();
+    uint16_t port = static_cast<uint16_t>(rapidjson::Pointer("/port").Get(doc)->GetUint());
+    bool acceptOnlyLocalhost = rapidjson::Pointer("/acceptOnlyLocalhost").Get(doc)->GetBool();
+    TransportModes transportMode = transportModeFromValue(rapidjson::Pointer("/transportMode").Get(doc)->GetString());
+    TlsModes tlsMode = tlsModeFromValue(rapidjson::Pointer("/tlsMode").Get(doc)->GetString());
+    uint16_t tlsPort = static_cast<uint16_t>(Pointer("/tlsPort").Get(doc)->GetUint());
+    std::string certPath = getCertPath(rapidjson::Pointer("/cert").Get(doc)->GetString());
+    std::string keyPath = getCertPath(rapidjson::Pointer("/privKey").Get(doc)->GetString());
+    m_params = WebsocketServerParams(
+      instance,
+      port,
+      acceptOnlyLocalhost,
+      transportMode,
+      tlsMode,
+      tlsPort,
+      certPath,
+      keyPath,
+      DEFAULT_AUTH_TIMEOUT,
+      DEFAULT_MAX_CLIENTS
+    );
 
     TRC_FUNCTION_LEAVE("");
   }
@@ -106,6 +129,13 @@ namespace iqrf {
   }
 
   ///// Private methods
+
+  std::string MonitorService::getCertPath(const std::string& path) {
+    if (path.size() == 0 || path.at(0) == '/') {
+      return path;
+    }
+    return m_launchService->getConfigurationDir() + "/certs/" + path;
+  }
 
   void MonitorService::handleMsg(const MessagingInstance& messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
     TRC_FUNCTION_ENTER("");
@@ -207,7 +237,9 @@ namespace iqrf {
       doc.Accept(writer);
       gwMonitorRecord = buffer.GetString();
 
-      m_websocketService->sendMessage(gwMonitorRecord, ""); //send to all connected clients
+      if (m_server) {
+        m_server->send(gwMonitorRecord); //send to all clients
+      }
     }
 
     TRC_FUNCTION_LEAVE("");
@@ -294,13 +326,13 @@ namespace iqrf {
     }
   }
 
-  void MonitorService::attachInterface(shape::IWebsocketService* iface) {
-    m_websocketService = iface;
+  void MonitorService::attachInterface(shape::ILaunchService* iface) {
+    m_launchService = iface;
   }
 
-  void MonitorService::detachInterface(shape::IWebsocketService* iface) {
-    if (m_websocketService == iface) {
-      m_websocketService = nullptr;
+  void MonitorService::detachInterface(shape::ILaunchService* iface) {
+    if (m_launchService == iface) {
+      m_launchService = nullptr;
     }
   }
 

@@ -1,8 +1,10 @@
 src/start-IqrfDaemon/configuration/*.json                       etc/iqrf-gateway-daemon
 src/start-IqrfDaemon/configuration-LinDeploy/*.json             etc/iqrf-gateway-daemon
 build/bin/iqrfgd2                                               usr/bin
+build/bin/iqrfgd2-tokenctl                                      usr/bin
 build/bin/*.so                                                  usr/lib/iqrf-gateway-daemon
 completions/iqrfgd2.bash                                        usr/share/bash-completion/completions/iqrfgd2
+completions/iqrfgd2-tokenctl.bash                               usr/share/bash-completion/completions/iqrfgd2-tokenctl
 shape-build/bin/libTraceFormatService.so                        usr/lib/iqrf-gateway-daemon
 shape-build/bin/libTraceFileService.so                          usr/lib/iqrf-gateway-daemon
 shape-build/lib/liblauncher.a                                   usr/lib/iqrf-gateway-daemon

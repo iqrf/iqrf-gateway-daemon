@@ -46,7 +46,7 @@
       "name": "shape::WebsocketCppService",
       "libraryPath": "",
       "libraryName": "WebsocketCppService",
-      "enabled": true,
+      "enabled": false,
       "startlevel": 0
     },
     {
@@ -109,6 +109,13 @@
       "name": "iqrf::IqrfDb",
       "libraryPath": "",
       "libraryName": "IqrfDb",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::AuthService",
+      "libraryPath": "",
+      "libraryName": "AuthService",
       "enabled": true,
       "startlevel": 0
     },

@@ -1,0 +1,85 @@
+/**
+ * Copyright 2015-2026 IQRF Tech s.r.o.
+ * Copyright 2019-2026 MICRORISC s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#pragma once
+
+#include "WebsocketCallbackTypes.h"
+#include "WebsocketServerParams.h"
+
+#include <boost/beast/websocket.hpp>
+
+namespace iqrf {
+
+  class WebsocketServer {
+  public:
+    /// on message callback
+
+    /**
+     * Default constructor
+     */
+    explicit WebsocketServer(const WebsocketServerParams& params);
+
+    /**
+     * Constructor with onMessage callback
+     */
+    WebsocketServer(
+      const WebsocketServerParams& params,
+      WebSocketMessageHandler onMessage,
+      WebSocketAuthHandler onAuth,
+      WebSocketCloseHandler onClose
+    );
+
+    /**
+     * Destructor
+     */
+    virtual ~WebsocketServer();
+
+    /**
+     * Start server listening loop
+     */
+    void start();
+
+    /**
+     * Closes session with specified ID
+     * @param sessionId Session ID
+     * @param ec Error code
+     */
+    void closeSession(const std::size_t sessionId, const boost::beast::websocket::close_code ec);
+
+    /**
+     * Stop listening loop, clear sessions
+     */
+    void stop();
+
+    /**
+     * Send message to all connected clients
+     * @param message Message to send
+     */
+    void send(const std::string& message);
+
+    /**
+     * Send message to a client identified by session ID
+     * @param sessionId Client session
+     * @param message Message to send
+     */
+    void send(const std::size_t sessionId, const std::string& message);
+
+  private:
+    class Impl;
+    std::unique_ptr<Impl> impl_;
+  };
+}

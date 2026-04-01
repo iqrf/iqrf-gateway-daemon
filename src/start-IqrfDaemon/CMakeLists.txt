@@ -63,6 +63,7 @@ foreach(cfg ${CfgList})
     ${CMAKE_CURRENT_SOURCE_DIR}/javaScript              configuration/javaScript
     ${CMAKE_CURRENT_SOURCE_DIR}/cfgSchemas              configuration/cfgSchemas
     ${CMAKE_CURRENT_SOURCE_DIR}/systemd                 configuration/systemd
+    #${CERT_DIR}                                         configuration/certs
   )
   DeployShapeConfigurationStartUp("${PROJECT_INSTALL_PREFIX}/bin/${PROJECT_NAME}" "${PROJECT_NAME}-${cfg}")
 endforeach()

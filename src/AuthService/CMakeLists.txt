@@ -1,0 +1,62 @@
+# Copyright 2015-2026 IQRF Tech s.r.o.
+# Copyright 2019-2026 MICRORISC s.r.o.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+project(AuthService)
+
+set(COMPONENT iqrf::AuthService)
+DeclareShapeComponent(${COMPONENT})
+AddShapeProvidedInterface(${COMPONENT} iqrf::IAuthService)
+AddShapeRequiredInterface(${COMPONENT} shape::ILaunchService MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
+ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
+
+file(GLOB_RECURSE _HDRFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h  ${COMPONENT_HXX})
+file(GLOB_RECURSE _SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+
+source_group("Header Files" FILES ${_HDRFILES})
+source_group("Source Files" FILES ${_SRCFILES})
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${clibdpa_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}/libraries/date/include)
+
+find_package(SQLite3 REQUIRED)
+find_package(OpenSSL REQUIRED)
+
+if(SHAPE_STATIC_LIBS)
+  add_library(${PROJECT_NAME} STATIC
+    ${_HDRFILES}
+    ${_SRCFILES}
+    $<TARGET_OBJECTS:MigrationManager>
+  )
+else()
+  add_library(${PROJECT_NAME} SHARED
+    ${_HDRFILES}
+    ${_SRCFILES}
+    $<TARGET_OBJECTS:MigrationManager>
+  )
+endif()
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  nlohmann_json::nlohmann_json
+  SQLite::SQLite3
+  SQLiteCpp
+  DbEntities
+  MigrationManager
+  OpenSSL::Crypto
+)
+
+DeployShapeComponent(${PROJECT_NAME})

@@ -533,17 +533,6 @@ namespace iqrf {
 		void initializeDatabase();
 
 		/**
-		 * Detect and apply migrations
-		 */
-		void migrateDatabase();
-
-		/**
-		 * Execute migrations
-		 * @param migration Migration name
-		 */
-		void executeMigration(const std::string &migration);
-
-		/**
 		 * Assign product names if product doesn't have a name and is available in cache
 		 */
 		void updateDbProductNames();
@@ -765,7 +754,7 @@ namespace iqrf {
 		/// Component instance name
 		std::string m_instance;
 		/// Path to directory containing db file
-		std::string m_dbDirPath;
+		std::string m_migrationDir;
 		/// Path to database file
 		std::string m_dbPath;
 		/// Path to daemon js wrapper

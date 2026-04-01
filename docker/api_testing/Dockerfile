@@ -35,6 +35,12 @@ ENV PATH="/iqrf/deploy/Debug/iqrf-gateway-daemon/bin:${PATH}"
 WORKDIR /iqrf/deploy/Debug/iqrf-gateway-daemon/runcfg/iqrfgd2-LinCdc
 
 COPY ./docker/api_testing/configuration ./configuration/
+RUN mkdir -p ./configuration/certs
+RUN openssl ecparam -name secp384r1 -genkey -param_enc named_curve \
+  -out ./configuration/certs/privkey.pem
+RUN openssl req -new -x509 -sha256 -nodes -days 3650 \
+  -subj "/CN=IQRF Gateway/C=CZ/ST=Hradec Kralove Region/L=Jicin/O=IQRF Tech s.r.o." \
+  -key ./configuration/certs/privkey.pem -out ./configuration/certs/cert.pem
 
 COPY ./docker/api_testing/healthcheck /iqrf/deploy/Debug/iqrf-gateway-daemon/bin
 RUN chmod +x /iqrf/deploy/Debug/iqrf-gateway-daemon/bin/healthcheck

@@ -1,0 +1,184 @@
+/**
+ * Copyright 2015-2026 IQRF Tech s.r.o.
+ * Copyright 2019-2026 MICRORISC s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#include "cli_utils.h"
+#include "commands.h"
+#include "exceptions.h"
+#include "status_codes.h"
+
+#include <iostream>
+
+namespace bpo = boost::program_options;
+
+int main(int argc, char** argv) {
+  if (argc < 2) {
+    print_generic_help();
+    return EXIT_FAILURE;
+  }
+
+  std::string command = argv[1];
+  std::vector<std::string> args(argv + 2, argv + argc);
+  if (command == "help") {
+    print_generic_help();
+    EXIT_SUCCESS;
+  }
+
+  auto opts = make_base_options();
+  if (command == "create") {
+    opts.add_options()
+      (
+        "owner,o",
+        bpo::value<std::string>()->required(),
+        "token owner"
+      )
+      (
+        "expiration,e",
+        bpo::value<std::string>()->required(),
+        "expiration date in relative time or unix timestamp"
+      )
+      (
+        "service,s",
+        bpo::bool_switch(),
+        "token can use service mode"
+      );
+
+    bpo::variables_map vm;
+    try {
+      bpo::store(bpo::command_line_parser(args).options(opts).run(), vm);
+      if (vm.count("help")) {
+        print_create_help();
+        return EXIT_SUCCESS;
+      }
+      bpo::notify(vm);
+
+      create_token(
+        vm["owner"].as<std::string>(),
+        vm["expiration"].as<std::string>(),
+        vm["service"].as<bool>(),
+        make_shared_params(vm)
+      );
+    } catch (const std::exception &e) {
+      std::cerr << e.what() << "\n";
+      return EXIT_FAILURE;
+    }
+  } else if (command == "list") {
+    bpo::variables_map vm;
+    try {
+      bpo::store(bpo::command_line_parser(args).options(opts).run(), vm);
+      if (vm.count("help")) {
+        print_list_help();
+        return EXIT_SUCCESS;
+      }
+      bpo::notify(vm);
+
+      list_tokens(make_shared_params(vm));
+    } catch (const std::exception &e) {
+      std::cerr << e.what() << "\n";
+      return EXIT_FAILURE;
+    }
+  } else if (command == "get") {
+    opts.add_options()
+      (
+        "id,i",
+        bpo::value<int64_t>()->required(),
+        "API token ID"
+      );
+    bpo::variables_map vm;
+    try {
+      bpo::store(bpo::command_line_parser(args).options(opts).run(), vm);
+      if (vm.count("help")) {
+        print_get_help();
+        return EXIT_SUCCESS;
+      }
+      bpo::notify(vm);
+
+      auto id = get_token_id(vm);
+      get_token(id, make_shared_params(vm));
+    } catch (const token_not_found &e) {
+      std::cerr << e.what() << "\n";
+      return static_cast<int>(StatusCodes::TOKEN_NOT_FOUND);
+    } catch (const std::exception &e) {
+      std::cerr << e.what() << "\n";
+      return EXIT_FAILURE;
+    }
+  } else if (command == "revoke") {
+    opts.add_options()
+      (
+        "id,i",
+        bpo::value<int64_t>()->required(),
+        "API token ID"
+      );
+    bpo::variables_map vm;
+    try {
+      bpo::store(bpo::command_line_parser(args).options(opts).run(), vm);
+      if (vm.count("help")) {
+        print_revoke_help();
+        return EXIT_SUCCESS;
+      }
+      bpo::notify(vm);
+
+      auto id = get_token_id(vm);
+      revoke_token(id, make_shared_params(vm));
+    } catch (const token_not_found &e) {
+      std::cerr << e.what();
+      return static_cast<int>(StatusCodes::TOKEN_NOT_FOUND);
+    } catch (const token_expired &e) {
+      std::cerr << e.what();
+      return static_cast<int>(StatusCodes::TOKEN_EXPIRED);
+    } catch (const token_revoked &e) {
+      std::cerr << e.what();
+      return static_cast<int>(StatusCodes::TOKEN_REVOKED);
+    } catch (const std::exception &e) {
+      std::cerr << e.what() << "\n";
+      return EXIT_FAILURE;
+    }
+  } else if (command == "rotate") {
+    opts.add_options()
+      (
+        "id,i",
+        bpo::value<int64_t>()->required(),
+        "API token ID"
+      );
+    bpo::variables_map vm;
+    try {
+      bpo::store(bpo::command_line_parser(args).options(opts).run(), vm);
+      if (vm.count("help")) {
+        print_rotate_help();
+        return EXIT_SUCCESS;
+      }
+      bpo::notify(vm);
+
+      auto id = get_token_id(vm);
+      rotate_token(id, make_shared_params(vm));
+    } catch (const token_not_found &e) {
+      std::cerr << e.what();
+      return static_cast<int>(StatusCodes::TOKEN_NOT_FOUND);
+    } catch (const token_expired &e) {
+      std::cerr << e.what();
+      return static_cast<int>(StatusCodes::TOKEN_EXPIRED);
+    } catch (const token_revoked &e) {
+      std::cerr << e.what();
+      return static_cast<int>(StatusCodes::TOKEN_REVOKED);
+    } catch (const std::exception &e) {
+      std::cerr << e.what() << "\n";
+      return EXIT_FAILURE;
+    }
+  } else {
+    std::cerr << "Unknown or unsupported commnad.\n";
+    return static_cast<int>(StatusCodes::UNKNOWN_COMMAND);
+  }
+  return EXIT_SUCCESS;
+}

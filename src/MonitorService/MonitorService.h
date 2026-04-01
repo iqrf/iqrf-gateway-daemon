@@ -23,9 +23,10 @@
 #include "IIqrfSensorData.h"
 #include "IMessagingSplitterService.h"
 #include "IUdpConnectorService.h"
-#include "IWebsocketService.h"
+#include "ILaunchService.h"
 #include "ITraceService.h"
 #include "Trace.h"
+#include "WebsocketServer.h"
 
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
@@ -153,16 +154,16 @@ namespace iqrf {
     void detachInterface(iqrf::IUdpConnectorService* iface);
 
     /**
-     * Attaches Shape websocket service interface
-     * @param iface Shape websocket service interface
+     * Attaches launch service interface
+     * @param iface Launch service interface
      */
-    void attachInterface(shape::IWebsocketService* iface);
+    void attachInterface(shape::ILaunchService* iface);
 
     /**
-     * Detaches Shape websocket service interface
-     * @param iface Shape websocket service interface
+     * Detaches launch service interface
+     * @param iface Launch service interface
      */
-    void detachInterface(shape::IWebsocketService* iface);
+    void detachInterface(shape::ILaunchService* iface);
 
     /**
      * Attaches tracing service interface
@@ -177,6 +178,8 @@ namespace iqrf {
     void detachInterface(shape::ITraceService* iface);
 
   private:
+
+    std::string getCertPath(const std::string& path);
     /**
      * Handles request from splitter
      * @param messaging Messaging instance
@@ -198,6 +201,10 @@ namespace iqrf {
 
     /// Instance ID
     std::string m_instanceId;
+    // Launch service interface
+    shape::ILaunchService *m_launchService = nullptr;
+    /// Websocket server parameters
+    WebsocketServerParams m_params;
     // DB service interface
     IIqrfDb *m_dbService = nullptr;
     /// DPA service interface
@@ -208,8 +215,8 @@ namespace iqrf {
     IMessagingSplitterService *m_splitterService = nullptr;
     /// UDP connector service
     IUdpConnectorService *m_udpConnectorService = nullptr;
-    /// Shape websocket service
-    shape::IWebsocketService *m_websocketService = nullptr;
+    /// WebSocket server interface
+    std::unique_ptr<WebsocketServer> m_server = nullptr;
     /// Monitoring notification worker thread
     std::thread m_workerThread;
     /// Thread running condition

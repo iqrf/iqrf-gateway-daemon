@@ -267,4 +267,23 @@ namespace iqrf {
     EXPECT_EQ(4, Pointer("/data/status").Get(doc)->GetInt());
     EXPECT_STREQ("Failed to validate JSON message contents.", Pointer("/data/statusStr").Get(doc)->GetString());
   }
+
+  TEST_F(JsonSplitterErrorMessagesTest, unexpected_auth_error) {
+    std::string request = R"({
+      "type": "auth",
+      "token": "iqrfgd2;1;zDrcvQaXWopzJ+DbfkpGq3Tn00wkt3n6fExj8iUsYio="
+    })";
+
+    // Send request and get error response
+    Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(request);
+    std::string response = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
+    auto doc = parseResponse(response);
+    ASSERT_FALSE(doc.HasParseError());
+
+    EXPECT_STREQ("messageError", Pointer("/mType").Get(doc)->GetString());
+    EXPECT_STREQ("auth", Pointer("/data/msgId").Get(doc)->GetString());
+    EXPECT_STREQ("Received a duplicate or unexpected auth message.", Pointer("/data/rsp/error").Get(doc)->GetString());
+    EXPECT_EQ(9, Pointer("/data/status").Get(doc)->GetInt());
+    EXPECT_STREQ("Unexpected auth message.", Pointer("/data/statusStr").Get(doc)->GetString());
+  }
 }
