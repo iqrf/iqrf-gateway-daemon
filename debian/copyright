@@ -5,9 +5,108 @@ Source: https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon.git
 
 Files: *
 Copyright:
- 2015-2025 IQRF Tech s.r.o.
- 2019-2025 MICRORISC s.r.o.
+ 2015-2026 IQRF Tech s.r.o.
+ 2019-2026 MICRORISC s.r.o.
 License: Apache-2.0
+
+Files: libraries/cpr/*
+Copyright:
+ 2017-2021 Huu Nguyen
+ 2022 libcpr and many other contributors
+License: MIT
+
+Files: libraries/croncpp/*
+Copyright:
+ 2018 Marius Bancila
+License: MIT
+
+Files: libraries/date/include/date/chrono_io.h
+Copyright:
+ 2016-2017 Howard Hinnant
+License: MIT
+
+Files: libraries/date/include/date/date.h
+Copyright:
+ 2015-2017 Howard Hinnant
+ 2016 Adrian Colomitchi
+ 2017 Florian Dang
+ 2017 Paul Thompson
+ 2018-2019 Tomasz Kamiński
+ 2019 Jiangang Zhuang
+License: MIT
+
+Files: libraries/date/include/date/ios.h
+       libraries/date/src/ios.mm
+Copyright:
+ 2016 Alexander Kormanovsky
+License: MIT
+
+Files: libraries/date/include/date/islamic.h
+       libraries/date/include/date/julian.h
+Copyright:
+ 2016 Howard Hinnant
+License: MIT
+
+Files: libraries/date/include/date/iso_week.h
+Copyright:
+ 2015-2017 Howard Hinnant
+License: MIT
+
+Files: libraries/date/include/date/ptz.h
+Copyright:
+ 2017 Howard Hinnant
+License: MIT
+
+Files: libraries/date/include/date/solar_hijri.h
+Copyright:
+ 2016 Howard Hinnant
+ 2019 Asad. Gharighi
+License: MIT
+
+Files: libraries/date/include/date/tz.h
+Copyright:
+ 2015-2017 Howard Hinnant
+ 2017 Jiangang Zhuang
+ 2017 Aaron Bishop
+ 2017 Tomasz Kamiński
+License: MIT
+
+Files: libraries/date/include/date/tz_private.h
+Copyright:
+ 2015-2016 Howard Hinnant
+License: MIT
+
+Files: libraries/date/src/tz.cpp
+Copyright:
+ 2015-2017 Howard Hinnant
+ 2015 Ville Voutilainen
+ 2016 Alexander Kormanovsky
+ 2016-2017 Jiangang Zhuang
+ 2017 Nicolas Veloz Savino
+ 2017 Florian Dang
+ 2017 Aaron Bishop
+License: MIT
+
+Files: libraries/googletest/*
+Copyright:
+ 2008 Google Inc.
+License: BSD-3-Clause
+
+Files: libraries/nlohmann_json/*
+Copyright:
+ 2013-2026 Niels Lohmann
+License: MIT
+
+Files: libraries/sqlitec++/*
+Copyright:
+ 2012-2025 Sebastien Rombauts
+License: MIT
+
+Files: libraries/valijson/*
+Copyright:
+ 2016 Tristan Penman
+ 2016 Akamai Technologies, Inc.
+License: BSD-2-Clause
 
 License: Apache-2.0
  Grant of Copyright License. Subject to the terms and conditions of
@@ -20,3 +119,70 @@ License: Apache-2.0
  On Debian systems, the full text of Apache-2.0 License can be found
  in the file
  `/usr/share/common-licenses/Apache-2.0'.
+
+License: BSD-2-Clause
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+ .
+ 1. Redistributions of source code must retain the above copyright notice, this
+ list of conditions and the following disclaimer.
+ .
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the documentation
+ and/or other materials provided with the distribution.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+License: BSD-3-Clause
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+ .
+ 1. Redistributions of source code must retain the above copyright notice, this
+ list of conditions and the following disclaimer.
+ .
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the documentation
+ and/or other materials provided with the distribution.
+ .
+ 3. Neither the name of the copyright holder nor the names of its contributors
+ may be used to endorse or promote products derived from this software without
+ specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+License: MIT
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ .
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
