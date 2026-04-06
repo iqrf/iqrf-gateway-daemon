@@ -25,6 +25,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(OpenSSL REQUIRED)
 find_package(SQLite3 REQUIRED)
+find_package(sodium REQUIRED)
 
 # create library
 set(LIB_NAME apitokenctl)
@@ -43,6 +44,7 @@ target_include_directories(${LIB_NAME} PUBLIC
 )
 target_link_libraries(${LIB_NAME} PUBLIC
   ${Boost_LIBRARIES}
+  ${sodium_LIBRARIES}
   nlohmann_json::nlohmann_json
   OpenSSL::SSL
   OpenSSL::Crypto

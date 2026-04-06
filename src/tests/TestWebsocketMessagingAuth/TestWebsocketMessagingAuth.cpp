@@ -41,7 +41,6 @@
 #include <optional>
 #include <random>
 #include <string>
-#define IIqrfChannelService_EXPORTS
 
 #include "TestWebsocketMessagingAuth.h"
 #include "Trace.h"
@@ -58,6 +57,8 @@
 #include <nlohmann/json.hpp>
 
 #include "iqrf__TestWebsocketMessagingAuth.hxx"
+
+#define IIqrfChannelService_EXPORTS
 
 TRC_INIT_MNAME(iqrf::TestWebsocketMessagingAuth)
 
@@ -208,8 +209,7 @@ namespace iqrf {
     db::models::ApiToken valid_token{
       1,
       "valid_test",
-      "Km94ufh80JgJAW5ryvTmXw==",
-      "OZjVJ/KYRfJ9FALd3VCY7+z3zsyDDa6kGVvP1K0unL0=",
+      "$argon2id$v=19$m=8,t=2,p=1$VXj5TItmqCxk8bq6BvxqEQ$YjFDpwMuXzVlnToIn8Zq8iK0MOkCCHC0V1j1oATJ8h8",
       std::chrono::system_clock::time_point::min(),
       std::chrono::system_clock::time_point::min(),
       ApiToken::Status::Valid,
@@ -219,8 +219,7 @@ namespace iqrf {
     db::models::ApiToken revoked_token{
       2,
       "revoked_test",
-      "S1pu3+64CglEyzR+s7+Evw==",
-      "zsRbb+1AYkZi+DooboxUrvejyay4YJ7jJbny9xN8xH8=",
+      "$argon2id$v=19$m=8,t=2,p=1$BeEEal+ckR0SVIa2M40HyQ$QPHbIr/rAFtUL0kkjuQTl4yrMbDX0WU4LzMqkqzthq4",
       std::chrono::system_clock::time_point::min(),
       std::chrono::system_clock::time_point::min(),
       ApiToken::Status::Revoked,
@@ -230,8 +229,7 @@ namespace iqrf {
     db::models::ApiToken expired_token{
       3,
       "expired_test",
-      "0QDdubRFO5ex0gDbbzxwHg==",
-      "/LPYJ33UI9fZzY2b4+hOGf9lcreR9gmM9cHdPLZkEbg=",
+      "$argon2id$v=19$m=8,t=2,p=1$oxJQnuagm6ebNSVLXHz6FQ$lna3K8j17AJAVXrpF0tF3b/API0VMs+V3AD+rk+F+WI",
       std::chrono::system_clock::time_point::min(),
       std::chrono::system_clock::time_point::min(),
       ApiToken::Status::Expired,
@@ -241,18 +239,17 @@ namespace iqrf {
     db::models::ApiToken revoked_later_token{
       4,
       "revoked_later_token",
-      "60qpNwDAGdCuuWcutV4gtg==",
-      "uohKt+Eg2DYDZfAMYp2ic9bJKDoyibMZqhBisrNH+bI=",
+      "$argon2id$v=19$m=8,t=2,p=1$XBlKv+t9XNrw7PxEpx+olQ$rDvvF1+fwkDfBnbSTuWSX4e4oj/3icU1O6ND8VNwrbs",
       std::chrono::system_clock::time_point::min(),
       std::chrono::system_clock::time_point::min(),
       ApiToken::Status::Valid,
       true,
       std::nullopt
     };
-    const std::string valid_token_string = "iqrfgd2;1;zDrcvQaXWopzJ+DbfkpGq3Tn00wkt3n6fExj8iUsYio=";
-    const std::string revoked_token_string = "iqrfgd2;2;E75vLfBqxutkVuHl16nqLHPplttSly2nmZ82YRrvd0E=";
-    const std::string expired_token_string = "iqrfgd2;3;xK2LnzYTqVLNNUGYEGWU9VU8LC6xQpuKEQtRav7dcUo=";
-    const std::string revoked_later_token_string = "iqrfgd2;4;HzYtNdilRD1XCIX0mIu3Og49buDlvlAvFVmZEowT2HI=";
+    const std::string valid_token_string = "iqrfgd2;1;TXFV4/ZD64snoqhKUTlliqvE8DYUA7OvgevWwLbS6Nc=";
+    const std::string revoked_token_string = "iqrfgd2;2;swrOuPUKAw9Jzl4eB3yFAK0fUzLUQ4KaymQGskxhTL8=";
+    const std::string expired_token_string = "iqrfgd2;3;3kE9CBBuLDr/a5VSlgS1Q0rZ9G0kgJmodu3yV9G2YbA=";
+    const std::string revoked_later_token_string = "iqrfgd2;4;rtNn68tCw0XDrr4wc4xdRAMxTincb+gvPGCh6n+n+S0=";
 
     void insertToken(
       db::models::ApiToken& token,
@@ -261,19 +258,18 @@ namespace iqrf {
     ) {
       SQLite::Statement stmt(*db,
         R"(
-        INSERT OR IGNORE INTO api_tokens (id, owner, salt, hash, createdAt, expiresAt, status, service)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+        INSERT OR IGNORE INTO api_tokens (id, owner, hash, createdAt, expiresAt, status, service)
+        VALUES (?, ?, ?, ?, ?, ?, ?);
         )"
       );
 
       stmt.bind(1, token.getId());
       stmt.bind(2, token.getOwner());
-      stmt.bind(3, token.getSalt());
-      stmt.bind(4, token.getHash());
-      stmt.bind(5, DatetimeParser::toISO8601(created_at));
-      stmt.bind(6, DatetimeParser::toISO8601(expires_at));
-      stmt.bind(7, static_cast<int>(token.getStatus()));
-      stmt.bind(8, token.canUseServiceMode());
+      stmt.bind(3, token.getHash());
+      stmt.bind(4, DatetimeParser::toISO8601(created_at));
+      stmt.bind(5, DatetimeParser::toISO8601(expires_at));
+      stmt.bind(6, static_cast<int>(token.getStatus()));
+      stmt.bind(7, token.canUseServiceMode());
       try {
         stmt.exec();
       } catch (const std::exception &e) {

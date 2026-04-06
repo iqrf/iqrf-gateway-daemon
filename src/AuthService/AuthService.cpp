@@ -163,12 +163,8 @@ namespace iqrf {
         return newStatus;
       }
 
-      auto salt = CryptoUtils::base64_decode_data(token->getSalt());
-      auto hash = CryptoUtils::base64_decode_data(token->getHash());
-      auto key = CryptoUtils::base64_decode_data(secret);
-      auto candidate = CryptoUtils::sha256_hash_data(salt, key);
-      // if candidate token hash does not match hash stored in database, invalid
-      if (hash != candidate) {
+      auto hash = token->getHash();
+      if (!CryptoUtils::argon2idVerify(hash, secret)) {
         return std::nullopt;
       }
       // set expiration

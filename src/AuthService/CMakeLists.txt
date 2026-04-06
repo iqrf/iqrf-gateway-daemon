@@ -33,8 +33,11 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibdpa_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/libraries/date/include)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+
 find_package(SQLite3 REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(sodium REQUIRED)
 
 if(SHAPE_STATIC_LIBS)
   add_library(${PROJECT_NAME} STATIC
@@ -57,6 +60,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   DbEntities
   MigrationManager
   OpenSSL::Crypto
+  ${sodium_LIBRARIES}
 )
 
 DeployShapeComponent(${PROJECT_NAME})

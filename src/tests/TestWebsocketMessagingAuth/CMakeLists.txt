@@ -23,8 +23,11 @@ include_directories(${CMAKE_SOURCE_DIR}/libraries/date/include)
 
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+
 find_package(SQLite3 REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(sodium REQUIRED)
 
 if(SHAPE_STATIC_LIBS)
   add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES} ${_SRCCONFIG})
@@ -43,6 +46,7 @@ target_link_libraries(${PROJECT_NAME}
   gmock_main
   DbEntities
   nlohmann_json::nlohmann_json
+  ${sodium_LIBRARIES}
 )
 
 set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${TESTS_FOLDER})
