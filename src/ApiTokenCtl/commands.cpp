@@ -41,15 +41,13 @@ void create_token(const std::string& owner, const std::string& expiration, bool 
 
   auto created_at = std::chrono::system_clock::now();
   auto expires_at = DateTimeUtils::parse_expiration(expiration, created_at);
-  auto salt = CryptoUtils::random_data(16);
-  auto key = CryptoUtils::random_data(32);
-  auto hash = CryptoUtils::sha256_hash_data(salt, key);
-  auto encoded_key = CryptoUtils::base64_encode_data(key);
-  auto encoded_hash = CryptoUtils::base64_encode_data(hash);
+  auto key = CryptoUtils::generateRandomData(32);
+  auto hash = CryptoUtils::sha256Hash(key);
+  auto encoded_key = CryptoUtils::base64Encode(key);
+  auto encoded_hash = CryptoUtils::base64Encode(hash);
 
   iqrf::db::models::ApiToken token(
     owner,
-    CryptoUtils::base64_encode_data(salt),
     encoded_hash,
     created_at,
     expires_at,
@@ -190,14 +188,12 @@ void rotate_token(const uint32_t id, const SharedParams& params) {
     repo.revoke(id, now);
     // create new token
     auto expiration = now + ttl;
-    auto salt = CryptoUtils::random_data(16);
-    auto key = CryptoUtils::random_data(32);
-    auto hash = CryptoUtils::sha256_hash_data(salt, key);
-    auto encoded_key = CryptoUtils::base64_encode_data(key);
-    auto encoded_hash = CryptoUtils::base64_encode_data(hash);
+    auto key = CryptoUtils::generateRandomData(32);
+    auto hash = CryptoUtils::sha256Hash(key);
+    auto encoded_key = CryptoUtils::base64Encode(key);
+    auto encoded_hash = CryptoUtils::base64Encode(hash);
     iqrf::db::models::ApiToken newToken(
       token->getOwner(),
-      CryptoUtils::base64_encode_data(salt),
       encoded_hash,
       now,
       expiration,

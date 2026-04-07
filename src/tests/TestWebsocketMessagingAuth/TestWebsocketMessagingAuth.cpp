@@ -208,8 +208,7 @@ namespace iqrf {
     db::models::ApiToken valid_token{
       1,
       "valid_test",
-      "Km94ufh80JgJAW5ryvTmXw==",
-      "OZjVJ/KYRfJ9FALd3VCY7+z3zsyDDa6kGVvP1K0unL0=",
+      "q3qaIzd74DZFnYkhCyzwFI+OPgA+o/bs0461sPzo6bA=",
       std::chrono::system_clock::time_point::min(),
       std::chrono::system_clock::time_point::min(),
       ApiToken::Status::Valid,
@@ -219,8 +218,7 @@ namespace iqrf {
     db::models::ApiToken revoked_token{
       2,
       "revoked_test",
-      "S1pu3+64CglEyzR+s7+Evw==",
-      "zsRbb+1AYkZi+DooboxUrvejyay4YJ7jJbny9xN8xH8=",
+      "YKyPGf9jfXN0Lj71LMJm5U3ZaSOXgYuTeNtqNu6fkE0=",
       std::chrono::system_clock::time_point::min(),
       std::chrono::system_clock::time_point::min(),
       ApiToken::Status::Revoked,
@@ -230,8 +228,7 @@ namespace iqrf {
     db::models::ApiToken expired_token{
       3,
       "expired_test",
-      "0QDdubRFO5ex0gDbbzxwHg==",
-      "/LPYJ33UI9fZzY2b4+hOGf9lcreR9gmM9cHdPLZkEbg=",
+      "L+3UfZb24CPMrOpyUIxW/1m+HnAQV2wr3PpDvxOx1c8=",
       std::chrono::system_clock::time_point::min(),
       std::chrono::system_clock::time_point::min(),
       ApiToken::Status::Expired,
@@ -241,18 +238,17 @@ namespace iqrf {
     db::models::ApiToken revoked_later_token{
       4,
       "revoked_later_token",
-      "60qpNwDAGdCuuWcutV4gtg==",
-      "uohKt+Eg2DYDZfAMYp2ic9bJKDoyibMZqhBisrNH+bI=",
+      "m6qZai36k7ZSJjZ32GWTAaO/xp0NzyLnOw/gc9NJsUQ=",
       std::chrono::system_clock::time_point::min(),
       std::chrono::system_clock::time_point::min(),
       ApiToken::Status::Valid,
       true,
       std::nullopt
     };
-    const std::string valid_token_string = "iqrfgd2;1;zDrcvQaXWopzJ+DbfkpGq3Tn00wkt3n6fExj8iUsYio=";
-    const std::string revoked_token_string = "iqrfgd2;2;E75vLfBqxutkVuHl16nqLHPplttSly2nmZ82YRrvd0E=";
-    const std::string expired_token_string = "iqrfgd2;3;xK2LnzYTqVLNNUGYEGWU9VU8LC6xQpuKEQtRav7dcUo=";
-    const std::string revoked_later_token_string = "iqrfgd2;4;HzYtNdilRD1XCIX0mIu3Og49buDlvlAvFVmZEowT2HI=";
+    const std::string valid_token_string = "iqrfgd2;1;25SI8PrptHDbgDGCtfJHbaBCaqyYIMxuQpXpsZrvoU4=";
+    const std::string revoked_token_string = "iqrfgd2;2;4sT5KP+8U4X0b61LdOX1FL9r8umEUimzzK+lAcoxDOc=";
+    const std::string expired_token_string = "iqrfgd2;3;MuekuECy4EJOI2REYQ7zC0hiQ6WiUNU7Jj86qTjCbyE=";
+    const std::string revoked_later_token_string = "iqrfgd2;4;dFYIlOolYq3bDmwxsMLy03HfJzLOmoeTumJfXnsBTJA=";
 
     void insertToken(
       db::models::ApiToken& token,
@@ -261,19 +257,18 @@ namespace iqrf {
     ) {
       SQLite::Statement stmt(*db,
         R"(
-        INSERT OR IGNORE INTO api_tokens (id, owner, salt, hash, createdAt, expiresAt, status, service)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+        INSERT OR IGNORE INTO api_tokens (id, owner, hash, createdAt, expiresAt, status, service)
+        VALUES (?, ?, ?, ?, ?, ?, ?);
         )"
       );
 
       stmt.bind(1, token.getId());
       stmt.bind(2, token.getOwner());
-      stmt.bind(3, token.getSalt());
-      stmt.bind(4, token.getHash());
-      stmt.bind(5, DatetimeParser::toISO8601(created_at));
-      stmt.bind(6, DatetimeParser::toISO8601(expires_at));
-      stmt.bind(7, static_cast<int>(token.getStatus()));
-      stmt.bind(8, token.canUseServiceMode());
+      stmt.bind(3, token.getHash());
+      stmt.bind(4, DatetimeParser::toISO8601(created_at));
+      stmt.bind(5, DatetimeParser::toISO8601(expires_at));
+      stmt.bind(6, static_cast<int>(token.getStatus()));
+      stmt.bind(7, token.canUseServiceMode());
       try {
         stmt.exec();
       } catch (const std::exception &e) {

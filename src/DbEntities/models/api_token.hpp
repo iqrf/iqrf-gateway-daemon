@@ -80,8 +80,7 @@ public:
   /**
    * Constructor without ID, and with integer status
    * @param owner Token owner
-   * @param salt Salt for hashing
-   * @param hash Hash from salt and secret
+   * @param hash Hashed secret
    * @param createdAt Timestamp of creation
    * @param expiresAt Timestamp of expiration
    * @param status Token status as integer
@@ -90,7 +89,6 @@ public:
    */
   ApiToken(
     const std::string& owner,
-    const std::string& salt,
     const std::string& hash,
     std::chrono::system_clock::time_point createdAt,
     std::chrono::system_clock::time_point expiresAt,
@@ -99,7 +97,6 @@ public:
     std::optional<std::chrono::system_clock::time_point> invalidatedAt
   )
     : owner_(owner),
-      salt_(salt),
       hash_(hash),
       createdAt_(createdAt),
       expiresAt_(expiresAt),
@@ -110,8 +107,7 @@ public:
   /**
    * Constructor without ID
    * @param owner Token owner
-   * @param salt Salt for hashing
-   * @param hash Hash from salt and secret
+   * @param hash Hashed secret
    * @param createdAt Timestamp of creation
    * @param expiresAt Timestamp of expiration
    * @param status Token status
@@ -119,7 +115,6 @@ public:
    * @param invalidatedAt Timestamp of invalidation
    */
   ApiToken(const std::string& owner,
-    const std::string& salt,
     const std::string& hash,
     std::chrono::system_clock::time_point createdAt,
     std::chrono::system_clock::time_point expiresAt,
@@ -128,7 +123,6 @@ public:
     std::optional<std::chrono::system_clock::time_point> invalidatedAt
   )
     : owner_(owner),
-      salt_(salt),
       hash_(hash),
       createdAt_(createdAt),
       expiresAt_(expiresAt),
@@ -140,8 +134,7 @@ public:
    * Full constructor with integer status
    * @param id Token ID
    * @param owner Token owner
-   * @param salt Salt for hashing
-   * @param hash Hash from salt and secret
+   * @param hash Hashed secret
    * @param createdAt Timestamp of creation
    * @param expiresAt Timestamp of expiration
    * @param status Token status as integer
@@ -151,7 +144,6 @@ public:
   ApiToken(
     const uint32_t id,
     const std::string& owner,
-    const std::string& salt,
     const std::string& hash,
     std::chrono::system_clock::time_point createdAt,
     std::chrono::system_clock::time_point expiresAt,
@@ -161,7 +153,6 @@ public:
   )
     : id_(id),
       owner_(owner),
-      salt_(salt),
       hash_(hash),
       createdAt_(createdAt),
       expiresAt_(expiresAt),
@@ -173,8 +164,7 @@ public:
    * Full constructor
    * @param id Token ID
    * @param owner Token owner
-   * @param salt Salt for hashing
-   * @param hash Hash from salt and secret
+   * @param hash Hashed secret
    * @param createdAt Timestamp of creation
    * @param expiresAt Timestamp of expiration
    * @param status Token status
@@ -184,7 +174,6 @@ public:
   ApiToken(
     const uint32_t id,
     const std::string& owner,
-    const std::string& salt,
     const std::string& hash,
     std::chrono::system_clock::time_point createdAt,
     std::chrono::system_clock::time_point expiresAt,
@@ -194,7 +183,6 @@ public:
   )
     : id_(id),
       owner_(owner),
-      salt_(salt),
       hash_(hash),
       createdAt_(createdAt),
       expiresAt_(expiresAt),
@@ -216,14 +204,6 @@ public:
    */
   const std::string& getOwner() const {
     return owner_;
-  }
-
-  /**
-   * Returns salt
-   * @return `std::string` Salt
-   */
-  const std::string& getSalt() const {
-    return salt_;
   }
 
   /**
@@ -330,13 +310,12 @@ public:
    * Statement columns are parsed in the following order:
    * 0 - ID - uint |
    * 1 - owner - string |
-   * 2 - salt - string |
-   * 3 - hash - string |
-   * 4 - createdAt - string (passed to helper, parsed into time_point) |
-   * 5 - expiresAt - string (passed to helper, parsed into time_point) |
-   * 6 - status - int |
-   * 7 - service - bool (but really int) |
-   * 8 - invalidatedAt - string (passed to helper, parsed into time_point) if not null column |
+   * 2 - hash - string |
+   * 3 - createdAt - string (passed to helper, parsed into time_point) |
+   * 4 - expiresAt - string (passed to helper, parsed into time_point) |
+   * 5 - status - int |
+   * 6 - service - bool (but really int) |
+   * 7 - invalidatedAt - string (passed to helper, parsed into time_point) if not null column |
    *
    * @param stmt SQLiteCpp statement object containing query result
    * @return `ApiToken` Constructed API token
@@ -344,25 +323,22 @@ public:
   static ApiToken fromResult(SQLite::Statement& stmt) {
     auto id = stmt.getColumn(0).getUInt();
     auto owner = stmt.getColumn(1).getString();
-    auto salt = stmt.getColumn(2).getString();
-    auto hash = stmt.getColumn(3).getString();
-    auto createdAt = DatetimeParser::parseISO8601(stmt.getColumn(4).getString());
-    auto expiresAt = DatetimeParser::parseISO8601(stmt.getColumn(5).getString());
-    auto status = stmt.getColumn(6).getInt();
-    bool service = stmt.getColumn(7).getUInt() != 0;
+    auto hash = stmt.getColumn(2).getString();
+    auto createdAt = DatetimeParser::parseISO8601(stmt.getColumn(3).getString());
+    auto expiresAt = DatetimeParser::parseISO8601(stmt.getColumn(4).getString());
+    auto status = stmt.getColumn(5).getInt();
+    bool service = stmt.getColumn(6).getUInt() != 0;
     std::optional<std::chrono::system_clock::time_point> invalidatedAt = std::nullopt;
-    if (!stmt.getColumn(8).isNull()) {
-      invalidatedAt = DatetimeParser::parseISO8601(stmt.getColumn(8).getString());
+    if (!stmt.getColumn(7).isNull()) {
+      invalidatedAt = DatetimeParser::parseISO8601(stmt.getColumn(7).getString());
     }
-    return ApiToken(id, owner, salt, hash, createdAt, expiresAt, status, service, invalidatedAt);
+    return ApiToken(id, owner, hash, createdAt, expiresAt, status, service, invalidatedAt);
   }
 private:
   /// Token ID
   uint32_t id_;
   /// Token owner
   std::string owner_;
-  /// Salt
-  std::string salt_;
   /// Hashed salt and secret
   std::string hash_;
   /// Created at timestamp

@@ -44,7 +44,7 @@ public:
   std::unique_ptr<ApiToken> get(const uint32_t id) {
     SQLite::Statement stmt(*m_db,
       R"(
-      SELECT id, owner, salt, hash, createdAt, expiresAt, status, service, invalidatedAt
+      SELECT id, owner, hash, createdAt, expiresAt, status, service, invalidatedAt
       FROM api_tokens
       WHERE id = ?
       LIMIT 1;
@@ -68,7 +68,7 @@ public:
   std::vector<ApiToken> list() {
     SQLite::Statement stmt(*m_db,
       R"(
-      SELECT id, owner, salt, hash, createdAt, expiresAt, status, service, invalidatedAt
+      SELECT id, owner, hash, createdAt, expiresAt, status, service, invalidatedAt
       FROM api_tokens
       ORDER BY id;
       )"
@@ -90,17 +90,16 @@ public:
   uint32_t insert(ApiToken& apiToken) {
     SQLite::Statement stmt(*m_db,
       R"(
-      INSERT INTO api_tokens (owner, salt, hash, createdAt, expiresAt, status, service)
-      VALUES (?, ?, ?, ?, ?, ?, ?);
+      INSERT INTO api_tokens (owner, hash, createdAt, expiresAt, status, service)
+      VALUES (?, ?, ?, ?, ?, ?);
       )"
     );
     stmt.bind(1, apiToken.getOwner());
-    stmt.bind(2, apiToken.getSalt());
-    stmt.bind(3, apiToken.getHash());
-    stmt.bind(4, DatetimeParser::toISO8601(apiToken.getCreatedAt()));
-    stmt.bind(5, DatetimeParser::toISO8601(apiToken.getExpiresAt()));
-    stmt.bind(6, static_cast<int>(apiToken.getStatus()));
-    stmt.bind(7, apiToken.canUseServiceMode());
+    stmt.bind(2, apiToken.getHash());
+    stmt.bind(3, DatetimeParser::toISO8601(apiToken.getCreatedAt()));
+    stmt.bind(4, DatetimeParser::toISO8601(apiToken.getExpiresAt()));
+    stmt.bind(5, static_cast<int>(apiToken.getStatus()));
+    stmt.bind(6, apiToken.canUseServiceMode());
     try {
       stmt.exec();
     } catch (const SQLite::Exception &e) {
@@ -126,18 +125,17 @@ public:
   uint32_t insertWithId(ApiToken& apiToken) {
     SQLite::Statement stmt(*m_db,
       R"(
-      INSERT INTO api_tokens (id, owner, salt, hash, createdAt, expiresAt, status, service)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+      INSERT INTO api_tokens (id, owner, hash, createdAt, expiresAt, status, service)
+      VALUES (?, ?, ?, ?, ?, ?, ?);
       )"
     );
     stmt.bind(1, apiToken.getId());
     stmt.bind(2, apiToken.getOwner());
-    stmt.bind(3, apiToken.getSalt());
-    stmt.bind(4, apiToken.getHash());
-    stmt.bind(5, DatetimeParser::toISO8601(apiToken.getCreatedAt()));
-    stmt.bind(6, DatetimeParser::toISO8601(apiToken.getExpiresAt()));
-    stmt.bind(7, static_cast<int>(apiToken.getStatus()));
-    stmt.bind(8, apiToken.canUseServiceMode());
+    stmt.bind(3, apiToken.getHash());
+    stmt.bind(4, DatetimeParser::toISO8601(apiToken.getCreatedAt()));
+    stmt.bind(5, DatetimeParser::toISO8601(apiToken.getExpiresAt()));
+    stmt.bind(6, static_cast<int>(apiToken.getStatus()));
+    stmt.bind(7, apiToken.canUseServiceMode());
     try {
       stmt.exec();
     } catch (const SQLite::Exception &e) {
