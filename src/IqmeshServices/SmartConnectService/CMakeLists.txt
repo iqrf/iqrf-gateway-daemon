@@ -38,11 +38,15 @@ include_directories(${CMAKE_SOURCE_DIR}/src/DpaParser)
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 
 if(SHAPE_STATIC_LIBS)
-    add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
 else()
-    add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
 set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${IQMESH_SERVICES_FOLDER})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  Metadata
+)
 
 DeployShapeComponent(${PROJECT_NAME})

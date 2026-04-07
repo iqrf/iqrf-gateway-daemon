@@ -51,6 +51,8 @@ target_link_libraries(${PROJECT_NAME}
   ${LIBZIP_LIBRARY}
   nlohmann_json::nlohmann_json
   ValiJSON::valijson
+  Metadata
+  MetadataParser
 )
 
 DeployShapeComponent(${PROJECT_NAME})

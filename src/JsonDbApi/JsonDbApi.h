@@ -17,6 +17,7 @@
 #pragma once
 
 #include "IIqrfDb.h"
+#include "IJsCacheService.h"
 #include "IMessagingSplitterService.h"
 #include "ShapeProperties.h"
 #include "ITraceService.h"
@@ -72,6 +73,18 @@ namespace iqrf {
 		 */
 		void detachInterface(IIqrfDb *iface);
 
+    /**
+		 * Attaches cache interface
+		 * @param iface Cache interface
+		 */
+    void attachInterface(IJsCacheService *iface);
+
+    /**
+		 * Detaches cache interface
+		 * @param iface Cache interface
+		 */
+    void detachInterface(IJsCacheService *iface);
+
 		/**
 		 * Attaches Splitter service interface
 		 * @param iface Splitter service interface
@@ -126,6 +139,8 @@ namespace iqrf {
 
 		/// Database service
 		IIqrfDb *m_dbService = nullptr;
+    /// Cache service
+    IJsCacheService *m_cacheService = nullptr;
 		/// Splitter service
 		IMessagingSplitterService *m_splitterService = nullptr;
 		/// Vector of IQRF DB message types

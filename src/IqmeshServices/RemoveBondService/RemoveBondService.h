@@ -19,11 +19,8 @@
 #include "IRemoveBondService.h"
 #include "ShapeProperties.h"
 #include "IMessagingSplitterService.h"
-#include "IJsCacheService.h"
 #include "IIqrfDpaService.h"
 #include "ITraceService.h"
-#include <string>
-
 
 namespace iqrf {
 

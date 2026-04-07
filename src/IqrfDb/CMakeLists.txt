@@ -60,6 +60,7 @@ endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE
   SQLiteCpp
   DbEntities
+  Metadata
   MigrationManager
   nlohmann_json::nlohmann_json
   OpenSSL::Crypto

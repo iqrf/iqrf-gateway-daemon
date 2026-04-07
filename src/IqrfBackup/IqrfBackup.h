@@ -18,12 +18,8 @@
 
 #include "IIqrfBackup.h"
 #include "ShapeProperties.h"
-#include "IMessagingSplitterService.h"
 #include "IIqrfDpaService.h"
 #include "ITraceService.h"
-#include "IJsRenderService.h"
-#include "IJsCacheService.h"
-#include "ILaunchService.h"
 #include "ITraceService.h"
 
 #include <string>

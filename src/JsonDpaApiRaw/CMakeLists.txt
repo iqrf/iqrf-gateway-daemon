@@ -43,8 +43,9 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME}
-    DbEntities
-    nlohmann_json::nlohmann_json
+  DbEntities
+  Metadata
+  nlohmann_json::nlohmann_json
 )
 
 DeployShapeComponent(${PROJECT_NAME})

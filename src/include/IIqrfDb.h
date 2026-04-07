@@ -18,8 +18,14 @@
 
 #include "EmbedNode.h"
 #include "device.hpp"
+#include "Sensor.h"
 #include "rapidjson/document.h"
-#include "JsDriverSensor.h"
+
+#include "binary_output.hpp"
+#include "device.hpp"
+#include "device_sensor.hpp"
+#include "product.hpp"
+#include "sensor.hpp"
 
 #include <functional>
 #include <map>
@@ -29,19 +35,11 @@
 #include <unordered_set>
 #include <vector>
 
-#include "repositories/binary_output_repo.hpp"
-#include "repositories/device_repo.hpp"
-#include "repositories/device_sensor_repo.hpp"
-#include "repositories/driver_repo.hpp"
-#include "repositories/light_repo.hpp"
-#include "repositories/migration_repo.hpp"
-#include "repositories/product_driver_repo.hpp"
-#include "repositories/product_repo.hpp"
-#include "repositories/sensor_repo.hpp"
-
 #define PERIPHERAL_LIGHT 74
 #define PERIPHERAL_BINOUT 75
 #define PERIPHERAL_SENSOR 94
+
+using namespace iqrf::db::models;
 
 namespace iqrf {
 
@@ -433,12 +431,5 @@ namespace iqrf {
      * @param clientId Handler owner
      */
     virtual void unregisterEnumerationHandler(const std::string &clientId) = 0;
-
-    /**
-     * Get quantity by type from cache
-     * @param type Sensor type
-     * @return Cache quantity
-     */
-    virtual std::shared_ptr<IJsCacheService::Quantity> getQuantityByType(const uint8_t type) = 0;
-  };
+	};
 }

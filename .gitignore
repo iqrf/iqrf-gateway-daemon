@@ -29,3 +29,7 @@ src/start-IqrfDaemon/iqrfRepoCache/cache/
 src/cache-update/cache/
 src/cache-update/cache.zip
 src/cache-update/serverCheck.json
+
+# test files
+ctest.xml
+coverage/

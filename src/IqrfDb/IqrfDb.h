@@ -34,10 +34,10 @@
 #include "ILaunchService.h"
 #include "ITraceService.h"
 #include "ShapeProperties.h"
-#include "Trace.h"
 
 #include <openssl/evp.h>
 #include <nlohmann/json.hpp>
+#include "light.hpp"
 #include "rapidjson/document.h"
 #include <SQLiteCpp/SQLiteCpp.h>
 
@@ -291,17 +291,17 @@ namespace iqrf {
     void setDeviceSensorValue(const uint8_t address, const uint8_t type, const uint8_t index, const double value,
       std::shared_ptr<std::string> updated, bool frc);
 
-    /**
-     * Stores value of sensor as metadata (for non-atomic values)
-     * @param address Device address
-     * @param type Sensor type
-     * @param index Sensor index
-     * @param metadata Last measured value
-     * @param updated Last updated
-     * @param frc Data from FRC response
-     */
-    void setDeviceSensorMetadata(const uint8_t address, const uint8_t type, const uint8_t index, json &metadata,
-      std::shared_ptr<std::string> updated, bool frc);
+		/**
+		 * Stores value of sensor as metadata (for non-atomic values)
+		 * @param address Device address
+		 * @param type Sensor type
+		 * @param index Sensor index
+		 * @param metadata Last measured value
+		 * @param updated Last updated
+		 * @param frc Data from FRC response
+		 */
+		void setDeviceSensorMetadata(const uint8_t address, const uint8_t type, const uint8_t index, nlohmann::json &metadata,
+			std::shared_ptr<std::string> updated, bool frc);
 
     ///// LIGHT API
 
@@ -446,13 +446,6 @@ namespace iqrf {
      * @param clientId Handler owner
      */
     void unregisterEnumerationHandler(const std::string &clientId) override;
-
-    /**
-     * Get quantity by type from cache
-     * @param type Sensor type
-     * @return Cache quantity
-     */
-    std::shared_ptr<IJsCacheService::Quantity> getQuantityByType(const uint8_t type) override;
 
     /**
      * Component instance lifecycle activate step
@@ -736,6 +729,11 @@ namespace iqrf {
      */
     void loadProductDrivers();
 
+    /**
+     * Generate driver hash
+     * @param driver Driver string
+     * @return `std::string` Driver hash
+     */
     std::string generateDriverHash(const std::string &driver);
 
     /**

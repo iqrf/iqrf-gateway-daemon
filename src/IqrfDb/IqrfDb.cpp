@@ -18,14 +18,22 @@
 #include "Common.h"
 #include "IqrfDb.h"
 #include "IqrfDbAux.h"
+#include "JsDriverSensor.h"
 #include "MigrationManager.h"
 
-#include <iostream>
-#include <mutex>
-#include <unordered_set>
-#include <vector>
+#include "binary_output_repo.hpp"
+#include "device_repo.hpp"
+#include "device_sensor_repo.hpp"
+#include "driver_repo.hpp"
+#include "light_repo.hpp"
 
-#include "device.hpp"
+#include "product_driver_repo.hpp"
+#include "product_repo.hpp"
+#include "sensor_repo.hpp"
+
+#include <fstream>
+#include <iostream>
+
 #include "iqrf__IqrfDb.hxx"
 
 TRC_INIT_MODULE(iqrf::IqrfDb);
@@ -559,10 +567,6 @@ namespace iqrf {
   void IqrfDb::unregisterEnumerationHandler(const std::string &clientId) {
     std::lock_guard<std::mutex> lock(m_enumMutex);
     m_enumHandlers.erase(clientId);
-  }
-
-  std::shared_ptr<IJsCacheService::Quantity> IqrfDb::getQuantityByType(const uint8_t type) {
-    return m_cacheService->getQuantity(type);
   }
 
   ///// Private methods /////

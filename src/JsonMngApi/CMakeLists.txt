@@ -42,14 +42,15 @@ include_directories(${CMAKE_SOURCE_DIR}/src/DpaParser)
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 
 if(SHAPE_STATIC_LIBS)
-    add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
 else()
-    add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
 target_link_libraries(${PROJECT_NAME}
-    DbEntities
-    nlohmann_json::nlohmann_json
+  DbEntities
+  Metadata
+  nlohmann_json::nlohmann_json
 )
 
 DeployShapeComponent(${PROJECT_NAME})
