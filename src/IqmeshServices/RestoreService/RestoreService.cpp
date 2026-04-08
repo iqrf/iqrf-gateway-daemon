@@ -260,7 +260,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "************************************" << std::endl <<
-        "Backup instance activate" << std::endl <<
+        "RestoreService instance activate" << std::endl <<
         "************************************"
       );
 
@@ -287,7 +287,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "************************************" << std::endl <<
-        "Bqackup instance deactivate" << std::endl <<
+        "RestoreService instance deactivate" << std::endl <<
         "************************************"
       );
 

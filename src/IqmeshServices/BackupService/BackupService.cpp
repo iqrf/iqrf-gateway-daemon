@@ -348,7 +348,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "************************************" << std::endl <<
-        "Backup instance activate" << std::endl <<
+        "BackupService instance activate" << std::endl <<
         "************************************"
       );
       modify(props);
@@ -374,7 +374,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "************************************" << std::endl <<
-        "Backup instance deactivate" << std::endl <<
+        "BackupService instance deactivate" << std::endl <<
         "************************************"
       );
 

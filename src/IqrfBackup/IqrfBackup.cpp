@@ -346,7 +346,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "************************************" << std::endl <<
-        "Bqackup instance deactivate" << std::endl <<
+        "IqrfBackup instance deactivate" << std::endl <<
         "************************************"
       );
 
