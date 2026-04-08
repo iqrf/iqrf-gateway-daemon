@@ -159,6 +159,7 @@ namespace iqrf {
       if (m_tokenCheckThread.joinable()) {
         m_tokenCheckThread.join();
       }
+      m_server->stop();
 
       TRC_FUNCTION_LEAVE("")
     }

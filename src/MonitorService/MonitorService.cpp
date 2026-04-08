@@ -124,6 +124,7 @@ namespace iqrf {
     if (m_workerThread.joinable()) {
       m_workerThread.join();
     }
+    m_server->stop();
 
     TRC_FUNCTION_LEAVE("");
   }

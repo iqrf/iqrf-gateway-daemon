@@ -31,6 +31,7 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 #include "WebsocketCallbackTypes.h"
 
 namespace iqrf {
@@ -215,11 +216,21 @@ namespace iqrf {
      */
     template<class SessionHandler>
     void forEachSession(SessionHandler&& handler) {
-      std::lock_guard<std::mutex> lock(mutex_);
-      for (auto [_, session] : sessionStorage_) {
-        if (auto sessionPointer = session.lock()) {
-          handler(sessionPointer);
+      std::vector<std::shared_ptr<IWebSocketClientSession>> living;
+      {
+        std::lock_guard<std::mutex> lock(mutex_);
+        for (auto itr = sessionStorage_.begin(); itr != sessionStorage_.end(); ) {
+          if (auto sessionPointer = itr->second.lock()) {
+            living.push_back(sessionPointer);
+            ++itr;
+          } else {
+            itr = sessionStorage_.erase(itr);
+          }
         }
+      }
+
+      for (auto& session : living) {
+        handler(session);
       }
     }
 
