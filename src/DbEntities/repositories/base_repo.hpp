@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include <cstddef>
 #include <memory>
 
 #include <SQLiteCpp/SQLiteCpp.h>
@@ -49,6 +50,22 @@ protected:
     std::ostringstream oss;
     oss << description << ": " << exmsg;
     return oss.str();
+  }
+
+  /**
+   * Generates a placeholder string for WHERE IN condition
+   * @param count Number of placeholders
+   * @return `std::string` Placeholder string
+   */
+  std::string getWhereInPlaceholder(std::size_t count) {
+    std::string placeholder;
+    placeholder.reserve(2 * count);
+
+    for (std::size_t i = 0; i < count; ++i) {
+      placeholder += (i == 0 ? "?" : ",?");
+    }
+
+    return placeholder;
   }
 
   /// Database connection container

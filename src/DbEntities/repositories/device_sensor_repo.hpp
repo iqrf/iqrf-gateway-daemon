@@ -16,8 +16,9 @@
  */
 #pragma once
 
-#include <map>
 #include <set>
+#include <unordered_map>
+#include <vector>
 
 #include <models/device_sensor.hpp>
 #include <models/sensor.hpp>
@@ -250,6 +251,44 @@ public:
       )"
     );
     std::vector<std::pair<uint8_t, Sensor>> vector;
+    while (stmt.executeStep()) {
+      const uint8_t addr = static_cast<uint8_t>(stmt.getColumn(10).getUInt());
+      if (map.count(addr) == 0) {
+        map.insert(
+          std::make_pair(
+            addr,
+            std::vector<std::pair<uint8_t, Sensor>>{{
+              static_cast<uint8_t>(stmt.getColumn(11).getUInt()),
+              Sensor::fromResult(stmt)
+            }}
+          )
+        );
+      } else {
+        map[addr].emplace_back(
+          static_cast<uint8_t>(stmt.getColumn(11).getUInt()),
+          Sensor::fromResult(stmt)
+        );
+      }
+    }
+    return map;
+  }
+
+  /**
+   * @brief Constructs and returns a map of device addresses, sensor indexes and sensor details from devices specified by ID
+   *
+   * @return Map of device addresses and vectors of sensor index and details pairs
+   */
+  std::map<uint8_t, std::vector<std::pair<uint8_t, Sensor>>> getDeviceAddressIndexSensorMapByAddrs(const std::vector<uint8_t>& deviceAddrs) {
+    std::map<uint8_t, std::vector<std::pair<uint8_t, Sensor>>> map;
+    if (deviceAddrs.empty()) {
+      return map;
+    }
+    SQLite::Statement stmt(*m_db,
+      "SELECT s.id, s.type, s.name, s.shortname, s.unit, s.decimals, s.frc2bit, s.frc1Byte, s.frc2Byte, s.frc4Byte, ds.address, ds.globalIndex"
+      " FROM sensor as s INNER JOIN deviceSensor as ds ON ds.sensorId = s.id"
+      " WHERE ds.address IN (" + getWhereInPlaceholder(deviceAddrs.size()) + ")"
+      " ORDER BY ds.address ASC, ds.globalIndex ASC;"
+    );
     while (stmt.executeStep()) {
       const uint8_t addr = static_cast<uint8_t>(stmt.getColumn(10).getUInt());
       if (map.count(addr) == 0) {

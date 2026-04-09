@@ -17,6 +17,7 @@
 #pragma once
 
 #include <set>
+#include <vector>
 
 #include <models/binary_output.hpp>
 #include <repositories/base_repo.hpp>
@@ -221,6 +222,38 @@ public:
       )"
     );
     std::map<uint8_t, uint8_t> map;
+    while(stmt.executeStep()) {
+      map.insert(
+        std::make_pair(
+          static_cast<uint8_t>(stmt.getColumn(0).getUInt()),
+          static_cast<uint8_t>(stmt.getColumn(1).getUInt())
+        )
+      );
+    }
+    return map;
+  }
+
+  /**
+   * @brief Returns map of device addresses and number of binary outputs implemented by each device for specified devices
+   * @param deviceIds DeviceIDs
+   * @return Map of devicee addresses and binary outputs count
+   */
+  std::map<uint8_t, uint8_t> getAddressCountMapByIds(const std::vector<uint32_t>& deviceIds) {
+    std::map<uint8_t, uint8_t> map = {};
+    if (deviceIds.empty()) {
+      return map;
+    }
+
+    SQLite::Statement stmt(*m_db,
+      "SELECT d.address, b.count"
+        " FROM bo as b INNER JOIN device as d ON d.id = b.deviceId"
+        " WHERE deviceId IN (" + getWhereInPlaceholder(deviceIds.size()) + ");"
+    );
+
+    int index = 1;
+    for (auto deviceId : deviceIds) {
+      stmt.bind(index++, deviceId);
+    }
     while(stmt.executeStep()) {
       map.insert(
         std::make_pair(

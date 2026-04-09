@@ -24,6 +24,7 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <unordered_set>
 #include <vector>
 
 #include "repositories/binary_output_repo.hpp"
@@ -205,9 +206,10 @@ namespace iqrf {
 
 		/**
 		 * Get map of device addresses and number of implemented binary outputs
+     * @param deviceIds IDs of devices
 		 * @return Map of device addresses and number of implemented binary outputs
 		 */
-		virtual std::map<uint8_t, uint8_t> getBinaryOutputCountMap() = 0;
+		virtual std::map<uint8_t, uint8_t> getBinaryOutputCountMap(const std::vector<uint32_t>& deviceIds = {}) = 0;
 
 		///// DEVICE API
 
@@ -296,9 +298,10 @@ namespace iqrf {
 
 		/**
 		 * Retrieves map of device addresses and vector of sensor index and data
+     * @param deviceAddrs Device addresses
 		 * @return Map of device addresses and vector of sensor index and data
 		 */
-		virtual std::map<uint8_t, std::vector<std::pair<uint8_t, Sensor>>> getDeviceAddressIndexSensorMap() = 0;
+		virtual std::map<uint8_t, std::vector<std::pair<uint8_t, Sensor>>> getDeviceAddressIndexSensorMap(const std::vector<uint8_t>& deviceAddrs) = 0;
 
 		/**
 		 * Retrieves map of device addresses and vector of device sensors and sensors
@@ -335,6 +338,13 @@ namespace iqrf {
 		 * @return Set of device addresses
 		 */
 		virtual std::set<uint8_t> getLightAddresses() = 0;
+
+    /**
+     * Get addresses of light devices by device IDs
+     * @param deviceIds Device IDs
+     * @return `std::vector<uint8_t>` Light device addresses
+     */
+    virtual std::unordered_set<uint8_t> getLightAddressesByDeviceIds(const std::vector<uint32_t> deviceIds = {}) = 0;
 
 		///// PRODUCT API
 

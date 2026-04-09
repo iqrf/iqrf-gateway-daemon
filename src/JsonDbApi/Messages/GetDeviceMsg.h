@@ -55,6 +55,10 @@ namespace iqrf {
 			if (v) {
 				includeBinouts = v->GetBool();
 			}
+      v = Pointer("/data/req/light").Get(doc);
+      if (v) {
+        includeLight = v->GetBool();
+      }
 		}
 
 		/**
@@ -62,21 +66,28 @@ namespace iqrf {
 		 * @param dbService IQRF DB service
 		 */
 		void handleMsg(IIqrfDb *dbService) override {
-			device = std::move(dbService->getDeviceByAddress(address));
+			device = dbService->getDeviceByAddress(address);
 			if (device == nullptr) {
 				throw std::logic_error("Device at address " + std::to_string(address) + " does not exist.");
 			}
-			product = std::move(dbService->getProduct(device->getProductId()));
+			product = dbService->getProduct(device->getProductId());
 			if (product == nullptr) {
 				throw std::logic_error("Product ID " + std::to_string(device->getProductId()) + " does not exist.");
 			}
-			if (dbService->deviceImplementsPeripheral(device->getId(), PERIPHERAL_SENSOR)) {
-				sensors = dbService->getDeviceSensorsMapByAddress(device->getAddress());
-			}
-			auto dbBinout = dbService->getBinaryOutputByDeviceId(device->getId());
-			if (dbBinout) {
-				binouts = dbBinout->getCount();
-			}
+      if (includeSensors) {
+        if (dbService->deviceImplementsPeripheral(device->getId(), PERIPHERAL_SENSOR)) {
+          sensors = dbService->getDeviceSensorsMapByAddress(device->getAddress());
+        }
+      }
+      if (includeBinouts) {
+        auto dbBinout = dbService->getBinaryOutputByDeviceId(device->getId());
+        if (dbBinout) {
+          binouts = dbBinout->getCount();
+        }
+      }
+      if (includeLight) {
+        light = dbService->deviceImplementsPeripheral(device->getId(), PERIPHERAL_LIGHT);
+      }
 		}
 
 		/**
@@ -158,6 +169,11 @@ namespace iqrf {
 					Pointer("/binouts").Set(object, boObject, allocator);
 				}
 
+        // light
+        if (includeLight) {
+          Pointer("/light").Set(object, light, allocator);
+        }
+
 				Pointer("/data/rsp/device").Set(doc, object, allocator);
 			} else {
 				Pointer("/data/rsp/device").Set(doc, rapidjson::Value(kNullType));
@@ -171,6 +187,8 @@ namespace iqrf {
 		bool includeBinouts = false;
 		/// Include sensors in response
 		bool includeSensors = false;
+    /// Include light in response
+    bool includeLight = false;
 		// Device address
 		uint8_t address;
 		/// Vector of devices with product information
@@ -181,5 +199,7 @@ namespace iqrf {
 		std::map<uint8_t, Sensor> sensors;
 		/// Binout count
 		uint8_t binouts = 0;
+    /// Light implemented
+    bool light = false;
 	};
 }

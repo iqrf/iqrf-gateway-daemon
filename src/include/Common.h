@@ -17,6 +17,7 @@
 #pragma once
 
 #include <iomanip>
+#include <map>
 #include <string>
 #include <sstream>
 

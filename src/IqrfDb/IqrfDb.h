@@ -16,39 +16,29 @@
  */
 #pragma once
 
-#include <algorithm>
 #include <atomic>
 #include <cmath>
 #include <condition_variable>
-#include <filesystem>
-#include <fstream>
-#include <iostream>
 #include <map>
 #include <memory>
 #include <mutex>
-#include <sstream>
 #include <thread>
 #include <vector>
 
 #include "IIqrfDb.h"
-#include "IqrfDbAux.h"
 
 #include "IIqrfDpaService.h"
 #include "IJsCacheService.h"
 #include "IJsRenderService.h"
 #include "ILaunchService.h"
 #include "ITraceService.h"
-#include "JsDriverSensor.h"
 #include "ShapeProperties.h"
 #include "Trace.h"
 
 #include <openssl/evp.h>
 #include <nlohmann/json.hpp>
 #include "rapidjson/document.h"
-#include "rapidjson/pointer.h"
-#include "rapidjson/rapidjson.h"
 #include <SQLiteCpp/SQLiteCpp.h>
-#include "Common.h"
 
 using namespace iqrf::db::models;
 
@@ -106,7 +96,7 @@ namespace iqrf {
 		/**
 		 * Reloads coordinator drivers on-demand
 		 */
-		void reloadCoordinatorDrivers();
+		void reloadCoordinatorDrivers() override;
 
 		///// BINARY OUTPUT API
 
@@ -159,7 +149,7 @@ namespace iqrf {
 		 * Get map of device addresses and number of implemented binary outputs
 		 * @return Map of device addresses and number of implemented binary outputs
 		 */
-		std::map<uint8_t, uint8_t> getBinaryOutputCountMap() override;
+		std::map<uint8_t, uint8_t> getBinaryOutputCountMap(const std::vector<uint32_t>& deviceIds) override;
 
 		///// DEVICE API
 
@@ -257,7 +247,7 @@ namespace iqrf {
 		 * Retrieves map of device addresses and vector of sensor index and data
 		 * @return Map of device addresses and vector of sensor index and data
 		 */
-		std::map<uint8_t, std::vector<std::pair<uint8_t, Sensor>>> getDeviceAddressIndexSensorMap() override;
+		std::map<uint8_t, std::vector<std::pair<uint8_t, Sensor>>> getDeviceAddressIndexSensorMap(const std::vector<uint8_t>& deviceAddr) override;
 
 		/**
 		 * Retrieves map of device addresses and vector of device sensors and sensors
@@ -357,6 +347,13 @@ namespace iqrf {
 		 * @return Set of device addresses
 		 */
 		std::set<uint8_t> getLightAddresses() override;
+
+    /**
+     * Get addresses of devices implementing light by device IDs
+     * @param deviceIds Device IDs
+     * @return `std::vector<uint8_t>` Light device addresses
+     */
+    std::unordered_set<uint8_t> getLightAddressesByDeviceIds(const std::vector<uint32_t> deviceIds) override;
 
 		///// PRODUCT API
 

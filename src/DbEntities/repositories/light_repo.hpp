@@ -16,7 +16,10 @@
  */
 #pragma once
 
+#include <cstdint>
 #include <set>
+#include <unordered_set>
+#include <vector>
 
 #include <models/light.hpp>
 #include <repositories/base_repo.hpp>
@@ -200,6 +203,34 @@ public:
     );
     std::set<uint8_t> addrs;
     while(stmt.executeStep()) {
+      addrs.insert(static_cast<uint8_t>(stmt.getColumn(0).getUInt()));
+    }
+    return addrs;
+  }
+
+  /**
+   * @brief Finds and returns addresses of devices implementing light standard specified by device ID
+   * @param deviceIDs Device IDs
+   * @return Set of device addresses
+   */
+  std::unordered_set<uint8_t> getAddressesByDeviceIds(const std::vector<uint32_t>& deviceIds) {
+    std::unordered_set<uint8_t> addrs = {};
+    if (deviceIds.empty()) {
+      return addrs;
+    }
+
+    SQLite::Statement stmt(*m_db,
+      "SELECT d.address"
+      " FROM light as l INNER JOIN device AS d ON d.id = l.deviceId"
+      " WHERE d.id IN (" + getWhereInPlaceholder(deviceIds.size()) + ");"
+    );
+
+    int index = 1;
+    for (auto deviceId : deviceIds) {
+      stmt.bind(index++, deviceId);
+    }
+
+    while (stmt.executeStep()) {
       addrs.insert(static_cast<uint8_t>(stmt.getColumn(0).getUInt()));
     }
     return addrs;

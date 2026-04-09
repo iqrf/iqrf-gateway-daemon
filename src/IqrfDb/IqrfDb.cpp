@@ -15,10 +15,18 @@
  * limitations under the License.
  */
 
+#include "Common.h"
 #include "IqrfDb.h"
+#include "IqrfDbAux.h"
 #include "MigrationManager.h"
 
+#include <iostream>
+#include <mutex>
+#include <unordered_set>
+#include <vector>
+
 #include "iqrf__IqrfDb.hxx"
+#include "light_repo.hpp"
 
 TRC_INIT_MODULE(iqrf::IqrfDb);
 
@@ -109,7 +117,7 @@ namespace iqrf {
 	std::unique_ptr<BinaryOutput> IqrfDb::getBinaryOutputByDeviceId(const uint32_t deviceId) {
 		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::BinaryOutputRepository binoutRepo(m_db);
-		return binoutRepo.get(deviceId);
+		return binoutRepo.getByDeviceId(deviceId);
 	}
 
 	uint32_t IqrfDb::insertBinaryOutput(BinaryOutput &binaryOutput) {
@@ -142,10 +150,14 @@ namespace iqrf {
 		return binoutRepo.getAddresses();
 	}
 
-	std::map<uint8_t, uint8_t> IqrfDb::getBinaryOutputCountMap() {
+	std::map<uint8_t, uint8_t> IqrfDb::getBinaryOutputCountMap(const std::vector<uint32_t>& deviceIds) {
 		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::BinaryOutputRepository binoutRepo(m_db);
-		return binoutRepo.getAddressCountMap();
+    if (deviceIds.empty()) {
+      return binoutRepo.getAddressCountMap();
+    } else {
+      return binoutRepo.getAddressCountMapByIds(deviceIds);
+    }
 	}
 
 	///// DEVICE API
@@ -243,10 +255,13 @@ namespace iqrf {
 		return deviceSensorRepo.deviceHasSensors(address);
 	}
 
-	std::map<uint8_t, std::vector<std::pair<uint8_t, Sensor>>> IqrfDb::getDeviceAddressIndexSensorMap() {
+	std::map<uint8_t, std::vector<std::pair<uint8_t, Sensor>>> IqrfDb::getDeviceAddressIndexSensorMap(const std::vector<uint8_t>& deviceAddrs) {
 		std::lock_guard<std::mutex> lock(m_dbMtx);
 		db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
-		return deviceSensorRepo.getDeviceAddressIndexSensorMap();
+    if (deviceAddrs.empty()) {
+      return deviceSensorRepo.getDeviceAddressIndexSensorMap();
+    }
+    return deviceSensorRepo.getDeviceAddressIndexSensorMapByAddrs(deviceAddrs);
 	}
 
 	std::map<uint8_t, std::vector<std::pair<DeviceSensor, Sensor>>> IqrfDb::getDeviceAddressSensorMap() {
@@ -357,6 +372,12 @@ namespace iqrf {
 		db::repos::LightRepository lightRepo(m_db);
 		return lightRepo.getAddresses();
 	}
+
+  std::unordered_set<uint8_t> IqrfDb::getLightAddressesByDeviceIds(const std::vector<uint32_t> deviceIds) {
+    std::lock_guard<std::mutex> lock(m_dbMtx);
+    db::repos::LightRepository lightRepo(m_db);
+    return lightRepo.getAddressesByDeviceIds(deviceIds);
+  }
 
 	///// PRODUCT API
 

@@ -18,6 +18,9 @@
 
 #include "BaseMsg.h"
 
+#include <cstdint>
+#include <unordered_set>
+
 using namespace rapidjson;
 
 namespace iqrf {
@@ -50,9 +53,13 @@ namespace iqrf {
 			if (v) {
 				includeSensors = v->GetBool();
 			}
-			v = Pointer("/data/req/binouts").Get(doc);
+      v = Pointer("/data/req/binouts").Get(doc);
 			if (v) {
 				includeBinouts = v->GetBool();
+			}
+			v = Pointer("/data/req/light").Get(doc);
+			if (v) {
+				includeLights = v->GetBool();
 			}
 		}
 
@@ -62,12 +69,21 @@ namespace iqrf {
 		 */
 		void handleMsg(IIqrfDb *dbService) override {
 			devices = dbService->getDevices(requestedDevices);
-			if (includeSensors) {
-				sensors = dbService->getDeviceAddressIndexSensorMap();
-			}
-			if (includeBinouts) {
-				binouts = dbService->getBinaryOutputCountMap();
-			}
+      if (includeSensors) {
+        sensors = dbService->getDeviceAddressIndexSensorMap(requestedDevices);
+      }
+      if (includeBinouts || includeLights) {
+        std::vector<uint32_t> ids = {};
+        for (const auto& [device, _] : devices) {
+          ids.push_back(device.getId());
+        }
+        if (includeBinouts) {
+          binouts = dbService->getBinaryOutputCountMap(ids);
+        }
+        if (includeLights) {
+          lights = dbService->getLightAddressesByDeviceIds(ids);
+        }
+      }
 		}
 
 		/**
@@ -156,6 +172,11 @@ namespace iqrf {
 						Pointer("/binouts").Set(object, boObject, allocator);
 					}
 
+          // lights
+          if (includeLights) {
+            Pointer("/light").Set(object, lights.find(device.getAddress()) != lights.end(), allocator);
+          }
+
 					array.PushBack(object, allocator);
 				}
 
@@ -170,6 +191,8 @@ namespace iqrf {
 		bool includeBinouts = false;
 		/// Include sensors in response
 		bool includeSensors = false;
+    /// Include lights in response
+    bool includeLights = false;
 		/// Vector of requested device addresses
 		std::vector<uint8_t> requestedDevices;
 		/// Vector of devices with product information
@@ -178,5 +201,7 @@ namespace iqrf {
 		std::map<uint8_t, std::vector<std::pair<uint8_t, Sensor>>> sensors;
 		/// Map of binout devices
 		std::map<uint8_t, uint8_t> binouts;
+    /// Vector of light device addresses
+    std::unordered_set<uint8_t> lights;
 	};
 }
