@@ -16,6 +16,10 @@
  */
 #pragma once
 
+#include <optional>
+#include <set>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include <models/product.hpp>
@@ -33,13 +37,13 @@ public:
    * @brief Finds product record by ID
    *
    * @param id Record ID
-   * @return Pointer to deserialized `Product` object, or `nullptr` if record does not exist
+   * @return Optional `Product` object, or `std::nullopt` if record does not exist
    */
-  std::unique_ptr<Product> get(uint32_t id) {
+  std::optional<Product> get(uint32_t id) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, hwpid, hwpidVersion, osBuild, osVersion, dpaVersion, handlerUrl, handlerHash, customDriver,
-        packageId, name
+        packageId, manufacturer, name
       FROM product
       WHERE id = ?
       LIMIT 1;
@@ -47,9 +51,9 @@ public:
     );
     stmt.bind(1, id);
     if (!stmt.executeStep()) {
-      return nullptr;
+      return std::nullopt;
     }
-    return std::make_unique<Product>(Product::fromResult(stmt));
+    return Product::fromResult(stmt);
   }
 
   /**
@@ -59,13 +63,13 @@ public:
    * @param hwpidVersion HWPID version
    * @param osBuild OS build
    * @param dpaVersion DPA version
-   * @return Pointer to deserialized `Product` object, or `nullptr` if record does not exist
+   * @return Optional `Product` object, or `std::nullopt` if record does not exist
    */
-  std::unique_ptr<Product> get(uint16_t hwpid, uint16_t hwpidVersion, uint16_t osBuild, uint16_t dpaVersion) {
+  std::optional<Product> get(uint16_t hwpid, uint16_t hwpidVersion, uint16_t osBuild, uint16_t dpaVersion) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, hwpid, hwpidVersion, osBuild, osVersion, dpaVersion, handlerUrl, handlerHash, customDriver,
-        packageId, name
+        packageId, manufacturer, name
       FROM product
       WHERE hwpid = ? AND hwpidVersion = ? AND osBuild = ? AND dpaVersion = ?
       LIMIT 1;
@@ -76,9 +80,9 @@ public:
     stmt.bind(3, osBuild);
     stmt.bind(4, dpaVersion);
     if (!stmt.executeStep()) {
-      return nullptr;
+      return std::nullopt;
     }
-    return std::make_unique<Product>(Product::fromResult(stmt));
+    return Product::fromResult(stmt);
   }
 
   /**
@@ -90,7 +94,7 @@ public:
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, hwpid, hwpidVersion, osBuild, osVersion, dpaVersion, handlerUrl, handlerHash, customDriver,
-        packageId, name
+        packageId, manufacturer, name
       FROM product;
       )"
     );
@@ -99,6 +103,50 @@ public:
       vec.emplace_back(Product::fromResult(stmt));
     }
     return vec;
+  }
+
+  /**
+   * Returns map of products with IDs
+   *
+   * @param ids Product ID filter
+   * @return `std::unordered_map<uint32_t, Product>` Product map
+   */
+  std::unordered_map<uint32_t, Product> getProductsMap(const std::set<uint32_t>& ids) {
+   std::unordered_map<uint32_t, Product> map = {};
+    if (ids.size() == 0) {
+      for (auto &product : this->getAll()) {
+        map.insert(
+          std::make_pair(
+            product.getId(),
+            product
+          )
+        );
+      }
+    } else {
+      SQLite::Statement stmt(*m_db,
+        "SELECT id, hwpid, hwpidVersion, osBuild, osVersion, dpaVersion, handlerUrl, handlerHash, customDriver,"
+        "  packageId, manufacturer, name"
+        " FROM product"
+        " WHERE id IN (" + getPlaceholder(ids.size()) + ");"
+      );
+
+      int index = 1;
+      for (auto id : ids) {
+        stmt.bind(index++, id);
+      }
+
+      while (stmt.executeStep()) {
+        auto product = Product::fromResult(stmt);
+        map.insert(
+          std::make_pair(
+            product.getId(),
+            product
+          )
+        );
+      }
+    }
+
+    return map;
   }
 
   /**
@@ -113,8 +161,8 @@ public:
     SQLite::Statement stmt(*m_db,
       R"(
       INSERT INTO product (hwpid, hwpidVersion, osBuild, osVersion, dpaVersion, handlerUrl, handlerHash,
-        customDriver, packageId, name)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        customDriver, packageId, manufacturer, name)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
       )"
     );
     stmt.bind(1, product.getHwpid());
@@ -122,30 +170,35 @@ public:
     stmt.bind(3, product.getOsBuild());
     stmt.bind(4, product.getOsVersion());
     stmt.bind(5, product.getDpaVersion());
-    if (product.getHandlerUrl() == nullptr) {
+    if (product.getHandlerUrl().has_value()) {
+      stmt.bind(6, product.getHandlerUrl().value());
+    } else {
       stmt.bind(6);
-    } else {
-      stmt.bind(6, *product.getHandlerUrl());
     }
-    if (product.getHandlerHash() == nullptr) {
+    if (product.getHandlerHash().has_value()) {
+      stmt.bind(7, product.getHandlerHash().value());
+    } else {
       stmt.bind(7);
-    } else {
-      stmt.bind(7, *product.getHandlerHash());
     }
-    if (product.getCustomDriver() == nullptr) {
+    if (product.getCustomDriver().has_value()) {
+      stmt.bind(8, product.getCustomDriver().value());
+    } else {
       stmt.bind(8);
-    } else {
-      stmt.bind(8, *product.getCustomDriver());
     }
-    if (product.getPackageId() == std::nullopt) {
-      stmt.bind(9);
-    } else {
+    if (product.getPackageId().has_value()) {
       stmt.bind(9, product.getPackageId().value());
-    }
-    if (product.getName() == nullptr) {
-      stmt.bind(10);
     } else {
-      stmt.bind(10, *product.getName());
+      stmt.bind(9);
+    }
+    if (product.getManufacturer().has_value()) {
+      stmt.bind(10, product.getManufacturer().value());
+    } else {
+      stmt.bind(10);
+    }
+    if (product.getName().has_value()) {
+      stmt.bind(11, product.getName().value());
+    } else {
+      stmt.bind(11);
     }
     try {
       stmt.exec();
@@ -172,7 +225,7 @@ public:
       R"(
       UPDATE product
       SET hwpid = ?, hwpidVersion = ?, osBuild = ?, osVersion = ?, dpaVersion = ?, handlerUrl = ?, handlerHash = ?, customDriver = ?,
-        packageId = ?, name = ?
+        packageId = ?, manufacturer = ?, name = ?
       WHERE id = ?;
       )"
     );
@@ -181,32 +234,37 @@ public:
     stmt.bind(3, product.getOsBuild());
     stmt.bind(4, product.getOsVersion());
     stmt.bind(5, product.getDpaVersion());
-    if (product.getHandlerUrl() == nullptr) {
+    if (product.getHandlerUrl().has_value()) {
+      stmt.bind(6, product.getHandlerUrl().value());
+    } else {
       stmt.bind(6);
-    } else {
-      stmt.bind(6, *product.getHandlerUrl());
     }
-    if (product.getHandlerHash() == nullptr) {
+    if (product.getHandlerHash().has_value()) {
+      stmt.bind(7, product.getHandlerHash().value());
+    } else {
       stmt.bind(7);
-    } else {
-      stmt.bind(7, *product.getHandlerHash());
     }
-    if (product.getCustomDriver() == nullptr) {
+    if (product.getCustomDriver().has_value()) {
+      stmt.bind(8, product.getCustomDriver().value());
+    } else {
       stmt.bind(8);
-    } else {
-      stmt.bind(8, *product.getCustomDriver());
     }
-    if (product.getPackageId() == std::nullopt) {
-      stmt.bind(9);
-    } else {
+    if (product.getPackageId().has_value()) {
       stmt.bind(9, product.getPackageId().value());
-    }
-    if (product.getName() == nullptr) {
-      stmt.bind(10);
     } else {
-      stmt.bind(10, *product.getName());
+      stmt.bind(9);
     }
-    stmt.bind(11, product.getId());
+    if (product.getManufacturer().has_value()) {
+      stmt.bind(10, product.getManufacturer().value());
+    } else {
+      stmt.bind(10);
+    }
+    if (product.getName().has_value()) {
+      stmt.bind(11, product.getName().value());
+    } else {
+      stmt.bind(11);
+    }
+    stmt.bind(12, product.getId());
     try {
       stmt.exec();
     } catch (const SQLite::Exception &e) {
@@ -254,7 +312,7 @@ public:
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, hwpid, hwpidVersion, osBuild, osVersion, dpaVersion, handlerUrl, handlerHash, customDriver,
-        packageId, name
+        packageId, manufacturer, name
       FROM product
       WHERE hwpid = ? AND hwpidVersion = ? AND osBuild = ? AND dpaVersion = ? and packageId = ?
       LIMIT 1;
@@ -277,7 +335,7 @@ public:
    * @param productId Product ID
    * @return Pointer to product driver, if record exists and product has custom driver, `nullptr` otherwise
    */
-  std::shared_ptr<std::string> getCustomDriver(uint32_t productId) {
+  std::optional<std::string> getCustomDriver(uint32_t productId) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT customDriver
@@ -288,9 +346,29 @@ public:
     );
     stmt.bind(1, productId);
     if (!stmt.executeStep() || stmt.getColumn(0).isNull()) {
-      return nullptr;
+      return std::nullopt;
     }
-    return std::make_shared<std::string>(stmt.getColumn(0).getString());
+    return stmt.getColumn(0).getString();
+  }
+
+  /**
+   * @brief Finds all products where manufacturer or product name is missing
+   *
+   * This method is used internally when updating existing products.
+   * @return `std::vector<Product>` Vector of products
+   */
+  std::vector<Product> getAllWithIncompleteProductInfo() {
+    SQLite::Statement stmt(*m_db,
+      "SELECT id, hwpid, hwpidVersion, osBuild, osVersion, dpaVersion, handlerUrl, handlerHash, customDriver,"
+      "  packageId, manufacturer, name"
+      " FROM product"
+      " WHERE manufacturer IS NULL OR name IS NULL;"
+    );
+    std::vector<Product> vec;
+    while (stmt.executeStep()) {
+      vec.emplace_back(Product::fromResult(stmt));
+    }
+    return vec;
   }
 };
 

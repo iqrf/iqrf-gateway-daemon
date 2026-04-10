@@ -216,24 +216,21 @@ namespace iqrf {
       Product(
         uint16_t hwpid,
         unsigned int manufacturerId,
+        const std::string &companyName,
         const std::string &name,
-        const std::string &homePage,
-        const std::string &picture,
         const std::shared_ptr<Metadata> &metadata
       ):
         m_hwpid(hwpid),
         m_manufacturerId(manufacturerId),
+        m_companyName(companyName),
         m_name(name),
-        m_homePage(homePage),
-        m_picture(picture),
         m_metadata(metadata)
       {}
 
       uint16_t m_hwpid;
       unsigned int m_manufacturerId;
+      std::string m_companyName;
       std::string m_name;
-      std::string m_homePage;
-      std::string m_picture;
       std::shared_ptr<Metadata> m_metadata;
     };
 

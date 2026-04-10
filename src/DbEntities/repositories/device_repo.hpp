@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "EmbedNode.h"
+#include "SQLiteCpp/Statement.h"
 #include <models/device.hpp>
 #include <models/product.hpp>
 #include <repositories/base_repo.hpp>
@@ -72,6 +73,34 @@ public:
       )"
     );
     std::vector<Device> vec;
+    while (stmt.executeStep()) {
+      vec.emplace_back(Device::fromResult(stmt));
+    }
+    return vec;
+  }
+
+  /**
+   * Returns vector of devices
+   * @param requestedDevices Device address filter
+   * @return Vector of devices
+   */
+  std::vector<Device> getDevices(const std::vector<uint8_t>& requestedDevices) {
+    if (requestedDevices.size() == 0) {
+      return this->getAll();
+    }
+    std::vector<Device> vec = {};
+    SQLite::Statement stmt(*m_db,
+      "SELECT id, address, discovered, mid, vrn, zone, parent, enumerated, productId, metadata"
+      " FROM device"
+      " WHERE address IN (" + getPlaceholder(requestedDevices.size()) + ")"
+      " ORDER BY address;"
+    );
+
+    int index = 1;
+    for (auto deviceAddr : requestedDevices) {
+      stmt.bind(index++, deviceAddr);
+    }
+
     while (stmt.executeStep()) {
       vec.emplace_back(Device::fromResult(stmt));
     }
@@ -381,44 +410,6 @@ public:
       set.insert(static_cast<uint8_t>(stmt.getColumn(0).getUInt()));
     }
     return set;
-  }
-
-  /**
-   * @brief Constructs and returns pairs of device and product objects
-   *
-   * @param requestedDevices Vector of device addresses to get (optional)
-   * @return Vector of device and product pairs
-   */
-  std::vector<std::pair<Device, Product>> getDeviceProductPairs(const std::vector<uint8_t>& requestedDevices) {
-    std::vector<Device> devVec;
-    if (requestedDevices.size() == 0) {
-      devVec = this->getAll();
-    } else {
-      for (const auto addr : requestedDevices) {
-        auto dev = this->getByAddress(addr);
-        if (dev != nullptr) {
-          devVec.emplace_back(*dev);
-        }
-      }
-    }
-    std::vector<std::pair<Device, Product>> vec;
-    SQLite::Statement stmt(*m_db,
-      R"(
-      SELECT id, hwpid, hwpidVersion, osBuild, osVersion, dpaVersion, handlerUrl, handlerHash, customDriver,
-        packageId, name
-      FROM product
-      WHERE id = ?
-      LIMIT 1;
-      )"
-    );
-    for (const auto& dev : devVec) {
-      stmt.bind(1, dev.getProductId());
-      if (stmt.executeStep()) {
-        vec.emplace_back(dev, Product::fromResult(stmt));
-      }
-      stmt.reset();
-    }
-    return vec;
   }
 
   /**

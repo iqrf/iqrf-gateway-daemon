@@ -17,10 +17,10 @@
 #pragma once
 
 #include <cstdint>
-#include <memory>
 #include <optional>
 #include <set>
 #include <string>
+#include <utility>
 
 #include <SQLiteCpp/SQLiteCpp.h>
 
@@ -48,22 +48,32 @@ public:
    * @param handlerHash Handler hash
    * @param customDriver Custom product driver
    * @param packageId Package ID
+   * @param manufacturer Product manufacturer
    * @param name Product name
    */
-  Product(uint16_t hwpid, uint16_t hwpidVersion, uint16_t osBuild, const std::string& osVersion,
-    uint16_t dpaVersion, std::shared_ptr<std::string> handlerUrl = nullptr,
-    std::shared_ptr<std::string> handlerHash = nullptr, std::shared_ptr<std::string> customDriver = nullptr,
-    std::optional<uint32_t> packageId = std::nullopt, std::shared_ptr<std::string> name = nullptr)
-    : hwpid(hwpid),
-      hwpidVersion(hwpidVersion),
-      osBuild(osBuild),
-      osVersion(osVersion),
-      dpaVersion(dpaVersion),
-      handlerUrl(handlerUrl),
-      handlerHash(handlerHash),
-      customDriver(customDriver),
-      packageId(packageId),
-      name(name) {};
+  Product(
+    uint16_t hwpid,
+    uint16_t hwpidVersion,
+    uint16_t osBuild,
+    const std::string& osVersion,
+    uint16_t dpaVersion,
+    std::optional<std::string> handlerUrl = std::nullopt,
+    std::optional<std::string> handlerHash = std::nullopt,
+    std::optional<std::string> customDriver = std::nullopt,
+    std::optional<uint32_t> packageId = std::nullopt,
+    std::optional<std::string> manufacturer = std::nullopt,
+    std::optional<std::string> name = std::nullopt
+  ): hwpid_(hwpid),
+    hwpidVersion_(hwpidVersion),
+    osBuild_(osBuild),
+    osVersion_(osVersion),
+    dpaVersion_(dpaVersion),
+    handlerUrl_(std::move(handlerUrl)),
+    handlerHash_(std::move(handlerHash)),
+    customDriver_(std::move(customDriver)),
+    packageId_(std::move(packageId)),
+    manufacturer_(std::move(manufacturer)),
+    name_(std::move(name)) {};
 
   /**
    * Full constructor
@@ -77,30 +87,41 @@ public:
    * @param handlerHash Handler hash
    * @param customDriver Custom product driver
    * @param packageId Package ID
+   * @param manufacturer Product manufacturer
    * @param name Product name
    */
-  Product(uint32_t id, uint16_t hwpid, uint16_t hwpidVersion, uint16_t osBuild,
-    const std::string& osVersion, uint16_t dpaVersion, std::shared_ptr<std::string> handlerUrl = nullptr,
-    std::shared_ptr<std::string> handlerHash = nullptr, std::shared_ptr<std::string> customDriver = nullptr,
-    std::optional<uint32_t> packageId = std::nullopt, std::shared_ptr<std::string> name = nullptr)
-    : id(id),
-      hwpid(hwpid),
-      hwpidVersion(hwpidVersion),
-      osBuild(osBuild),
-      osVersion(osVersion),
-      dpaVersion(dpaVersion),
-      handlerUrl(handlerUrl),
-      handlerHash(handlerHash),
-      customDriver(customDriver),
-      packageId(packageId),
-      name(name) {};
+  Product(
+    uint32_t id,
+    uint16_t hwpid,
+    uint16_t hwpidVersion,
+    uint16_t osBuild,
+    const std::string& osVersion,
+    uint16_t dpaVersion,
+    std::optional<std::string> handlerUrl = std::nullopt,
+    std::optional<std::string> handlerHash = std::nullopt,
+    std::optional<std::string> customDriver = std::nullopt,
+    std::optional<uint32_t> packageId = std::nullopt,
+    std::optional<std::string> manufacturer = std::nullopt,
+    std::optional<std::string> name = std::nullopt
+  ): id_(id),
+    hwpid_(hwpid),
+    hwpidVersion_(hwpidVersion),
+    osBuild_(osBuild),
+    osVersion_(osVersion),
+    dpaVersion_(dpaVersion),
+    handlerUrl_(std::move(handlerUrl)),
+    handlerHash_(std::move(handlerHash)),
+    customDriver_(std::move(customDriver)),
+    packageId_(std::move(packageId)),
+    manufacturer_(std::move(manufacturer)),
+    name_(std::move(name)) {};
 
   /**
    * Returns product ID
    * @return Product ID
    */
   uint32_t getId() const {
-    return id;
+    return id_;
   }
 
   /**
@@ -108,7 +129,7 @@ public:
    * @param id Product ID
    */
   void setId(uint32_t id) {
-    this->id = id;
+    this->id_ = id;
   }
 
   /**
@@ -116,7 +137,7 @@ public:
    * @return Product HWPID
    */
   uint16_t getHwpid() const {
-    return hwpid;
+    return hwpid_;
   }
 
   /**
@@ -124,7 +145,7 @@ public:
    * @param hwpid Product HWPID
    */
   void setHwpid(uint16_t hwpid) {
-    this->hwpid = hwpid;
+    this->hwpid_ = hwpid;
   }
 
   /**
@@ -132,7 +153,7 @@ public:
    * @return Product HWPID version
    */
   uint16_t getHwpidVersion() const {
-    return hwpidVersion;
+    return hwpidVersion_;
   }
 
   /**
@@ -140,7 +161,7 @@ public:
    * @param hwpidVersion Product HWPID version
    */
   void setHwpidVersion(uint16_t hwpidVersion) {
-    this->hwpidVersion = hwpidVersion;
+    this->hwpidVersion_ = hwpidVersion;
   }
 
   /**
@@ -148,7 +169,7 @@ public:
    * @return Product OS build
    */
   uint16_t getOsBuild() const {
-    return osBuild;
+    return osBuild_;
   }
 
   /**
@@ -156,7 +177,7 @@ public:
    * @param osBuild Product OS build
    */
   void setOsBuild(uint16_t osBuild) {
-    this->osBuild = osBuild;
+    this->osBuild_ = osBuild;
   }
 
   /**
@@ -164,7 +185,7 @@ public:
    * @return Product OS version
    */
   const std::string& getOsVersion() const {
-    return osVersion;
+    return osVersion_;
   }
 
   /**
@@ -172,7 +193,7 @@ public:
    * @param osVersion Product OS version
    */
   void setOsVersion(const std::string& osVersion) {
-    this->osVersion = osVersion;
+    this->osVersion_ = osVersion;
   }
 
   /**
@@ -180,7 +201,7 @@ public:
    * @return Product DPA version
    */
   uint16_t getDpaVersion() const {
-    return dpaVersion;
+    return dpaVersion_;
   }
 
   /**
@@ -188,55 +209,55 @@ public:
    * @param dpaVersion Product DPA version
    */
   void setDpaVersion(uint16_t dpaVersion) {
-    this->dpaVersion = dpaVersion;
+    this->dpaVersion_ = dpaVersion;
   }
 
   /**
    * Returns product handler url
    * @return Product handler url
    */
-  std::shared_ptr<std::string> getHandlerUrl() const {
-    return handlerUrl;
+  std::optional<std::string> getHandlerUrl() const {
+    return handlerUrl_;
   }
 
   /**
    * Sets product hnadler url
    * @param handlerUrl Product handler url
    */
-  void setHandlerUrl(std::shared_ptr<std::string> handlerUrl = nullptr) {
-    this->handlerUrl = std::move(handlerUrl);
+  void setHandlerUrl(std::optional<std::string> handlerUrl) {
+    this->handlerUrl_ = std::move(handlerUrl);
   }
 
   /**
    * Returns product handler hash
    * @return Product handler hash
    */
-  std::shared_ptr<std::string> getHandlerHash() const {
-    return handlerHash;
+  std::optional<std::string> getHandlerHash() const {
+    return handlerHash_;
   }
 
   /**
    * Sets product handler hash
    * @param handlerHash Product handler hash
    */
-  void setHandlerHash(std::shared_ptr<std::string> handlerHash = nullptr) {
-    this->handlerHash = std::move(handlerHash);
+  void setHandlerHash(std::optional<std::string> handlerHash) {
+    this->handlerHash_ = std::move(handlerHash);
   }
 
   /**
    * Returns product custom driver
    * @return Product custom driver
    */
-  std::shared_ptr<std::string> getCustomDriver() const {
-    return customDriver;
+  std::optional<std::string> getCustomDriver() const {
+    return customDriver_;
   }
 
   /**
    * Sets product custom driver
    * @param customDriver Product custom driver
    */
-  void setCustomDriver(std::shared_ptr<std::string> customDriver = nullptr) {
-    this->customDriver = std::move(customDriver);
+  void setCustomDriver(std::optional<std::string> customDriver) {
+    this->customDriver_ = std::move(customDriver);
   }
 
   /**
@@ -244,38 +265,54 @@ public:
    * @return Product package ID
    */
   std::optional<uint32_t> getPackageId() const {
-    return packageId;
+    return packageId_;
   }
 
   /**
    * Sets product package ID
    * @param packageId Product package ID
    */
-  void setPackageId(std::optional<uint32_t> packageId = std::nullopt) {
-    this->packageId = packageId;
+  void setPackageId(std::optional<uint32_t> packageId) {
+    this->packageId_ = std::move(packageId);
+  }
+
+  /**
+   * Returns product manufacturer
+   * @return Product manufacturer
+   */
+  std::optional<std::string> getManufacturer() const {
+    return manufacturer_;
+  }
+
+  /**
+   * Sets product manufacturer
+   * @param manufacturer Product manufacturer
+   */
+  void setManufacturer(std::optional<std::string> manufacturer) {
+    this->manufacturer_ = std::move(manufacturer);
   }
 
   /**
    * Returns product name
    * @return Product name
    */
-  std::shared_ptr<std::string> getName() const {
-    return name;
+  std::optional<std::string> getName() const {
+    return name_;
   }
 
   /**
    * Sets product name
    * @param name Product name
    */
-  void setName(std::shared_ptr<std::string> name = nullptr) {
-    this->name = std::move(name);
+  void setName(std::optional<std::string> name) {
+    this->name_ = std::move(name);
   }
 
   /**
    * Checks whether enumerated product is valid
    */
   bool isValid() {
-    return osBuild > 0 && dpaVersion > 0;
+    return osBuild_ > 0 && dpaVersion_ > 0;
   }
 
   /**
@@ -291,55 +328,73 @@ public:
     auto osBuild = static_cast<uint16_t>(stmt.getColumn(3).getUInt());
     auto osVersion = stmt.getColumn(4).getString();
     auto dpaVersion = static_cast<uint16_t>(stmt.getColumn(5).getUInt());
-    std::shared_ptr<std::string> handlerUrl = nullptr;
+    std::optional<std::string> handlerUrl = std::nullopt;
     if (!stmt.getColumn(6).isNull()) {
-      handlerUrl = std::make_shared<std::string>(stmt.getColumn(6).getString());
+      handlerUrl = stmt.getColumn(6).getString();
     }
-    std::shared_ptr<std::string> handlerHash = nullptr;
+    std::optional<std::string> handlerHash = std::nullopt;
     if (!stmt.getColumn(7).isNull()) {
-      handlerHash = std::make_shared<std::string>(stmt.getColumn(7).getString());
+      handlerHash = stmt.getColumn(7).getString();
     }
-    std::shared_ptr<std::string> customDriver = nullptr;
+    std::optional<std::string> customDriver = std::nullopt;
     if (!stmt.getColumn(8).isNull()) {
-      customDriver = std::make_shared<std::string>(stmt.getColumn(8).getString());
+      customDriver = stmt.getColumn(8).getString();
     }
     std::optional<uint32_t> packageId = std::nullopt;
     if (!stmt.getColumn(9).isNull()) {
       packageId = stmt.getColumn(9).getUInt();
     }
-    std::shared_ptr<std::string> name = nullptr;
+    std::optional<std::string> manufacturer = std::nullopt;
     if (!stmt.getColumn(10).isNull()) {
-      name = std::make_shared<std::string>(stmt.getColumn(10).getString());
+      manufacturer = stmt.getColumn(10).getString();
     }
-    return Product(id, hwpid, hwpidVersion, osBuild, osVersion, dpaVersion, handlerUrl, handlerHash,
-      customDriver, packageId, name);
+    std::optional<std::string> name = std::nullopt;
+    if (!stmt.getColumn(11).isNull()) {
+      name = stmt.getColumn(11).getString();
+    }
+    return Product(
+      id,
+      hwpid,
+      hwpidVersion,
+      osBuild,
+      osVersion,
+      dpaVersion,
+      std::move(handlerUrl),
+      std::move(handlerHash),
+      std::move(customDriver),
+      std::move(packageId),
+      std::move(manufacturer),
+      std::move(name)
+    );
   }
 
   /// Set of driver IDs
   std::set<uint32_t> drivers;
 private:
   /// Product ID
-  uint32_t id;
+  uint32_t id_;
   /// Product HWPID
-  uint16_t hwpid;
+  uint16_t hwpid_;
   /// Product HWPID version
-  uint16_t hwpidVersion;
+  uint16_t hwpidVersion_;
   /// Product OS build
-  uint16_t osBuild;
+  uint16_t osBuild_;
   /// Product OS version
-  std::string osVersion;
+  std::string osVersion_;
   /// Product DPA version
-  uint16_t dpaVersion;
+  uint16_t dpaVersion_;
   /// Product handler url
-  std::shared_ptr<std::string> handlerUrl;
+  std::optional<std::string> handlerUrl_;
   /// Product handler hash
-  std::shared_ptr<std::string> handlerHash;
+  std::optional<std::string> handlerHash_;
   /// Product customDriver
-  std::shared_ptr<std::string> customDriver;
+  std::optional<std::string> customDriver_;
   /// Product package ID
-  std::optional<uint32_t> packageId;
+  std::optional<uint32_t> packageId_;
+  /// Product manufacturer
+  std::optional<std::string> manufacturer_;
   /// Product name
-  std::shared_ptr<std::string> name;
+  std::optional<std::string> name_;
 };
 
 }

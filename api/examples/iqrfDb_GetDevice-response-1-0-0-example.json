@@ -7,6 +7,7 @@
         "device": {
           "address": 0,
           "hwpid": 12292,
+          "manufacturer": "MICRORISC s.r.o.",
           "product": "IQUBE (IQD-GW-02)",
           "discovered": false,
           "vrn": 0,
@@ -50,6 +51,7 @@
         "device": {
           "address": 1,
           "hwpid": 1026,
+          "manufacturer": "IQRF Tech s.r.o.",
           "product": "DDC-SE-01 + DDC-RE-01",
           "discovered": true,
           "vrn": 1,

@@ -247,7 +247,7 @@ public:
     SQLite::Statement stmt(*m_db,
       "SELECT d.address, b.count"
         " FROM bo as b INNER JOIN device as d ON d.id = b.deviceId"
-        " WHERE deviceId IN (" + getWhereInPlaceholder(deviceIds.size()) + ");"
+        " WHERE deviceId IN (" + getPlaceholder(deviceIds.size()) + ");"
     );
 
     int index = 1;

@@ -286,7 +286,7 @@ public:
     SQLite::Statement stmt(*m_db,
       "SELECT s.id, s.type, s.name, s.shortname, s.unit, s.decimals, s.frc2bit, s.frc1Byte, s.frc2Byte, s.frc4Byte, ds.address, ds.globalIndex"
       " FROM sensor as s INNER JOIN deviceSensor as ds ON ds.sensorId = s.id"
-      " WHERE ds.address IN (" + getWhereInPlaceholder(deviceAddrs.size()) + ")"
+      " WHERE ds.address IN (" + getPlaceholder(deviceAddrs.size()) + ")"
       " ORDER BY ds.address ASC, ds.globalIndex ASC;"
     );
     while (stmt.executeStep()) {

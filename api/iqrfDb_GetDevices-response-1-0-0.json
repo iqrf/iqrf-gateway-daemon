@@ -70,6 +70,13 @@
                     "minimum": 0,
                     "maximum": 65535
                   },
+                  "manufacturer": {
+                    "title": "Manufacturer name",
+                    "oneOf": [
+                      {"type": "string"},
+                      {"type": "null"}
+                    ]
+                  },
                   "product": {
                     "title": "Product name",
                     "oneOf": [

@@ -775,11 +775,6 @@ namespace iqrf {
 		for (auto itr = doc.begin(); itr != doc.end(); ++itr) {
 			json productDoc = itr.value();
 			try {
-				uint16_t hwpid = productDoc["hwpid"];
-				unsigned int manufacturerId = productDoc["manufacturerID"];
-				std::string name = productDoc["name"];
-				std::string homePage = productDoc["homePage"];
-				std::string picture = productDoc["picture"];
 				std::shared_ptr<Metadata> metadata = nullptr;
 
 				if (!productDoc["metadata"].empty()) {
@@ -847,7 +842,16 @@ namespace iqrf {
 					}
 				}
 				productMap.insert(
-					std::make_pair(hwpid, Product(hwpid, manufacturerId, name, homePage, picture, metadata))
+					std::make_pair(
+						productDoc["hwpid"],
+						Product(
+							productDoc["hwpid"],
+							productDoc["manufacturerID"],
+							productDoc["companyName"],
+							productDoc["name"],
+							metadata
+						)
+					)
 				);
 			} catch (const json::exception &e) {
 				THROW_EXC_TRC_WAR(std::logic_error, e.what())

@@ -22,59 +22,70 @@ using namespace rapidjson;
 
 namespace iqrf {
 
-	/**
-	 * Get network topology request message
-	 */
-	class GetNetworkTopologyMsg : public BaseMsg {
-	public:
-		/// Delete base constructor
-		GetNetworkTopologyMsg() = delete;
+  /**
+   * Get network topology request message
+   */
+  class GetNetworkTopologyMsg : public BaseMsg {
+  public:
+    /// Delete base constructor
+    GetNetworkTopologyMsg() = delete;
 
-		/**
-		 * Constructor
-		 * @param doc Request document
-		 */
-		GetNetworkTopologyMsg(const Document &doc) : BaseMsg(doc) {};
+    /**
+     * Constructor
+     * @param doc Request document
+     */
+    GetNetworkTopologyMsg(const Document &doc) : BaseMsg(doc) {};
 
-		/**
-		 * Handles get network topology request
-		 * @param dbService IQRF DB service
-		 */
-		void handleMsg(IIqrfDb *dbService) override {
-			devices = dbService->getDevices();
-		}
+    /**
+     * Handles get network topology request
+     * @param dbService IQRF DB service
+     */
+    void handleMsg(IIqrfDb *dbService) override {
+      devices = dbService->getDevices();
+      std::set<uint32_t> productIds = {};
+      for (const auto& device : devices) {
+        productIds.insert(device.getProductId());
+      }
+      products = dbService->getProductsMap(productIds);
+    }
 
-		/**
-		 * Populates response document with network topology response
-		 * @param doc Response document
-		 */
-		void createResponsePayload(Document &doc) override {
-			if (m_status == 0) {
-				Value array(kArrayType);
-				Document::AllocatorType &allocator = doc.GetAllocator();
+    /**
+     * Populates response document with network topology response
+     * @param doc Response document
+     */
+    void createResponsePayload(Document &doc) override {
+      if (m_status == 0) {
+        Value array(kArrayType);
+        Document::AllocatorType &allocator = doc.GetAllocator();
 
-				for (auto &[device, product] : devices) {
-					Value object;
-					Pointer("/address").Set(object, device.getAddress(), allocator);
-					Pointer("/vrn").Set(object, device.getVrn(), allocator);
-					Pointer("/zone").Set(object, device.getZone(), allocator);
-					if (device.getParent().has_value()) {
-						Pointer("/parent").Set(object, device.getParent().value(), allocator);
-					} else {
-						Pointer("/parent").Create(object, allocator);
-					}
-					Pointer("/os").Set(object, product.getOsVersion(), allocator);
-					Pointer("/dpa").Set(object, product.getDpaVersion(), allocator);
+        for (auto &device : devices) {
+          if (!products.count(device.getProductId())) {
+            throw std::runtime_error("Product record for device missing.");
+          }
+          const auto& product = products.at(device.getProductId());
+          Value object;
+          Pointer("/address").Set(object, device.getAddress(), allocator);
+          Pointer("/vrn").Set(object, device.getVrn(), allocator);
+          Pointer("/zone").Set(object, device.getZone(), allocator);
+          if (device.getParent().has_value()) {
+            Pointer("/parent").Set(object, device.getParent().value(), allocator);
+          } else {
+            Pointer("/parent").Create(object, allocator);
+          }
+          Pointer("/os").Set(object, product.getOsVersion(), allocator);
+          Pointer("/dpa").Set(object, product.getDpaVersion(), allocator);
 
-					array.PushBack(object, allocator);
-				}
+          array.PushBack(object, allocator);
+        }
 
-				Pointer("/data/rsp/devices").Set(doc, array, allocator);
-			}
-			BaseMsg::createResponsePayload(doc);
-		}
-	private:
-		/// Vector of devices with product information
-		std::vector<std::pair<Device, Product>> devices;
-	};
+        Pointer("/data/rsp/devices").Set(doc, array, allocator);
+      }
+      BaseMsg::createResponsePayload(doc);
+    }
+  private:
+    /// Vector of device
+    std::vector<Device> devices;
+    /// Map of product IDs and products
+    std::unordered_map<uint32_t, Product> products;
+  };
 }

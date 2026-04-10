@@ -57,7 +57,7 @@ protected:
    * @param count Number of placeholders
    * @return `std::string` Placeholder string
    */
-  std::string getWhereInPlaceholder(std::size_t count) {
+  std::string getPlaceholder(std::size_t count) {
     std::string placeholder;
     placeholder.reserve(2 * count);
 

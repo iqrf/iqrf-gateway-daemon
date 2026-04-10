@@ -46,7 +46,7 @@
 					],
 					"additionalProperties": false,
 					"properties": {
-						"devices": {
+						"nodes": {
 							"title": "Node data",
 							"type": "array",
 							"additionalItems": false,

@@ -45,7 +45,7 @@
         "brief": true,
         "sensors": true,
         "binouts": true,
-        "lights": true
+        "light": true
       },
       "returnVerbose": true
     }

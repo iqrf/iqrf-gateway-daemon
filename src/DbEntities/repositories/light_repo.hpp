@@ -222,7 +222,7 @@ public:
     SQLite::Statement stmt(*m_db,
       "SELECT d.address"
       " FROM light as l INNER JOIN device AS d ON d.id = l.deviceId"
-      " WHERE d.id IN (" + getWhereInPlaceholder(deviceIds.size()) + ");"
+      " WHERE d.id IN (" + getPlaceholder(deviceIds.size()) + ");"
     );
 
     int index = 1;
