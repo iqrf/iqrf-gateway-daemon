@@ -17,6 +17,7 @@
 #pragma once
 
 #include <cstdint>
+#include <set>
 #include <string>
 
 #include <SQLiteCpp/SQLiteCpp.h>
@@ -45,8 +46,8 @@ public:
    * @param frc2B Implements FRC 2 byte command
    * @param frc4B Implements FRC 4 byte command
    */
-  Sensor(const uint8_t type, const std::string& name, const std::string& shortname, const std::string& unit,
-    const uint8_t decimals, bool frc2b, bool frcB, bool frc2B, bool frc4B)
+  Sensor(uint8_t type, const std::string& name, const std::string& shortname, const std::string& unit,
+    uint8_t decimals, bool frc2b, bool frcB, bool frc2B, bool frc4B)
     : type(type),
       name(name),
       shortname(shortname),
@@ -70,8 +71,8 @@ public:
    * @param frc2B Implements FRC 2 byte command
    * @param frc4B Implements FRC 4 byte command
    */
-  Sensor(const uint32_t id, const uint8_t type, const std::string& name, const std::string& shortname,
-    const std::string& unit, const uint8_t decimals, bool frc2b, bool frcB, bool frc2B, bool frc4B)
+  Sensor(uint32_t id, uint8_t type, const std::string& name, const std::string& shortname,
+    const std::string& unit, uint8_t decimals, bool frc2b, bool frcB, bool frc2B, bool frc4B)
     : id(id),
       type(type),
       name(name),
@@ -95,7 +96,7 @@ public:
    * Sets Sensor ID
    * @param id Sensor ID
    */
-  void setId(const uint32_t id) {
+  void setId(uint32_t id) {
     this->id = id;
   }
 
@@ -111,7 +112,7 @@ public:
    * Sets Sensor Type
    * @param type Sensor type
    */
-  void setType(const uint8_t type) {
+  void setType(uint8_t type) {
     this->type = type;
   }
 
@@ -175,7 +176,7 @@ public:
    * Sets unit decimal places
    * @param decimals Unit decimal places
    */
-  void setDecimals(const uint8_t decimals) {
+  void setDecimals(uint8_t decimals) {
     this->decimals = decimals;
   }
 

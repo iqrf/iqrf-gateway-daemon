@@ -46,7 +46,7 @@ public:
    *
    * @return Pointer to deserialized `DeviceSensor` object, or `nullptr` if record does not exist
    */
-  std::unique_ptr<DeviceSensor> getByAddressTypeIndex(const uint8_t address, const uint8_t type, const uint8_t index, bool frc) {
+  std::unique_ptr<DeviceSensor> getByAddressTypeIndex(uint8_t address, uint8_t type, uint8_t index, bool frc) {
     if (frc) {
       SQLite::Statement stmt(*m_db,
         R"(
@@ -91,7 +91,7 @@ public:
    *
    * @throws `std::runtime_error` If the record cannot be inserted
    */
-  void insert(DeviceSensor &deviceSensor) {
+  void insert(const DeviceSensor &deviceSensor) {
     SQLite::Statement stmt(*m_db,
       R"(
       INSERT INTO deviceSensor (address, type, globalIndex, typeIndex, sensorId, value, updated, metadata)
@@ -137,7 +137,7 @@ public:
    *
    * @throws `std::runtime_error` If the record cannot be updated
    */
-  void update(DeviceSensor &deviceSensor) {
+  void update(const DeviceSensor &deviceSensor) {
     SQLite::Statement stmt(*m_db,
       R"(
       UPDATE deviceSensor
@@ -182,7 +182,7 @@ public:
    * @param addr Device address
    * @param index Sensor index
    */
-  void removeByAddressIndex(const uint8_t addr, const uint8_t index) {
+  void removeByAddressIndex(uint8_t addr, uint8_t index) {
     SQLite::Statement stmt(*m_db,
       R"(
       DELETE FROM deviceSensor
@@ -201,7 +201,7 @@ public:
    *
    * @param addr Device address
    */
-  void removeMultipleByAddress(const uint8_t addr) {
+  void removeMultipleByAddress(uint8_t addr) {
     SQLite::Statement stmt(*m_db,
       R"(
       DELETE FROM deviceSensor
@@ -218,7 +218,7 @@ public:
    * @param addr Device address
    * @param indexes Sensor indexes
    */
-  void removeMultipleByAddressIndexes(const uint8_t addr, const std::vector<uint8_t>& indexes) {
+  void removeMultipleByAddressIndexes(uint8_t addr, const std::vector<uint8_t>& indexes) {
     SQLite::Statement stmt(*m_db,
       R"(
       DELETE FROM deviceSensor
@@ -274,8 +274,8 @@ public:
   }
 
   /**
-   * @brief Constructs and returns a map of device addresses, sensor indexes and sensor details from devices specified by ID
-   *
+   * @brief Constructs and returns a map of device addresses, sensor indexes and sensor details from devices specified by address
+   * @param deviceAddrs Device addresses
    * @return Map of device addresses and vectors of sensor index and details pairs
    */
   std::map<uint8_t, std::vector<std::pair<uint8_t, Sensor>>> getDeviceAddressIndexSensorMapByAddrs(const std::vector<uint8_t>& deviceAddrs) {
@@ -400,7 +400,7 @@ public:
    *
    * @return Optional value container, global index if record exists, `std::nullopt` otherwise
    */
-  std::optional<uint8_t> getGlobalSensorIndex(const uint8_t address, const uint8_t type, const uint8_t typeIndex) {
+  std::optional<uint8_t> getGlobalSensorIndex(uint8_t address, uint8_t type, uint8_t typeIndex) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT globalIndex
@@ -426,7 +426,7 @@ public:
    * @param type Sensor type
    * @return Map of HWPIDs and set of device addresses
    */
-  std::map<uint16_t, std::set<uint8_t>> getHwpidAddressesMap(const uint8_t type) {
+  std::map<uint16_t, std::set<uint8_t>> getHwpidAddressesMap(uint8_t type) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT d.address, p.hwpid
@@ -462,7 +462,7 @@ public:
    * @param addr Device address
    * @return Map of global indexes and corresponding sensor IDs
    */
-  std::map<uint8_t, uint32_t> getGlobalIndexSensorIdMap(const uint8_t addr) {
+  std::map<uint8_t, uint32_t> getGlobalIndexSensorIdMap(uint8_t addr) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT globalIndex, sensorId
@@ -487,7 +487,7 @@ public:
    * @param address Device address
    * @return `true` if Device implements sensors, `false` otherwise
    */
-  bool deviceHasSensors(const uint8_t address) {
+  bool deviceHasSensors(uint8_t address) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT COUNT(*)

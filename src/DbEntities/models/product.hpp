@@ -50,8 +50,8 @@ public:
    * @param packageId Package ID
    * @param name Product name
    */
-  Product(const uint16_t hwpid, const uint16_t hwpidVersion, const uint16_t osBuild, const std::string& osVersion,
-    const uint16_t dpaVersion, std::shared_ptr<std::string> handlerUrl = nullptr,
+  Product(uint16_t hwpid, uint16_t hwpidVersion, uint16_t osBuild, const std::string& osVersion,
+    uint16_t dpaVersion, std::shared_ptr<std::string> handlerUrl = nullptr,
     std::shared_ptr<std::string> handlerHash = nullptr, std::shared_ptr<std::string> customDriver = nullptr,
     std::optional<uint32_t> packageId = std::nullopt, std::shared_ptr<std::string> name = nullptr)
     : hwpid(hwpid),
@@ -79,8 +79,8 @@ public:
    * @param packageId Package ID
    * @param name Product name
    */
-  Product(const uint32_t id, const uint16_t hwpid, const uint16_t hwpidVersion, const uint16_t osBuild,
-    const std::string& osVersion, const uint16_t dpaVersion, std::shared_ptr<std::string> handlerUrl = nullptr,
+  Product(uint32_t id, uint16_t hwpid, uint16_t hwpidVersion, uint16_t osBuild,
+    const std::string& osVersion, uint16_t dpaVersion, std::shared_ptr<std::string> handlerUrl = nullptr,
     std::shared_ptr<std::string> handlerHash = nullptr, std::shared_ptr<std::string> customDriver = nullptr,
     std::optional<uint32_t> packageId = std::nullopt, std::shared_ptr<std::string> name = nullptr)
     : id(id),
@@ -107,7 +107,7 @@ public:
    * Sets product ID
    * @param id Product ID
    */
-  void setId(const uint32_t id) {
+  void setId(uint32_t id) {
     this->id = id;
   }
 
@@ -123,7 +123,7 @@ public:
    * Sets product HWPID
    * @param hwpid Product HWPID
    */
-  void setHwpid(const uint16_t hwpid) {
+  void setHwpid(uint16_t hwpid) {
     this->hwpid = hwpid;
   }
 
@@ -139,7 +139,7 @@ public:
    * Sets product HWPID version
    * @param hwpidVersion Product HWPID version
    */
-  void setHwpidVersion(const uint16_t hwpidVersion) {
+  void setHwpidVersion(uint16_t hwpidVersion) {
     this->hwpidVersion = hwpidVersion;
   }
 
@@ -155,7 +155,7 @@ public:
    * Sets product OS build
    * @param osBuild Product OS build
    */
-  void setOsBuild(const uint16_t osBuild) {
+  void setOsBuild(uint16_t osBuild) {
     this->osBuild = osBuild;
   }
 
@@ -187,7 +187,7 @@ public:
    * Sets product DPA version
    * @param dpaVersion Product DPA version
    */
-  void setDpaVersion(const uint16_t dpaVersion) {
+  void setDpaVersion(uint16_t dpaVersion) {
     this->dpaVersion = dpaVersion;
   }
 

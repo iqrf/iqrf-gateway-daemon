@@ -23,6 +23,7 @@
 #include <models/product_driver.hpp>
 #include <repositories/base_repo.hpp>
 
+using iqrf::db::models::Driver;
 using iqrf::db::models::ProductDriver;
 
 namespace iqrf::db::repos {
@@ -61,7 +62,7 @@ public:
    *
    * @throws `std::runtime_error` If the record cannot be inserted
    */
-  uint32_t insert(ProductDriver &productDriver) {
+  uint32_t insert(const ProductDriver &productDriver) {
     SQLite::Statement stmt(*m_db,
       R"(
       INSERT INTO productDriver (productId, driverId)
@@ -89,7 +90,7 @@ public:
    * @param productId Product ID
    * @param driverId Driver ID
    */
-  void remove(const uint32_t productId, const uint32_t driverId) {
+  void remove(uint32_t productId, uint32_t driverId) {
     SQLite::Statement stmt(*m_db,
       R"(
       DELETE FROM productDriver
@@ -107,7 +108,7 @@ public:
    * @param productId Product ID
    * @return Vector of deserialized `Driver` objects
    */
-  std::vector<Driver> getDrivers(const uint32_t productId) {
+  std::vector<Driver> getDrivers(uint32_t productId) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT d.id, d.name, d.peripheralNumber, d.version, d.versionFlags, d.driver, d.driverHash
@@ -131,7 +132,7 @@ public:
    *
    * @return Set of driver IDs
    */
-  std::set<uint32_t> getDriverIds(const uint32_t productId) {
+  std::set<uint32_t> getDriverIds(uint32_t productId) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT driverId

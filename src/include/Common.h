@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include <cstdint>
 #include <iomanip>
 #include <map>
 #include <string>
@@ -56,7 +57,7 @@ namespace iqrf {
        * @param mid Module ID
        * @return Module ID string
        */
-      std::string midString(const uint32_t &mid) {
+      inline std::string midString(uint32_t mid) {
         std::ostringstream oss;
         oss << std::uppercase << std::hex << std::setw(sizeof(uint32_t)*2) << std::setfill('0') << mid;
         return oss.str();
@@ -66,15 +67,15 @@ namespace iqrf {
        * Reads module TR series and converts to string representation
        * @param trMcu TR/MCU type
        */
-      std::string trSeriesString(const uint8_t &trMcu) {
+      inline std::string trSeriesString(uint8_t trMcu) {
         const uint8_t mcuType = trMcu & mcuTypeMask;
         const uint8_t trSeries = trMcu >> 4;
         std::ostringstream oss;
         oss << "(DC)TR-";
         if (mcuType == PIC16LF1938) {
-          oss << (trSeriesD.count(trSeries) == 1) ? trSeriesD.at(trSeries) : "???";
+          oss << ((trSeriesD.count(trSeries) == 1) ? trSeriesD.at(trSeries) : "???");
         } else if (mcuType == PIC16LF18877) {
-          oss << (trSeriesG.count(trSeries) == 1) ? trSeriesG.at(trSeries) : "???";
+          oss << ((trSeriesG.count(trSeries) == 1) ? trSeriesG.at(trSeries) : "???");
         } else {
           oss << "???";
         }
@@ -85,7 +86,7 @@ namespace iqrf {
        * Reads module MCU type and converts to string representation
        * @param trMcu TR/MCU type
        */
-      std::string mcuTypeString(const uint8_t &trMcu) {
+      inline std::string mcuTypeString(uint8_t trMcu) {
         switch (trMcu & mcuTypeMask) {
           case PIC16LF1938:
             return "PIC16LF1938";
@@ -102,7 +103,7 @@ namespace iqrf {
        * @param osBuild OS build word
        * @return OS build string
        */
-      std::string osBuildString(const uint16_t &osBuild) {
+      inline std::string osBuildString(uint16_t osBuild) {
         std::ostringstream oss;
         oss << std::uppercase << std::hex << std::setw(4) << std::setfill('0') << osBuild;
         return oss.str();
@@ -114,7 +115,7 @@ namespace iqrf {
        * @param trMcu TR/MCU type
        * @return OS version string
        */
-      std::string osVersionString(const uint8_t &osVersion, const uint8_t &trMcu) {
+      inline std::string osVersionString(uint8_t osVersion, uint8_t trMcu) {
         std::ostringstream oss;
         oss << std::hex << (osVersion >> 4) << '.' << std::setw(2) << std::setfill('0') << (osVersion & 0xf);
         switch (trMcu & mcuTypeMask) {
@@ -135,7 +136,7 @@ namespace iqrf {
        * @param dpaVersion DPA version word
        * @return DPA major version
        */
-      uint8_t dpaVersionMajor(const uint16_t &dpaVersion) {
+      inline uint8_t dpaVersionMajor(uint16_t dpaVersion) {
         return ((dpaVersion >> 8) & 0xFF);
       }
 
@@ -144,7 +145,7 @@ namespace iqrf {
        * @param dpaVersion DPA version word
        * @return DPA minor version
        */
-      uint8_t dpaVersionMinor(const uint16_t &dpaVersion) {
+      inline uint8_t dpaVersionMinor(uint16_t dpaVersion) {
         return (dpaVersion & 0xFF);
       }
 
@@ -153,7 +154,7 @@ namespace iqrf {
        * @param dpaVersion DPA version word
        * @return DPA version string
        */
-      std::string dpaVersionString(const uint16_t &dpaVersion) {
+      inline std::string dpaVersionString(uint16_t dpaVersion) {
         std::ostringstream oss;
         oss << std::uppercase << std::hex;
         oss << std::setw(1) << ((dpaVersion & 0x3FFF) >> 8) << '.' << std::setw(2) << (dpaVersion & 0xFF);
@@ -165,7 +166,7 @@ namespace iqrf {
        * @param dpaVersion DPA version word
        * @return DPA version string
        */
-      std::string dpaVersionHexaString(const uint16_t &dpaVersion) {
+      inline std::string dpaVersionHexaString(uint16_t dpaVersion) {
         std::ostringstream oss;
         oss << std::uppercase << std::setw(4) << std::setfill('0') << std::hex << dpaVersion;
         return oss.str();
@@ -176,7 +177,7 @@ namespace iqrf {
        * @param dpaVersion DPA version word
        * @return true DPA demo, false otherwise
        */
-      bool demoFlag(const uint16_t &dpaVersion) {
+      inline bool demoFlag(uint16_t dpaVersion) {
         return (dpaVersion & 0x8000);
       }
 
@@ -185,7 +186,7 @@ namespace iqrf {
        * @param flags Peripheral enumeration flags
        * @return true if STD mode is supported, false if LP mode is supported
        */
-      bool stdModeSupported(const uint8_t &flags) {
+      inline bool stdModeSupported(uint8_t flags) {
         return (flags & 0x01);
       }
 
@@ -194,7 +195,7 @@ namespace iqrf {
        * @param flags Peripheral enumeration flags
        * @return true if STD+LP network is running, STD network otherwise
        */
-      bool stdLpNetwork(const uint8_t &flags) {
+      inline bool stdLpNetwork(uint8_t flags) {
         return (flags & 0x04);
       }
     }

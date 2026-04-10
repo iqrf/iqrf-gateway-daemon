@@ -41,7 +41,7 @@ public:
    * @param id Record ID
    * @return Pointer to deserialized `Light` object, or `nullptr` if record does not exist
    */
-  std::unique_ptr<Light> get(const uint32_t id) {
+  std::unique_ptr<Light> get(uint32_t id) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, deviceId
@@ -82,7 +82,7 @@ public:
    * @param deviceId Device ID
    * @return Pointer to deserialized `Light` object, or `nullptr` if record does not exist
    */
-  std::unique_ptr<Light> getByDeviceId(const uint32_t deviceId) {
+  std::unique_ptr<Light> getByDeviceId(uint32_t deviceId) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, deviceId
@@ -106,7 +106,7 @@ public:
    *
    * @throws `std::runtime_error` If the record cannot be inserted
    */
-  uint32_t insert(Light &light) {
+  uint32_t insert(const Light &light) {
     SQLite::Statement stmt(*m_db,
       R"(
       INSERT INTO light (deviceId)
@@ -134,7 +134,7 @@ public:
    *
    * @throws `std::runtime_error` If the record cannot be updated
    */
-  void update(Light &light) {
+  void update(const Light &light) {
     SQLite::Statement stmt(*m_db,
       R"(
       UPDATE light
@@ -161,7 +161,7 @@ public:
    *
    * @param id Record ID
    */
-  void remove(const uint32_t id) {
+  void remove(uint32_t id) {
     SQLite::Statement stmt(*m_db,
       R"(
       DELETE FROM light
@@ -177,7 +177,7 @@ public:
    *
    * @param deviceId Device ID
    */
-  void removeByDeviceId(const uint32_t deviceId) {
+  void removeByDeviceId(uint32_t deviceId) {
     SQLite::Statement stmt(*m_db,
       R"(
       DELETE FROM light

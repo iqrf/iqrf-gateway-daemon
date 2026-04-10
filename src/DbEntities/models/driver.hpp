@@ -42,7 +42,7 @@ public:
    * @param driver Driver code
    * @param driverHash Driver hash
    */
-  Driver(const std::string& name, const int16_t peripheralNumber, const double version, const uint8_t versionFlags,
+  Driver(const std::string& name, int16_t peripheralNumber, double version, uint8_t versionFlags,
     const std::string& driver, const std::string& driverHash)
     : name(name),
       peripheralNumber(peripheralNumber),
@@ -61,7 +61,7 @@ public:
    * @param driver Driver code
    * @param driverHash Driver hash
    */
-  Driver(const uint32_t id, const std::string& name, const int16_t peripheralNumber, const double version, const uint8_t versionFlags,
+  Driver(uint32_t id, const std::string& name, int16_t peripheralNumber, double version, uint8_t versionFlags,
     const std::string& driver, const std::string& driverHash)
     : id(id),
       name(name),
@@ -83,7 +83,7 @@ public:
    * Sets driver ID
    * @param id Driver ID
    */
-  void setId(const uint32_t id) {
+  void setId(uint32_t id) {
     this->id = id;
   };
 
@@ -115,7 +115,7 @@ public:
    * Sets driver peripheral number
    * @param peripheralNumber Driver peripheral number
    */
-  void setPeripheralNumber(const int16_t peripheralNumber) {
+  void setPeripheralNumber(int16_t peripheralNumber) {
     this->peripheralNumber = peripheralNumber;
   }
 
@@ -131,7 +131,7 @@ public:
    * Sets driver version
    * @param version Driver version
    */
-  void setVersion(const double version) {
+  void setVersion(double version) {
     this->version = version;
   }
 
@@ -147,7 +147,7 @@ public:
    * Sets driver version flags
    * @param versionFlags Driver version flags
    */
-  void setVersionFlags(const uint8_t versionFlags) {
+  void setVersionFlags(uint8_t versionFlags) {
     this->versionFlags = versionFlags;
   }
 

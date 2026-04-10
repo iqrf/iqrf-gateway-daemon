@@ -37,7 +37,7 @@ public:
    * @param deviceId Device ID
    * @param count Implemented binary outputs
    */
-  BinaryOutput(const uint32_t deviceId, const uint8_t count) : deviceId(deviceId), count(count) {};
+  BinaryOutput(uint32_t deviceId, uint8_t count) : deviceId(deviceId), count(count) {};
 
   /**
    * Full constructor
@@ -45,7 +45,7 @@ public:
    * @param deviceId Device ID
    * @param count Implemented binary outputs
    */
-  BinaryOutput(const uint32_t id, const uint32_t deviceId, const uint8_t count)
+  BinaryOutput(uint32_t id, uint32_t deviceId, uint8_t count)
     : id(id),
       deviceId(deviceId),
       count(count) {};
@@ -62,7 +62,7 @@ public:
    * Sets device ID
    * @param id Device ID
    */
-  void setId(const uint32_t id) {
+  void setId(uint32_t id) {
     this->id = id;
   }
 
@@ -78,7 +78,7 @@ public:
    * Sets device ID
    * @param deviceId Device ID
    */
-  void setDeviceId(const uint32_t deviceId) {
+  void setDeviceId(uint32_t deviceId) {
     this->deviceId = deviceId;
   }
 
@@ -94,7 +94,7 @@ public:
    * Sets number of implemented binary outputs
    * @param count Binary outputs count
    */
-  void setCount(const uint8_t count) {
+  void setCount(uint8_t count) {
     this->count = count;
   }
 

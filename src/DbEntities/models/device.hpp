@@ -47,7 +47,7 @@ public:
    * @param enumerated Device is enumerated
    * @param metadata User metadata
    */
-  Device(const uint8_t address, bool discovered, const uint32_t mid, const uint32_t productId, const uint8_t vrn, const uint8_t zone,
+  Device(uint8_t address, bool discovered, uint32_t mid, uint32_t productId, uint8_t vrn, uint8_t zone,
     std::optional<uint8_t> parent = std::nullopt, bool enumerated = false, std::shared_ptr<std::string> metadata = nullptr)
     : address(address),
       discovered(discovered),
@@ -72,7 +72,7 @@ public:
    * @param enumerated Device is enumerated
    * @param metadata User metadata
    */
-  Device(const uint32_t id, const uint8_t address, bool discovered, const uint32_t mid, const uint32_t productId, const uint8_t vrn, const uint8_t zone,
+  Device(uint32_t id, uint8_t address, bool discovered, uint32_t mid, uint32_t productId, uint8_t vrn, uint8_t zone,
     std::optional<uint8_t> parent = std::nullopt, bool enumerated = false, std::shared_ptr<std::string> metadata = nullptr)
     : id(id),
       address(address),
@@ -102,7 +102,7 @@ public:
    * Sets device ID
    * @param id Device ID
    */
-  void setId(const uint32_t id) {
+  void setId(uint32_t id) {
     this->id = id;
   };
 
@@ -118,7 +118,7 @@ public:
    * Sets device network address
    * @param address Device network address
    */
-  void setAddress(const uint8_t address) {
+  void setAddress(uint8_t address) {
     this->address = address;
   }
 
@@ -150,7 +150,7 @@ public:
    * Sets device module ID
    * @param mid Device module ID
    */
-  void setMid(const uint32_t mid) {
+  void setMid(uint32_t mid) {
     this->mid = mid;
   }
 
@@ -166,7 +166,7 @@ public:
    * Sets device virtual routing number
    * @param vrn Device virtual routing number
    */
-  void setVrn(const uint8_t vrn) {
+  void setVrn(uint8_t vrn) {
     this->vrn = vrn;
   }
 
@@ -182,7 +182,7 @@ public:
    * Sets device zone
    * @param zone Device zone
    */
-  void setZone(const uint8_t zone) {
+  void setZone(uint8_t zone) {
     this->zone = zone;
   }
 
@@ -230,7 +230,7 @@ public:
    * Sets device product ID
    * @param productId Device product ID
    */
-  void setProductId(const uint32_t productId) {
+  void setProductId(uint32_t productId) {
     this->productId = productId;
   }
 

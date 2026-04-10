@@ -36,14 +36,14 @@ public:
    * Constructor without ID
    * @param deviceId Device ID
    */
-  Light(const uint32_t deviceId) : deviceId(deviceId) {};
+  Light(uint32_t deviceId) : deviceId(deviceId) {};
 
   /**
    * Full constructor
    * @param id ID
    * @param deviceId Device ID
    */
-  Light(const uint32_t id, const uint32_t deviceId) : id(id), deviceId(deviceId) {};
+  Light(uint32_t id, uint32_t deviceId) : id(id), deviceId(deviceId) {};
 
   /**
    * Returns Light ID
@@ -57,7 +57,7 @@ public:
    * Sets Light ID
    * @param id Light ID
    */
-  void setId(const uint32_t id) {
+  void setId(uint32_t id) {
     this->id = id;
   }
 
@@ -73,7 +73,7 @@ public:
    * Sets device ID
    * @param deviceId Device ID
    */
-  void setDeviceId(const uint32_t deviceId) {
+  void setDeviceId(uint32_t deviceId) {
     this->deviceId = deviceId;
   }
 

@@ -42,7 +42,7 @@ public:
    * @param id Record ID
    * @return Pointer to deserialized `Device` object, or `nullptr` if record does not exist
    */
-  std::unique_ptr<Device> get(const uint32_t id) {
+  std::unique_ptr<Device> get(uint32_t id) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, address, discovered, mid, vrn, zone, parent, enumerated, productId, metadata
@@ -84,7 +84,7 @@ public:
    * @param addr Device address
    * @return Pointer to deserialized `Device` object, or `nullptr` if record does not exist
    */
-  std::unique_ptr<Device> getByAddress(const uint8_t addr) {
+  std::unique_ptr<Device> getByAddress(uint8_t addr) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, address, discovered, mid, vrn, zone, parent, enumerated, productId, metadata
@@ -130,7 +130,7 @@ public:
    *
    * @throws `std::runtime_error` If the record cannot be inserted
    */
-  uint32_t insert(Device &device) {
+  uint32_t insert(const Device &device) {
     SQLite::Statement stmt(*m_db,
       R"(
       INSERT INTO device (address, discovered, mid, vrn, zone, parent, enumerated, productId, metadata)
@@ -174,7 +174,7 @@ public:
    *
    * @throws `std::runtime_error` If the record cannot be updated
    */
-  void update(Device &device) {
+  void update(const Device &device) {
     SQLite::Statement stmt(*m_db,
       R"(
       UPDATE device
@@ -218,7 +218,7 @@ public:
    *
    * @param id Record ID
    */
-  void remove(const uint32_t id) {
+  void remove(uint32_t id) {
     SQLite::Statement stmt(*m_db,
       R"(
       DELETE FROM device
@@ -250,7 +250,7 @@ public:
    *
    * @return Optional value container, HWPID if record exists, `std::nullopt` otherwise
    */
-  std::optional<uint16_t> getHwpidByAddress(const uint8_t addr) {
+  std::optional<uint16_t> getHwpidByAddress(uint8_t addr) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT p.hwpid
@@ -274,7 +274,7 @@ public:
    *
    * @return Optional value container, MID if record exists, `std::nullopt` otherwise
    */
-  std::optional<uint32_t> getMidByAddress(const uint8_t addr) {
+  std::optional<uint32_t> getMidByAddress(uint8_t addr) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT mid
@@ -297,7 +297,7 @@ public:
    *
    * @return Pointer to serialized metadata object, or `nullptr` if record does not exist
    */
-  std::shared_ptr<std::string> getMetadataByAddress(const uint8_t addr) {
+  std::shared_ptr<std::string> getMetadataByAddress(uint8_t addr) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT metadata
@@ -321,7 +321,7 @@ public:
    * @param peripheral Peripheral number
    * @return `true` if device implements peripheral, `false` otherwise
    */
-  bool implementsPeripheral(const uint32_t id, const int16_t peripheral) {
+  bool implementsPeripheral(uint32_t id, int16_t peripheral) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT COUNT(*)
@@ -367,7 +367,7 @@ public:
    * @param productId Product ID
    * @return Set of device addresses
    */
-  std::set<uint8_t> getProductAddresses(const uint32_t productId) {
+  std::set<uint8_t> getProductAddresses(uint32_t productId) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT address

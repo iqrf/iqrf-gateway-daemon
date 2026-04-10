@@ -16,8 +16,6 @@
  */
 #pragma once
 
-#include <set>
-
 #include <models/sensor.hpp>
 #include <repositories/base_repo.hpp>
 
@@ -38,7 +36,7 @@ public:
    * @param id Record ID
    * @return Pointer to deserialized `Sensor` object, or `nullptr` if record does not exist
    */
-  std::unique_ptr<Sensor> get(const uint32_t id) {
+  std::unique_ptr<Sensor> get(uint32_t id) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, type, name, shortname, unit, decimals, frc2bit, frc1Byte, frc2Byte, frc4Byte
@@ -61,7 +59,7 @@ public:
    * @param name Quantity name
    * @return Pointer to deserialized `Sensor` object, or `nullptr` if record does not exist
    */
-  std::unique_ptr<Sensor> getByTypeName(const uint8_t type, const std::string& name) {
+  std::unique_ptr<Sensor> getByTypeName(uint8_t type, const std::string& name) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, type, name, shortname, unit, decimals, frc2bit, frc1Byte, frc2Byte, frc4Byte
@@ -86,7 +84,7 @@ public:
    * @param type Sensor type
    * @return Pointer to deserialized `Sensor` object, or `nullptr` if record does not exist
    */
-  std::unique_ptr<Sensor> getByAddressIndexType(const uint8_t address, const uint8_t index, const uint8_t type) {
+  std::unique_ptr<Sensor> getByAddressIndexType(uint8_t address, uint8_t index, uint8_t type) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT s.id, s.type, s.name, s.shortname, s.unit, s.decimals, s.frc2bit, s.frc1Byte, s.frc2Byte, s.frc4Byte
@@ -114,7 +112,7 @@ public:
    *
    * @throws `std::runtime_error` If the record cannot be inserted
    */
-  uint32_t insert(Sensor &sensor) {
+  uint32_t insert(const Sensor &sensor) {
     SQLite::Statement stmt(*m_db,
       R"(
       INSERT INTO sensor (type, name, shortname, unit, decimals, frc2bit, frc1Byte, frc2Byte, frc4Byte)
@@ -149,7 +147,7 @@ public:
    * @param address Device address
    * @return Map of sensor indexes and sensor objects
    */
-  std::map<uint8_t, Sensor> getDeviceSensorIndexMap(const uint8_t address) {
+  std::map<uint8_t, Sensor> getDeviceSensorIndexMap(uint8_t address) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT s.id, s.type, s.name, s.shortname, s.unit, s.decimals, s.frc2bit, s.frc1Byte, s.frc2Byte, s.frc4Byte
@@ -180,7 +178,7 @@ public:
    * @param address Device address
    * @return Map of global indexes and sensor IDs
    */
-  std::map<uint8_t, uint32_t> getDeviceSensorIdIndexMap(const uint8_t address) {
+  std::map<uint8_t, uint32_t> getDeviceSensorIdIndexMap(uint8_t address) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT ds.globalIndex, s.id

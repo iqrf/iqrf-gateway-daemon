@@ -39,7 +39,7 @@ public:
    * @param id Record ID
    * @return Pointer to deserialized `BinaryOutput` object, or `nullptr` if record does not exist
    */
-  std::unique_ptr<BinaryOutput> get(const uint32_t id) {
+  std::unique_ptr<BinaryOutput> get(uint32_t id) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, deviceId, count
@@ -80,7 +80,7 @@ public:
    * @param deviceId Record ID
    * @return Pointer to deserialized `BinaryOutput` object, or `nullptr` if record does not exist
    */
-  std::unique_ptr<BinaryOutput> getByDeviceId(const uint32_t deviceId) {
+  std::unique_ptr<BinaryOutput> getByDeviceId(uint32_t deviceId) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, deviceId, count
@@ -161,7 +161,7 @@ public:
    *
    * @param id Record ID
    */
-  void remove(const uint32_t id) {
+  void remove(uint32_t id) {
     SQLite::Statement stmt(*m_db,
       R"(
       DELETE FROM bo
@@ -177,7 +177,7 @@ public:
    *
    * @param deviceId Device ID
    */
-  void removeByDeviceId(const uint32_t deviceId) {
+  void removeByDeviceId(uint32_t deviceId) {
     SQLite::Statement stmt(*m_db,
       R"(
       DELETE FROM bo

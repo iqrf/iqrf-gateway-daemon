@@ -41,7 +41,7 @@ public:
    * @return `nullptr` If token record does not exist
    * @return `ApiToken` Token object if record exists
    */
-  std::unique_ptr<ApiToken> get(const uint32_t id) {
+  std::unique_ptr<ApiToken> get(uint32_t id) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, owner, salt, hash, createdAt, expiresAt, status, service, invalidatedAt
@@ -87,7 +87,7 @@ public:
    * @param apiToken API token object to persist
    * @return `uint32_t` API token record iD
    */
-  uint32_t insert(ApiToken& apiToken) {
+  uint32_t insert(const ApiToken& apiToken) {
     SQLite::Statement stmt(*m_db,
       R"(
       INSERT INTO api_tokens (owner, salt, hash, createdAt, expiresAt, status, service)
@@ -123,7 +123,7 @@ public:
    * @param apiToken API token object to persist
    * @return `uint32_t` API token record ID
    */
-  uint32_t insertWithId(ApiToken& apiToken) {
+  uint32_t insertWithId(const ApiToken& apiToken) {
     SQLite::Statement stmt(*m_db,
       R"(
       INSERT INTO api_tokens (id, owner, salt, hash, createdAt, expiresAt, status, service)
@@ -159,7 +159,7 @@ public:
    *
    * @param token API token object
    */
-  void update(ApiToken &token) {
+  void update(const ApiToken &token) {
     SQLite::Statement stmt(*m_db,
       R"(
         UPDATE api_tokens
@@ -220,7 +220,7 @@ public:
    *
    * @param id Record ID
    */
-  void remove(const uint32_t id) {
+  void remove(uint32_t id) {
     SQLite::Statement stmt(*m_db,
       R"(
       DELETE FROM api_tokens

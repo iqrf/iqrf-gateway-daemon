@@ -16,7 +16,6 @@
  */
 #pragma once
 
-#include <set>
 #include <vector>
 
 #include <models/driver.hpp>
@@ -39,7 +38,7 @@ public:
    * @param id Record ID
    * @return Pointer to deserialized `Driver` object, or `nullptr` if record does not exist
    */
-  std::unique_ptr<Driver> get(const uint32_t id) {
+  std::unique_ptr<Driver> get(uint32_t id) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, name, peripheralNumber, version, versionFlags, driver, driverHash
@@ -81,7 +80,7 @@ public:
    * @param version Driver version
    * @return Pointer to deserialized `Driver` object, or `nullptr` if record does not exist
    */
-  std::unique_ptr<Driver> getByPeripheralVersion(const int16_t peripheral, const double version) {
+  std::unique_ptr<Driver> getByPeripheralVersion(int16_t peripheral, double version) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, name, peripheralNumber, version, versionFlags, driver, driverHash
@@ -106,7 +105,7 @@ public:
    *
    * @throws `std::runtime_error` If the record cannot be inserted
    */
-  uint32_t insert(Driver &driver) {
+  uint32_t insert(const Driver &driver) {
     SQLite::Statement stmt(*m_db,
       R"(
       INSERT INTO driver (name, peripheralNumber, version, versionFlags, driver, driverHash)
@@ -139,7 +138,7 @@ public:
    *
    * @throws `std::runtime_error` If the record cannot be updated
    */
-  void update(Driver &driver) {
+  void update(const Driver &driver) {
     SQLite::Statement stmt(*m_db,
       R"(
       UPDATE driver

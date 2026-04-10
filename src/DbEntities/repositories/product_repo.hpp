@@ -16,7 +16,6 @@
  */
 #pragma once
 
-#include <set>
 #include <vector>
 
 #include <models/product.hpp>
@@ -36,7 +35,7 @@ public:
    * @param id Record ID
    * @return Pointer to deserialized `Product` object, or `nullptr` if record does not exist
    */
-  std::unique_ptr<Product> get(const uint32_t id) {
+  std::unique_ptr<Product> get(uint32_t id) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, hwpid, hwpidVersion, osBuild, osVersion, dpaVersion, handlerUrl, handlerHash, customDriver,
@@ -62,7 +61,7 @@ public:
    * @param dpaVersion DPA version
    * @return Pointer to deserialized `Product` object, or `nullptr` if record does not exist
    */
-  std::unique_ptr<Product> get(const uint16_t hwpid, const uint16_t hwpidVersion, const uint16_t osBuild, const uint16_t dpaVersion) {
+  std::unique_ptr<Product> get(uint16_t hwpid, uint16_t hwpidVersion, uint16_t osBuild, uint16_t dpaVersion) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, hwpid, hwpidVersion, osBuild, osVersion, dpaVersion, handlerUrl, handlerHash, customDriver,
@@ -110,7 +109,7 @@ public:
    *
    * @throws `std::runtime_error` If the record cannot be inserted
    */
-  uint32_t insert(Product &product) {
+  uint32_t insert(const Product &product) {
     SQLite::Statement stmt(*m_db,
       R"(
       INSERT INTO product (hwpid, hwpidVersion, osBuild, osVersion, dpaVersion, handlerUrl, handlerHash,
@@ -168,7 +167,7 @@ public:
    *
    * @throws `std::runtime_error` If the record cannot be updated
    */
-  void update(Product &product) {
+  void update(const Product &product) {
     SQLite::Statement stmt(*m_db,
       R"(
       UPDATE product
@@ -250,8 +249,8 @@ public:
    * @param dpaVersion DPA version
    * @return Optional value container, product ID if record exists `std::nullopt` otherwise
    */
-  std::optional<uint32_t> getNoncertifiedProductId(const uint16_t hwpid, const uint16_t hwpidVersion,
-    const uint16_t osBuild, const uint16_t dpaVersion) {
+  std::optional<uint32_t> getNoncertifiedProductId(uint16_t hwpid, uint16_t hwpidVersion,
+    uint16_t osBuild, uint16_t dpaVersion) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, hwpid, hwpidVersion, osBuild, osVersion, dpaVersion, handlerUrl, handlerHash, customDriver,
@@ -278,7 +277,7 @@ public:
    * @param productId Product ID
    * @return Pointer to product driver, if record exists and product has custom driver, `nullptr` otherwise
    */
-  std::shared_ptr<std::string> getCustomDriver(const uint32_t productId) {
+  std::shared_ptr<std::string> getCustomDriver(uint32_t productId) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT customDriver

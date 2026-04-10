@@ -45,8 +45,8 @@ public:
    * @param updated Last update timestamp
    * @param metadata Data block values if needed
    */
-  DeviceSensor(const uint8_t address, const uint8_t type, const uint8_t globalIndex, const uint8_t typeIndex,
-    const uint32_t sensorId, std::optional<double> value = std::nullopt,
+  DeviceSensor(uint8_t address, uint8_t type, uint8_t globalIndex, uint8_t typeIndex,
+    uint32_t sensorId, std::optional<double> value = std::nullopt,
     std::shared_ptr<std::string> updated = nullptr, std::shared_ptr<std::string> metadata = nullptr)
     : address(address),
       type(type),
@@ -69,7 +69,7 @@ public:
    * Sets device address
    * @param deviceId Device address
    */
-  void setAddress(const uint8_t &address) {
+  void setAddress(uint8_t address) {
     this->address = address;
   }
 
@@ -85,7 +85,7 @@ public:
    * Sets Sensor type
    * @param type Sensor Type
    */
-  void setType(const uint8_t type) {
+  void setType(uint8_t type) {
     this->type = type;
   }
 
@@ -101,7 +101,7 @@ public:
    * Sets global sensor index
    * @param globalIndex Global sensor index
    */
-  void setGlobalIndex(const uint8_t globalIndex) {
+  void setGlobalIndex(uint8_t globalIndex) {
     this->globalIndex = globalIndex;
   }
 
@@ -117,7 +117,7 @@ public:
    * Sets type sensor index
    * @param globalIndex Type sensor index
    */
-  void setTypeIndex(const uint8_t typeIndex) {
+  void setTypeIndex(uint8_t typeIndex) {
     this->typeIndex = typeIndex;
   }
 
@@ -133,7 +133,7 @@ public:
    * Sets Sensor ID
    * @param sensorId Sensor ID
    */
-  void setSensorId(const uint32_t sensorId) {
+  void setSensorId(uint32_t sensorId) {
     this->sensorId = sensorId;
   }
 

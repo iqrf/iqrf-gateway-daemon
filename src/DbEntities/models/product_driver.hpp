@@ -37,7 +37,7 @@ public:
    * @param productId Product ID
    * @param driverId Driver ID
    */
-  ProductDriver(const uint32_t productId, const uint32_t driverId) : productId(productId), driverId(driverId) {}
+  ProductDriver(uint32_t productId, uint32_t driverId) : productId(productId), driverId(driverId) {}
 
   /**
    * Returns product ID
@@ -51,7 +51,7 @@ public:
    * Sets product ID
    * @param productId Product ID
    */
-  void setProductId(const uint32_t productId) {
+  void setProductId(uint32_t productId) {
     this->productId = productId;
   }
 
@@ -67,7 +67,7 @@ public:
    * Sets driver ID
    * @param driverId Driver ID
    */
-  void setDriverId(const uint32_t driverId) {
+  void setDriverId(uint32_t driverId) {
     this->driverId = driverId;
   }
 
