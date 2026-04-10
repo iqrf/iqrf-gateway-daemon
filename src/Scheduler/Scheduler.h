@@ -16,6 +16,18 @@
  */
 #pragma once
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
+#include <string>
+#include <chrono>
+#include <map>
+#include <memory>
+#include <random>
+#include <regex>
+#include <set>
+
 #include "JsonUtils.h"
 #include "SchedulerRecord.h"
 #include "TaskQueue.h"
@@ -23,16 +35,6 @@
 #include "ShapeProperties.h"
 #include "ITraceService.h"
 #include "rapidjson/schema.h"
-
-#include <string>
-#include <chrono>
-#include <map>
-#include <memory>
-#include <regex>
-#include <set>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
 
 namespace iqrf {
   class Scheduler : public ISchedulerService {
@@ -375,6 +377,6 @@ namespace iqrf {
     /// Map of active, scheduled tasks
     std::multimap<std::chrono::system_clock::time_point, TaskHandle> m_scheduledTasksMap;
     /// UUID v4 generator
-    boost::uuids::basic_random_generator<boost::mt19937> m_uuidGenerator;
+    boost::uuids::basic_random_generator<std::mt19937> m_uuidGenerator;
   };
-}
+}  // namespace iqrf

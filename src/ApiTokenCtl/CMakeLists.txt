@@ -22,7 +22,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-find_package(Boost REQUIRED COMPONENTS program_options)
+find_package(Boost CONFIG REQUIRED COMPONENTS program_options)
 find_package(OpenSSL REQUIRED)
 find_package(SQLite3 REQUIRED)
 

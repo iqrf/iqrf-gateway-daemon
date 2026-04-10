@@ -15,7 +15,7 @@
 
 project(WebsocketServer)
 
-find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost CONFIG REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})

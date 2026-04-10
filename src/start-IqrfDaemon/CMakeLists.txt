@@ -20,7 +20,7 @@ file(GLOB_RECURSE _SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 file(GLOB_RECURSE _CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/configuration/*)
 file(GLOB_RECURSE _JAVA_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/javaScript/*)
 
-find_package(Boost REQUIRED COMPONENTS program_options)
+find_package(Boost CONFIG REQUIRED COMPONENTS program_options)
 
 source_group("Header Files" FILES ${_HDRFILES})
 source_group("Source Files" FILES ${_SRCFILES})

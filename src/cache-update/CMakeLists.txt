@@ -7,7 +7,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
-find_package(Boost REQUIRED COMPONENTS program_options)
+find_package(Boost CONFIG REQUIRED COMPONENTS program_options)
 find_package(LIBZIP REQUIRED)
 
 set(PROJECT_SOURCES
