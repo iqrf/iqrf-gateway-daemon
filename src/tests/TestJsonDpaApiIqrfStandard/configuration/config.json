@@ -29,13 +29,6 @@
       "startlevel": -2
     },
     {
-      "name": "shape::CurlRestApiService",
-      "libraryPath": "shapeware/bin",
-      "libraryName": "CurlRestApiService",
-      "enabled": true,
-      "startlevel": -1
-    },
-    {
       "name": "iqrf::Scheduler",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "Scheduler",

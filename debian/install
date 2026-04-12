@@ -8,9 +8,6 @@ completions/iqrfgd2-tokenctl.bash                               usr/share/bash-c
 shape-build/bin/libTraceFormatService.so                        usr/lib/iqrf-gateway-daemon
 shape-build/bin/libTraceFileService.so                          usr/lib/iqrf-gateway-daemon
 shape-build/lib/liblauncher.a                                   usr/lib/iqrf-gateway-daemon
-shapeware-build/bin/libCurlRestApiService.so                    usr/lib/iqrf-gateway-daemon
-shapeware-build/bin/libWebsocketCppService.so                   usr/lib/iqrf-gateway-daemon
-shapeware-build/bin/libMqttService.so                           usr/lib/iqrf-gateway-daemon
 api/*.json                                                      usr/share/iqrf-gateway-daemon/apiSchemas
 src/start-IqrfDaemon/cfgSchemas                                 usr/share/iqrf-gateway-daemon
 src/start-IqrfDaemon/javaScript                                 usr/share/iqrf-gateway-daemon
