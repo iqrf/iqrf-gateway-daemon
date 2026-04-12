@@ -50,10 +50,14 @@ public:
     }
 
     // relative
-    auto unit = input.back();
+    if (input.empty()) {
+      throw std::invalid_argument("Invalid expiration time argument.");
+    }
+
+    const auto unit = input.back();
     auto num_part = input.substr(0, input.length() - 1);
-    if (std::all_of(num_part.begin(), num_part.end(), ::isdigit) && is_time_unit(unit)) {
-      auto numerical = std::stoi(num_part);
+    if (!num_part.empty() && std::all_of(num_part.begin(), num_part.end(), ::isdigit) && is_time_unit(unit)) {
+      const auto numerical = std::stoi(num_part);
       if (numerical < 1) {
         throw std::invalid_argument("Unit count should be a positive integer.");
       }
@@ -74,7 +78,7 @@ public:
       default:
         break;
       }
-      // mutliply unit by count
+      // multiply unit by count
       offset *= numerical;
       return created_at + offset;
     }
