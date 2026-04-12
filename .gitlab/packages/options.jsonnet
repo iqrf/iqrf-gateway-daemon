@@ -10,4 +10,6 @@
 	],
 	// CCache support
 	ccache: true,
+  // Git submodules support
+  gitSubmodules: true,
 }
