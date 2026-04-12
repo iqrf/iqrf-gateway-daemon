@@ -17,20 +17,40 @@
 
 
 %:
-	dh $@  --buildsystem=cmake --builddirectory=build
+	dh $@ --buildsystem=cmake --builddirectory=build
 
 override_dh_auto_configure:
 	rm -rf shape shape-build shapeware shapeware-build
 	mkdir -p shape-build shapeware-build
 	git clone --depth=1 --recurse-submodules https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon-utils/shape.git
 	git clone --depth=1 --recurse-submodules https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon-utils/shapeware.git
-	cmake -Bshape-build -Hshape -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
+	cmake -Bshape-build -Hshape \
+		-DCMAKE_SKIP_INSTALL_RPATH=TRUE \
+		-DCMAKE_SKIP_BUILD_RPATH=TRUE \
+		-DCMAKE_SKIP_RPATH=TRUE \
+		-DCMAKE_BUILD_TYPE=Debug \
+		-DUSE_CCACHE=TRUE
 	cmake --build shape-build
-	cmake -Bshapeware-build -Hshapeware -Dshape_DIR:PATH=`pwd`/shape-build -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
+	cmake -Bshapeware-build -Hshapeware -Dshape_DIR:PATH=`pwd`/shape-build \
+		-DCMAKE_SKIP_INSTALL_RPATH=TRUE \
+		-DCMAKE_SKIP_BUILD_RPATH=TRUE \
+		-DCMAKE_SKIP_RPATH=TRUE \
+		-DCMAKE_BUILD_TYPE=Debug \
+		-DUSE_CCACHE=TRUE \
+		-DBUILD_CURL_REST_API:BOOL=FALSE \
+		-DBUILD_MQTT:BOOL=FALSE \
+		-DBUILD_WS_SERVER:BOOL=FALSE
 	cmake --build shapeware-build
-	dh_auto_configure -- -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE \
-	-Dshapeware_DIR:PATH=`pwd`/shapeware-build -Dshape_DIR:PATH=`pwd`/shape-build -DBUILD_TESTING=false \
-	-DPIPELINE_ID=${PIPELINE_ID} -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
+	dh_auto_configure -- \
+		-DCMAKE_SKIP_INSTALL_RPATH=TRUE \
+		-DCMAKE_SKIP_BUILD_RPATH=TRUE \
+		-DCMAKE_SKIP_RPATH=TRUE \
+		-Dshapeware_DIR:PATH=`pwd`/shapeware-build \
+		-Dshape_DIR:PATH=`pwd`/shape-build \
+		-DBUILD_TESTING=false \
+		-DPIPELINE_ID=${PIPELINE_ID} \
+		-DCMAKE_BUILD_TYPE=Debug \
+		-DUSE_CCACHE=TRUE
 
 override_dh_fixperms:
 	dh_fixperms

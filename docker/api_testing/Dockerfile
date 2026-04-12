@@ -25,7 +25,7 @@ RUN mkdir deploy \
     && git clone --depth=1 --recurse-submodules https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon-utils/shapeware.git\
     && cmake -Bshape-build -Hshape -DCMAKE_BUILD_TYPE=Debug -DSHAPE_DEPLOY:PATH=$PWD/deploy \
     && cmake --build shape-build --target install \
-    && cmake -Bshapeware-build -Hshapeware -Dshape_DIR:PATH=`pwd`/shape-build -DCMAKE_BUILD_TYPE=Debug \
+    && cmake -Bshapeware-build -Hshapeware -Dshape_DIR:PATH=`pwd`/shape-build -DCMAKE_BUILD_TYPE=Debug -DBUILD_CURL_REST_API:BOOL=FALSE -DBUILD_MQTT:BOOL=FALSE -DBUILD_WS_SERVER:BOOL=FALSE \
     && cmake --build shapeware-build --target install \
     && cmake -Biqrf-gateway-daemon-build -H. -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DCMAKE_BUILD_TYPE=Debug \
     && cmake --build iqrf-gateway-daemon-build --target install
