@@ -80,12 +80,9 @@ include:
       before_script:
         - mkdir deploy
         - git clone --depth=1 --recurse-submodules https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon-utils/shape.git
-        - git clone --depth=1 --recurse-submodules https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon-utils/shapeware.git
         - cmake -Bshape-build -Hshape -DBUILD_TESTING:BOOL=TRUE -DCMAKE_BUILD_TYPE=Debug -DSHAPE_DEPLOY:PATH=$PWD/deploy -DUSE_CCACHE=TRUE
         - cmake --build shape-build --target install
-        - cmake -Bshapeware-build -Hshapeware -Dshape_DIR:PATH=`pwd`/shape-build -DBUILD_TESTING:BOOL=TRUE -DBUILD_CURL_REST_API:BOOL=FALSE -DBUILD_MQTT:BOOL=FALSE -DBUILD_WS_SERVER:BOOL=FALSE -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
-        - cmake --build shapeware-build --target install
-      cmake_options: -DBUILD_TESTING:BOOL=TRUE -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build
+      cmake_options: -DBUILD_TESTING:BOOL=TRUE -Dshape_DIR:PATH=`pwd`/shape-build
       cmake_build_options: --target install
   # Packages
   - component: gitlab.iqrf.org/open-source/gitlab-ci-components/build-jsonnnet-deb-packages@master

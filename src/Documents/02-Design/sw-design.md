@@ -203,9 +203,6 @@ Is interface providing access to IQRF Repo cache
 #### Scheduler
 Provides scheduled periodic task to check and download of possible repo new versions
 
-#### CppRestService
-Implementation of REST API client in Shapeware component collection.
-
 #### JsCache
 Downloads and holds repo cached data. Implements periodic repo check for new versions invoked as scheduled periodic task.
 

@@ -21,11 +21,12 @@
 #include "IJsRenderService.h"
 #include "ISchedulerService.h"
 #include "ILaunchService.h"
-#include "IRestApiService.h"
 #include "IIqrfDpaService.h"
 #include "ITraceService.h"
 #include "ShapeProperties.h"
+#include <condition_variable>
 #include <string>
+#include <thread>
 
 namespace iqrf {
 
@@ -104,18 +105,6 @@ namespace iqrf {
 		 * @param iface Launch service interface
 		 */
 		void detachInterface(shape::ILaunchService* iface);
-
-		/**
-		 * Attaches REST API service interface
-		 * @param iface REST API service interface
-		 */
-		void attachInterface(shape::IRestApiService* iface);
-
-		/**
-		 * Detaches REST API service interface
-		 * @param iface REST API service interface
-		 */
-		void detachInterface(shape::IRestApiService* iface);
 
 		/**
 		 * Attaches tracing service interface
@@ -452,8 +441,6 @@ namespace iqrf {
 		iqrf::ISchedulerService *m_iSchedulerService = nullptr;
 		/// Launch service
 		shape::ILaunchService *m_iLaunchService = nullptr;
-		/// REST API service
-		shape::IRestApiService *m_iRestApiService = nullptr;
 		/// Cache update mutex
 		mutable std::recursive_mutex m_updateMtx;
 		/// Path to tmp Daemon directory

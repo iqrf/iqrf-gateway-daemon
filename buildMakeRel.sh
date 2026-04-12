@@ -36,16 +36,10 @@ pushd ${shape}
 shape=$PWD
 popd
 
-#get path to shapeware libs
-shapeware=../../shapeware/${buildexp}
-pushd ${shapeware}
-shapeware=$PWD
-popd
-
 #launch cmake to generate build environment
 pushd ${builddir}
 pwd
-cmake -G "Unix Makefiles" -DBUILD_TESTING:BOOL=true -Dshape_DIR:PATH=${shape} -Dshapeware_DIR:PATH=${shapeware} ${currentdir} -DCMAKE_BUILD_TYPE=Release
+cmake -G "Unix Makefiles" -DBUILD_TESTING:BOOL=true -Dshape_DIR:PATH=${shape} ${currentdir} -DCMAKE_BUILD_TYPE=Release
 popd
 
 #build from generated build environment

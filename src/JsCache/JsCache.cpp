@@ -294,16 +294,6 @@ namespace iqrf {
 		}
 	}
 
-	void JsCache::attachInterface(shape::IRestApiService *iface) {
-		m_iRestApiService = iface;
-	}
-
-	void JsCache::detachInterface(shape::IRestApiService *iface) {
-		if (m_iRestApiService == iface) {
-			m_iRestApiService = nullptr;
-		}
-	}
-
 	void JsCache::attachInterface(shape::ITraceService *iface) {
 		shape::Tracer::get().addTracerService(iface);
 	}
