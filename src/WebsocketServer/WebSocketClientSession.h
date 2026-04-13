@@ -36,9 +36,9 @@
 #include <optional>
 #include <string>
 
+#include "ApiTokenUtils.h"
 #include "DatetimeParser.h"
 #include "IWebSocketClientSession.h"
-#include "CryptoUtils.h"
 #include "TraceMacros.h"
 #include "WebsocketServerUtils.h"
 #include "Trace.h"
@@ -579,7 +579,7 @@ namespace iqrf {
       uint32_t tokenId;
       std::string secret;
       try {
-        CryptoUtils::parse_token(token, tokenId, secret);
+        ApiTokenUtils::parseToken(token, tokenId, secret);
       } catch (const std::exception &e) {
         TRC_WARNING(
           SESSION_LOG(sessionId_, address_, port_)

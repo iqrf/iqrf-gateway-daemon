@@ -163,10 +163,9 @@ namespace iqrf {
         return newStatus;
       }
 
-      auto salt = CryptoUtils::base64_decode_data(token->getSalt());
-      auto hash = CryptoUtils::base64_decode_data(token->getHash());
-      auto key = CryptoUtils::base64_decode_data(secret);
-      auto candidate = CryptoUtils::sha256_hash_data(salt, key);
+      auto hash = CryptoUtils::base64Decode(token->getHash());
+      auto key = CryptoUtils::base64Decode(secret);
+      auto candidate = CryptoUtils::sha256Hash(key);
       // if candidate token hash does not match hash stored in database, invalid
       if (hash != candidate) {
         return std::nullopt;
