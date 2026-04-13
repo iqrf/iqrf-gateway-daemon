@@ -1503,9 +1503,9 @@ namespace iqrf {
 
         // store new product or use existing
         if (dbProduct.has_value()) {
-          productId = productRepo.insert(*product.get());
+          productId = dbProduct.value().getId();
         } else {
-          productId = dbProduct->getId();
+          productId = productRepo.insert(*product.get());
         }
 
         // update product drivers, reuse dbProductDrivers to delete old unused drivers by erasing intersecting elements
