@@ -15,20 +15,14 @@ pushd %shape%
 set shape=%cd%
 popd
 
-rem //get path to to Shape libs
-set shapeware=..\\..\\shapeware\\%buildexp%
-pushd %shapeware%
-set shaparts=%cd%
-popd
-
 set vcpkg="c:/devel/vcpkg/scripts/buildsystems/vcpkg.cmake"
 
-set vcpkg_ver="2021-01-13-unknownhash" 
-rem set vcpkg_ver="" 
+set vcpkg_ver="2021-01-13-unknownhash"
+rem set vcpkg_ver=""
 
 rem //launch cmake to generate build environment
 pushd %builddir%
-cmake -G "Visual Studio 17 2022" -DBUILD_TESTING:BOOL=false -DCMAKE_TOOLCHAIN_FILE=%vcpkg% -DVCPKG_VER=%vcpkg_ver% -Dshape_DIR:PATH=%shape% -Dshapeware_DIR:PATH=%shaparts% %currentdir%
+cmake -G "Visual Studio 17 2022" -DBUILD_TESTING:BOOL=false -DCMAKE_TOOLCHAIN_FILE=%vcpkg% -DVCPKG_VER=%vcpkg_ver% -Dshape_DIR:PATH=%shape% %currentdir%
 popd
 
 rem //build from generated build environment

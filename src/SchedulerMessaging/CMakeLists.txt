@@ -15,8 +15,6 @@
 
 project(SchedulerMessaging)
 
-FIND_PACKAGE(shapeware REQUIRED)
-
 set(COMPONENT iqrf::SchedulerMessaging)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IMessagingService)

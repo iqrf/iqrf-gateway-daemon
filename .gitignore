@@ -7,9 +7,6 @@
 shape
 shape-source/
 shape-build/
-shapeware
-shapeware-source/
-shapeware-build/
 
 # api/tests
 .pytest_cache

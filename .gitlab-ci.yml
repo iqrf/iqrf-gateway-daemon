@@ -15,32 +15,8 @@
 
 stages:
   - test
-  - jsonnet
+  - build-packages
   - deploy-api
-
-.ccache-template: &ccache-template
-  before_script:
-    - export CCACHE_COMPILERCHECK="content"
-    - export CCACHE_COMPRESS="true"
-    - export CCACHE_BASEDIR="$PWD"
-    - export CCACHE_DIR="${CCACHE_BASEDIR}/.ccache"
-    - ccache --zero-stats --show-stats
-    - echo "CCACHEDIR=~/.ccache" > ~/.pbuilderrc
-  after_script:
-    - export CCACHE_DIR="${PWD}/.ccache"
-    - ccache --show-stats
-  cache:
-    key: "$CI_JOB_NAME"
-    paths:
-      - .ccache/
-
-.debian-bullseye-amd64-template: &debian-bullseye-amd64-template
-  image: iqrftech/debian-c-builder:debian-bullseye-amd64
-  variables:
-    ARCH: "amd64"
-    DIST: "bullseye"
-  tags:
-    - linux, amd64
 
 .ssh-template:
   before_script:
@@ -53,24 +29,6 @@ stages:
     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
     - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
     - git submodule update --init --recursive
-
-test:
-  stage: test
-  extends: .ssh-template
-  script:
-    - mkdir deploy
-    - git clone --recurse-submodules https://github.com/logimic/shape.git
-    - cmake -Bshape-build -Hshape -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug -DSHAPE_DEPLOY:PATH=$PWD/deploy -DUSE_CCACHE=TRUE
-    - cmake --build shape-build --target install
-    - git clone --recurse-submodules https://github.com/logimic/shapeware.git
-    - cmake -Bshapeware-build -Hshapeware -Dshape_DIR:PATH=`pwd`/shape-build -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
-    - cmake --build shapeware-build --target install
-    - git submodule update --init --recursive
-    - cmake -Bbuild -H. -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
-    - cmake --build build --target install
-    - cd build/ && ctest -V
-  <<: *debian-bullseye-amd64-template
-  <<: *ccache-template
 
 api-testing:
   stage: test
@@ -94,31 +52,9 @@ api-testing:
     DOCKER_HOST: "unix:///runner/services/docker/docker.sock"
     DOCKER_TLS_CERTDIR: "/certs"
 
-# Jsonnet
-jsonnet-build:
-  image: alpine:latest
-  stage: jsonnet
-  script:
-    - apk add -U jsonnet
-    - jsonnet -o .gitlab/packages.yml .gitlab/packages.jsonnet
-  artifacts:
-    paths:
-      - .gitlab/packages.yml
-
-jsonnet-trigger-packages:
-  stage: jsonnet
-  needs:
-    - jsonnet-build
-  trigger:
-    forward:
-      pipeline_variables: true
-    include:
-      - artifact: .gitlab/packages.yml
-        job: jsonnet-build
-    strategy: depend
-
 # API
 api-deploy:
+  image: iqrftech/debian-c-builder:debian-trixie-amd64
   stage: deploy-api
   only:
     - master
@@ -126,8 +62,35 @@ api-deploy:
   dependencies: []
   script:
     - rsync -hrvz --delete -e ssh api/ www-deploy@icinga.iqrf.org:/data/nginx/apidocs/iqrf-gateway-daemon/latest/json/iqrf/
-  <<: *debian-bullseye-amd64-template
+  tags:
+    - linux, amd64
 
 include:
-  - template: Code-Quality.gitlab-ci.yml
   - template: Security/SAST.gitlab-ci.yml
+  # Tests
+  - component: gitlab.iqrf.org/open-source/gitlab-ci-components/test-cpp-ctest-coverage@master
+    inputs:
+      job_name: coverage
+      distributions:
+        - debian-bullseye
+        - debian-bookworm
+        - debian-trixie
+        - debian-forky
+      project_dir: '.'
+      before_script:
+        - mkdir deploy
+        - git clone --depth=1 --recurse-submodules https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon-utils/shape.git
+        - cmake -Bshape-build -Hshape -DBUILD_TESTING:BOOL=TRUE -DCMAKE_BUILD_TYPE=Debug -DSHAPE_DEPLOY:PATH=$PWD/deploy -DUSE_CCACHE=TRUE
+        - cmake --build shape-build --target install
+      cmake_options: -DBUILD_TESTING:BOOL=TRUE -Dshape_DIR:PATH=`pwd`/shape-build
+      cmake_build_options: --target install
+  # Packages
+  - component: gitlab.iqrf.org/open-source/gitlab-ci-components/build-jsonnnet-deb-packages@master
+    inputs:
+      job_name: build-jsonnet
+      stage: build-packages
+  - component: gitlab.iqrf.org/open-source/gitlab-ci-components/trigger-build-jobs-deb-packages@master
+    inputs:
+      job_name: trigger-build-deb-packages
+      stage: build-packages
+      jsonnet_build_job: build-jsonnet

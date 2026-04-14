@@ -15,8 +15,6 @@
 
 project(WebsocketMessaging)
 
-FIND_PACKAGE(shapeware REQUIRED)
-
 set(COMPONENT iqrf::WebsocketMessaging)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IMessagingService)

@@ -15,8 +15,6 @@
 
 project(MonitorService)
 
-FIND_PACKAGE(shapeware REQUIRED)
-
 set(COMPONENT iqrf::MonitorService)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IMonitorService)

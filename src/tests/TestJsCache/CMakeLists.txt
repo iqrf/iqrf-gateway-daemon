@@ -1,6 +1,5 @@
 project(TestJsCache)
 
-find_package(shapeware REQUIRED)
 find_package(GoogleTest REQUIRED)
 
 set(COMPONENT iqrf::TestJsCache)

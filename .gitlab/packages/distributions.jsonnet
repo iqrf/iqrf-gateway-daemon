@@ -1,4 +1,5 @@
 [
+	{ name: 'debian', version: 'forky', arch: 'amd64' },
 	{ name: 'debian', version: 'trixie', arch: 'amd64' },
 	{ name: 'debian', version: 'trixie', arch: 'arm64' },
 	{ name: 'debian', version: 'trixie', arch: 'armhf' },

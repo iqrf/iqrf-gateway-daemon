@@ -43,27 +43,6 @@
       "startlevel": -2
     },
     {
-      "name": "shape::WebsocketCppService",
-      "libraryPath": "shapeware/bin",
-      "libraryName": "WebsocketCppService",
-      "enabled": false,
-      "startlevel": 0
-    },
-    {
-      "name": "shape::MqttService",
-      "libraryPath": "shapeware/bin",
-      "libraryName": "MqttService",
-      "enabled": false,
-      "startlevel": 0
-    },
-    {
-      "name": "shape::CurlRestApiService",
-      "libraryPath": "shapeware/bin",
-      "libraryName": "CurlRestApiService",
-      "enabled": true,
-      "startlevel": -1
-    },
-    {
       "name": "iqrf::Scheduler",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "Scheduler",

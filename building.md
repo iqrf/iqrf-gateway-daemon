@@ -14,7 +14,6 @@ FOLDERS STRUCTURE
 =================
 
 iqrf-gw-daemon/shape
-iqrf-gw-daemon/shapeware
 iqrf-gw-daemon/iqrftech/iqrf-gateway-daemon
 
 SHAPE loader
@@ -24,16 +23,6 @@ mkdir iqrf-gw-daemon \
 && cd iqrf-gw-daemon \
 && git clone https://github.com/logimic/shape.git \
 && cd shape \
-&& git submodule init \
-&& git submodule update \
-&& ./buildMake.sh
-
-SHAPEWARE modules
-=================
-
-cd .. \
-&& git clone https://github.com/logimic/shapeware.git \
-&& cd shapeware \
 && git submodule init \
 && git submodule update \
 && ./buildMake.sh
