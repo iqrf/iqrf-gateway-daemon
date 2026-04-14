@@ -45,7 +45,7 @@ set_directory_properties(PROPERTIES COMPILE_DEFINITIONS $<$<CONFIG:Debug>:_DEBUG
 find_package(shape REQUIRED)
 
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
-include(${CMAKE_MODULE_PATH}/ShapeComponentDeclaration.cmake)
+include(${shape_CMAKE_MODULE_PATH}/ShapeComponentDeclaration.cmake)
 
 set(PROJECT_INSTALL_PREFIX ${PROJECT_NAME})
 set(CMAKE_INSTALL_PREFIX ${shape_DEPLOY})
