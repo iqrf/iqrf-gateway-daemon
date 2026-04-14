@@ -24,8 +24,18 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Manufacturing communication metadata parser
+   */
   class MfgcParser : public BaseParser {
    public:
+    /**
+     * Parse `nlohmann::json` document containing manufacturing communication metadata
+     * and return `Mfgc` object.
+     *
+     * @param doc `nlohmann::json` document
+     * @return `Mfgc` Parsed manufacturing communication metadata
+     */
     static Mfgc parse(const nlohmann::json& doc);
   };
-}
+}  // iqrf::metadata namespace

@@ -24,8 +24,18 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Metadata base parser class
+   */
   class BaseParser {
    protected:
+    /**
+     * Retrieve key value from `nlohmann::json` document with template-specified type
+     *
+     * @param doc `nlohmann::json` document
+     * @param key Property key
+     * @return Parsed value if it exists, `std::nullopt` otherwise
+     */
     template<typename T>
     static std::optional<T> parseValue(const nlohmann::json& doc, const std::string& key) {
       if (!doc.contains(key) || doc[key].is_null()) {
@@ -34,4 +44,4 @@ namespace iqrf::metadata {
       return doc[key].get<T>();
     }
   };
-}
+}  // iqrf::metadata namespace

@@ -24,8 +24,18 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Light standard metadata parser
+   */
   class LightParser : public BaseParser {
    public:
+    /**
+     * Parse `nlohmann::json` document containing light standard metadata
+     * and return `Light` object.
+     *
+     * @param doc `nlohmann::json` document
+     * @return `Light` Parsed light standard metadata
+     */
     static Light parse(const nlohmann::json& doc);
   };
-}
+}  // iqrf::metadata namespace

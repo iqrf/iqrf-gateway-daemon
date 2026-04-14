@@ -22,8 +22,19 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Accumulator metadata
+   */
   class Accumulator {
    public:
+
+    /**
+     * Constructs accumulator metadata object
+     *
+     * @param present Accumulator present
+     * @param type Accumulator type
+     * @param lowLevel Low charge level
+     */
     Accumulator(
       bool present,
       std::optional<std::string> type = std::nullopt,
@@ -32,15 +43,37 @@ namespace iqrf::metadata {
       type_(std::move(type)),
       lowLevel_(std::move(lowLevel)) {}
 
+    /**
+     * Get accumulator present state
+     *
+     * @return Accumulator present
+     */
     bool present() const { return present_; }
 
+    /**
+     * Get accumulator type
+     *
+     * If accumulator is not present, type is `std::nullopt`.
+     *
+     * @return Accumulator type
+     */
     std::optional<std::string> type() const { return type_; }
 
+    /**
+     * Get accumulator low charge level
+     *
+     * If accumulator is not present, low level is `std::nullopt`.
+     *
+     * @return Accumulator low charge level
+     */
     std::optional<double> lowLevel() const { return lowLevel_; }
 
    private:
+    /// Accumulator present
     bool present_;
+    /// Accumulator type
     std::optional<std::string> type_;
+    /// Low charge level
     std::optional<double> lowLevel_;
   };
 }  // iqrf namespace

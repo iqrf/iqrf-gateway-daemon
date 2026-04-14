@@ -24,8 +24,18 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Command metadata parser
+   */
   class CommandParser : public BaseParser {
    public:
+    /**
+     * Parse `nlohmann::json` document containing command metadata
+     * and return `Command` object.
+     *
+     * @param doc `nlohmann::json` document
+     * @return `Command` Parsed command metadata
+     */
     static Command parse(const nlohmann::json& doc);
   };
-}
+}  // iqrf::metadata namespace

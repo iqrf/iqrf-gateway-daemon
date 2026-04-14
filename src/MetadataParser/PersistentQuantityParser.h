@@ -24,8 +24,18 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Persistent quantities metadata parser
+   */
   class PersistentQuantityParser : public BaseParser {
    public:
+    /**
+     * Parse `nlohmann::json` document containing persistent quantities metadata
+     * and return `PersistentQuantity` object.
+     *
+     * @param doc `nlohmann::json` document
+     * @return `PersistentQuantity` Parsed persistent quantities metadata
+     */
     static PersistentQuantity parse(const nlohmann::json& doc);
   };
-}
+}  // iqrf::metadata namespace

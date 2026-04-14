@@ -24,8 +24,21 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Persistent quantity metadata
+   *
+   * This property was introduced in version 1.
+   */
   class PersistentQuantity {
    public:
+    /**
+     * Constructs persistent quantity metadata
+     *
+     * @param quantity Quantity type (IQRF Sensor)
+     * @param value Value stored
+     * @param description Description
+     * @param quantityMemory Memory information
+     */
     PersistentQuantity(
       std::optional<uint8_t> quantity,
       std::optional<uint32_t> value,
@@ -36,18 +49,52 @@ namespace iqrf::metadata {
       description_(std::move(description)),
       quantityMemory_(std::move(quantityMemory)) {}
 
+    /**
+     * Get quantity type
+     *
+     * Quantity type is the IQRF Sensor standard quantity type value.
+     *
+     * @return Quantity type
+     */
     std::optional<uint8_t> quantity() const { return quantity_; }
 
+    /**
+     * Get stored value
+     *
+     * Value is stored as an integer, before any conversion
+     * according to the IQRF Sensor standard is performed.
+     *
+     * @return Stored value
+     */
     std::optional<uint32_t> value() const { return value_; }
 
+    /**
+     * Get description
+     *
+     * Description is primarily used for presentation layers.
+     *
+     * @return Description
+     */
     const std::optional<std::string>& description() const { return description_; }
 
+    /**
+     * Get memory information for quantity
+     *
+     * Quantity memory information contains the memory type and address in memory
+     * where the value is stored.
+     *
+     * @return Memory information
+     */
     const std::optional<QuantityMemory>& quantityMemory() const { return quantityMemory_; }
 
    private:
+    /// Quantity type (IQRF Sensor)
     std::optional<uint8_t> quantity_;
+    /// Value stored
     std::optional<uint32_t> value_;
+    /// Description
     std::optional<std::string> description_;
+    /// Memory information
     std::optional<QuantityMemory> quantityMemory_;
   };
 }  // iqrf namespace

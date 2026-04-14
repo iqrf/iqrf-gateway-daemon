@@ -22,15 +22,34 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Min-max diagnostics metadata
+   *
+   * This property was introduced in version 1.
+   */
   class MinMaxDiag {
    public:
+    /**
+     * Constructs min-max diagnostics metadata
+     *
+     * @param version Diagnostics version
+     */
     MinMaxDiag(
       std::optional<uint32_t> version
     ): version_(std::move(version)) {}
 
+    /**
+     * Get diagnostics version
+     *
+     * Diagnostics version specifies which quantity
+     * data is being maintained.
+     *
+     * @return Diagnostics version
+     */
     std::optional<uint32_t> version() const { return version_; }
 
    private:
+    /// Diagnostics version
     std::optional<uint32_t> version_;
   };
 }  // iqrf namespace

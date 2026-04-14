@@ -22,20 +22,45 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Persistent quantity memory metadata
+   *
+   * This property was introduced in version 1.
+   */
   class QuantityMemory {
    public:
+    /**
+     * Constructs persistent quantity memory metadata
+     *
+     * @param type Memory type
+     * @param address Address in memory
+     */
     QuantityMemory(
       std::optional<uint8_t> type,
       std::optional<uint16_t> address
     ): type_(std::move(type)),
       address_(std::move(address)) {}
 
+    /**
+     * Get memory type
+     *
+     * Memory type value corresponds to memory peripheral number.
+     *
+     * @return Memory type
+     */
     std::optional<uint8_t> type() const { return type_; }
 
+    /**
+     * Get address in memory
+     *
+     * @return Address in memory
+     */
     std::optional<uint16_t> address() const { return address_; }
 
    private:
+    /// Memory type
     std::optional<uint8_t> type_;
+    /// Address in memory
     std::optional<uint16_t> address_;
   };
 }  // iqrf namespace

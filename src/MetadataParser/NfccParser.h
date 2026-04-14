@@ -24,8 +24,18 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * NFC communication metadata parser
+   */
   class NfccParser : public BaseParser {
    public:
+    /**
+     * Parse `nlohmann::json` document containing NFC communication metadata
+     * and return `Nfcc` object.
+     *
+     * @param doc `nlohmann::json` document
+     * @return `Nfcc` Parsed NFC communication metadata
+     */
     static Nfcc parse(const nlohmann::json& doc);
   };
-}
+}  // iqrf::metadata namespace

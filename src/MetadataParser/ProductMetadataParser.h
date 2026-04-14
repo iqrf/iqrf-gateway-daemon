@@ -27,10 +27,37 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Product metadata parser
+   */
   class ProductMetadataParser : public BaseParser {
    public:
+    /**
+     * Parse `nlohmann::json` document containing product metadata
+     * and return `ProductMetadata` object.
+     *
+     * The method first retrieves metadata version and internally parses
+     * the metadata using parsing methods for the specific versions,
+     * if the metadata version is supported by the parser.
+     *
+     * @param doc `nlohmann::json` document
+     * @return `ProductMetadata` Parsed product metadata
+     * @throws `std::runtime_error` Thrown if the parsed metadata version is not supported
+     */
     static ProductMetadata parse(const nlohmann::json& doc);
    private:
+    /**
+     * Checks that passed document contains required properties
+     *
+     * Since metadata version 0 is still supported, the original properties
+     * are required to be present in metadata with at least falsy values (if device
+     * does not have certain properties).
+     *
+     * The required properties are: version, profiles
+     *
+     * @param doc `nlohmann::json` document
+     * @throws `std::invalid_argument` Thrown if either of the required properties is not present
+     */
     static void checkRequired(const nlohmann::json& doc);
   };
 }

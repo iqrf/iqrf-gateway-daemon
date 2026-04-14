@@ -22,8 +22,21 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * External power metadata
+   *
+   * This property was introduced in version 1.
+   */
   class External {
    public:
+    /**
+     * Constructs external power metadata object
+     *
+     * @param type External power type
+     * @param nominalVoltage Nominal voltage
+     * @param minVoltage Minimum voltage
+     * @param maxVoltage Maximum voltage
+     */
     External(
       std::optional<std::string> type,
       std::optional<double> nominalVoltage,
@@ -34,18 +47,42 @@ namespace iqrf::metadata {
       minVoltage_(std::move(minVoltage)),
       maxVoltage_(std::move(maxVoltage)) {}
 
+    /**
+     * Get external power type
+     *
+     * @return External power type
+     */
     std::optional<std::string> type() const { return type_; }
 
+    /**
+     * Get nominal voltage
+     *
+     * @return Nominal voltage
+     */
     std::optional<double> nominalVoltage() const { return nominalVoltage_; }
 
+    /**
+     * Get minimum voltage
+     *
+     * @return Minimum voltage
+     */
     std::optional<double> minVoltage() const { return minVoltage_; }
 
+    /**
+     * Get maximum voltage
+     *
+     * @return Maximum voltage
+     */
     std::optional<double> maxVoltage() const { return maxVoltage_; }
 
    private:
+    /// External power type
     std::optional<std::string> type_;
+    /// Nominal voltage
     std::optional<double> nominalVoltage_;
+    /// Minimum voltage
     std::optional<double> minVoltage_;
+    /// Maximum voltage
     std::optional<double> maxVoltage_;
   };
 }  // iqrf namespace

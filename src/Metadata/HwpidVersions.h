@@ -22,20 +22,50 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * HWPID versions metadata
+   */
   class HwpidVersions {
    public:
+    /**
+     * Constructs HWPID versions metadata
+     *
+     * @param min Minimum HWPID version
+     * @param max Maximum HWPID version
+     */
     HwpidVersions(
       uint32_t min,
       std::optional<uint32_t> max = std::nullopt
     ): min_(min),
       max_(std::move(max)) {}
 
+    /**
+     * Get minimum HWPID version
+     *
+     * @return Minimum HWPID version
+     */
     uint32_t min() const { return min_; }
 
+    /**
+     * Get maximum HWPID version
+     *
+     * Due to compatibility and parsing reasons
+     * with other systems, value -1 in metadata represents
+     * that there is no maximum version specified for the
+     * metadata profile and applies to all versions
+     * higher than min.
+     *
+     * If maximum HWPID version is not specified,
+     * this returns null.
+     *
+     * @return Maximum HWPID version
+     */
     std::optional<uint32_t> max() const { return max_; }
 
    private:
+    /// Minimum HWPID version
     uint32_t min_;
+    /// Maximum HWPID version
     std::optional<uint32_t> max_;
   };
 }  // iqrf namespace

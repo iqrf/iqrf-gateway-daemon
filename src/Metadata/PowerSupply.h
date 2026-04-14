@@ -26,8 +26,20 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Power supply metadata
+   */
   class PowerSupply {
    public:
+    /**
+     * Constructs power supply metadata
+     *
+     * @param mains Device is powered by mains power
+     * @param accumulator Accumulator information
+     * @param battery Battery information
+     * @param external External power information
+     * @param minVoltage Minimum operating voltage
+     */
     PowerSupply(
       bool mains,
       Accumulator accumulator,
@@ -40,21 +52,63 @@ namespace iqrf::metadata {
       external_(std::move(external)),
       minVoltage_(minVoltage) {}
 
+    /**
+     * Indicates whether device is powered by mains
+     *
+     * @return External power information
+     */
     bool mains() const { return mains_; }
 
+    /**
+     * Get external power information
+     *
+     * As this is a version 0 property, it is expected
+     * to be present until the metadata version is completely sunset.
+     * Even if the device is not powered by an accumulator, the object is still available,
+     * but with the `present` property set to `false` and all other properties `std::nullopt`.
+     *
+     * @return External power information
+     */
     const Accumulator& accumulator() const { return accumulator_; }
 
+    /**
+     * Get external power information
+     *
+     * As this is a version 0 property, it is expected
+     * to be present until the metadata version is completely sunset.
+     * Even if the device is not powered by a battery, the object is still available,
+     * but with the `present` property set to `false` and all other properties `std::nullopt`.
+     *
+     * @return External power information
+     */
     const Battery& battery() const { return battery_; }
 
+    /**
+     * Get external power information
+     *
+     * This property was introduced in version 1.
+     *
+     * @return External power information
+     */
     const std::optional<External> external() const { return external_; }
 
+    /**
+     * Get minimum operating voltage
+     *
+     * @return Minimum operating voltage
+     */
     double minVoltage() const { return minVoltage_; }
 
    private:
+    /// Device is powered by mains power
     bool mains_;
+    /// Accumulator information
     Accumulator accumulator_;
+    /// Battery information
     Battery battery_;
+    /// External power information
     std::optional<External> external_;
+    /// Minimum operating voltage
     double minVoltage_;
   };
 }  // iqrf namespace

@@ -22,8 +22,19 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Battery metadata
+   */
   class Battery {
    public:
+    /**
+     * Constructs battery metadata object
+     *
+     * @param present Battery present
+     * @param type Battery type
+     * @param changeThreshold Battery change charge threshold
+     * @param conditioning Device performs battery conditioning
+     */
     Battery(
       bool present,
       std::optional<std::string> type = std::nullopt,
@@ -34,17 +45,49 @@ namespace iqrf::metadata {
       changeThreshold_(std::move(changeThreshold)),
       conditioning_(std::move(conditioning)) {}
 
+    /**
+     * Get battery present state
+     *
+     * @return Battery present
+     */
     bool present() const { return present_; }
 
+    /**
+     * Get battery type
+     *
+     * If battery is not present, type is `std::nullopt`.
+     *
+     * @return Battery present
+     */
     std::optional<std::string> type() const { return type_; }
 
+    /**
+     * Get battery change charge threshold
+     *
+     * If battery is not present, changeThreshold is `std::nullopt`.
+     *
+     * @return Change threshold charge
+     */
     std::optional<double> changeThreshold() const { return changeThreshold_; }
 
+    /**
+     * Get battery conditioning feature
+     *
+     * This property was introduced in version 1.
+     *
+     * If battery is not present, conditioning is `std::nullopt`.
+     *
+     * @return Device performs battery conditioning
+     */
     std::optional<bool> conditioning() const { return conditioning_; }
    private:
+    /// Battery present
     bool present_;
+    /// Battery type
     std::optional<std::string> type_;
+    /// Battery change charge threshold
     std::optional<double> changeThreshold_;
+    /// Device performs battery conditioning
     std::optional<bool> conditioning_;
   };
 }  // iqrf namespace

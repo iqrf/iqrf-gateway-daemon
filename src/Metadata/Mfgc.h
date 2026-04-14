@@ -22,15 +22,31 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Manufacturing test communication metadata
+   *
+   * This property was introduced in version 1.
+   */
   class Mfgc {
    public:
+    /**
+     * Constructs manufacturing test communication metadata
+     *
+     * @param version MFGC communication channel version
+     */
     Mfgc(
       std::optional<uint32_t> version
     ): version_(std::move(version)) {}
 
+    /**
+     * Get MFG communication channel version
+     *
+     * @return MFG communication channel version
+     */
     std::optional<uint32_t> version() const { return version_; }
 
    private:
+    /// MFGC communication channel version
     std::optional<uint32_t> version_;
   };
 }  // iqrf namespace

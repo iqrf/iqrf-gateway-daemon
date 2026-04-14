@@ -24,8 +24,18 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Action record memory metadata parser
+   */
   class RecordMemoryParser : public BaseParser {
    public:
+    /**
+     * Parse `nlohmann::json` document containing action record memory metadata
+     * and return `RecordMemory` object.
+     *
+     * @param doc `nlohmann::json` document
+     * @return `RecordMemory` Parsed action record memory metadata
+     */
     static RecordMemory parse(const nlohmann::json& doc);
   };
-}
+}  // iqrf::metadata namespace

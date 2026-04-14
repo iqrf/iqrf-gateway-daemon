@@ -24,10 +24,30 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * HWPID versions metadata parser
+   */
   class HwpidVersionsParser : public BaseParser {
    public:
+    /**
+     * Parse `nlohmann::json` document containing HWPID versions metadata
+     * and return `HwpidVersion` object.
+     *
+     * @param doc `nlohmann::json` document
+     * @return `HwpidVersions` Parsed HWPID versions metadata
+     */
     static HwpidVersions parse(const nlohmann::json& doc);
    private:
+    /**
+     * Checks that passed document contains required properties
+     *
+     * Each metadata profile must have a range of HWPID versions specified.
+     *
+     * The required properties are: min, max
+     *
+     * @param doc `nlohmann::json` document
+     * @throws `std::invalid_argument` Thrown if either of the required properties is not present
+     */
     static void checkRequired(const nlohmann::json& doc);
   };
-}
+}  // iqrf::metadata namespace

@@ -22,8 +22,20 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Action record memory metadata
+   *
+   * This property was introduced in version 1.
+   */
   class RecordMemory {
    public:
+    /**
+     * Constructs action record memory metadata
+     *
+     * @param type Memory type
+     * @param address Address in memory
+     * @param size Size of memory block designated for actions
+     */
     RecordMemory(
       std::optional<uint8_t> type,
       std::optional<uint16_t> address,
@@ -32,15 +44,35 @@ namespace iqrf::metadata {
       address_(std::move(address)),
       size_(std::move(size)) {}
 
+    /**
+     * Get memory type
+     *
+     * Memory type value corresponds to memory peripheral number.
+     *
+     * @return Memory type
+     */
     std::optional<uint8_t> type() const { return type_; }
 
+    /**
+     * Get address in memory
+     *
+     * @return Address in memory
+     */
     std::optional<uint16_t> address() const { return address_; }
 
+    /**
+     * Get size of memory block designated for action
+     *
+     * @return Size of memory block designated for action
+     */
     std::optional<uint16_t> size() const { return size_; }
 
    private:
+    /// Memory type
     std::optional<uint8_t> type_;
+    /// Address in memory
     std::optional<uint16_t> address_;
+    /// Size of memory block designed for actions
     std::optional<uint16_t> size_;
   };
 }  // iqrf namespace

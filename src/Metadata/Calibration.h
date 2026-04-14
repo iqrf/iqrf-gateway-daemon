@@ -22,15 +22,31 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Calibration metadata
+   *
+   * This property was introduced in version 1.
+   */
   class Calibration {
    public:
+    /**
+     * Constructs calibration metadata object
+     *
+     * @param version Calibration certificate version
+     */
     Calibration(
       std::optional<uint32_t> version
     ): version_(std::move(version)) {}
 
+    /**
+     * Get calibration certificate version
+     *
+     * @return Calibration certificate version
+     */
     std::optional<uint32_t> version() const { return version_; }
 
    private:
+    /// Calibration certificate version
     std::optional<uint32_t> version_;
   };
 }  // iqrf namespace

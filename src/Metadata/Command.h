@@ -23,20 +23,45 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Command metadata
+   *
+   * This property was introduced in version 1.
+   */
   class Command {
    public:
+    /**
+     * Constructs command metadata object
+     *
+     * @param value Command code / number
+     * @param text Command description
+     */
     Command(
       std::optional<uint8_t> value,
       std::optional<std::string> text
     ): value_(std::move(value)),
       text_(std::move(text)) {}
 
+    /**
+     * Get command code / number
+     *
+     * @return Command code / number
+     */
     std::optional<uint8_t> value() const { return value_; }
 
+    /**
+     * Get command description
+     *
+     * The command text is primarily used for presentation layers.
+     *
+     * @return Command description
+     */
     std::optional<std::string> text() const { return text_; }
 
    private:
+    /// Command code / number
     std::optional<uint8_t> value_;
+    /// Command description
     std::optional<std::string> text_;
   };
 }  // iqrf namespace

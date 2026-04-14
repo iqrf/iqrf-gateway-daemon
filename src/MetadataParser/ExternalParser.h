@@ -24,8 +24,18 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * External metadata parser
+   */
   class ExternalParser : public BaseParser {
    public:
+    /**
+     * Parse `nlohmann::json` document containing external power metadata
+     * and return `External` object.
+     *
+     * @param doc `nlohmann::json` document
+     * @return `External` Parsed external power metadata
+     */
     static External parse(const nlohmann::json& doc);
   };
-}
+}  // iqrf::metadata namespace

@@ -25,18 +25,47 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Product metadata
+   */
   class ProductMetadata {
    public:
+    /**
+     * Constructs product metadata
+     *
+     * @param version Metadata version
+     * @param profiles Metadata profiles
+     */
     ProductMetadata(
       uint32_t version,
       std::vector<Metadata> profiles
     ): version_(version),
       profiles_(std::move(profiles)) {}
 
+    /**
+     * Get metadata version
+     *
+     * @return Metadata version
+     */
     uint32_t version() const { return version_; }
 
+    /**
+     * Get metadata profiles
+     *
+     * @return Metadata profiles
+     */
     const std::vector<Metadata>& profiles() const { return profiles_; }
 
+    /**
+     * Get metadata profile for specific HWPID version
+     *
+     * HWPID version represents product firmware revision.
+     *
+     * If no profile can be found for specified HWPID version,
+     * the method returns null pointer.
+     *
+     * @param hwpidVersion HWPID version
+     */
     const Metadata* getProfile(uint16_t hwpidVersion) {
       for (const auto &profile : profiles_) {
         if (hwpidVersion >= profile.versions().min() &&
@@ -49,7 +78,9 @@ namespace iqrf::metadata {
     }
 
    private:
+    /// Metadata version
     uint32_t version_;
+    /// Metadata profiles
     std::vector<Metadata> profiles_;
   };
 }

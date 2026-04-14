@@ -22,15 +22,31 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * NFC communication metadata
+   *
+   * This property was introduced in version 1.
+   */
   class Nfcc {
    public:
+    /**
+     * Constructs NFC communication metadata
+     *
+     * @param version NFC communication channel version
+     */
     Nfcc(
       std::optional<uint32_t> version
     ): version_(std::move(version)) {}
 
+    /**
+     * Get NFC communication channel version
+     *
+     * @return NFC communication channel version
+     */
     std::optional<uint32_t> version() const { return version_; }
 
    private:
+    /// NFC communication channel version
     std::optional<uint32_t> version_;
   };
 }  // iqrf namespace

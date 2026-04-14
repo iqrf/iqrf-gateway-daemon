@@ -23,20 +23,43 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Light standard metadata
+   *
+   * This property was introduced in version 1.
+   */
   class Light {
    public:
+    /**
+     * Constructs light standard metadata object
+     *
+     * @param type Interface type
+     * @param socketType Connector type
+     */
     Light(
       std::optional<std::string> type,
       std::optional<std::string> socketType
     ): type_(std::move(type)),
       socketType_(std::move(socketType)) {}
 
+    /**
+     * Get interface type
+     *
+     * @return interface type
+     */
     std::optional<std::string> type() const { return type_; };
 
+    /**
+     * Get connector type
+     *
+     * @return Connector type
+     */
     std::optional<std::string> socketType() const { return  socketType_; }
 
    private:
+    /// Interface type
     std::optional<std::string> type_;
+    /// Connector type
     std::optional<std::string> socketType_;
   };
 }  // iqrf namespace

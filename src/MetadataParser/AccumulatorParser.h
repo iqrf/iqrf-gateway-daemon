@@ -24,10 +24,32 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Accumulator metadata parser
+   */
   class AccumulatorParser : public BaseParser {
    public:
+    /**
+     * Parse `nlohmann::json` document containing accumulator metadata
+     * and return `Accumulator` object.
+     *
+     * @param doc `nlohmann::json` document
+     * @return `Accumulator` Parsed accumulator metadata
+     */
     static Accumulator parse(const nlohmann::json& doc);
    private:
+    /**
+     * Checks that passed document contains required properties
+     *
+     * Since metadata version 0 is still supported, the original properties
+     * are required to be present in metadata with at least falsy values (if device
+     * does not have certain properties).
+     *
+     * The required properties are: present, type and lowLevel
+     *
+     * @param doc `nlohmann::json` document
+     * @throws `std::invalid_argument` Thrown if either of the required properties is not present
+     */
     static void checkRequired(const nlohmann::json& doc);
   };
-}
+}  // iqrf::metadata namespace

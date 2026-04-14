@@ -24,8 +24,18 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Persistent quantity memory metadata parser
+   */
   class QuantityMemoryParser : public BaseParser {
    public:
+    /**
+     * Parse `nlohmann::json` document containing persistent quantity memory metadata
+     * and return `QuantityMemory` object.
+     *
+     * @param doc `nlohmann::json` document
+     * @return `QuantityMemory` Parsed persistent quantity memory metadata
+     */
     static QuantityMemory parse(const nlohmann::json& doc);
   };
-}
+}  // iqrf::metadata namespace

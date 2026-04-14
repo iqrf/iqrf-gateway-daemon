@@ -24,20 +24,43 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Action record metadata
+   *
+   * This property was introduced in version 1.
+   */
   class ActionRecord {
    public:
+    /**
+     * Constructs action record metadata
+     *
+     * @param memory Definition of actions in memory
+     * @param commands Available commands for invoking actions
+     */
     ActionRecord(
       std::optional<RecordMemory> memory,
       std::vector<Command> commands
     ): memory_(std::move(memory)),
       commands_(std::move(commands)) {}
 
+    /**
+     * Get definition of actions in memory
+     *
+     * @return Definition of actions in memory
+     */
     const std::optional<RecordMemory>& memory() const { return memory_; }
 
+    /**
+     * Get available commands for invoking actions
+     *
+     * @return Available commands for invoking actions
+     */
     const std::vector<Command>& commands() const { return commands_; }
 
    private:
+    /// Definition of actions in memory
     std::optional<RecordMemory> memory_;
+    /// Available commands for invoking actions
     std::vector<Command> commands_;
   };
 }  // iqrf namespace

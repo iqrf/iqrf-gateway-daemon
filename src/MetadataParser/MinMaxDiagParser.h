@@ -24,8 +24,18 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Min-max diagnostics metadata parser
+   */
   class MinMaxDiagParser : public BaseParser {
    public:
+    /**
+     * Parse `nlohmann::json` document containing min-max diagnostics metadata
+     * and return `MinMaxDiag` object.
+     *
+     * @param doc `nlohmann::json` document
+     * @return `MinMaxDiag` Parsed min-max diagnostics metadata
+     */
     static MinMaxDiag parse(const nlohmann::json& doc);
   };
-}
+}  // iqrf::metadata namespace

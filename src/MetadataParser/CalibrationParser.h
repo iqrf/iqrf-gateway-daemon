@@ -24,8 +24,18 @@
 
 namespace iqrf::metadata {
 
+  /**
+   * Calibration metadata parser
+   */
   class CalibrationParser : public BaseParser {
    public:
+    /**
+     * Parse `nlohmann::json` document containing calibration metadata
+     * and return `Calibration` object.
+     *
+     * @param doc `nlohmann::json` document
+     * @return `Calibration` Parsed calibration metadata
+     */
     static Calibration parse(const nlohmann::json& doc);
   };
-}
+}  // iqrf::metadata namespace
