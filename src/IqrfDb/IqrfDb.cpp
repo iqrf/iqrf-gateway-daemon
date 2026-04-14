@@ -17,22 +17,34 @@
 
 #include "Common.h"
 #include "IqrfDb.h"
+#include "IDpaTransactionResult2.h"
+#include "IIqrfDb.h"
 #include "IqrfDbAux.h"
 #include "JsDriverSensor.h"
+#include "Metadata.h"
 #include "MigrationManager.h"
+#include "Sensor.h"
+#include "TraceMacros.h"
 
 #include "binary_output_repo.hpp"
 #include "device_repo.hpp"
 #include "device_sensor_repo.hpp"
 #include "driver_repo.hpp"
 #include "light_repo.hpp"
-
 #include "product_driver_repo.hpp"
 #include "product_repo.hpp"
 #include "sensor_repo.hpp"
 
+#include <array>
+#include <cstdint>
 #include <fstream>
+#include <iomanip>
+#include <ios>
 #include <iostream>
+#include <memory>
+#include <optional>
+#include <sstream>
+#include <vector>
 
 #include "iqrf__IqrfDb.hxx"
 
@@ -41,6 +53,11 @@ TRC_INIT_MODULE(iqrf::IqrfDb);
 using json = nlohmann::json;
 
 namespace iqrf {
+
+  static std::array<const char, 16> HEX_CHARS = {
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    'a', 'b', 'c', 'd', 'e', 'f'
+  };
 
   IqrfDb::IqrfDb() {
     TRC_FUNCTION_ENTER("");
@@ -122,34 +139,10 @@ namespace iqrf {
     return binoutRepo.get(id);
   }
 
-  std::unique_ptr<BinaryOutput> IqrfDb::getBinaryOutputByDeviceId(const uint32_t deviceId) {
+  std::optional<BinaryOutput> IqrfDb::getBinaryOutputByDeviceId(const uint32_t deviceId) {
     std::lock_guard<std::mutex> lock(m_dbMtx);
     db::repos::BinaryOutputRepository binoutRepo(m_db);
     return binoutRepo.getByDeviceId(deviceId);
-  }
-
-  uint32_t IqrfDb::insertBinaryOutput(BinaryOutput &binaryOutput) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
-    db::repos::BinaryOutputRepository binoutRepo(m_db);
-    return binoutRepo.insert(binaryOutput);
-  }
-
-  void IqrfDb::updateBinaryOutput(BinaryOutput &binaryOutput) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
-    db::repos::BinaryOutputRepository binoutRepo(m_db);
-    binoutRepo.update(binaryOutput);
-  }
-
-  void IqrfDb::removeBinaryOutput(const uint32_t id) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
-    db::repos::BinaryOutputRepository binoutRepo(m_db);
-    binoutRepo.remove(id);
-  }
-
-  void IqrfDb::removeBinaryOutputByDeviceId(const uint32_t deviceId) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
-    db::repos::BinaryOutputRepository binoutRepo(m_db);
-    binoutRepo.removeByDeviceId(deviceId);
   }
 
   std::set<uint8_t> IqrfDb::getBinaryOutputAddresses() {
@@ -212,7 +205,7 @@ namespace iqrf {
     return deviceRepo.getHwpidByAddress(address);
   }
 
-  bool IqrfDb::deviceImplementsPeripheral(const uint32_t &id, const int16_t peripheral) {
+  bool IqrfDb::deviceImplementsPeripheral(uint32_t id, int16_t peripheral) {
     std::lock_guard<std::mutex> lock(m_dbMtx);
     db::repos::DeviceRepository deviceRepo(m_db);
     return deviceRepo.implementsPeripheral(id, peripheral);
@@ -338,42 +331,6 @@ namespace iqrf {
   }
 
   ///// LIGHT API
-
-  std::unique_ptr<Light> IqrfDb::getLight(const uint32_t id) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
-    db::repos::LightRepository lightRepo(m_db);
-    return lightRepo.get(id);
-  }
-
-  std::unique_ptr<Light> IqrfDb::getLightByDeviceId(const uint32_t deviceId) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
-    db::repos::LightRepository lightRepo(m_db);
-    return lightRepo.getByDeviceId(deviceId);
-  }
-
-  uint32_t IqrfDb::insertLight(Light &light) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
-    db::repos::LightRepository lightRepo(m_db);
-    return lightRepo.insert(light);
-  }
-
-  void IqrfDb::updateLight(Light &light) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
-    db::repos::LightRepository lightRepo(m_db);
-    lightRepo.update(light);
-  }
-
-  void IqrfDb::removeLight(const uint32_t id) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
-    db::repos::LightRepository lightRepo(m_db);
-    lightRepo.remove(id);
-  }
-
-  void IqrfDb::removeLightByDeviceId(const uint32_t deviceId) {
-    std::lock_guard<std::mutex> lock(m_dbMtx);
-    db::repos::LightRepository lightRepo(m_db);
-    lightRepo.removeByDeviceId(deviceId);
-  }
 
   std::set<uint8_t> IqrfDb::getLightAddresses() {
     std::lock_guard<std::mutex> lock(m_dbMtx);
@@ -1581,10 +1538,7 @@ namespace iqrf {
 
   void IqrfDb::standardEnumeration() {
     TRC_FUNCTION_ENTER("");
-    db::repos::BinaryOutputRepository binaryOutputRepo(m_db);
     db::repos::DeviceRepository deviceRepo(m_db);
-    db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
-    db::repos::LightRepository lightRepo(m_db);
     // select devices to enumerate
     std::map<uint32_t, uint8_t> devices;
     for (auto &device : deviceRepo.getAll()) {
@@ -1594,23 +1548,21 @@ namespace iqrf {
     }
 
     for (auto &[deviceId, address] : devices) {
+      auto &product = m_deviceProductMap[address];
+      auto metadata = m_cacheService->getProductMetadata(product->getHwpid(), product->getHwpidVersion());
       // begin transaction
       SQLite::Transaction transaction(*m_db);
       try {
-        if (this->deviceImplementsPeripheral(deviceId, PERIPHERAL_BINOUT)) {
-          binoutEnumeration(deviceId, address);
+        if (metadata) {
+          // enumerate from metadata
+          enumerateBinaryOutputFromMetadata(deviceId, metadata->binaryOutputs());
+          enumerateLightFromMetadata(deviceId, metadata->light());
+          enumerateSensorFromMetadata(address, product->getHwpid(), metadata->sensors());
         } else {
-          binaryOutputRepo.removeByDeviceId(deviceId);
-        }
-        if (this->deviceImplementsPeripheral(deviceId, PERIPHERAL_LIGHT)) {
-          lightEnumeration(deviceId);
-        } else {
-          lightRepo.removeByDeviceId(deviceId);
-        }
-        if (this->deviceImplementsPeripheral(deviceId, PERIPHERAL_SENSOR)) {
-          sensorEnumeration(address);
-        } else {
-          deviceSensorRepo.removeMultipleByAddress(address);
+          // enumerate from network
+          enumerateBinaryOutputFromNetwork(deviceId, address);
+          enumerateLightFromNetwork(deviceId);
+          enumerateSensorFromNetwork(deviceId, address);
         }
         // set as enumerated
         auto dbDevice = deviceRepo.get(deviceId);
@@ -1625,9 +1577,41 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("");
   }
 
-  void IqrfDb::binoutEnumeration(const uint32_t &deviceId, const uint8_t &address) {
-    TRC_FUNCTION_ENTER("");
+  void IqrfDb::enumerateBinaryOutputFromMetadata(uint32_t deviceId, uint8_t count) {
+    TRC_FUNCTION_ENTER(PAR(deviceId) << PAR(count));
+
     db::repos::BinaryOutputRepository binaryOutputRepo(m_db);
+    if (count == 0) {
+      // no binouts, remove record if exists
+      binaryOutputRepo.removeByDeviceId(deviceId);
+      return;
+    }
+
+    auto record = binaryOutputRepo.getByDeviceId(deviceId);
+    if (!record.has_value()) {
+      // no record, create one
+      binaryOutputRepo.insert(deviceId, count);
+      return;
+    }
+    // record exists, update if count mismatches
+    if (record->getCount() != count) {
+      record->setCount(count);
+      binaryOutputRepo.update(record.value());
+    }
+
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  void IqrfDb::enumerateBinaryOutputFromNetwork(uint32_t deviceId, uint8_t address) {
+    TRC_FUNCTION_ENTER(PAR(deviceId) << PAR(address));
+
+    db::repos::BinaryOutputRepository binaryOutputRepo(m_db);
+    if (!this->deviceImplementsPeripheral(deviceId, PERIPHERAL_BINOUT)) {
+      // no binouts, remove record if exists
+      binaryOutputRepo.removeByDeviceId(deviceId);
+      return;
+    }
+
     std::unique_ptr<IDpaTransactionResult2> result;
     try {
       // Build binary output enumerate request
@@ -1647,30 +1631,159 @@ namespace iqrf {
     const uint8_t count = binoutEnumerateResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[0];
 
     auto dbBinaryOutput = binaryOutputRepo.getByDeviceId(deviceId);
-    if (dbBinaryOutput == nullptr) {
-      BinaryOutput binaryOutput(deviceId, count);
-      binaryOutputRepo.insert(binaryOutput);
+    if (!dbBinaryOutput.has_value()) {
+      binaryOutputRepo.insert(deviceId, count);
     } else if (dbBinaryOutput->getCount() != count) {
       dbBinaryOutput->setCount(count);
-      binaryOutputRepo.update(*dbBinaryOutput);
+      binaryOutputRepo.update(dbBinaryOutput.value());
     }
     TRC_FUNCTION_LEAVE("");
   }
 
-  void IqrfDb::lightEnumeration(const uint32_t &deviceId) {
-    TRC_FUNCTION_ENTER("");
+  void IqrfDb::enumerateLightFromMetadata(uint32_t deviceId, const std::optional<metadata::Light>& light) {
+    TRC_FUNCTION_ENTER(PAR(deviceId));
+
     db::repos::LightRepository lightRepo(m_db);
+    if (!light.has_value()) {
+      // no light, remove record if exists
+      lightRepo.removeByDeviceId(deviceId);
+      return;
+    }
+
+    auto record = lightRepo.getByDeviceId(deviceId);
+    if (!record.has_value()) {
+      // no record, create one
+      lightRepo.insert(deviceId);
+    }
+    // record exists, no action needed
+
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  void IqrfDb::enumerateLightFromNetwork(uint32_t deviceId) {
+    TRC_FUNCTION_ENTER(PAR(deviceId));
+
+    db::repos::LightRepository lightRepo(m_db);
+    if (!this->deviceImplementsPeripheral(deviceId, PERIPHERAL_LIGHT)) {
+      // no light, remove record if exists
+      lightRepo.removeByDeviceId(deviceId);
+      return;
+    }
+
     auto dbLight = lightRepo.getByDeviceId(deviceId);
-    if (dbLight == nullptr) {
-      Light light(deviceId);
-      lightRepo.insert(light);
+    if (!dbLight.has_value()) {
+      lightRepo.insert(deviceId);
+    }
+
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  void IqrfDb::enumerateSensorFromMetadata(uint8_t address, uint16_t hwpid, const std::vector<uint8_t>& sensorTypes) {
+    TRC_FUNCTION_ENTER(PAR(address) << PAR(hwpid));
+
+    db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
+    if (sensorTypes.empty()) {
+      // no sensors, remove records if exist
+      deviceSensorRepo.removeMultipleByAddress(address);
+      return;
+    }
+
+    // construct sensor enumerate response rdata
+    std::string sensorBytes;
+    sensorBytes.reserve((sensorTypes.size() * 3) - 1);
+    for (std::size_t i = 0, n = sensorTypes.size(); i < n; ++i) {
+      sensorBytes.push_back(HEX_CHARS[sensorTypes[i] >> 4]);
+      sensorBytes.push_back(HEX_CHARS[sensorTypes[i] & 0x0f]);
+      if (i != (n - 1)) {
+        sensorBytes.push_back('.');
+      }
+    }
+
+    // construct fake response object for drivers
+    std::string params;
+    params.reserve(50 + sensorBytes.size());
+    params.append("{\"pnum\":\"5e\",\"pcmd\":\"be\",\"rcode\":\"00\",\"rdata\":\"");
+    params.append(sensorBytes);
+    params.append("\"}");
+
+    // process response by driver context of a device
+    std::string response;
+    m_renderService->callContext(
+      address,
+      hwpid,
+      "iqrf.sensor.Enumerate_Response_rsp",
+      params,
+      response
+    );
+    json data = json::parse(response);
+
+    db::repos::SensorRepository sensorRepo(m_db);
+    auto oldSensors = deviceSensorRepo.getGlobalIndexSensorIdMap(address);
+    uint8_t cnt[255] = {0};
+    uint8_t idx = 0;
+
+    for (const auto& item : data["sensors"]) {
+      bool breakdown = false;
+      if (item.contains("breakdown") && item["breakdown"].size() > 0) {
+        breakdown = true;
+      }
+      uint32_t sensorId;
+      uint8_t type = item["type"];
+      std::string name = breakdown ? item["breakdown"][0]["name"] : item["name"];
+      auto dbSensor = sensorRepo.getIdByTypeName(type, name);
+      if (dbSensor.has_value()) {
+        sensorId = dbSensor.value();
+      } else {
+        // Construct sensor from data and breakdowns
+        const auto &frcs = item["frcs"].get<std::set<uint8_t>>();
+        Sensor sensor(
+          type,
+          name,
+          (breakdown ? item["breakdown"][0]["shortName"] : item["shortName"]),
+          (breakdown ? item["breakdown"][0]["unit"] : item["unit"]),
+          (breakdown ? item["breakdown"][0]["decimalPlaces"] : item["decimalPlaces"]),
+          frcs.count(iqrf::sensor::STD_SENSOR_FRC_2BITS),
+          frcs.count(iqrf::sensor::STD_SENSOR_FRC_1BYTE),
+          frcs.count(iqrf::sensor::STD_SENSOR_FRC_2BYTES),
+          frcs.count(iqrf::sensor::STD_SENSOR_FRC_4BYTES)
+        );
+        // Store new sensor and get ID
+        sensorId = sensorRepo.insert(sensor);
+      }
+
+      const uint8_t index = static_cast<uint8_t>(idx);
+
+      auto candidate = oldSensors.find(index);
+      if (candidate == oldSensors.end() || (candidate != oldSensors.end() && candidate->second != sensorId)) {
+        deviceSensorRepo.removeByAddressIndex(address, index);
+        DeviceSensor ds(address, type, index, cnt[type]++, sensorId);
+        deviceSensorRepo.insert(ds);
+      }
+      oldSensors.erase(index);
+      idx++;
+    }
+
+    if (oldSensors.size() > 0) {
+      std::vector<uint8_t> indexesToDelete;
+      indexesToDelete.reserve(oldSensors.size());
+      for (const auto &[key, value] : oldSensors) {
+        indexesToDelete.push_back(key);
+      }
+      deviceSensorRepo.removeMultipleByAddressIndexes(address, indexesToDelete);
     }
     TRC_FUNCTION_LEAVE("");
   }
 
-  void IqrfDb::sensorEnumeration(const uint8_t &address) {
-    TRC_FUNCTION_ENTER("");
+  void IqrfDb::enumerateSensorFromNetwork(uint32_t deviceId, uint8_t address) {
+    TRC_FUNCTION_ENTER(PAR(deviceId) << PAR(address));
+
     db::repos::DeviceSensorRepository deviceSensorRepo(m_db);
+    if (!this->deviceImplementsPeripheral(deviceId, PERIPHERAL_SENSOR)) {
+      // no sensors, remove records if exist
+      deviceSensorRepo.removeMultipleByAddress(address);
+      return;
+    }
+
     db::repos::SensorRepository sensorRepo(m_db);
     std::unique_ptr<IDpaTransactionResult2> result;
     sensor::jsdriver::Enumerate sensorEnum(m_renderService, address);
@@ -1687,21 +1800,23 @@ namespace iqrf {
       uint8_t type = item->getType();
       bool breakdown = item->hasBreakdown();
       std::string name = breakdown ? item->getBreakdownName() : item->getName();
-      auto dbSensor = sensorRepo.getByTypeName(type, name);
-      if (dbSensor != nullptr) {
-        sensorId = dbSensor->getId();
+      auto dbSensor = sensorRepo.getIdByTypeName(type, name);
+      if (dbSensor.has_value()) {
+        sensorId = dbSensor.value();
       } else {
-        // Get sensor information, breakdown if possible
-        std::string shortname = breakdown ? item->getBreakdownShortName() : item->getShortName();
-        std::string unit = breakdown ? item->getBreakdownUnit() : item->getUnit();
-        uint8_t decimals = breakdown ? item->getBreakdownDecimalPlaces() : item->getDecimalPlaces();
-        // FRCs
-        auto &frcs = item->getFrcs();
-        bool frc2Bit = frcs.find(iqrf::sensor::STD_SENSOR_FRC_2BITS) != frcs.end();
-        bool frc1Byte = frcs.find(iqrf::sensor::STD_SENSOR_FRC_1BYTE) != frcs.end();
-        bool frc2Byte = frcs.find(iqrf::sensor::STD_SENSOR_FRC_2BYTES) != frcs.end();
-        bool frc4Byte = frcs.find(iqrf::sensor::STD_SENSOR_FRC_4BYTES) != frcs.end();
-        Sensor sensor(type, name, shortname, unit, decimals, frc2Bit, frc1Byte, frc2Byte, frc4Byte);
+        // Construct sensor from data and breakdowns
+        const auto &frcs = item->getFrcs();
+        Sensor sensor(
+          type,
+          name,
+          (breakdown ? item->getBreakdownShortName() : item->getShortName()),
+          (breakdown ? item->getBreakdownUnit() : item->getUnit()),
+          (breakdown ? item->getBreakdownDecimalPlaces() : item->getDecimalPlaces()),
+          frcs.count(iqrf::sensor::STD_SENSOR_FRC_2BITS),
+          frcs.count(iqrf::sensor::STD_SENSOR_FRC_1BYTE),
+          frcs.count(iqrf::sensor::STD_SENSOR_FRC_2BYTES),
+          frcs.count(iqrf::sensor::STD_SENSOR_FRC_4BYTES)
+        );
         // Store new sensor and get ID
         sensorId = sensorRepo.insert(sensor);
       }
@@ -1712,9 +1827,8 @@ namespace iqrf {
       auto candidate = oldSensors.find(index);
       if (candidate == oldSensors.end() || (candidate != oldSensors.end() && candidate->second != sensorId)) {
         deviceSensorRepo.removeByAddressIndex(address, index);
-        DeviceSensor ds(address, type, index, cnt[type], sensorId);
+        DeviceSensor ds(address, type, index, cnt[type]++, sensorId);
         deviceSensorRepo.insert(ds);
-        cnt[type] += 1;
       }
       oldSensors.erase(index);
     }

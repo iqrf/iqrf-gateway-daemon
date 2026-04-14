@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
-#define IJsCacheService_EXPORTS
+ #define IJsCacheService_EXPORTS
 
 #include "JsCache.h"
 #include "CurlUtils.h"
 #include "JsonValidationUtils.h"
 #include "EmbedExplore.h"
 #include "EmbedOS.h"
+#include "Metadata.h"
 #include "ProductMetadata.h"
 #include "ProductMetadataParser.h"
 #include "rapidjson/document.h"
@@ -379,6 +380,18 @@ namespace iqrf {
     return product;
   }
 
+  const metadata::Metadata* JsCache::getProductMetadata(uint16_t hwpid, uint16_t hwpidVer) const {
+    TRC_FUNCTION_ENTER(PAR(hwpid) << PAR(hwpidVer));
+    auto record = m_productMap.find(hwpid);
+    if (record == m_productMap.end()) {
+      return nullptr;
+    }
+    if (record->second.m_metadata == nullptr) {
+      return nullptr;
+    }
+    return record->second.m_metadata->getProfile(hwpidVer);
+  }
+
   std::shared_ptr<IJsCacheService::Package> JsCache::getPackage(
     const uint16_t hwpid,
     const uint16_t hwpidVer,
@@ -529,7 +542,7 @@ namespace iqrf {
     return osDpa;
   }
 
-  std::shared_ptr<IJsCacheService::Quantity> JsCache::getQuantity(const uint8_t &type) const {
+  std::shared_ptr<IJsCacheService::Quantity> JsCache::getQuantity(uint8_t type) const {
     TRC_FUNCTION_ENTER(PAR(type));
 
     std::lock_guard<std::recursive_mutex> lck(m_updateMtx);

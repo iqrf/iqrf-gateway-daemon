@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "Metadata.h"
 #include "ProductMetadata.h"
 #include "ShapeDefines.h"
 
@@ -283,6 +284,7 @@ namespace iqrf {
     virtual std::shared_ptr<StdDriver> getLatestDriver(int id) const = 0;
     virtual std::shared_ptr<Manufacturer> getManufacturer(uint16_t hwpid) const = 0;
     virtual std::shared_ptr<Product> getProduct(uint16_t hwpid) const = 0;
+    virtual const metadata::Metadata* getProductMetadata(uint16_t hwpid, uint16_t hwpidVer) const = 0;
     virtual std::shared_ptr<Package> getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const = 0;
     virtual std::shared_ptr<Package> getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const = 0;
     virtual std::map<int, std::map<double, std::vector<std::pair<int,int>>>> getDrivers(const std::string& os, const std::string& dpa) const = 0;
@@ -290,7 +292,7 @@ namespace iqrf {
     virtual MapOsListDpa getOsDpa() const = 0;
     virtual std::shared_ptr<OsDpa> getOsDpa(int id) const = 0;
     virtual std::shared_ptr<OsDpa> getOsDpa(const std::string& os, const std::string& dpa) const = 0;
-    virtual std::shared_ptr<Quantity> getQuantity(const uint8_t &type) const = 0;
+    virtual std::shared_ptr<Quantity> getQuantity(uint8_t type) const = 0;
     virtual ServerState getServerState() const = 0;
     virtual std::tuple<CacheStatus, std::string> invokeWorker() = 0;
 

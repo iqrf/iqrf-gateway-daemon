@@ -19,6 +19,8 @@
 #include <models/sensor.hpp>
 #include <repositories/base_repo.hpp>
 
+#include <optional>
+
 using iqrf::db::models::Sensor;
 
 namespace iqrf::db::repos {
@@ -74,6 +76,28 @@ public:
       return nullptr;
     }
     return std::make_unique<Sensor>(Sensor::fromResult(stmt));
+  }
+
+  /**
+   * Finds sensor record by type and name, and returns ID if it exists
+   *
+   * @param type Sensor type
+   * @param name Quantity name
+   * @return `uint32_t` if record exists, `std::nullopt` otherwise
+   */
+  std::optional<uint32_t> getIdByTypeName(uint8_t type, const std::string& name) {
+    SQLite::Statement stmt(*m_db,
+      "SELECT id"
+      " FROM sensor"
+      " WHERE type = ? AND name = ?"
+      " LIMIT 1;"
+    );
+    stmt.bind(1, type);
+    stmt.bind(2, name);
+    if (!stmt.executeStep()) {
+      return std::nullopt;
+    }
+    return stmt.getColumn(0).getUInt();
   }
 
   /**

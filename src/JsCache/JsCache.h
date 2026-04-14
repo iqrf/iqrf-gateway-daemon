@@ -24,8 +24,9 @@
 #include "IIqrfDpaService.h"
 #include "ITraceService.h"
 #include "ShapeProperties.h"
-#include <condition_variable>
 
+#include <condition_variable>
+#include <mutex>
 #include <string>
 #include <thread>
 
@@ -142,11 +143,19 @@ namespace iqrf {
     std::shared_ptr<Manufacturer> getManufacturer(uint16_t hwpid) const override;
 
     /**
-     * FReturns product by product HWPID
+     * Returns product by product HWPID
      * @param hwpid Product HWPID
      * @return std::shared_ptr<Product> Product
      */
     std::shared_ptr<Product> getProduct(uint16_t hwpid) const override;
+
+    /**
+     * Returns product metadata profile by HWPID and HWPID version
+     * @param hwpid Product HWPID
+     * @param hwpidVer HWPID version
+     * @return `std::optional<Metadata>` Metadata profile
+     */
+    const metadata::Metadata* getProductMetadata(uint16_t hwpid, uint16_t hwpidVer) const override;
 
     /**
      * Returns product package by HWPID, string OS and string DPA
@@ -210,7 +219,7 @@ namespace iqrf {
      * @param type Sensor type
      * @return std::shared_ptr<Quantity> Quantity
      */
-    std::shared_ptr<Quantity> getQuantity(const uint8_t &type) const override;
+    std::shared_ptr<Quantity> getQuantity(uint8_t type) const override;
 
     /**
      * Returns server state

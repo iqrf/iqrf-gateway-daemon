@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include <optional>
 #include <set>
 #include <vector>
 
@@ -80,7 +81,7 @@ public:
    * @param deviceId Record ID
    * @return Pointer to deserialized `BinaryOutput` object, or `nullptr` if record does not exist
    */
-  std::unique_ptr<BinaryOutput> getByDeviceId(uint32_t deviceId) {
+  std::optional<BinaryOutput> getByDeviceId(uint32_t deviceId) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, deviceId, count
@@ -91,28 +92,29 @@ public:
     );
     stmt.bind(1, deviceId);
     if (!stmt.executeStep()) {
-      return nullptr;
+      return std::nullopt;
     }
-    return std::make_unique<BinaryOutput>(BinaryOutput::fromResult(stmt));
+    return BinaryOutput::fromResult(stmt);
   }
 
   /**
    * @brief Inserts new binary output record into database
    *
-   * @param binaryOutput BinaryOutput object
+   * @param deviceId Device ID
+   * @param count Implemented binary outputs
    * @return ID of inserted record
    *
    * @throws `std::runtime_error` If the record cannot be inserted
    */
-  uint32_t insert(BinaryOutput &binaryOutput) {
+  uint32_t insert(uint32_t deviceId, uint8_t count) {
     SQLite::Statement stmt(*m_db,
       R"(
       INSERT INTO bo (deviceId, count)
       VALUES (?, ?);
       )"
     );
-    stmt.bind(1, binaryOutput.getDeviceId());
-    stmt.bind(2, binaryOutput.getCount());
+    stmt.bind(1, deviceId);
+    stmt.bind(2, count);
     try {
       stmt.exec();
     } catch (const SQLite::Exception &e) {
@@ -133,7 +135,7 @@ public:
    *
    * @throws `std::runtime_error` If the record cannot be updated
    */
-  void update(BinaryOutput &binaryOutput) {
+  void update(const BinaryOutput &binaryOutput) {
     SQLite::Statement stmt(*m_db,
       R"(
       UPDATE bo

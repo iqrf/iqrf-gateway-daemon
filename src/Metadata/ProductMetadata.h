@@ -37,7 +37,7 @@ namespace iqrf::metadata {
 
     const std::vector<Metadata>& profiles() const { return profiles_; }
 
-    const Metadata* getProfile(uint32_t hwpidVersion) {
+    const Metadata* getProfile(uint16_t hwpidVersion) {
       for (const auto &profile : profiles_) {
         if (hwpidVersion >= profile.versions().min() &&
           (!profile.versions().max().has_value() || profile.versions().max().value() >= hwpidVersion)

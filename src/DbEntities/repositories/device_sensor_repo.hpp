@@ -213,24 +213,22 @@ public:
   }
 
   /**
-   * @brief Remove device sensor records by address an select sensor indexes
+   * @brief Remove device sensor records by address and specific sensor indexes
    *
    * @param addr Device address
    * @param indexes Sensor indexes
    */
   void removeMultipleByAddressIndexes(uint8_t addr, const std::vector<uint8_t>& indexes) {
     SQLite::Statement stmt(*m_db,
-      R"(
-      DELETE FROM deviceSensor
-      WHERE address = ? AND globalIndex = ?;
-      )"
+      "DELETE FROM deviceSensor"
+      " WHERE address = ? AND globalIndex IN (" + getPlaceholder(indexes.size()) + ");"
     );
     stmt.bind(1, addr);
-    for (const auto &index : indexes) {
-      stmt.bind(2, index);
-      stmt.exec();
-      stmt.reset();
+    int index = 2;
+    for (const auto sensorIdx : indexes) {
+      stmt.bind(index++, sensorIdx);
     }
+    stmt.exec();
   }
 
   /**
