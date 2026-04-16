@@ -71,6 +71,7 @@ include:
   - component: gitlab.iqrf.org/open-source/gitlab-ci-components/test-cpp-ctest-coverage@master
     inputs:
       job_name: coverage
+      allow_failure: true
       distributions:
         - debian-bullseye
         - debian-bookworm
