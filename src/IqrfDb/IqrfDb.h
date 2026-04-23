@@ -33,8 +33,8 @@
 #include "IJsRenderService.h"
 #include "ILaunchService.h"
 #include "ITraceService.h"
+#include "Light.h"
 #include "ShapeProperties.h"
-#include "Trace.h"
 
 #include <openssl/evp.h>
 #include <nlohmann/json.hpp>
@@ -106,39 +106,14 @@ namespace iqrf {
      * @param id Binary output ID
      * @return Binary output entity
      */
-    std::unique_ptr<BinaryOutput> getBinaryOutput(const uint32_t id);
+    std::unique_ptr<BinaryOutput> getBinaryOutput(uint32_t id);
 
     /**
      * Return binary output entity by device ID
      * @param deviceId Device ID
      * @return Binary output entity
      */
-    std::unique_ptr<BinaryOutput> getBinaryOutputByDeviceId(const uint32_t deviceId) override;
-
-    /**
-     * Insert binary output record
-     * @param binaryOutput Binary output entity
-     * @return Binary output ID
-     */
-    uint32_t insertBinaryOutput(BinaryOutput &binaryOutput);
-
-    /**
-     * Update binary output record
-     * @param binaryOutput Binary output entity
-     */
-    void updateBinaryOutput(BinaryOutput &binaryOutput);
-
-    /**
-     * Remove binary output record by ID
-     * @param id Binary output ID
-     */
-    void removeBinaryOutput(const uint32_t id);
-
-    /**
-     * Remove binary output record by device ID
-     * @param deviceId Device ID
-     */
-    void removeBinaryOutputByDeviceId(const uint32_t deviceId);
+    std::optional<BinaryOutput> getBinaryOutputByDeviceId(uint32_t deviceId) override;
 
     /**
      * Get addresses of devices implementing binary output
@@ -159,14 +134,14 @@ namespace iqrf {
      * @param addr Device address
      * @return Device
      */
-    std::unique_ptr<Device> getDeviceByAddress(const uint8_t address) override;
+    std::unique_ptr<Device> getDeviceByAddress(uint8_t address) override;
 
     /**
      * Returns device by module ID
      * @param mid Module ID
      * @return Device
      */
-    std::unique_ptr<Device> getDeviceByMid(const uint32_t mid) override;
+    std::unique_ptr<Device> getDeviceByMid(uint32_t mid) override;
 
     /**
      * Returns vector of devices
@@ -192,14 +167,14 @@ namespace iqrf {
      * @param address Device address
      * @return Device MID
      */
-    std::optional<uint32_t> getDeviceMid(const uint8_t address) override;
+    std::optional<uint32_t> getDeviceMid(uint8_t address) override;
 
     /**
      * Retrieves device HWPID specified by address
      * @param address Device address
      * @return Device HWPID
      */
-    std::optional<uint16_t> getDeviceHwpid(const uint8_t address) override;
+    std::optional<uint16_t> getDeviceHwpid(uint8_t address) override;
 
     /**
      * Check if device implements peripheral
@@ -207,7 +182,7 @@ namespace iqrf {
      * @param peripheral Peripheral
      * @return `true` if Device implements peripheral, `false` otherwise
      */
-    bool deviceImplementsPeripheral(const uint32_t &deviceId, const int16_t peripheral) override;
+    bool deviceImplementsPeripheral(uint32_t deviceId, int16_t peripheral) override;
 
     /**
      * Retrieves metadata stored at device specified by address
@@ -291,58 +266,19 @@ namespace iqrf {
     void setDeviceSensorValue(const uint8_t address, const uint8_t type, const uint8_t index, const double value,
       std::shared_ptr<std::string> updated, bool frc);
 
-    /**
-     * Stores value of sensor as metadata (for non-atomic values)
-     * @param address Device address
-     * @param type Sensor type
-     * @param index Sensor index
-     * @param metadata Last measured value
-     * @param updated Last updated
-     * @param frc Data from FRC response
-     */
-    void setDeviceSensorMetadata(const uint8_t address, const uint8_t type, const uint8_t index, json &metadata,
-      std::shared_ptr<std::string> updated, bool frc);
+		/**
+		 * Stores value of sensor as metadata (for non-atomic values)
+		 * @param address Device address
+		 * @param type Sensor type
+		 * @param index Sensor index
+		 * @param metadata Last measured value
+		 * @param updated Last updated
+		 * @param frc Data from FRC response
+		 */
+		void setDeviceSensorMetadata(const uint8_t address, const uint8_t type, const uint8_t index, nlohmann::json &metadata,
+			std::shared_ptr<std::string> updated, bool frc);
 
     ///// LIGHT API
-
-    /**
-     * Return light entity by ID
-     * @param id Light ID
-     * @return Light entity
-     */
-    std::unique_ptr<Light> getLight(const uint32_t id);
-
-    /**
-     * Return light entity by device ID
-     * @param deviceId Device ID
-     * @return Light entity
-     */
-    std::unique_ptr<Light> getLightByDeviceId(const uint32_t deviceId);
-
-    /**
-     * Insert light record
-     * @param binaryOutput Light entity
-     * @return Light ID
-     */
-    uint32_t insertLight(Light &light);
-
-    /**
-     * Update light record
-     * @param binaryOutput Light entity
-     */
-    void updateLight(Light &light);
-
-    /**
-     * Remove light record by ID
-     * @param id Light ID
-     */
-    void removeLight(const uint32_t id);
-
-    /**
-     * Remove light record by device ID
-     * @param deviceId Device ID
-     */
-    void removeLightByDeviceId(const uint32_t deviceId);
 
     /**
      * Get addresses of devices implementing light
@@ -446,13 +382,6 @@ namespace iqrf {
      * @param clientId Handler owner
      */
     void unregisterEnumerationHandler(const std::string &clientId) override;
-
-    /**
-     * Get quantity by type from cache
-     * @param type Sensor type
-     * @return Cache quantity
-     */
-    std::shared_ptr<IJsCacheService::Quantity> getQuantityByType(const uint8_t type) override;
 
     /**
      * Component instance lifecycle activate step
@@ -686,24 +615,57 @@ namespace iqrf {
     void standardEnumeration();
 
     /**
-     * Performs binary output standard enumeration
+     * Enumerate binary output standard from product metadata
+     * @param deviceId Device ID
+     * @param count Implemented binary outputs
+     */
+    void enumerateBinaryOutputFromMetadata(uint32_t deviceId, uint8_t count);
+
+    /**
+     * Enumerate binary output standard from iqrf network
      * @param deviceId Device ID
      * @param address Device address
      */
-    void binoutEnumeration(const uint32_t &deviceId, const uint8_t &address);
+    void enumerateBinaryOutputFromNetwork(uint32_t deviceId, uint8_t address);
 
     /**
-     * Performs light standard enumeration
+     * Enumerate light standard from product metadata
+     * @param deviceId Device ID
+     * @param light Light metadata object
+     */
+    void enumerateLightFromMetadata(uint32_t deviceId, const std::optional<metadata::Light>& light);
+
+    /**
+     * Enumerate light standard from iqrf network
+     * @param deviceId Device ID
+     */
+    void enumerateLightFromNetwork(uint32_t deviceId);
+
+    /**
+     * Enumerate sensor standard from product metadata
+     *
+     * The method enumerates sensor standard by utilizing
+     * list of sensor types from product metadata and constructs
+     * a fake network response to be processed by drivers.
+     *
+     * Address and HWPID are used to attempt to process enumerated sensor data
+     * in context of a specific product in case the product
+     * uses a generic sensor of some kind that is then further specialized
+     * by breakdown finalizing function.
+     *
+     * @param address Device address
+     * @param hwpid Device HWPID
+     * @param sensors Implemented sensor types
+     */
+    void enumerateSensorFromMetadata(uint8_t address, uint16_t hwpid, const std::vector<uint8_t>& sensors);
+
+    /**
+     * Enumerate sensor standard from iqrf network
+     *
      * @param deviceId Device ID
      * @param address Device address
      */
-    void lightEnumeration(const uint32_t &deviceId);
-
-    /**
-     * Performs sensor standard enumeration
-     * @param address Device address
-     */
-    void sensorEnumeration(const uint8_t &address);
+    void enumerateSensorFromNetwork(uint32_t deviceId, uint8_t address);
 
     /**
      * Retrieves bonded devices
@@ -736,6 +698,11 @@ namespace iqrf {
      */
     void loadProductDrivers();
 
+    /**
+     * Generate driver hash
+     * @param driver Driver string
+     * @return `std::string` Driver hash
+     */
     std::string generateDriverHash(const std::string &driver);
 
     /**

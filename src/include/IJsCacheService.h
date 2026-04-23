@@ -16,14 +16,17 @@
  */
 #pragma once
 
+#include "Metadata.h"
+#include "ProductMetadata.h"
 #include "ShapeDefines.h"
+
 #include <cstdint>
+#include <functional>
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
-#include <functional>
 #include <vector>
-#include <memory>
 
 #ifdef IJsCacheService_EXPORTS
 #define IJsCacheService_DECLSPEC SHAPE_ABI_EXPORT
@@ -73,142 +76,6 @@ namespace iqrf {
       std::string m_name;
     };
 
-    ///// Product metadata /////
-
-    class ProfilePowerMains {
-    public:
-      ProfilePowerMains(
-        bool present = false
-      ):
-        present(present)
-      {}
-
-      bool present;
-    };
-
-    class ProfilePowerAccumulator {
-    public:
-      ProfilePowerAccumulator(
-        bool present = false,
-        std::shared_ptr<std::string> type = nullptr,
-        std::shared_ptr<double> lowLevel = nullptr
-      ):
-        present(present),
-        type(type),
-        lowLevel(lowLevel)
-      {}
-      bool present;
-      std::shared_ptr<std::string> type;
-      std::shared_ptr<double> lowLevel;
-    };
-
-    class ProfilePowerBattery {
-    public:
-      ProfilePowerBattery(
-        bool present = false,
-        std::shared_ptr<std::string> type = nullptr,
-        std::shared_ptr<double> changeThreshold = nullptr
-      ):
-        present(present),
-        type(type),
-        changeThreshold(changeThreshold)
-      {}
-      bool present;
-      std::shared_ptr<std::string> type;
-      std::shared_ptr<double> changeThreshold;
-    };
-
-    class ProfilePower {
-    public:
-      ProfilePower(
-        ProfilePowerMains mains,
-        ProfilePowerAccumulator accumulator,
-        ProfilePowerBattery battery,
-        double minVoltage
-      ):
-        mains(mains),
-        accumulator(accumulator),
-        battery(battery),
-        minVoltage(minVoltage)
-      {}
-
-      ProfilePowerMains mains;
-      ProfilePowerAccumulator accumulator;
-      ProfilePowerBattery battery;
-      double minVoltage;
-    };
-
-    class ProfileHwpidVersion {
-    public:
-      ProfileHwpidVersion(
-        uint16_t min = 0,
-        int16_t max = -1
-      ):
-        min(min),
-        max(max)
-      {}
-      uint16_t min;
-      int16_t max;
-    };
-
-    class MetadataProfile {
-    public:
-      MetadataProfile(
-        ProfileHwpidVersion hwpidVer,
-        ProfilePower powerSupply,
-        bool routing = false,
-        bool beaming = false,
-        bool repeater = false,
-        bool frcAggregation = false,
-        bool iqarosCompatible = false,
-        const std::vector<uint8_t> sensors = {},
-        uint8_t binouts = 0
-      ):
-        hwpidVer(hwpidVer),
-        routing(routing),
-        beaming(beaming),
-        repeater(repeater),
-        frcAggregation(frcAggregation),
-        iqarosCompatible(iqarosCompatible),
-        sensors(sensors),
-        binouts(binouts),
-        powerSupply(powerSupply)
-      {}
-
-      ProfileHwpidVersion hwpidVer;
-      bool routing;
-      bool beaming;
-      bool repeater;
-      bool frcAggregation;
-      bool iqarosCompatible;
-      std::vector<uint8_t> sensors;
-      uint8_t binouts;
-      ProfilePower powerSupply;
-    };
-
-    class Metadata {
-    public:
-      Metadata(
-        uint8_t version = 0,
-        std::vector<MetadataProfile> profiles = {}
-      ):
-        version(version),
-        profiles(profiles)
-      {}
-
-      std::shared_ptr<MetadataProfile> getProfileByHwpidVersion(uint8_t hwpidVersion) {
-        for (auto &profile : profiles) {
-          if (hwpidVersion >= profile.hwpidVer.min && (profile.hwpidVer.max == -1 || profile.hwpidVer.max >= hwpidVersion)) {
-            return std::make_shared<MetadataProfile>(profile);
-          }
-        }
-        return nullptr;
-      }
-
-      uint8_t version;
-      std::vector<MetadataProfile> profiles;
-    };
-
     ///// Product /////
 
     class Product {
@@ -218,7 +85,7 @@ namespace iqrf {
         unsigned int manufacturerId,
         const std::string &companyName,
         const std::string &name,
-        const std::shared_ptr<Metadata> &metadata
+        const std::shared_ptr<metadata::ProductMetadata> &metadata
       ):
         m_hwpid(hwpid),
         m_manufacturerId(manufacturerId),
@@ -231,7 +98,7 @@ namespace iqrf {
       unsigned int m_manufacturerId;
       std::string m_companyName;
       std::string m_name;
-      std::shared_ptr<Metadata> m_metadata;
+      std::shared_ptr<metadata::ProductMetadata> m_metadata;
     };
 
     ///// Driver /////
@@ -417,6 +284,7 @@ namespace iqrf {
     virtual std::shared_ptr<StdDriver> getLatestDriver(int id) const = 0;
     virtual std::shared_ptr<Manufacturer> getManufacturer(uint16_t hwpid) const = 0;
     virtual std::shared_ptr<Product> getProduct(uint16_t hwpid) const = 0;
+    virtual const metadata::Metadata* getProductMetadata(uint16_t hwpid, uint16_t hwpidVer) const = 0;
     virtual std::shared_ptr<Package> getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const = 0;
     virtual std::shared_ptr<Package> getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const = 0;
     virtual std::map<int, std::map<double, std::vector<std::pair<int,int>>>> getDrivers(const std::string& os, const std::string& dpa) const = 0;
@@ -424,7 +292,7 @@ namespace iqrf {
     virtual MapOsListDpa getOsDpa() const = 0;
     virtual std::shared_ptr<OsDpa> getOsDpa(int id) const = 0;
     virtual std::shared_ptr<OsDpa> getOsDpa(const std::string& os, const std::string& dpa) const = 0;
-    virtual std::shared_ptr<Quantity> getQuantity(const uint8_t &type) const = 0;
+    virtual std::shared_ptr<Quantity> getQuantity(uint8_t type) const = 0;
     virtual ServerState getServerState() const = 0;
     virtual std::tuple<CacheStatus, std::string> invokeWorker() = 0;
 

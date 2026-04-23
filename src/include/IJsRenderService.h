@@ -16,8 +16,8 @@
  */
 #pragma once
 
-#include "IJsCacheService.h"
-#include "Trace.h"
+#include <cstdint>
+#include <memory>
 #include <string>
 #include <set>
 

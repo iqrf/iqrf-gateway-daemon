@@ -1,0 +1,47 @@
+/**
+ * Copyright 2015-2026 IQRF Tech s.r.o.
+ * Copyright 2019-2026 MICRORISC s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#pragma once
+
+#include <nlohmann/json.hpp>
+
+#include <optional>
+#include <string>
+
+namespace iqrf::metadata {
+
+  /**
+   * Metadata base parser class
+   */
+  class BaseParser {
+   protected:
+    /**
+     * Retrieve key value from `nlohmann::json` document with template-specified type
+     *
+     * @param doc `nlohmann::json` document
+     * @param key Property key
+     * @return Parsed value if it exists, `std::nullopt` otherwise
+     */
+    template<typename T>
+    static std::optional<T> parseValue(const nlohmann::json& doc, const std::string& key) {
+      if (!doc.contains(key) || doc[key].is_null()) {
+        return std::nullopt;
+      }
+      return doc[key].get<T>();
+    }
+  };
+}  // iqrf::metadata namespace

@@ -30,17 +30,25 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+option(CODE_COVERAGE "Enable coverage" OFF)
+
 set(PROJECT_VERSION "2.7.0-alpha")
 if (DEFINED PIPELINE_ID AND NOT PIPELINE_ID STREQUAL "")
 	set(PROJECT_VERSION "${PROJECT_VERSION}~${PIPELINE_ID}")
 endif ()
 set(APP_VERSION ${PROJECT_VERSION})
-message(STATUS "Version = v" ${APP_VERSION})
 
 include(${PROJECT_SOURCE_DIR}/cmake/ccache.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/hardening.cmake)
 
 set_directory_properties(PROPERTIES COMPILE_DEFINITIONS $<$<CONFIG:Debug>:_DEBUG>)
+
+set(IHP_BUILD_STATIC ON)
+set(CPR_USE_SYSTEM_CURL ON)
+set(CPR_ENABLE_OPENSSL ON)
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+set(SQLITECPP_INTERNAL_SQLITE OFF CACHE BOOL "Use bundled sqlite" FORCE)
+set(valijson_BUILD_TESTS OFF)
 
 find_package(shape REQUIRED)
 
@@ -54,7 +62,6 @@ add_definitions(
   -DRAPIDJSON_HAS_STDSTRING
   -D_CRT_SECURE_NO_WARNINGS
 )
-set(IHP_BUILD_STATIC ON)
 
 find_package(CURL REQUIRED)
 
@@ -65,14 +72,9 @@ add_subdirectory(libraries/iqrf-header-parser EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/croncpp EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/date EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/googletest EXCLUDE_FROM_ALL)
-set(CPR_USE_SYSTEM_CURL ON)
-set(CPR_ENABLE_OPENSSL ON)
 add_subdirectory(libraries/cpr EXCLUDE_FROM_ALL)
-set(JSON_BuildTests OFF CACHE INTERNAL "")
 add_subdirectory(libraries/nlohmann_json EXCLUDE_FROM_ALL)
-set(SQLITECPP_INTERNAL_SQLITE OFF CACHE BOOL "Use bundled sqlite" FORCE)
 add_subdirectory(libraries/sqlitec++ EXCLUDE_FROM_ALL)
-set(valijson_BUILD_TESTS OFF)
 add_subdirectory(libraries/valijson EXCLUDE_FROM_ALL)
 
 enable_testing()
@@ -80,8 +82,33 @@ enable_testing()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/DbEntities EXCLUDE_FROM_ALL)
 
+if (CODE_COVERAGE)
+  set(COVERAGE_FLAGS "--coverage -fprofile-arcs -ftest-coverage")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COVERAGE_FLAGS}")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_FLAGS}")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${COVERAGE_FLAGS}")
+endif()
+
+message(STATUS "===============================================================")
+message(STATUS "Build config:")
+message(STATUS "---------------------------------------------------------------")
+message(STATUS "Version:                    ${APP_VERSION}")
+message(STATUS "CPR_ENABLE_OPENSSL:         ${CPR_ENABLE_OPENSSL}")
+message(STATUS "CPR_USE_SYSTEM_CURL:        ${CPR_USE_SYSTEM_CURL}")
+message(STATUS "IHP_BUILD_STATIC:           ${IHP_BUILD_STATIC}")
+message(STATUS "shape_DIR                   ${shape_DIR}")
+message(STATUS "shapeware_DIR               ${shape_DIR}")
+message(STATUS "SQLITECPP_INTERNAL_SQLITE:  ${SQLITECPP_INTERNAL_SQLITE}")
+message(STATUS "BUILD_TESTING               ${BUILD_TESTING}")
+message(STATUS "CODE_COVERAGE               ${CODE_COVERAGE}")
+message(STATUS "JSON_BuildTests:            ${JSON_BuildTests}")
+message(STATUS "valijson_BUILD_TESTS:       ${valijson_BUILD_TESTS}")
+message(STATUS "===============================================================")
+
 add_subdirectory(src/include)
 add_subdirectory(src/DbEntities)
+add_subdirectory(src/Metadata)
+add_subdirectory(src/MetadataParser)
 add_subdirectory(src/MigrationManager)
 add_subdirectory(src/start-IqrfDaemon)
 add_subdirectory(src/cache-update)

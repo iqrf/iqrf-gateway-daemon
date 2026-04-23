@@ -18,6 +18,7 @@ project(JsonDbApi)
 set(COMPONENT iqrf::JsonDbApi)
 DeclareShapeComponent(${COMPONENT})
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDb MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IJsCacheService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
@@ -36,14 +37,15 @@ include_directories(${CMAKE_SOURCE_DIR}/src/DpaParser)
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 
 if(SHAPE_STATIC_LIBS)
-    add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
 else()
-    add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
+  add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-	nlohmann_json::nlohmann_json
-    DbEntities
+  DbEntities
+  Metadata
+  nlohmann_json::nlohmann_json
 )
 
 DeployShapeComponent(${PROJECT_NAME})

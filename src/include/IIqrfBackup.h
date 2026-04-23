@@ -16,15 +16,11 @@
  */
 #pragma once
 
-#include "ShapeDefines.h"
-#include <map>
-#include <vector>
-#include <list>
-#include <cmath>
-#include <thread>
-#include <bitset>
-#include <chrono>
 #include "IDpaTransactionResult2.h"
+#include "ShapeDefines.h"
+
+#include <cmath>
+#include <list>
 
 #ifdef IIqrfBackup_EXPORTS
 #define IIqrfBackup_DECLSPEC SHAPE_ABI_EXPORT

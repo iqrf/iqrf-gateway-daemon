@@ -18,8 +18,14 @@
 
 #include "EmbedNode.h"
 #include "device.hpp"
+#include "Sensor.h"
 #include "rapidjson/document.h"
-#include "JsDriverSensor.h"
+
+#include "binary_output.hpp"
+#include "device.hpp"
+#include "device_sensor.hpp"
+#include "product.hpp"
+#include "sensor.hpp"
 
 #include <functional>
 #include <map>
@@ -29,19 +35,11 @@
 #include <unordered_set>
 #include <vector>
 
-#include "repositories/binary_output_repo.hpp"
-#include "repositories/device_repo.hpp"
-#include "repositories/device_sensor_repo.hpp"
-#include "repositories/driver_repo.hpp"
-#include "repositories/light_repo.hpp"
-#include "repositories/migration_repo.hpp"
-#include "repositories/product_driver_repo.hpp"
-#include "repositories/product_repo.hpp"
-#include "repositories/sensor_repo.hpp"
-
 #define PERIPHERAL_LIGHT 74
 #define PERIPHERAL_BINOUT 75
 #define PERIPHERAL_SENSOR 94
+
+using namespace iqrf::db::models;
 
 namespace iqrf {
 
@@ -204,7 +202,7 @@ namespace iqrf {
      * @param deviceId Device ID
      * @return Binary output entity
      */
-    virtual std::unique_ptr<BinaryOutput> getBinaryOutputByDeviceId(const uint32_t deviceId) = 0;
+    virtual std::optional<BinaryOutput> getBinaryOutputByDeviceId(const uint32_t deviceId) = 0;
 
     /**
      * Get map of device addresses and number of implemented binary outputs
@@ -220,14 +218,14 @@ namespace iqrf {
      * @param addr Device address
      * @return Device
      */
-    virtual std::unique_ptr<Device> getDeviceByAddress(const uint8_t address) = 0;
+    virtual std::unique_ptr<Device> getDeviceByAddress(uint8_t address) = 0;
 
     /**
      * Returns device by module ID
      * @param mid Module ID
      * @return Device
      */
-    virtual std::unique_ptr<Device> getDeviceByMid(const uint32_t mid) = 0;
+    virtual std::unique_ptr<Device> getDeviceByMid(uint32_t mid) = 0;
 
     /**
      * Returns vector of devices
@@ -253,14 +251,14 @@ namespace iqrf {
      * @param address Device address
      * @return Device MID
      */
-    virtual std::optional<uint32_t> getDeviceMid(const uint8_t address) = 0;
+    virtual std::optional<uint32_t> getDeviceMid(uint8_t address) = 0;
 
     /**
      * Retrieves device HWPID specified by address
      * @param address Device address
      * @return Device HWPID
      */
-    virtual std::optional<uint16_t> getDeviceHwpid(const uint8_t address) = 0;
+    virtual std::optional<uint16_t> getDeviceHwpid(uint8_t address) = 0;
 
     /**
      * Check if device implements peripheral
@@ -268,7 +266,7 @@ namespace iqrf {
      * @param peripheral Peripheral
      * @return `true` if Device implements peripheral, `false` otherwise
      */
-    virtual bool deviceImplementsPeripheral(const uint32_t &deviceId, const int16_t peripheral) = 0;
+    virtual bool deviceImplementsPeripheral(uint32_t deviceId, int16_t peripheral) = 0;
 
     /**
      * Retrieves metadata stored at device specified by address
@@ -433,12 +431,5 @@ namespace iqrf {
      * @param clientId Handler owner
      */
     virtual void unregisterEnumerationHandler(const std::string &clientId) = 0;
-
-    /**
-     * Get quantity by type from cache
-     * @param type Sensor type
-     * @return Cache quantity
-     */
-    virtual std::shared_ptr<IJsCacheService::Quantity> getQuantityByType(const uint8_t type) = 0;
-  };
+	};
 }

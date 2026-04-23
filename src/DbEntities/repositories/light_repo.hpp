@@ -17,6 +17,7 @@
 #pragma once
 
 #include <cstdint>
+#include <optional>
 #include <set>
 #include <unordered_set>
 #include <vector>
@@ -39,9 +40,9 @@ public:
    * @brief Finds light record by ID
    *
    * @param id Record ID
-   * @return Pointer to deserialized `Light` object, or `nullptr` if record does not exist
+   * @return `std::optional<Light>` Light record, or nullopt
    */
-  std::unique_ptr<Light> get(uint32_t id) {
+  std::optional<Light> get(uint32_t id) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, deviceId
@@ -52,9 +53,9 @@ public:
     );
     stmt.bind(1, id);
     if (!stmt.executeStep()) {
-      return nullptr;
+      return std::nullopt;
     }
-    return std::make_unique<Light>(Light::fromResult(stmt));
+    return Light::fromResult(stmt);
   }
 
   /**
@@ -80,9 +81,9 @@ public:
    * @brief Finds light record by deviceId
    *
    * @param deviceId Device ID
-   * @return Pointer to deserialized `Light` object, or `nullptr` if record does not exist
+   * @return `std::optional<Light>` Light record, or nullopt
    */
-  std::unique_ptr<Light> getByDeviceId(uint32_t deviceId) {
+  std::optional<Light> getByDeviceId(uint32_t deviceId) {
     SQLite::Statement stmt(*m_db,
       R"(
       SELECT id, deviceId
@@ -93,27 +94,27 @@ public:
     );
     stmt.bind(1, deviceId);
     if (!stmt.executeStep()) {
-      return nullptr;
+      return std::nullopt;
     }
-    return std::make_unique<Light>(Light::fromResult(stmt));
+    return Light::fromResult(stmt);
   }
 
   /**
    * @brief Inserts new light record into database
    *
-   * @param light Light object
+   * @param deviceId Device ID
    * @return ID of inserted record
    *
    * @throws `std::runtime_error` If the record cannot be inserted
    */
-  uint32_t insert(const Light &light) {
+  uint32_t insert(uint32_t deviceId) {
     SQLite::Statement stmt(*m_db,
       R"(
       INSERT INTO light (deviceId)
       VALUES (?);
       )"
     );
-    stmt.bind(1, light.getDeviceId());
+    stmt.bind(1, deviceId);
     try {
       stmt.exec();
     } catch (const SQLite::Exception &e) {

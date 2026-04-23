@@ -19,21 +19,14 @@
 
 #include "IqrfBackup.h"
 #include "Trace.h"
-#include "iqrf__IqrfBackup.hxx"
-#include <chrono>
+
 #include <iostream>
-#include <fstream>
-#include <set>
-#include <thread>
-#include <atomic>
-#include <condition_variable>
-#include <random>
 #include <cstddef>
-#include <tuple>
 #include <cmath>
 #include <list>
-#include <vector>
 #include <mutex>
+
+#include "iqrf__IqrfBackup.hxx"
 
 TRC_INIT_MODULE(iqrf::IqrfBackup)
 

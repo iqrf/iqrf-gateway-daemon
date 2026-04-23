@@ -84,6 +84,7 @@ include:
         - cmake --build shape-build --target install
       cmake_options: -DBUILD_TESTING:BOOL=TRUE -Dshape_DIR:PATH=`pwd`/shape-build
       cmake_build_options: --target install
+      gcovr_options: "--filter src/ --exclude '.*duktape.*' --exclude '.*duk_.*' $([[ \"${DISTRIBUTION}\" == \"debian-trixie\" || \"${DISTRIBUTION}\" == \"debian-forky\" ]] && echo '--gcov-ignore-errors=no_working_dir_found')"
   # Packages
   - component: gitlab.iqrf.org/open-source/gitlab-ci-components/build-jsonnnet-deb-packages@master
     inputs:

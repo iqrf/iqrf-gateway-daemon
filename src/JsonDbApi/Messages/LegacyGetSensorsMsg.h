@@ -17,6 +17,7 @@
 #pragma once
 
 #include "BaseMsg.h"
+#include "IJsCacheService.h"
 
 using namespace rapidjson;
 
@@ -34,7 +35,7 @@ namespace iqrf {
 		 * Constructor
 		 * @param doc Request document
 		 */
-		LegacyGetSensorsMsg(const Document &doc) : BaseMsg(doc) {};
+		LegacyGetSensorsMsg(const Document &doc, IJsCacheService *cacheService) : BaseMsg(doc), cacheService(cacheService) {};
 
 		/**
 		 * Handles get sensors request
@@ -53,7 +54,7 @@ namespace iqrf {
 					if (quantityIds.count(type) > 0) {
 						continue;
 					}
-					auto quantity = dbService->getQuantityByType(type);
+					auto quantity = cacheService->getQuantity(type);
 					if (!quantity) {
 						continue;
 					}
@@ -119,6 +120,8 @@ namespace iqrf {
 	private:
 		/// Include metadata in response
 		bool includeMetadata = false;
+    /// Cache service
+    IJsCacheService *cacheService = nullptr;
 		/// Map of sensor device tuples
 		std::map<uint8_t, std::vector<std::pair<DeviceSensor, Sensor>>> devSenMap;
 		/// Map of device addresses and metadata

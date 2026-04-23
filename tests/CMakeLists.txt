@@ -18,6 +18,7 @@ project(iqrf-gateway-daemon-tests)
 enable_testing()
 
 add_subdirectory(ApiTokenCtl)
+add_subdirectory(MetadataParser)
 add_subdirectory(MigrationManager)
 
 include_directories(${CMAKE_SOURCE_DIR}/src/include)

@@ -17,6 +17,7 @@
 
 #include "JsonDbApi.h"
 
+#include "IJsCacheService.h"
 #include "Messages/GetBinaryOutputsMsg.h"
 #include "Messages/GetDeviceMsg.h"
 #include "Messages/GetDevicesMsg.h"
@@ -153,7 +154,7 @@ namespace iqrf {
 		} else if (msgType.m_type == "infoDaemon_GetNodes") {
 			msg = std::make_unique<LegacyGetNodesMsg>(LegacyGetNodesMsg(request));
 		} else if (msgType.m_type == "infoDaemon_GetSensors") {
-			msg = std::make_unique<LegacyGetSensorsMsg>(LegacyGetSensorsMsg(request));
+			msg = std::make_unique<LegacyGetSensorsMsg>(LegacyGetSensorsMsg(request, m_cacheService));
 		} else if (msgType.m_type == "infoDaemon_SetMidMetaData") {
 			msg = std::make_unique<LegacySetMidMetaDataMsg>(LegacySetMidMetaDataMsg(request));
 		} else if (msgType.m_type == "infoDaemon_SetNodeMetaData") {
@@ -240,6 +241,16 @@ namespace iqrf {
 			m_dbService = nullptr;
 		}
 	}
+
+  void JsonDbApi::attachInterface(IJsCacheService *iface) {
+    m_cacheService = iface;
+  }
+
+  void JsonDbApi::detachInterface(IJsCacheService *iface) {
+    if (m_cacheService == iface) {
+      m_cacheService = nullptr;
+    }
+  }
 
 	void JsonDbApi::attachInterface(IMessagingSplitterService *iface) {
 		m_splitterService = iface;

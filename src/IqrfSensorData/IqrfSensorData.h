@@ -17,6 +17,7 @@
 #pragma once
 
 #include "IIqrfSensorData.h"
+#include "IJsCacheService.h"
 #include "SensorDataResult.h"
 #include "IConfigurationService.h"
 #include "IIqrfDb.h"
@@ -138,7 +139,7 @@ namespace iqrf {
 		 * Attaches JS cache service interface
 		 * @param iface JS cache service interface
 		 */
-		void attachInterface(IJsCacheService *iface);
+		void attachInterface(iqrf::IJsCacheService *iface);
 
 		/**
 		 * Detaches JS cache service interface
