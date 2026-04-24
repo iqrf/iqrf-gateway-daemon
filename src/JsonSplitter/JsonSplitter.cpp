@@ -24,12 +24,11 @@
 #include <valijson/validation_results.hpp>
 #include <valijson/validator.hpp>
 
-#include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/istreamwrapper.h"
 #include "rapidjson/stringbuffer.h"
-#include "rapidjson/prettywriter.h"
 #include "rapidjson/pointer.h"
+#include "rapidjson/writer.h"
 
 #include "ApiMsg.h"
 #include "ErrorMessages.h"
@@ -219,7 +218,7 @@ namespace iqrf {
       }
 
       StringBuffer buffer;
-      PrettyWriter<StringBuffer> writer(buffer);
+      Writer<StringBuffer> writer(buffer);
       doc.Accept(writer);
 
       // Send responses out
