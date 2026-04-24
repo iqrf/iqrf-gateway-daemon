@@ -65,6 +65,13 @@ override_dh_install:
 	dh_install
 	#release: rm components from package: IqrfInfo, AutoNetwork, OTA
 	rm -rf debian/iqrf-gateway-daemon/builds
+	# remove OTA upload configuration and schemas from package
+	rm debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon/iqrf__OtaUploadService.json
+	rm debian/iqrf-gateway-daemon/usr/share/iqrf-gateway-daemon/apiSchemas/iqmeshNetwork_OtaUpload-request-1-0-0.json
+	rm debian/iqrf-gateway-daemon/usr/share/iqrf-gateway-daemon/apiSchemas/iqmeshNetwork_OtaUpload-response-1-0-0.json
+	rm debian/iqrf-gateway-daemon/usr/share/iqrf-gateway-daemon/cfgSchemas/schema__iqrf__OtaUploadService.json
+	rm debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon/config/iqrf__OtaUploadService.json
+	rm debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon/cfgSchemas/schema__iqrf__OtaUploadService.json
 
 override_dh_installsystemd:
 	dh_installsystemd --restart-after-upgrade
