@@ -1549,16 +1549,19 @@ namespace iqrf {
 
     for (auto &[deviceId, address] : devices) {
       auto &product = m_deviceProductMap[address];
+      TRC_INFORMATION("Looking for metadata for " << PAR(address) << PAR(product->getHwpid()) << PAR(product->getHwpidVersion()));
       auto metadata = m_cacheService->getProductMetadata(product->getHwpid(), product->getHwpidVersion());
       // begin transaction
       SQLite::Transaction transaction(*m_db);
       try {
         if (metadata) {
+          TRC_INFORMATION("Enumerating from metadata.");
           // enumerate from metadata
           enumerateBinaryOutputFromMetadata(deviceId, metadata->binaryOutputs());
           enumerateLightFromMetadata(deviceId, metadata->light());
           enumerateSensorFromMetadata(address, product->getHwpid(), metadata->sensors());
         } else {
+          TRC_INFORMATION("Enumerating from network.");
           // enumerate from network
           enumerateBinaryOutputFromNetwork(deviceId, address);
           enumerateLightFromNetwork(deviceId);
