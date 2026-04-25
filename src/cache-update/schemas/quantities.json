@@ -51,7 +51,12 @@
         "type": "array",
         "items": {
           "type": "integer",
-          "enum": [16, 144, 224, 249]
+          "enum": [
+            16,
+            144,
+            224,
+            249
+          ]
         }
       },
       "idValue": {

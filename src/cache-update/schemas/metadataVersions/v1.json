@@ -1,0 +1,398 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "v1.json",
+  "title": "Metadata version 1",
+  "description": "As of version 1, new properties need not be present, however, version 0 properties must be present due to backward compatibility.",
+  "type": "array",
+  "additionalItems": false,
+  "items": {
+    "type": "object",
+    "required": [
+      "hwpidVersions",
+      "routing",
+      "beaming",
+      "repeater",
+      "frcAggregation",
+      "iqarosCompatible",
+      "iqrfSensor",
+      "iqrfBinaryOutput",
+      "powerSupply"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "hwpidVersions": {
+        "type": "object",
+        "required": [
+          "min",
+          "max"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "min": {
+            "title": "Minimum revision version",
+            "description": "Minimum HWPID version the profile applies to.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "max": {
+            "title": "Maximum revision version",
+            "description": "Maximum HWPID version the profile applies to. Value -1 represents no maximum version.",
+            "type": "integer",
+            "minimum": -1
+          }
+        }
+      },
+      "routing": {
+        "title": "Routing device",
+        "description": "Device is capable of routing packets in network.",
+        "type": "boolean"
+      },
+      "beaming": {
+        "title": "Beaming device",
+        "description": "Device beams data in intervals and sleeps otherwise.",
+        "type": "boolean"
+      },
+      "repeater": {
+        "title": "Repeater device",
+        "description": "Device is a repeater.",
+        "type": "boolean"
+      },
+      "frcAggregation": {
+        "title": "FRC aggregation",
+        "description": "Device is capable of aggregating FRC data from other devices.",
+        "type": "boolean"
+      },
+      "iqarosCompatible": {
+        "title": "IQAROS compatible",
+        "description": "Device is compatible with the IQAROS system.",
+        "type": "boolean"
+      },
+      "iqrfSensor": {
+        "title": "Sensor standard",
+        "description": "Sensor standard capabilities implemented by the device.",
+        "type": "array",
+        "additionalItems": false,
+        "items": {
+          "title": "Sensor type",
+          "description": "Unique identifier of IQRF Sensor Standard quantity.",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 255
+        }
+      },
+      "iqrfBinaryOutput": {
+        "title": "Binary Output standard",
+        "description": "Number of binary outputs this device implements.",
+        "type": "integer",
+        "minimum": 0
+      },
+      "iqrfLight": {
+        "title": "Light standard",
+        "description": "Light standard capabilities implemented by the device.",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "title": "Interface type",
+            "description": "Light interface implemented by device.",
+            "type": "string",
+            "minLength": 1
+          },
+          "socketType": {
+            "title": "Socket type",
+            "description": "Socket type implemented by device.",
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "powerSupply": {
+        "title": "Power supply information",
+        "description": "Definition of power supply options of the device and spec.",
+        "type": "object",
+        "required": [
+          "mains",
+          "accumulator",
+          "battery",
+          "minVoltage"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "mains": {
+            "title": "Mains powered",
+            "description": "Power supplied by a main cable.",
+            "type": "boolean"
+          },
+          "accumulator": {
+            "title": "Accumulator properties",
+            "description": "Accumulator power supply spec.",
+            "type": "object",
+            "required": [
+              "present",
+              "type",
+              "lowLevel"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "present": {
+                "title": "Accumulator present",
+                "description": "Power supplied from an accumulator.",
+                "type": "boolean"
+              },
+              "type": {
+                "title": "Type of accumulator",
+                "description": "Accumulator type identifier.",
+                "oneOf": [
+                  { "type": "string" },
+                  { "type": "null" }
+                ]
+              },
+              "lowLevel": {
+                "title": "Low voltage",
+                "description": "Voltage (in V) threshold indicating a recharge is recommended.",
+                "oneOf": [
+                  { "type": "number" },
+                  { "type": "null" }
+                ]
+              }
+            }
+          },
+          "battery": {
+            "title": "Battery properties",
+            "description": "Battery power supply spec.",
+            "type": "object",
+            "required": [
+              "present",
+              "type",
+              "changeThreshold"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "present": {
+                "title": "Battery present",
+                "description": "Power supplied from a battery.",
+                "type": "boolean"
+              },
+              "type": {
+                "title": "Type of battery",
+                "description": "Battery type identifier.",
+                "oneOf": [
+                  { "type": "string" },
+                  { "type": "null" }
+                ]
+              },
+              "changeThreshold": {
+                "title": "Change threshold voltage",
+                "description": "Voltage (in V) threshold indicating a change of battery is recommended.",
+                "oneOf": [
+                  { "type": "number" },
+                  { "type": "null" }
+                ]
+              },
+              "conditioning": {
+                "title": "Battery conditioning",
+                "description": "Product periodically takes action to extend lifespan of battery.",
+                "type": "boolean"
+              }
+            }
+          },
+          "external": {
+            "title": "External power properties",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "External power supply type",
+                "description": "Type - DC, AC, ACDC.",
+                "type": "string",
+                "minLength": 1
+              },
+              "nominalVoltage": {
+                "title": "Nominal voltage",
+                "description": "Reference voltage level.",
+                "type": "number"
+              },
+              "minVoltage": {
+                "title": "Minimum voltage",
+                "description": "Minimum voltage delivery.",
+                "type": "number"
+              },
+              "maxVoltage": {
+                "title": "Maximum voltage",
+                "description": "Maximum voltage delivery.",
+                "type": "number"
+              }
+            }
+          },
+          "minVoltage": {
+            "title": "Minimum voltage",
+            "description": "Minimum voltage (in V) required for operation.",
+            "type": "number"
+          }
+        }
+      },
+      "minMaxDiag": {
+        "title": "MinMax measurement diagnostics",
+        "description": "Device can store historical minimum and maximum of quantity measurements and reset them.",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "title": "MinMax diagnostics version",
+            "description": "Diagnostics version, serves as an identifier for diagnostics spec.",
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "actionRecord": {
+        "title": "User actions",
+        "description": "Definition of available user actions.",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "memory": {
+            "title": "Memory information",
+            "description": "Memory type and location in memory.",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Memory type",
+                "description": "Type of memory quantity data is stored in, the value is the same as PNUM.",
+                "type": "integer"
+              },
+              "addr": {
+                "title": "Memory address",
+                "description": "Location in memory.",
+                "type": "integer",
+                "minimum": 0
+              },
+              "size": {
+                "title": "Size of allocated data block for actions.",
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "commands": {
+            "title": "Commands",
+            "description": "Definitions of commands.",
+            "type": "array",
+            "additionalItems": false,
+            "items": {
+              "title": "Command",
+              "description": "Command definition.",
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "value": {
+                  "title": "Command value",
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "text": {
+                  "title": "Command name",
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "persistentQuantities": {
+        "title": "Persistent quantity values.",
+        "description": "Values of IQRF standard quantities persisted in memory.",
+        "type": "array",
+        "additionalItems": false,
+        "items": {
+          "title": "Persistent quantity record.",
+          "description": "Definition of persistent quantity type, value and memory details.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "quantity": {
+              "title": "Quantity",
+              "description": "Identifier of a quantity, sensor type value is used for this purpose.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 255
+            },
+            "value": {
+              "title": "Value",
+              "description": "Persisted value (in accordance with the IQRF standard)",
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": {
+              "title": "Description",
+              "description": "Persistent quantity description and use case.",
+              "type": "string",
+              "minLength": 1
+            },
+            "memory": {
+              "title": "Memory type and location data",
+              "description": "Information about the type of memory and location in said memory for persistent quantity.",
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "title": "Memory type",
+                  "description": "Type of memory quantity data is stored in, the value is the same as PNUM.",
+                  "type": "integer"
+                },
+                "addr": {
+                  "title": "Memory address",
+                  "description": "Location of persistent quantity data in memory.",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "nfcc": {
+        "title": "NFC channel",
+        "description": "Device implements NFC communication channel.",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "title": "NFC channel version",
+            "description": "NFC communication channel version.",
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "mfgc": {
+        "title": "MFG channel",
+        "description": "Device implements test communication channel for production.",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "title": "MFG channel version.",
+            "description": "Version of test communication channel for production.",
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "calibration": {
+        "title": "Calibration data",
+        "description": "Device contains calibration data.",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "title": "Calibration version",
+            "description": "Calibration certificate version.",
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    }
+  }
+}

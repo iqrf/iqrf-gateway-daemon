@@ -1,76 +1,76 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "package.json",
-    "title": "Package schema",
-    "type": "object",
-    "required": [
-        "packageID",
-        "hwpid",
-        "hwpidVer",
-        "os",
-        "dpa",
-        "standards",
-        "handlerUrl",
-        "handlerHash",
-        "driver",
-        "notes"
-    ],
-    "additionalProperties": false,
-    "properties": {
-        "packageID": {
-            "title": "Package ID",
-            "type": "integer",
-            "minimum": 0
-        },
-        "hwpid": {
-            "title": "Hardware profile ID",
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 65535
-        },
-        "hwpidVer": {
-            "title": "Revision",
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 65535
-        },
-        "os": {
-            "title": "OS build",
-            "type": "string",
-            "format": "^[0-9a-fA-F]+$"
-        },
-        "dpa": {
-            "title": "DPA version",
-            "type": "string",
-            "format": "^[0-9a-fA-F]+$"
-        },
-        "standards": {
-            "type": "array",
-            "additionalItems": false,
-            "items": {
-                "$ref": "packageStandard.json"
-            }
-        },
-        "handlerUrl": {
-            "title": "Handler URL",
-            "type": "string"
-        },
-        "handlerHash": {
-            "title": "Handler hash",
-            "type": "string"
-        },
-        "driver": {
-            "title": "Product driver",
-            "type": "string"
-        },
-        "notes": {
-            "title": "Package notes",
-            "type": "string"
-        },
-        "rfMode": {
-            "title": "RF mode",
-            "type": "integer",
-            "minimum": 0
-        }
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "package.json",
+  "title": "Package schema",
+  "type": "object",
+  "required": [
+    "packageID",
+    "hwpid",
+    "hwpidVer",
+    "os",
+    "dpa",
+    "standards",
+    "handlerUrl",
+    "handlerHash",
+    "driver",
+    "notes"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "packageID": {
+      "title": "Package ID",
+      "type": "integer",
+      "minimum": 0
+    },
+    "hwpid": {
+      "title": "Hardware profile ID",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "hwpidVer": {
+      "title": "Revision",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "os": {
+      "title": "OS build",
+      "type": "string",
+      "format": "^[0-9a-fA-F]+$"
+    },
+    "dpa": {
+      "title": "DPA version",
+      "type": "string",
+      "format": "^[0-9a-fA-F]+$"
+    },
+    "standards": {
+      "type": "array",
+      "additionalItems": false,
+      "items": {
+        "$ref": "packageStandard.json"
+      }
+    },
+    "handlerUrl": {
+      "title": "Handler URL",
+      "type": "string"
+    },
+    "handlerHash": {
+      "title": "Handler hash",
+      "type": "string"
+    },
+    "driver": {
+      "title": "Product driver",
+      "type": "string"
+    },
+    "notes": {
+      "title": "Package notes",
+      "type": "string"
+    },
+    "rfMode": {
+      "title": "RF mode",
+      "type": "integer",
+      "minimum": 0
     }
+  }
 }
