@@ -24,9 +24,9 @@
 #include "rapidjson/document.h"
 #include "rapidjson/istreamwrapper.h"
 #include "rapidjson/stringbuffer.h"
-#include "rapidjson/prettywriter.h"
 #include "rapidjson/pointer.h"
 #include "rapidjson/schema.h"
+#include "rapidjson/writer.h"
 #include "Trace.h"
 
 #ifdef SHAPE_PLATFORM_WINDOWS
@@ -193,7 +193,7 @@ namespace iqrf {
       }
 
       StringBuffer buffer;
-      PrettyWriter<StringBuffer> writer(buffer);
+      Writer<StringBuffer> writer(buffer);
       doc.Accept(writer);
 
       // Send responses out
