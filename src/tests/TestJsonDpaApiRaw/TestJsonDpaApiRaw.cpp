@@ -219,14 +219,13 @@ namespace iqrf {
   TEST_F(JsonDpaApiRawTesting, iqrfEmbedCoordinator_AddrInfo)
   {
     //JSON message input (jmi) as received from a messaging
-    std::string jmoexp =
-      "{\n    \"mType\": \"iqrfRaw\",\n    \"data\": {\n        \"msgId\": \"async\",\n        \"rsp\": {\n            \"rData\": \"00.00.ff.3f.00.00.00.00.28.02.00.fd.26.00.00.00.00.00.00.01\"\n        },\n        \"status\": 0,\n        \"insId\": \"iqrfgd2-default\"\n    }\n}";
+    std::string jmoexp = R"({"mType":"iqrfRaw","data":{"msgId":"async","rsp":{"rData":"00.00.ff.3f.00.00.00.00.28.02.00.fd.26.00.00.00.00.00.00.01"},"status":0,"insId":"iqrfgd2-default"}})";
 
     //simulate async DPA response
     Imp::get().m_iTestSimulationIqrfChannel->pushOutgoingMessage("00.00.ff.3f.00.00.00.00.28.02.00.fd.26.00.00.00.00.00.00.01", 10);
 
     //expected JSON message output (jmo) as result of processing to be sent out by a messaging
-    std::string jmo = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
+    std::string jmo = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(MILLIS_WAIT);
 
     EXPECT_EQ(jmoexp, jmo);
 

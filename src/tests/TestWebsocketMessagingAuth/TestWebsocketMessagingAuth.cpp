@@ -733,18 +733,7 @@ namespace iqrf {
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     received = beast::buffers_to_string(buffer.data());
-    expected =
-R"({
-    "mType": "iqrfRaw",
-    "data": {
-        "msgId": "auth_success_test",
-        "rsp": {
-            "rData": "00.00.06.83.00.00.00.44"
-        },
-        "status": 0,
-        "insId": "iqrfgd2-default"
-    }
-})";
+    expected = R"({"mType":"iqrfRaw","data":{"msgId":"auth_success_test","rsp":{"rData":"00.00.06.83.00.00.00.44"},"status":0,"insId":"iqrfgd2-default"}})";
     EXPECT_EQ(expected, received);
   }
 
@@ -777,19 +766,7 @@ R"({
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     received = beast::buffers_to_string(buffer.data());
-    expected =
-R"({
-    "mType": "messageError",
-    "data": {
-        "msgId": "auth",
-        "rsp": {
-            "error": "Received a duplicate or unexpected auth message."
-        },
-        "status": 9,
-        "statusStr": "Unexpected auth message.",
-        "insId": "iqrfgd2-default"
-    }
-})";
+    expected = R"({"mType":"messageError","data":{"msgId":"auth","rsp":{"error":"Received a duplicate or unexpected auth message."},"status":9,"statusStr":"Unexpected auth message.","insId":"iqrfgd2-default"}})";
     EXPECT_EQ(expected, received);
   }
 
@@ -888,18 +865,7 @@ R"({
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     received = beast::buffers_to_string(buffer.data());
-    expected =
-R"({
-    "mType": "iqrfRaw",
-    "data": {
-        "msgId": "auth_success_test",
-        "rsp": {
-            "rData": "00.00.06.83.00.00.00.44"
-        },
-        "status": 0,
-        "insId": "iqrfgd2-default"
-    }
-})";
+    expected = R"({"mType":"iqrfRaw","data":{"msgId":"auth_success_test","rsp":{"rData":"00.00.06.83.00.00.00.44"},"status":0,"insId":"iqrfgd2-default"}})";
     EXPECT_EQ(expected, received);
     // clear buffer
     buffer.consume(buffer.size());
@@ -959,18 +925,7 @@ R"({
     ws.read(buffer, ec);
     ASSERT_FALSE(ec);
     auto received = beast::buffers_to_string(buffer.data());
-    std::string expected =
-R"({
-    "mType": "iqrfRaw",
-    "data": {
-        "msgId": "auth_success_test",
-        "rsp": {
-            "rData": "00.00.06.83.00.00.00.44"
-        },
-        "status": 0,
-        "insId": "iqrfgd2-default"
-    }
-})";
+    std::string expected = R"({"mType":"iqrfRaw","data":{"msgId":"auth_success_test","rsp":{"rData":"00.00.06.83.00.00.00.44"},"status":0,"insId":"iqrfgd2-default"}})";
     EXPECT_EQ(expected, received);
     // clear buffer
     buffer.consume(buffer.size());
@@ -1446,18 +1401,7 @@ R"({
     ws->read(buffer, ec);
     ASSERT_FALSE(ec);
     received = beast::buffers_to_string(buffer.data());
-    expected =
-R"({
-    "mType": "iqrfRaw",
-    "data": {
-        "msgId": "auth_success_test",
-        "rsp": {
-            "rData": "00.00.06.83.00.00.00.44"
-        },
-        "status": 0,
-        "insId": "iqrfgd2-default"
-    }
-})";
+    expected = R"({"mType":"iqrfRaw","data":{"msgId":"auth_success_test","rsp":{"rData":"00.00.06.83.00.00.00.44"},"status":0,"insId":"iqrfgd2-default"}})";
     EXPECT_EQ(expected, received);
   }
 
@@ -1490,19 +1434,7 @@ R"({
     ws->read(buffer, ec);
     ASSERT_FALSE(ec);
     received = beast::buffers_to_string(buffer.data());
-    expected =
-R"({
-    "mType": "messageError",
-    "data": {
-        "msgId": "auth",
-        "rsp": {
-            "error": "Received a duplicate or unexpected auth message."
-        },
-        "status": 9,
-        "statusStr": "Unexpected auth message.",
-        "insId": "iqrfgd2-default"
-    }
-})";
+    expected = R"({"mType":"messageError","data":{"msgId":"auth","rsp":{"error":"Received a duplicate or unexpected auth message."},"status":9,"statusStr":"Unexpected auth message.","insId":"iqrfgd2-default"}})";
     EXPECT_EQ(expected, received);
   }
 
@@ -1601,18 +1533,7 @@ R"({
     ws->read(buffer, ec);
     ASSERT_FALSE(ec);
     received = beast::buffers_to_string(buffer.data());
-    expected =
-R"({
-    "mType": "iqrfRaw",
-    "data": {
-        "msgId": "auth_success_test",
-        "rsp": {
-            "rData": "00.00.06.83.00.00.00.44"
-        },
-        "status": 0,
-        "insId": "iqrfgd2-default"
-    }
-})";
+    expected = R"({"mType":"iqrfRaw","data":{"msgId":"auth_success_test","rsp":{"rData":"00.00.06.83.00.00.00.44"},"status":0,"insId":"iqrfgd2-default"}})";
     EXPECT_EQ(expected, received);
     // clear buffer
     buffer.consume(buffer.size());
@@ -1672,18 +1593,7 @@ R"({
     ws->read(buffer, ec);
     ASSERT_FALSE(ec);
     auto received = beast::buffers_to_string(buffer.data());
-    std::string expected =
-R"({
-    "mType": "iqrfRaw",
-    "data": {
-        "msgId": "auth_success_test",
-        "rsp": {
-            "rData": "00.00.06.83.00.00.00.44"
-        },
-        "status": 0,
-        "insId": "iqrfgd2-default"
-    }
-})";
+    std::string expected = R"({"mType":"iqrfRaw","data":{"msgId":"auth_success_test","rsp":{"rData":"00.00.06.83.00.00.00.44"},"status":0,"insId":"iqrfgd2-default"}})";
     EXPECT_EQ(expected, received);
     // clear buffer
     buffer.consume(buffer.size());
