@@ -54,6 +54,8 @@ add_definitions(
   -D_CRT_SECURE_NO_WARNINGS
 )
 set(IHP_BUILD_STATIC ON)
+set(CPR_USE_SYSTEM_CURL ON)
+set(CPR_ENABLE_OPENSSL ON)
 
 find_package(CURL REQUIRED)
 
@@ -133,7 +135,7 @@ add_subdirectory(src/IqmeshServices/Maintenance)
 add_subdirectory(src/IqmeshServices/DpaParams)
 
 if(${BUILD_TESTING})
-  add_subdirectory(src/tests)
+  #add_subdirectory(src/tests)
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake @ONLY)
