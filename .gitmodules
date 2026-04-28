@@ -3,10 +3,10 @@
 	url = https://gitlab.iqrf.org/open-source/iqrf-sdk/clibdpa.git
 [submodule "libraries/clibcdc"]
 	path = libraries/clibcdc
-	url = https://github.com/iqrfsdk/clibcdc.git
+	url = https://gitlab.iqrf.org/open-source/iqrf-sdk/clibcdc.git
 [submodule "libraries/clibspi"]
 	path = libraries/clibspi
-	url = https://github.com/iqrfsdk/clibspi.git
+	url = https://gitlab.iqrf.org/open-source/iqrf-sdk/clibspi.git
 [submodule "libraries/clibuart"]
 	path = libraries/clibuart
 	url = https://gitlab.iqrf.org/open-source/iqrf-sdk/clibuart.git
