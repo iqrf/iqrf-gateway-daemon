@@ -18,4 +18,7 @@
 	{ name: 'ubuntu', version: 'noble', arch: 'amd64' },
 	{ name: 'ubuntu', version: 'noble', arch: 'arm64' },
 	{ name: 'ubuntu', version: 'noble', arch: 'armhf' },
+	{ name: 'ubuntu', version: 'resolute', arch: 'amd64' },
+	{ name: 'ubuntu', version: 'resolute', arch: 'arm64' },
+	{ name: 'ubuntu', version: 'resolute', arch: 'armhf' },
 ]
