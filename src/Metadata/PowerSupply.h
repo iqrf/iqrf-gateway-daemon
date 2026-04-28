@@ -90,7 +90,7 @@ namespace iqrf::metadata {
      *
      * @return External power information
      */
-    const std::optional<External> external() const { return external_; }
+    const std::optional<External>& external() const { return external_; }
 
     /**
      * Get minimum operating voltage
