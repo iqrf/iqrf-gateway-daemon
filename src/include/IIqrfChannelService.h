@@ -18,6 +18,7 @@
 
 #include "ShapeDefines.h"
 #include "EnumStringConvertor.h"
+#include <cstdint>
 #include <string>
 #include <functional>
 #include <memory>
