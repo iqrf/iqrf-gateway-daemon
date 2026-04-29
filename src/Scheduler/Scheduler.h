@@ -29,6 +29,7 @@
 #include <map>
 #include <memory>
 #include <regex>
+#include <random>
 #include <set>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -377,6 +378,6 @@ namespace iqrf {
 		/// Task ID pattern
 		const std::string TASK_FILE_PATTERN = "^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\\.json$";
 		/// UUID v4 generator
-		boost::uuids::basic_random_generator<boost::mt19937> m_uuidGenerator;
+		boost::uuids::basic_random_generator<std::mt19937> m_uuidGenerator;
 	};
 }
