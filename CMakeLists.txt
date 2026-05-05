@@ -1,5 +1,5 @@
-# Copyright 2015-2025 IQRF Tech s.r.o.
-# Copyright 2019-2025 MICRORISC s.r.o.
+# Copyright 2015-2026 IQRF Tech s.r.o.
+# Copyright 2019-2026 MICRORISC s.r.o.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS ON)
 
-set(PROJECT_VERSION "2.6.7-alpha")
+set(PROJECT_VERSION "2.6.7")
 if (DEFINED PIPELINE_ID AND NOT PIPELINE_ID STREQUAL "")
 	set(PROJECT_VERSION "${PROJECT_VERSION}~${PIPELINE_ID}")
 endif ()

@@ -1,10 +1,25 @@
-iqrf-gateway-daemon (2.6.7~alpha~1.gbp6059b0) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.6.7) stable; urgency=medium
 
-  ** SNAPSHOT build @6059b0317d3d25af8000997d6913e5d8aa0c9697 **
+  [ Karel Hanák ]
+  * Prepare for version 2.6.7-alpha
+  * jsonnet: removed ubuntu focal fossa
+  * added healthcheck for CI api testing
+  * use shape v1.0.0 and shapeware v1.2.0 tags
+  * updated submodules
+  * added ubuntu resolute to build distributions
+  * JsonSplitter: user Writer instead of PrettyWriter for JSON API responses
+  * updated submodule paths, clibuart tag
+  * Scheduler: use std library randomness engine for task IDs
+  * IIqrfChannelService: added missing cstdint include
+  * IJsCacheService: added missing cstdint include
 
-  * UNRELEASED
+  [ Roman Ondráček ]
+  * GitLab CI: fix Ubuntu debug symbols package renaming
+  * GitLab CI: fix character escaping
+  * GitLab CI: use Docker proxy for API testing DinD
+  * Debian packaging: add missing dependency on systemd-timesyncd
 
- -- Karel Hanák <karel.hanak@iqrf.org>  Thu, 10 Jul 2025 15:21:25 +0200
+ -- Karel Hanák <karel.hanak@iqrf.org>  Tue, 05 May 2026 21:58:46 +0200
 
 iqrf-gateway-daemon (2.6.6) stable; urgency=medium
 
